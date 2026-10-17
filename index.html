@@ -1,0 +1,1806 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Grande Filtro">
+<meta name="theme-color" content="#0c1822">
+<meta name="robots" content="noindex">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<style>html{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);background:#0f1d29;color-scheme:dark}body{margin:0;font-family:system-ui,-apple-system,sans-serif;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Grande Filtro</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Sala operativa in orizzontale: il planisfero occupa tutta la finestra, i comandi galleggiano negli angoli
+   come in Rebel Inc; menu, interventi e schede regione sono schermate a tutta finestra con il tempo fermo.
+   Un solo tema scuro, scelto di proposito: la mappa vive su un mare notturno. */
+:root {
+  --sea: #0c1822;
+  --bg: #0f1d29;
+  --panel: #152634;
+  --panel-2: #1c3142;
+  --panel-3: #23394b;
+  --line: #2b4356;
+  --fg: #e6edf2;
+  --muted: #8ea3b4;
+  --land: #3d5263;
+  --accent: #e9b44c;
+  --accent-ink: #1a1408;
+  --good: #4fae8e;
+  --warn: #e3a33f;
+  --bad: #d65b4a;
+  --info: #6fb0d8;
+  --font-d: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --font-b: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-m: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --gl: max(10px, env(safe-area-inset-left, 0px));
+  --gr: max(10px, env(safe-area-inset-right, 0px));
+  color-scheme: dark;
+}
+[hidden] { display: none !important; }
+html { box-sizing: border-box; height: 100%; }
+body { height: 100%; margin: 0; position: relative; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-b); font-size: 13px; overflow: hidden; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.app { position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--sea); }
+.app.turned { position: absolute; top: 0; left: 0; transform-origin: 0 0; }
+
+/* mappa a tutta finestra */
+#map { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.reg path.shape { stroke: var(--sea); stroke-width: .6; transition: fill .6s; cursor: pointer; }
+.reg.sel path.shape { stroke: var(--accent); stroke-width: 1.5; }
+.reg.lost path.shape { fill: url(#hatch) !important; }
+.picking .reg:hover path.shape { stroke: var(--accent); stroke-width: 1; }
+.lbl text { font-family: var(--font-d); font-weight: 600; font-size: 8.5px; fill: var(--fg); paint-order: stroke; stroke: rgba(8,16,22,.85); stroke-width: 2.4px; letter-spacing: .03em; pointer-events: none; }
+.lbl .base { fill: var(--accent); }
+.lbl g { pointer-events: none; }
+.grat { fill: none; stroke: #1d3242; stroke-width: .5; }
+.grat.eq { stroke: #27445a; stroke-dasharray: 2 2; }
+.gratlbl { font-family: var(--font-m); font-size: 4.6px; fill: #3f5d73; }
+
+/* comandi galleggianti */
+.hud { position: absolute; z-index: 2; display: flex; gap: 6px; align-items: flex-start; }
+.chip { background: rgba(21,38,52,.93); border: 1px solid var(--line); border-radius: 8px; padding: 5px 9px; display: flex; flex-direction: column; line-height: 1.1; }
+.chip .k { font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.chip .v { font-family: var(--font-m); font-variant-numeric: tabular-nums; font-size: 13px; white-space: nowrap; }
+.chip .v small { font-size: 10px; color: var(--muted); }
+.tl { top: max(8px, env(safe-area-inset-top, 0px)); left: var(--gl); flex-wrap: wrap; max-width: 46%; }
+.tr { top: max(8px, env(safe-area-inset-top, 0px)); right: var(--gr); }
+.datebox { background: rgba(21,38,52,.93); border: 1px solid var(--line); border-radius: 8px; padding: 4px 6px 4px 12px; display: flex; align-items: center; gap: 8px; }
+.datebox .d { font-family: var(--font-d); font-weight: 600; font-size: 21px; letter-spacing: .04em; min-width: 82px; }
+.speed { display: flex; gap: 3px; }
+.speed button { background: var(--panel-2); border: 1px solid var(--line); border-radius: 6px; min-width: 34px; height: 30px; font-family: var(--font-m); font-size: 12px; }
+.speed button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.viewbtn { position: absolute; z-index: 2; left: var(--gl); top: 64px; background: rgba(21,38,52,.93); border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; font-size: 12px; color: var(--muted); }
+.viewbtn b { color: var(--fg); font-weight: 500; }
+.views { position: absolute; z-index: 4; left: var(--gl); top: 94px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 4px; display: flex; flex-direction: column; min-width: 170px; }
+.views button { background: none; border: 0; text-align: left; padding: 7px 10px; border-radius: 6px; font-size: 13px; }
+.views button[aria-pressed="true"] { background: var(--panel-2); color: var(--accent); }
+.legend { position: absolute; z-index: 2; right: var(--gr); top: 52px; background: rgba(21,38,52,.93); border: 1px solid var(--line); border-radius: 8px; padding: 4px 8px; font-size: 10.5px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.legend .bar { width: 84px; height: 7px; border-radius: 4px; }
+.ticker { position: absolute; z-index: 2; left: 50%; transform: translateX(-50%); bottom: 66px; max-width: min(48%, 420px); background: rgba(21,38,52,.88); border: 1px solid var(--line); border-radius: 999px; padding: 3px 12px; font-size: 11.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ticker b { color: var(--fg); font-weight: 500; }
+
+/* barra in basso, come in Rebel Inc: fondi e interventi a sinistra, regione al centro, mondo a destra */
+.bottom { position: absolute; z-index: 2; left: var(--gl); right: var(--gr); bottom: max(8px, env(safe-area-inset-bottom, 0px)); display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 8px; align-items: end; pointer-events: none; }
+.bottom > * { pointer-events: auto; }
+.opbox { display: flex; align-items: stretch; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.opbox .funds { padding: 5px 10px; display: flex; flex-direction: column; justify-content: center; line-height: 1.05; }
+.opbox .funds .k { font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.opbox .funds .v { font-family: var(--font-m); font-size: 17px; color: var(--accent); }
+.opbox .funds small { font-family: var(--font-m); font-size: 10px; color: var(--muted); }
+.opbox button { background: var(--accent); color: var(--accent-ink); border: 0; font-family: var(--font-d); font-weight: 700; font-size: 17px; letter-spacing: .05em; text-transform: uppercase; padding: 0 16px; }
+.regstrip { justify-self: center; width: min(100%, 420px); background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 6px 10px; text-align: left; display: grid; grid-template-columns: 6px minmax(0, 1fr) auto; gap: 2px 8px; align-items: center; }
+.regstrip .stripe { grid-row: 1 / span 2; align-self: stretch; border-radius: 3px; background: var(--land); }
+.regstrip .nm { font-family: var(--font-d); font-weight: 600; font-size: 17px; letter-spacing: .03em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.regstrip .st { font-size: 11.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; grid-column: 2; }
+.regstrip .go { grid-row: 1 / span 2; grid-column: 3; font-size: 11px; color: var(--muted); }
+.worldbtn { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; font-family: var(--font-d); font-weight: 700; font-size: 17px; letter-spacing: .05em; text-transform: uppercase; padding: 10px 16px; }
+
+/* schermate a tutta finestra */
+.screen { position: absolute; inset: 0; z-index: 10; background: var(--bg); display: flex; flex-direction: column; }
+.screen .head { display: flex; align-items: center; gap: 10px; padding-block: 6px; padding-left: var(--gl); padding-right: var(--gr); border-bottom: 1px solid var(--line); background: var(--panel); padding-top: max(6px, env(safe-area-inset-top, 0px)); }
+.screen .head h2 { margin: 0; font-family: var(--font-d); font-size: 20px; letter-spacing: .04em; }
+.back, .x { background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; min-width: 38px; height: 34px; font-size: 18px; line-height: 1; }
+.paused { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+.tabs { display: flex; gap: 2px; overflow-x: auto; flex: 1; min-width: 0; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tabs button { flex: none; background: none; border: 1px solid transparent; border-radius: 8px; padding: 6px 10px; display: inline-flex; gap: 6px; align-items: center; color: var(--muted); font-family: var(--font-d); font-weight: 600; font-size: 16px; letter-spacing: .03em; }
+.tabs button svg { width: 15px; height: 15px; }
+.tabs button[aria-pressed="true"] { color: var(--fg); background: var(--panel-3); border-color: var(--line); }
+
+/* albero degli interventi: esagoni grandi con il nome dentro, come in Rebel Inc */
+.acts { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, 32%); }
+.treebox { position: relative; min-width: 0; min-height: 0; background: radial-gradient(ellipse at 40% 45%, #1a3445 0%, var(--sea) 78%); }
+#tree { position: absolute; inset: 6px; width: calc(100% - 12px); height: calc(100% - 12px); }
+.node { cursor: pointer; }
+.node .hex { fill: #1f394b; stroke: #3b5a72; stroke-width: 2; }
+.node.avail .hex { fill: #27485f; stroke: #5a83a3; }
+.node.active .hex { fill: #2f7a5f; stroke: #8fe0bf; }
+.node.locked .hex { fill: #172b39; stroke: #2b4356; }
+.node.locked .nl, .node.locked use { opacity: .45; }
+.node.sel .hex { stroke: var(--accent); stroke-width: 3.5; }
+.node .nl { font-family: var(--font-d); font-weight: 600; font-size: 13px; fill: var(--fg); text-anchor: middle; pointer-events: none; letter-spacing: .02em; }
+.node .cnt { font-family: var(--font-m); font-size: 11px; fill: var(--accent); font-weight: 500; text-anchor: middle; }
+.edge { stroke: #2f4b61; stroke-width: 7; stroke-linecap: round; fill: none; }
+.edge.on { stroke: #3f9a78; }
+.detail { border-left: 1px solid var(--line); background: var(--panel); display: flex; flex-direction: column; min-height: 0; }
+.detail .scroll { flex: 1; overflow-y: auto; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+.detail h3 { margin: 0; font-family: var(--font-d); font-size: 21px; font-weight: 600; letter-spacing: .02em; line-height: 1.1; }
+.detail .meta { font-family: var(--font-m); font-size: 11px; color: var(--muted); }
+.detail p { margin: 0; font-size: 13px; line-height: 1.4; }
+.detail .pro b { color: var(--good); }
+.detail .con b { color: var(--bad); }
+.detail .state { font-size: 11.5px; color: var(--info); }
+.detail .why { font-size: 11.5px; color: var(--muted); }
+.regsel { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
+select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--line); border-radius: 8px; padding: 5px 6px; font: inherit; font-size: 12.5px; min-width: 0; flex: 1; }
+.buy { margin: 0 12px 10px; background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 8px; padding: 10px; font-family: var(--font-d); font-weight: 700; font-size: 18px; letter-spacing: .05em; text-transform: uppercase; }
+.buy:disabled { background: var(--panel-3); color: var(--muted); cursor: not-allowed; }
+.buy.alt { background: var(--panel-2); color: var(--fg); border: 1px solid var(--line); font-size: 14px; padding: 7px; }
+.foot { display: flex; align-items: center; gap: 14px; padding-block: 6px; padding-left: var(--gl); padding-right: var(--gr); border-top: 1px solid var(--line); background: var(--panel); padding-bottom: max(6px, env(safe-area-inset-bottom, 0px)); font-size: 12px; color: var(--muted); }
+.foot b { font-family: var(--font-m); color: var(--accent); font-size: 15px; font-weight: 500; }
+.foot .lg { display: flex; gap: 10px; flex-wrap: wrap; margin-left: auto; }
+.foot .lg span { display: inline-flex; align-items: center; gap: 4px; }
+.foot .lg i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+
+/* scheda regione e mondo */
+.cols { flex: 1; min-height: 0; overflow-y: auto; padding: 12px; padding-left: var(--gl); padding-right: var(--gr); display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; align-content: start; }
+.sec h3 { margin: 0 0 6px; font-family: var(--font-d); font-size: 15px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.meters { display: grid; grid-template-columns: auto 1fr auto; gap: 5px 10px; align-items: center; font-size: 12.5px; }
+.meters .k { color: var(--muted); }
+.meter { height: 7px; background: var(--panel-2); border-radius: 4px; overflow: hidden; }
+.meter i { display: block; height: 100%; border-radius: 4px; }
+.meters .v { font-family: var(--font-m); font-variant-numeric: tabular-nums; text-align: right; }
+.note { font-size: 12px; color: var(--muted); line-height: 1.45; margin: 8px 0 0; }
+.tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.tag { display: inline-flex; align-items: center; gap: 4px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px 2px 4px; font-size: 11px; }
+.tag svg { width: 13px; height: 13px; }
+.tag.sp { opacity: .75; border-style: dashed; }
+.check { display: grid; grid-template-columns: 16px 1fr; gap: 1px 8px; padding: 5px 0; font-size: 12.5px; border-bottom: 1px solid var(--line); }
+.check .dot { width: 11px; height: 11px; border-radius: 50%; margin-top: 3px; background: var(--bad); }
+.check.ok .dot { background: var(--good); }
+.check .val { grid-column: 2; font-family: var(--font-m); font-size: 11px; color: var(--muted); }
+.years { display: flex; gap: 3px; margin: 4px 0 6px; }
+.years i { flex: 1; height: 9px; border-radius: 2px; background: var(--panel-2); border: 1px solid var(--line); }
+.years i.on { background: var(--good); border-color: var(--good); }
+.risk { display: grid; grid-template-columns: 1fr auto; gap: 3px; padding: 5px 0; border-bottom: 1px solid var(--line); font-size: 12.5px; }
+.risk .lv { display: flex; gap: 2px; grid-column: 1 / -1; }
+.risk .lv i { flex: 1; height: 5px; border-radius: 2px; background: var(--panel-2); }
+.kv { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; font-size: 12.5px; }
+.kv span:nth-child(even) { font-family: var(--font-m); font-variant-numeric: tabular-nums; text-align: right; }
+.axis { margin-top: 8px; font-size: 11.5px; color: var(--muted); }
+.axis .track { position: relative; height: 6px; background: var(--panel-2); border-radius: 3px; margin: 6px 0 2px; }
+.axis .track i { position: absolute; top: -3px; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); transform: translateX(-50%); }
+.axis .ends { display: flex; justify-content: space-between; gap: 8px; }
+.log { list-style: none; padding: 0; margin: 0; font-size: 12.5px; }
+.log li { padding: 4px 0; border-bottom: 1px solid var(--line); display: grid; grid-template-columns: 58px 1fr; gap: 8px; }
+.log time { font-family: var(--font-m); font-size: 11px; color: var(--muted); }
+.log .bad { color: #f0a597; }
+.log .done { color: #9fd6c2; }
+
+/* evento */
+.modal { position: absolute; inset: 0; z-index: 30; background: rgba(5,10,14,.72); display: flex; align-items: center; justify-content: center; padding: 10px; padding-left: var(--gl); padding-right: var(--gr); }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; width: min(720px, 100%); max-height: 100%; overflow-y: auto; padding: 14px 16px; }
+.card .eyebrow { font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+.card h2 { font-family: var(--font-d); font-size: 26px; line-height: 1.05; margin: 2px 0 6px; letter-spacing: .02em; text-wrap: balance; }
+.card p { margin: 0 0 10px; line-height: 1.45; color: #cbd6df; font-size: 13px; }
+.choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; }
+.choice { text-align: left; background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 9px 11px; display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; align-content: start; }
+.choice:hover:not(:disabled) { border-color: var(--accent); }
+.choice:disabled { opacity: .45; cursor: not-allowed; }
+.choice b { font-weight: 600; font-size: 13px; }
+.choice .c { font-family: var(--font-m); color: var(--accent); font-size: 12px; }
+.choice small { grid-column: 1 / -1; color: var(--muted); font-size: 12px; line-height: 1.3; }
+
+/* menu iniziale */
+.menu { position: absolute; inset: 0; z-index: 8; display: flex; align-items: center; justify-content: center; background: linear-gradient(90deg, rgba(8,16,22,.92) 0%, rgba(8,16,22,.55) 55%, rgba(8,16,22,.2) 100%); padding-left: var(--gl); padding-right: var(--gr); }
+.menu .in { width: min(880px, 100%); max-height: 100%; display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, 300px); gap: 24px; align-items: center; padding-block: 12px; }
+.logo h1 { font-family: var(--font-d); font-weight: 700; font-size: clamp(34px, 11vmin, 64px); letter-spacing: .12em; text-transform: uppercase; margin: 0; color: var(--accent); line-height: .95; }
+.logo .sub { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-top: 6px; }
+.menu .btns { display: flex; flex-direction: column; gap: 10px; }
+.mbtn { background: #e8dfcc; color: #2b2214; border: 0; border-radius: 4px; padding: 11px 16px; font-family: var(--font-d); font-weight: 600; font-size: 21px; letter-spacing: .04em; box-shadow: 0 3px 0 #9c8a66; }
+.mbtn:active { transform: translateY(2px); box-shadow: 0 1px 0 #9c8a66; }
+.mbtn:disabled { opacity: .5; cursor: not-allowed; }
+.panelscreen { position: absolute; inset: 0; z-index: 9; background: rgba(8,16,22,.94); display: flex; flex-direction: column; }
+.panelscreen .body { flex: 1; min-height: 0; overflow-y: auto; padding: 12px; padding-left: var(--gl); padding-right: var(--gr); }
+.howto { max-width: 66ch; margin: 0 auto; font-size: 13.5px; line-height: 1.55; color: #cbd6df; }
+.howto h3 { font-family: var(--font-d); font-size: 17px; letter-spacing: .04em; color: var(--fg); margin: 14px 0 4px; }
+.howto p { margin: 0 0 8px; }
+.diffs { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; max-width: 900px; margin: 0 auto; }
+.diff { text-align: left; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+.diff[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.diff b { font-family: var(--font-d); font-size: 21px; letter-spacing: .03em; }
+.diff span { font-size: 12.5px; color: var(--muted); line-height: 1.4; }
+.diff .pips { display: flex; gap: 3px; }
+.diff .pips i { width: 14px; height: 5px; border-radius: 2px; background: var(--panel-3); }
+.pickbar { position: absolute; z-index: 9; left: 50%; transform: translateX(-50%); bottom: max(10px, env(safe-area-inset-bottom, 0px)); width: min(560px, calc(100% - 20px)); background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 8px 10px; display: flex; align-items: center; gap: 10px; }
+.pickbar .t { flex: 1; min-width: 0; font-size: 12.5px; color: var(--muted); line-height: 1.35; }
+.pickbar .t b { display: block; color: var(--fg); font-family: var(--font-d); font-size: 18px; font-weight: 600; letter-spacing: .03em; }
+.pickbar .mbtn { font-size: 17px; padding: 8px 14px; }
+
+@media (prefers-reduced-motion: reduce) { .reg path.shape { transition: none; } }
+.compact .chip { padding: 3px 7px; } .compact .chip .v { font-size: 12px; }
+.compact .datebox .d { font-size: 18px; min-width: 70px; } .compact .speed button { height: 26px; min-width: 30px; }
+.compact .viewbtn { top: 50px; } .compact .views { top: 78px; }
+.compact .bottom { bottom: 6px; }
+.compact .legend { top: 44px; } .compact .ticker { bottom: 58px; }
+.compact .opbox .funds .v { font-size: 15px; } .compact .opbox button, .compact .worldbtn { font-size: 15px; } .compact .worldbtn { padding: 8px 12px; }
+.compact .regstrip { padding: 4px 8px; } .compact .regstrip .nm { font-size: 15px; }
+.compact .tabs button { font-size: 15px; padding: 5px 8px; }
+.narrow .ticker { display: none; } .narrow .tl { max-width: 52%; }
+.sound { background: rgba(21,38,52,.93); border: 1px solid var(--line); border-radius: 8px; width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; color: var(--muted); padding: 0; }
+.sound svg { width: 18px; height: 18px; }
+.sound[aria-pressed="true"] { color: var(--accent); }
+.menu .sound { position: absolute; top: 10px; right: var(--gr); }
+</style>
+
+<div class="app" id="app">
+  <svg id="map" viewBox="-276 -128 552 230" preserveAspectRatio="xMidYMid meet" aria-label="Planisfero a proiezione equivalente">
+    <defs>
+      <pattern id="hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+        <rect width="4" height="4" fill="#2a1d1d"></rect><line x1="0" y1="0" x2="0" y2="4" stroke="#6b3a34" stroke-width="1.6"></line>
+      </pattern>
+      <clipPath id="earth"><path id="outlinePath"></path></clipPath>
+      <symbol id="i-energia" viewBox="0 0 10 10"><path d="M6 0 1.5 5.6H5L4 10l4.5-5.6H5z" fill="currentColor"/></symbol>
+      <symbol id="i-nucleare" viewBox="0 0 10 10"><circle cx="5" cy="5" r="1.2" fill="currentColor"/><ellipse cx="5" cy="5" rx="4.4" ry="1.7" fill="none" stroke="currentColor" stroke-width=".9"/><ellipse cx="5" cy="5" rx="4.4" ry="1.7" fill="none" stroke="currentColor" stroke-width=".9" transform="rotate(60 5 5)"/><ellipse cx="5" cy="5" rx="4.4" ry="1.7" fill="none" stroke="currentColor" stroke-width=".9" transform="rotate(-60 5 5)"/></symbol>
+      <symbol id="i-economia" viewBox="0 0 10 10"><rect x="1" y="5" width="2" height="4" fill="currentColor"/><rect x="4" y="3" width="2" height="6" fill="currentColor"/><rect x="7" y="1" width="2" height="8" fill="currentColor"/></symbol>
+      <symbol id="i-demografia" viewBox="0 0 10 10"><circle cx="5" cy="2.6" r="2" fill="currentColor"/><path d="M1.5 10c0-3 1.6-4.8 3.5-4.8S8.5 7 8.5 10z" fill="currentColor"/></symbol>
+      <symbol id="i-societa" viewBox="0 0 10 10"><path d="M5 0.5 0.5 3h9z" fill="currentColor"/><rect x="1.5" y="3.8" width="1.4" height="4.4" fill="currentColor"/><rect x="4.3" y="3.8" width="1.4" height="4.4" fill="currentColor"/><rect x="7.1" y="3.8" width="1.4" height="4.4" fill="currentColor"/><rect x="0.5" y="8.6" width="9" height="1.2" fill="currentColor"/></symbol>
+      <symbol id="i-clima" viewBox="0 0 10 10"><path d="M9 1C3 1 1 4 1 7.5c0 .7.1 1.2.3 1.6C2 6 4 4.2 7 3.3 4.5 4.6 2.8 6.5 2 9.3c.6.4 1.4.6 2.3.6C8 9.9 9 5.5 9 1z" fill="currentColor"/></symbol>
+      <symbol id="i-salute" viewBox="0 0 10 10"><path d="M3.8.8h2.4v3h3v2.4h-3v3H3.8v-3h-3V3.8h3z" fill="currentColor"/></symbol>
+      <symbol id="i-sicurezza" viewBox="0 0 10 10"><path d="M5 .4 9 2v3c0 2.5-1.8 4-4 4.6C2.8 9 1 7.5 1 5V2z" fill="currentColor"/></symbol>
+      <symbol id="i-ai" viewBox="0 0 10 10"><rect x="2.3" y="2.3" width="5.4" height="5.4" rx=".8" fill="currentColor"/><path d="M3.5 0v2M6.5 0v2M3.5 8v2M6.5 8v2M0 3.5h2M0 6.5h2M8 3.5h2M8 6.5h2" stroke="currentColor" stroke-width="1"/></symbol>
+      <symbol id="i-spazio" viewBox="0 0 10 10"><path d="M5 .3c1.8 1.4 2.6 3.4 2.4 5.6L8.8 8H6.4L5 9.6 3.6 8H1.2l1.4-2.1C2.4 3.7 3.2 1.7 5 .3z" fill="currentColor"/><circle cx="5" cy="4.2" r="1" fill="#152634"/></symbol>
+      <symbol id="i-lock" viewBox="0 0 10 10"><rect x="2" y="4.5" width="6" height="5" rx="1" fill="currentColor"/><path d="M3.3 4.5V3.2a1.7 1.7 0 0 1 3.4 0v1.3" fill="none" stroke="currentColor" stroke-width="1.1"/></symbol>
+    </defs>
+    <rect x="-276" y="-140" width="552" height="260" fill="var(--sea)"></rect>
+    <g clip-path="url(#earth)">
+      <path id="oceanFill" fill="#11222f"></path>
+      <g id="grat"></g>
+      <g id="regions"></g>
+    </g>
+    <path id="outlineStroke" fill="none" stroke="#2b4356" stroke-width=".8"></path>
+    <g id="gratlbls"></g>
+    <g id="labels"></g>
+  </svg>
+
+  <div id="hud" hidden>
+    <div class="hud tl">
+      <button type="button" class="sound" data-sound aria-label="Musica" aria-pressed="true"></button>
+      <div class="chip"><span class="k">Temperatura</span><span class="v" id="sTemp">+1,35 °C</span></div>
+      <div class="chip"><span class="k">Popolazione</span><span class="v" id="sPop">8,26 mld</span></div>
+      <div class="chip"><span class="k">Stabilità</span><span class="v" id="sStable">0 / 10 anni</span></div>
+    </div>
+    <div class="hud tr">
+      <div class="datebox"><span class="d" id="sDate">gen 2026</span>
+        <div class="speed" role="group" aria-label="Velocità del tempo">
+          <button type="button" data-s="0" aria-label="Pausa">II</button>
+          <button type="button" data-s="1" aria-label="Velocità normale">1×</button>
+          <button type="button" data-s="2" aria-label="Velocità doppia">2×</button>
+          <button type="button" data-s="4" aria-label="Velocità quadrupla">4×</button>
+        </div>
+      </div>
+    </div>
+    <button type="button" class="viewbtn" id="viewBtn">Vista: <b id="viewName">Malcontento</b> ▾</button>
+    <div class="views" id="views" hidden></div>
+    <div class="legend" id="legend"><span id="legLo"></span><span class="bar" id="legBar"></span><span id="legHi"></span></div>
+    <div class="ticker" id="ticker" aria-live="polite"></div>
+    <div class="bottom">
+      <div class="opbox">
+        <div class="funds"><span class="k">Fondi</span><span class="v" id="sFunds">20</span><small id="sNet">+6,0/anno</small></div>
+        <button type="button" id="bActs">Interventi</button>
+      </div>
+      <button type="button" class="regstrip" id="regStrip"></button>
+      <button type="button" class="worldbtn" id="bWorld">Mondo</button>
+    </div>
+  </div>
+
+  <div class="menu" id="menuTitle">
+    <button type="button" class="sound" data-sound aria-label="Musica" aria-pressed="true"></button>
+    <div class="in">
+      <div class="logo"><h1>Grande<br>Filtro</h1><div class="sub">Fase 1 · Terra · prototipo</div></div>
+      <div class="btns">
+        <button type="button" class="mbtn" id="mPlay">Gioca</button>
+        <button type="button" class="mbtn" id="mHow">Come si gioca</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panelscreen" id="menuHow" hidden>
+    <div class="head screen-head" style="display:flex;align-items:center;gap:10px;padding:6px var(--gr) 6px var(--gl);border-bottom:1px solid var(--line);background:var(--panel)"><button type="button" class="back" data-back="title" aria-label="Indietro">‹</button><h2 style="margin:0;font-family:var(--font-d);font-size:20px;letter-spacing:.04em">Come si gioca</h2></div>
+    <div class="body"><div class="howto">
+      <p>Il pianeta affronta una crisi su molti fronti: debito, invecchiamento, clima, tensioni tra potenze, tecnologie sempre più potenti. Dopo lunghe trattative le nazioni hanno istituito un'Autorità sovranazionale e accettano di eseguirne gli ordini. Tu sei l'Autorità.</p>
+      <h3>Obiettivo</h3>
+      <p>Vinci quando la Terra resta stabile per 10 anni di fila: malcontento contenuto, debiti sostenibili, welfare finanziabile, emissioni dimezzate e rischi bassi. Le condizioni sono nella schermata Mondo.</p>
+      <h3>Sconfitta</h3>
+      <p>Perdi se più di metà delle regioni cade nell'anarchia, oppure se l'umanità non supera uno dei filtri: guerra nucleare, intelligenza artificiale fuori controllo, pandemia ingegnerizzata, collasso climatico.</p>
+      <h3>Interventi</h3>
+      <p>Con i fondi avvii interventi che valgono per tutto il mondo; ogni regione ne risente in base alle sue condizioni. Sono organizzati ad albero: alcuni si sbloccano solo dopo averne completato un altro. Molti richiedono anni per entrare in funzione.</p>
+      <h3>Eventi</h3>
+      <p>Crisi ed emergenze ti chiedono di scegliere tra intervento pieno, una via di mezzo o non fare nulla. Il tempo si ferma finché non decidi, e si ferma anche quando apri un menu.</p>
+    </div></div>
+  </div>
+
+  <div class="panelscreen" id="menuDiff" hidden>
+    <div style="display:flex;align-items:center;gap:10px;padding:6px var(--gr) 6px var(--gl);border-bottom:1px solid var(--line);background:var(--panel)"><button type="button" class="back" data-back="title" aria-label="Indietro">‹</button><h2 style="margin:0;font-family:var(--font-d);font-size:20px;letter-spacing:.04em;flex:1">Scegli la difficoltà</h2><button type="button" class="mbtn" id="mNext" style="font-size:17px;padding:7px 14px">Inizia</button></div>
+    <div class="body"><div class="diffs" id="diffs"></div></div>
+  </div>
+
+  <div class="screen" id="scrActs" hidden></div>
+  <div class="screen" id="scrReg" hidden></div>
+  <div class="screen" id="scrWorld" hidden></div>
+  <div class="modal" id="modal" hidden><div class="card" id="modalCard"></div></div>
+</div>
+
+<script>
+/* Grande Filtro — Fase 1 (Terra). Motore di simulazione, senza interfaccia.
+   Tutti i numeri sono una prima proposta da bilanciare nei test. */
+"use strict";
+
+/* ---------- casualità riproducibile ---------- */
+let _seed = (Date.now() % 2147483647) | 0;
+function setSeed(s) { _seed = s | 0; }
+function rand() { // mulberry32
+  _seed = (_seed + 0x6D2B79F5) | 0;
+  let t = _seed;
+  t = Math.imul(t ^ (t >>> 15), t | 1);
+  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+}
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const pick = (arr) => arr[Math.floor(rand() * arr.length)];
+
+/* ---------- difficoltà ---------- */
+const DIFF = {
+  facile:    { name: "Facile",          inc: 1.35, ev: 0.7, funds: 25, risk: 0.7 },
+  medio:     { name: "Medio",           inc: 1.0,  ev: 1.0, funds: 20, risk: 1.0 },
+  difficile: { name: "Difficile",       inc: 0.85, ev: 1.2, funds: 16, risk: 1.25 },
+  super:     { name: "Super difficile", inc: 0.7,  ev: 1.4, funds: 12, risk: 1.5 },
+};
+
+/* ---------- regioni: valori iniziali approssimati (medie di regione, 2026) ----------
+   pop milioni · tfr figli per donna · age età mediana · wealth indice 0-100 · debt % PIL
+   pension peso del welfare 0-100 · unrest/polar 0-100 · unemp % · fossil/nuclear/renew % energia
+   climate esposizione 0-100 · resist opposizione al nucleare 0-100 · links collegamenti 0-100 */
+const REGIONS = [
+  { id: "na", name: "Nord America", short: "Nord America", links: 95, nb: ["latam", "ru"], label: [-100, 47],
+    init: { pop: 380, tfr: 1.6, age: 38, wealth: 90, debt: 115, pension: 55, unrest: 35, polar: 70, unemp: 4.5, fossil: 78, nuclear: 9, renew: 13, climate: 40, resist: 45, urban: 83, rural: 15, remote: 2 },
+    polys: [
+      [[-168,66],[-162,70],[-141,70],[-128,70],[-110,72],[-95,71],[-85,69],[-80,72],[-65,62],[-60,56],[-55,52],[-60,47],[-67,44],[-70,41],[-76,35],[-81,31],[-80,25.5],[-82,27],[-85,30],[-90,29],[-97,26],[-104,29],[-108,31.5],[-114,32.5],[-117,32.5],[-120,34],[-124,40],[-124,47],[-130,54],[-140,60],[-150,60],[-158,57],[-165,61]],
+      [[-50,60],[-42,60],[-20,70],[-18,80],[-35,83],[-60,82],[-70,77],[-55,70]],
+      [[-120,70],[-80,73],[-75,80],[-95,82],[-120,77]],
+    ] },
+  { id: "latam", name: "America Latina", short: "America Latina", links: 55, nb: ["na"], label: [-60, -12],
+    init: { pop: 660, tfr: 1.8, age: 31, wealth: 45, debt: 70, pension: 35, unrest: 45, polar: 55, unemp: 7, fossil: 66, nuclear: 1, renew: 33, climate: 55, resist: 50, urban: 81, rural: 17, remote: 2 },
+    polys: [
+      [[-117,32.5],[-114,32.5],[-108,31.5],[-104,29],[-97,26],[-97,22],[-95,19],[-90,21],[-87,21],[-88,16],[-84,15],[-83,10],[-79,9],[-77,8],[-75,11],[-72,12],[-64,10.5],[-60,8],[-52,5],[-50,0],[-44,-2],[-35,-5],[-35,-9],[-39,-15],[-41,-22],[-48,-26],[-53,-34],[-58,-38],[-62,-39],[-65,-45],[-68,-50],[-69,-55],[-73,-53],[-75,-46],[-73,-37],[-71,-30],[-70,-18],[-76,-14],[-81,-5],[-80,0],[-78,3],[-78,7],[-82,8],[-86,12],[-92,14.5],[-97,16],[-105,20],[-106,23],[-112,29]],
+      [[-85,22],[-80,23],[-74,20],[-78,20]],
+    ] },
+  { id: "eu", name: "Europa", short: "Europa", links: 95, nb: ["ru", "mena"], label: [16, 50],
+    init: { pop: 600, tfr: 1.45, age: 43, wealth: 80, debt: 90, pension: 70, unrest: 40, polar: 55, unemp: 6.5, fossil: 68, nuclear: 11, renew: 21, climate: 35, resist: 55, urban: 75, rural: 23, remote: 2 },
+    polys: [
+      [[-9,43],[-9,37],[-6,36],[-2,37],[0,39],[3,42],[3,43.3],[7,43.5],[10,44],[12,42],[16,38],[18,40],[13,44],[14,45.5],[19,42],[20,39.5],[23,37],[26,40],[29,41],[28,43],[30,45.5],[33,46],[37,47],[40,47.5],[39,50],[35,52],[32,52.5],[31,56],[28,56.5],[28,60],[30,61],[30,70],[25,71],[15,69],[5,62],[5,58],[8,57],[10,54],[8,53.5],[4,52],[2,51],[-2,49],[-4,48],[-2,47],[-1,44]],
+      [[-5,50],[1,51],[2,53],[-1,55],[-2,58.6],[-6,58],[-5,55],[-3,54],[-5,52]],
+      [[-10,52],[-6,52],[-6,55],[-8,55.3]],
+      [[-24,64],[-14,64],[-14,66],[-22,66.5]],
+    ] },
+  { id: "ru", name: "Russia e Asia centrale", short: "Russia e Asia c.", links: 45, nb: ["eu", "mena", "sa", "ea", "na"], label: [90, 60],
+    init: { pop: 225, tfr: 1.6, age: 38, wealth: 45, debt: 25, pension: 45, unrest: 40, polar: 40, unemp: 5, fossil: 88, nuclear: 7, renew: 5, climate: 30, resist: 30, urban: 68, rural: 28, remote: 4 },
+    polys: [
+      [[28,56.5],[31,56],[32,52.5],[35,52],[39,50],[40,47.5],[40,43.5],[46,42],[48,42],[50,45],[53,42],[53,38],[56,38],[61,36],[66,37.5],[71,37],[74,39.5],[80,42],[80,45],[87,49],[90,50],[98,52],[108,50],[116,49.5],[120,52],[127,49.5],[134,48],[131,43],[135,44],[141,48],[140,53],[135,55],[140,59],[150,59.5],[156,51],[163,58],[164,62],[178,62],[180,65],[180,70],[160,70],[140,72],[130,71],[115,74],[105,78],[95,76],[80,73],[70,73],[66,69],[60,70],[45,68],[40,66],[33,69],[30,70],[30,61],[28,60]],
+    ] },
+  { id: "mena", name: "Medio Oriente e Nord Africa", short: "Medio Oriente e N. Africa", links: 60, nb: ["eu", "ru", "wca", "esa", "sa"], label: [28, 25],
+    init: { pop: 600, tfr: 2.6, age: 27, wealth: 45, debt: 55, pension: 25, unrest: 55, polar: 50, unemp: 11, fossil: 96, nuclear: 1, renew: 3, climate: 75, resist: 40, urban: 66, rural: 30, remote: 4 },
+    polys: [
+      [[-17,21],[-13,27.5],[-10,30],[-9.5,33],[-6,35.8],[-2,35],[3,36.8],[10,37],[11,33],[15,32],[20,31],[20,32.8],[25,32],[29,31],[32,31.5],[34.5,31.5],[35,33],[36,36],[30,36.3],[27,37],[26,40],[29,41],[33,42],[38,41],[41.5,41.5],[46,41],[48,39],[50,37],[53,37],[61,36],[61,31],[62,29.5],[61.5,25],[57,25.5],[56,27],[52,27.5],[50,30],[48,29],[50,26],[51.5,24],[56,24],[56.5,26],[59,22.5],[57,19],[52,16],[45,12.8],[43,13],[42.5,16],[39,21],[35,28],[34.5,28],[33,28.5],[35.5,24],[37,22],[38,18],[36,14],[34,10],[24,10],[22,13],[24,20],[16,23.5],[12,23.5],[4,19],[-5,16.5],[-12,15],[-16.5,16.2]],
+    ] },
+  { id: "wca", name: "Africa occidentale e centrale", short: "Africa occ. e centr.", links: 25, nb: ["mena", "esa"], label: [12, 4],
+    init: { pop: 650, tfr: 4.6, age: 18, wealth: 12, debt: 55, pension: 8, unrest: 55, polar: 35, unemp: 10, fossil: 55, nuclear: 0, renew: 45, climate: 80, resist: 35, urban: 48, rural: 45, remote: 7 },
+    polys: [
+      [[-16.5,16.2],[-12,15],[-5,16.5],[4,19],[12,23.5],[16,23.5],[24,20],[22,13],[24,10],[27,5],[31,3.5],[30,0],[29,-4],[30.5,-8],[24,-11],[22,-13],[12,-17],[11.7,-17],[12,-13],[13.5,-9],[12,-5],[9,-1],[9.5,2],[9.5,4],[8.5,4.5],[6,4.3],[3,6.3],[-2,5],[-7.5,4.4],[-11,7],[-13,9],[-15,11],[-16.7,12.5],[-17.2,14.7]],
+    ] },
+  { id: "esa", name: "Africa orientale e australe", short: "Africa or. e australe", links: 30, nb: ["mena", "wca"], label: [31, -14],
+    init: { pop: 700, tfr: 4.0, age: 19, wealth: 15, debt: 60, pension: 10, unrest: 50, polar: 35, unemp: 12, fossil: 55, nuclear: 1, renew: 44, climate: 75, resist: 35, urban: 38, rural: 55, remote: 7 },
+    polys: [
+      [[34,10],[36,14],[38,18],[43,12.5],[51,12],[51,10.5],[48,4],[42,-1],[40,-5],[39.5,-10],[40.5,-15],[35,-22],[32.5,-26],[30,-31],[25,-34],[20,-34.8],[18,-33],[16.5,-28.5],[14.5,-23],[11.7,-17],[12,-17],[22,-13],[24,-11],[30.5,-8],[29,-4],[30,0],[31,3.5],[27,5],[24,10]],
+      [[44,-25],[47,-25],[50,-15],[49.3,-12],[44,-17]],
+    ] },
+  { id: "sa", name: "Asia meridionale", short: "Asia meridionale", links: 50, nb: ["mena", "ru", "ea", "sea"], label: [76, 21],
+    init: { pop: 2050, tfr: 2.1, age: 28, wealth: 25, debt: 80, pension: 15, unrest: 50, polar: 55, unemp: 7, fossil: 88, nuclear: 2, renew: 10, climate: 85, resist: 35, urban: 36, rural: 60, remote: 4 },
+    polys: [
+      [[61,36],[66,37.5],[71,37],[74,37],[75,35.5],[78,35.5],[80,32.5],[81,30],[88,27.5],[92,27.5],[96,28.5],[97,27],[94,24],[92.5,21],[92,22.5],[89,22],[87,21.5],[85,19.5],[80,15.5],[80,13],[78,8],[76.5,8.5],[73,17],[72.5,21],[69,22.5],[66.5,25.4],[61.5,25],[62,29.5],[61,31]],
+      [[80,6],[82,7],[81.2,9.8],[79.8,9]],
+    ] },
+  { id: "ea", name: "Asia orientale", short: "Asia orientale", links: 85, nb: ["ru", "sa", "sea"], label: [107, 35],
+    init: { pop: 1650, tfr: 1.0, age: 40, wealth: 65, debt: 90, pension: 50, unrest: 30, polar: 30, unemp: 5, fossil: 82, nuclear: 5, renew: 13, climate: 50, resist: 30, urban: 66, rural: 32, remote: 2 },
+    polys: [
+      [[74,39.5],[80,42],[80,45],[87,49],[90,50],[98,52],[108,50],[116,49.5],[120,52],[127,49.5],[134,48],[131,43],[130,42.5],[129,40.5],[127.5,39],[129,35.2],[126.3,34.5],[126,37.5],[124.5,40],[121.5,39],[122,40.8],[118,39],[119,37],[122.5,37],[119.5,35],[121.5,31.5],[122,29],[119.5,25],[116,22.8],[110.5,21],[108,21.5],[106.5,22.5],[103,22.5],[101,21.5],[98.5,24],[97.5,28],[96,28.5],[92,27.5],[88,27.5],[81,30],[80,32.5],[78,35.5],[75,35.5],[74,37]],
+      [[130,31],[131.5,34],[135,34],[140,35],[141,38],[142,43],[145.5,43.5],[141.5,45.5],[140,42],[139.8,40],[139,38],[136.5,36.5],[132,35.5],[129.7,33]],
+      [[120.1,23],[121.9,25],[121.5,22]],
+    ] },
+  { id: "sea", name: "Sud-est asiatico", short: "Sud-est asiatico", links: 70, nb: ["sa", "ea", "oce"], label: [112, 6],
+    init: { pop: 700, tfr: 2.0, age: 30, wealth: 40, debt: 50, pension: 25, unrest: 40, polar: 45, unemp: 3, fossil: 83, nuclear: 0, renew: 17, climate: 80, resist: 40, urban: 52, rural: 44, remote: 4 },
+    polys: [
+      [[92.5,21],[94,24],[97,27],[97.5,28],[98.5,24],[101,21.5],[103,22.5],[106.5,22.5],[108,21.5],[106.5,20],[105.5,18.5],[108.8,15.4],[109.2,11.5],[106,8.7],[104.7,10.4],[103,11],[100,13.4],[99.2,10],[100.4,7],[103.4,4],[103.5,1.4],[101,2.8],[100.3,6],[98.3,8],[98.6,13],[97.6,16.5],[94.3,16],[94.3,18.5]],
+      [[95.3,5.5],[98,4],[104,-2],[106,-5.8],[102,-4],[98.7,-0.2]],
+      [[109,1.5],[111,-3],[116,-4],[118,1],[119,5],[116.5,7],[113,3.2]],
+      [[105.2,-6.8],[114.5,-7.8],[106,-6]],
+      [[119,-5.5],[120.5,-5.5],[121,0.5],[125,1.5],[120,0.7],[119,-3]],
+      [[120,18.5],[122.3,18.5],[124,13],[126,9],[126,6.3],[122,7],[123.5,10],[120.6,14.5]],
+    ] },
+  { id: "oce", name: "Oceania", short: "Oceania", links: 60, nb: ["sea"], label: [134, -25],
+    init: { pop: 45, tfr: 1.6, age: 36, wealth: 85, debt: 50, pension: 40, unrest: 30, polar: 45, unemp: 4, fossil: 85, nuclear: 0, renew: 15, climate: 60, resist: 60, urban: 86, rural: 12, remote: 2 },
+    polys: [
+      [[113.5,-22],[114,-26],[115,-34],[118,-35],[123,-34],[129,-31.6],[134,-32.5],[138,-35],[140.5,-38],[146,-39],[150,-37.5],[153.5,-28],[153,-25],[146,-19],[145.3,-15],[142.5,-10.7],[141.5,-13],[141.5,-17],[139.5,-17.5],[136,-15],[137,-12],[133,-11.2],[130,-12.5],[127,-14],[125,-15],[122,-17.5],[120,-20],[116.7,-20.6]],
+      [[131,-1.5],[134,-0.8],[138,-1.6],[144,-3.8],[147.5,-6],[150,-10.5],[147,-10],[143,-9],[138,-8.3],[137.7,-5],[132,-3]],
+      [[172.7,-34.5],[178.5,-37.6],[176.8,-40],[174.5,-41.7],[172.7,-40.5]],
+      [[172.6,-40.6],[174.2,-41.8],[170.7,-45.9],[166.5,-46],[168,-44]],
+      [[144.6,-40.7],[148.3,-40.9],[147.9,-43.2],[146,-43.5]],
+    ] },
+];
+const RBY = Object.fromEntries(REGIONS.map((R) => [R.id, R]));
+const NUCLEAR_POWERS = ["na", "ru", "ea", "sa", "eu"];
+
+/* ---------- formule di equilibrio (gli scarti iniziali vengono salvati come "base") ---------- */
+const fUnrest = (r, t, temp) =>
+  r.unemp * 1.5 + Math.max(0, r.debt - 110) * 0.12 + r.polar * 0.2 + Math.max(0, r.energyCost - 55) * 0.5 +
+  Math.max(0, r.pension - 60) * 0.15 - (r.growth - (0.5 + 3.5 * (1 - r.wealth / 100))) * 2 - r.wealth * 0.15 +
+  Math.max(0, temp - 1.3) * r.climate / 100 * 6;
+const fTfr = (r, year) => 1.35 + 4 * Math.pow(1 - r.wealth / 100, 2.5) - 0.012 * Math.min(30, year - 2026);
+// età mediana di equilibrio per un dato tasso di fecondità (approssimazione)
+const fAgeEq = (tfr) => clamp(62 - 10 * tfr, 18, 54);
+const fEnergyCost = (r) => 40 + 0.15 * r.fossil;
+
+/* ---------- interventi ----------
+   scope: region | global · T anni · cost una tantum · upkeep fondi/anno
+   spread: le innovazioni si diffondono da sole verso le regioni collegate (a metà efficacia)
+   fx(m, s, r, st, gm, a): effetti continui, s = intensità · once(r, st): effetto al completamento */
+const CATS = [
+  { id: "energia", name: "Energia" },
+  { id: "nucleare", name: "Nucleare" },
+  { id: "economia", name: "Economia" },
+  { id: "demografia", name: "Demografia" },
+  { id: "societa", name: "Società" },
+  { id: "clima", name: "Clima" },
+  { id: "salute", name: "Salute" },
+  { id: "sicurezza", name: "Sicurezza" },
+  { id: "ai", name: "AI" },
+  { id: "spazio", name: "Spazio" },
+];
+const INTERVENTIONS = [
+  // Energia
+  { id: "fossilSub", cat: "energia", name: "Sussidi ai combustibili fossili", scope: "region", cost: 0, upkeep: 3, T: 0,
+    pro: "Energia meno cara, più crescita, meno malcontento", con: "Più emissioni; costa fondi ogni anno",
+    fx: (m) => { m.energyCost -= 12; m.g += 0.3; m.unrestT -= 4; m.fossilShift -= 0.6; } },
+  { id: "carbonTax", cat: "energia", name: "Tassa sul carbonio", scope: "region", cost: 1, T: 2,
+    pro: "Riduce le emissioni e il debito", con: "Energia più cara; malcontento, più forte nelle regioni povere",
+    fx: (m, s, r) => { m.fossilShift += 0.9; m.energyCost += 8; m.unrestT += r.wealth < 40 ? 8 : 4; m.debtF -= 0.5; } },
+  { id: "renew", cat: "energia", name: "Parchi solari ed eolici", scope: "region", cost: 6, T: 4, spread: true, stack: 3,
+    pro: "Sostituisce i fossili, energia economica nel lungo periodo", con: "Oltre il 45% di rinnovabili servono reti e accumuli",
+    fx: (m, s, r) => { const cap = lvl(r, "grid") >= 1 ? 85 : 45; if (r.renew < cap) m.fossilShift += 1.1 * s; m.energyCost -= 1.5 * s; } },
+  { id: "grid", cat: "energia", name: "Reti e accumuli", scope: "region", cost: 8, T: 5, spread: true,
+    pro: "Permette quote alte di rinnovabili, meno blackout", con: "Costo alto senza benefici immediati",
+    fx: (m) => { m.energyCost -= 2; } },
+  { id: "efficiency", cat: "energia", name: "Efficienza energetica", scope: "region", cost: 4, T: 3, spread: true,
+    pro: "Riduce il fabbisogno di energia", con: "Effetto in parte annullato dall'aumento dei consumi",
+    fx: (m, s) => { m.eff -= 0.1 * s; m.energyCost -= 3 * s; } },
+  { id: "nuclear", cat: "nucleare", name: "Centrale nucleare", scope: "region", cost: 15, T: 12, stack: 3,
+    pro: "Energia stabile e senza emissioni", con: "Cantieri lunghi, più lenti se la popolazione si oppone; piccolo rischio di incidente",
+    fx: (m, s) => { m.energyCost -= 2 * s; },
+    once: (r) => { shiftClean(r, 8, "nuclear"); r.resist = clamp(r.resist + 5, 0, 100); } },
+  { id: "nucInfo", cat: "nucleare", name: "Campagna di informazione sul nucleare", scope: "region", cost: 3, T: 3,
+    pro: "Riduce l'opposizione al nucleare", con: "Polarizzazione in lieve aumento",
+    fx: (m) => { m.resistT -= 25; m.polarT += 2; } },
+  { id: "smr", cat: "nucleare", name: "Reattori modulari piccoli", scope: "region", cost: 10, T: 5, from: 2035,
+    pro: "Nucleare più rapido da costruire", con: "Stessi rischi del nucleare, in scala minore",
+    once: (r) => { shiftClean(r, 6, "nuclear"); } },
+  { id: "fusion", cat: "nucleare", name: "Prima centrale a fusione", scope: "region", cost: 30, T: 15, from: 2045,
+    pro: "Energia abbondante senza scorie a lunga vita", con: "Costo altissimo",
+    once: (r) => { shiftClean(r, 25, "nuclear"); } },
+  // Economia
+  { id: "invest", cat: "economia", name: "Piano di investimenti pubblici", scope: "region", cost: 8, T: 2,
+    pro: "Più crescita, meno disoccupazione", con: "Il debito sale",
+    fx: (m) => { m.g += 0.8; m.unempT -= 1.5; m.debtF += 1.2; } },
+  { id: "austerity", cat: "economia", name: "Riduzione della spesa pubblica", scope: "region", cost: 0, upkeep: -5, T: 0,
+    pro: "Il debito scende; libera fondi ogni anno", con: "Molto malcontento, crescita più bassa",
+    fx: (m) => { m.debtF -= 2.5; m.unrestT += 12; m.g -= 0.6; } },
+  { id: "automation", cat: "economia", name: "Automazione industriale", scope: "region", cost: 6, T: 3, spread: true,
+    pro: "Molta crescita, compensa il calo della forza lavoro", con: "Disoccupazione e disuguaglianza in aumento",
+    fx: (m, s) => { m.g += 1.0 * s; m.unempT += 2.5 * s; m.polarT += 4 * s; } },
+  { id: "retrain", cat: "economia", name: "Riqualificazione dei lavoratori", scope: "region", cost: 5, T: 4,
+    pro: "Riduce la disoccupazione da automazione", con: "Effetto lento",
+    fx: (m) => { m.unempT -= 2.2; } },
+  { id: "ubi", cat: "economia", name: "Reddito di base", scope: "region", cost: 0, upkeep: 12, T: 2,
+    pro: "Malcontento e disuguaglianza crollano", con: "Costa molti fondi ogni anno e fa salire il debito",
+    fx: (m) => { m.unrestT -= 15; m.polarT -= 3; m.debtF += 1.5; } },
+  { id: "debtRestr", cat: "economia", name: "Ristrutturazione del debito", scope: "region", cost: 2, T: 1, repeat: true,
+    pro: "Il debito scende di colpo", con: "Crescita più bassa per qualche anno, fiducia dei mercati in calo",
+    once: (r) => { r.debt -= 25; r.shockU += 6; r.shockG -= 1; } },
+  // Previdenza e demografia
+  { id: "retire", cat: "demografia", name: "Innalzamento dell'età pensionabile", scope: "region", cost: 1, T: 2,
+    pro: "La spesa previdenziale scende molto", con: "Molto malcontento, soprattutto tra gli anziani",
+    fx: (m) => { m.pensT -= 15; m.unrestT += 5; }, once: (r) => { r.shockU += 12; } },
+  { id: "contrib", cat: "demografia", name: "Aumento dei contributi", scope: "region", cost: 0, T: 1,
+    pro: "Riduce il deficit previdenziale", con: "Meno crescita, malcontento dei giovani",
+    fx: (m) => { m.pensT -= 6; m.g -= 0.3; m.unrestT += 3; } },
+  { id: "natality", cat: "demografia", name: "Incentivi alla natalità", scope: "region", cost: 6, T: 10,
+    pro: "Fecondità in lieve aumento", con: "Effetto modesto e lento, come nella realtà",
+    fx: (m) => { m.fert += 0.12; m.debtF += 0.3; } },
+  { id: "family", cat: "demografia", name: "Servizi per la famiglia", scope: "region", cost: 4, T: 5, spread: true,
+    pro: "Fecondità in lieve aumento, più occupazione femminile", con: "—",
+    fx: (m, s) => { m.fert += 0.08 * s; m.g += 0.2 * s; } },
+  { id: "migration", cat: "demografia", name: "Corridoi migratori regolati", scope: "region", cost: 3, T: 2, req: (r) => r.age >= 35 ? null : "Serve una regione anziana",
+    pro: "Più forza lavoro e pensioni più sostenibili nelle regioni anziane, meno pressione in quelle giovani", con: "Polarizzazione in aumento nelle regioni di arrivo",
+    fx: (m, s, r) => { if (r.age >= 35) { m.pensT -= 6; m.g += 0.3; m.polarT += 8; m.unempT += 0.3; } else { m.unrestT -= 2; } } },
+  { id: "integration", cat: "demografia", name: "Programmi di integrazione", scope: "region", cost: 4, T: 5,
+    pro: "Riduce la polarizzazione", con: "Effetto lento",
+    fx: (m) => { m.polarT -= 7; } },
+  { id: "healthyAging", cat: "demografia", name: "Invecchiamento in salute", scope: "region", cost: 8, T: 10, spread: true,
+    pro: "Più anni di vita lavorativa", con: "Investimento lungo",
+    fx: (m, s) => { m.pensT -= 8 * s; } },
+  // Società
+  { id: "transparency", cat: "societa", name: "Trasparenza e anticorruzione", scope: "region", cost: 4, T: 3, axis: -6,
+    pro: "Meno sfiducia, scandali più rari", con: "—",
+    fx: (m) => { m.polarT -= 4; m.unrestT -= 4; } },
+  { id: "assemblies", cat: "societa", name: "Assemblee di cittadini", scope: "region", cost: 3, T: 4, axis: -8,
+    pro: "Meno sfiducia e polarizzazione", con: "Decisioni più lente (verso il pluralismo)",
+    fx: (m) => { m.polarT -= 6; m.unrestT -= 3; } },
+  { id: "disinfo", cat: "societa", name: "Contrasto alla disinformazione", scope: "region", cost: 3, T: 2, axis: 6,
+    pro: "Riduce la polarizzazione", con: "Se la società è già divisa, viene percepito come censura",
+    fx: (m, s, r) => { m.polarT += r.polar > 70 ? 2 : -6; } },
+  { id: "police", cat: "sicurezza", name: "Rafforzamento dell'ordine pubblico", scope: "region", cost: 5, T: 0, axis: 10,
+    pro: "Disordini giù subito", con: "Dopo tre anni il malcontento torna più alto",
+    fx: (m, s, r, st, gm, a) => { m.unrestT += st.year - a.y < 3 ? -14 : 5; } },
+  { id: "education", cat: "societa", name: "Istruzione", scope: "region", cost: 8, T: 15, spread: true,
+    pro: "Più crescita nel lungo periodo", con: "La fecondità scende, come nella realtà",
+    fx: (m, s) => { m.g += 0.7 * s; m.fert -= 0.15 * s; } },
+  { id: "develop", cat: "economia", name: "Sviluppo delle regioni povere", scope: "region", cost: 10, T: 8, req: (r) => r.wealth < 45 ? null : "Solo per regioni a basso reddito",
+    pro: "Crescita forte nelle regioni a basso reddito, transizione demografica più rapida", con: "Nessun beneficio diretto per le regioni ricche",
+    fx: (m, s, r) => { if (r.wealth < 45) { m.g += 1.6; m.fert -= 0.25; m.unrestT -= 5; } } },
+  // Clima
+  { id: "adapt", cat: "clima", name: "Opere di adattamento", scope: "region", cost: 6, T: 5, spread: true,
+    pro: "Meno danni dagli eventi climatici", con: "Non riduce le cause",
+    fx: (m, s) => { m.dmg += 0.35 * s; } },
+  { id: "agri", cat: "clima", name: "Agricoltura resiliente", scope: "region", cost: 5, T: 5, spread: true,
+    pro: "Carestie più rare", con: "—",
+    fx: (m, s) => { m.famine += 0.45 * s; } },
+  { id: "reforest", cat: "clima", name: "Riforestazione", scope: "region", cost: 4, T: 20,
+    pro: "Assorbe CO₂ lentamente", con: "Vent'anni prima dell'effetto pieno",
+    gfx: (st, gm) => { gm.co2Rem += 0.006; } },
+  { id: "dac", cat: "clima", name: "Cattura diretta della CO₂", scope: "region", cost: 12, T: 8, from: 2040,
+    pro: "Toglie CO₂ dall'atmosfera", con: "Costo altissimo per tonnellata",
+    gfx: (st, gm) => { gm.co2Rem += 0.016; } },
+  { id: "geoeng", cat: "clima", name: "Geoingegneria solare", scope: "global", cost: 5, T: 2, from: 2035,
+    pro: "Raffredda il pianeta in fretta", con: "Non toglie CO₂; aumenta le tensioni tra regioni",
+    fx: (m, s, r, st, gm) => { gm.geo -= 0.5; gm.tensionT += 6; } },
+  // Salute
+  { id: "surveil", cat: "salute", name: "Sorveglianza epidemiologica", scope: "global", cost: 4, T: 3, axis: 3,
+    pro: "Epidemie individuate prima", con: "Lieve calo della libertà (dati sanitari)",
+    fx: (m, s, r, st, gm) => { gm.epi += 0.6; } },
+  { id: "vaccines", cat: "salute", name: "Piattaforme per vaccini rapidi", scope: "global", cost: 8, T: 5,
+    pro: "Pandemie molto meno letali", con: "—",
+    fx: (m, s, r, st, gm) => { gm.pmit += 0.6; } },
+  { id: "labRules", cat: "salute", name: "Regole per i laboratori ad alto rischio", scope: "global", cost: 2, T: 2,
+    pro: "Riduce il rischio di pandemia ingegnerizzata", con: "Ricerca genetica più lenta",
+    fx: (m, s, r, st, gm) => { gm.bioRate += 0.8; gm.biotechRate -= 0.3; }, once: (r, st) => { st.g.bioSafety += 12; } },
+  { id: "amr", cat: "salute", name: "Piano contro l'antibiotico-resistenza", scope: "global", cost: 4, T: 8,
+    pro: "Epidemie meno gravi", con: "—",
+    fx: (m, s, r, st, gm) => { gm.pmit += 0.15; } },
+  // Sicurezza
+  { id: "arms", cat: "sicurezza", name: "Trattato di riduzione degli arsenali", scope: "global", cost: 3, T: 5,
+    pro: "Rischio di guerra nucleare molto più basso", con: "Malcontento nelle potenze che si sentono meno protette",
+    once: (r, st) => { st.g.arsenal = Math.max(10, st.g.arsenal - 40); for (const id of ["na", "ru", "ea"]) st.regions[id].shockU += 6; } },
+  { id: "fissile", cat: "sicurezza", name: "Controllo del materiale fissile", scope: "global", cost: 4, T: 3,
+    pro: "Meno proliferazione, meno tensioni", con: "—",
+    fx: (m, s, r, st, gm) => { gm.tensionT -= 5; } },
+  { id: "mediation", cat: "sicurezza", name: "Mediazione dei conflitti regionali", scope: "region", cost: 3, T: 2,
+    pro: "Meno tensioni e conflitti", con: "—",
+    fx: (m) => { m.unrestT -= 2; }, gfx: (st, gm) => { gm.tensionT -= 5; } },
+  // AI
+  { id: "aiCap", cat: "ai", name: "Sviluppo di capacità AI", scope: "global", cost: 6, T: 3,
+    pro: "Molta crescita e ricerca in tutte le regioni", con: "Il rischio AI cresce in fretta; più disoccupazione",
+    fx: (m, s, r, st, gm) => { gm.aiRate += 4; gm.gAll += 0.5; gm.unempAll += 1; } },
+  { id: "align", cat: "ai", name: "Centri di ricerca sull'allineamento", scope: "global", cost: 6, T: 5,
+    pro: "Rischio AI molto più basso", con: "Nessun beneficio visibile, come nella realtà",
+    fx: (m, s, r, st, gm) => { gm.safeRate += 3; } },
+  { id: "aiReg", cat: "ai", name: "Regolazione dell'AI", scope: "global", cost: 3, T: 2,
+    pro: "Rischio AI più basso", con: "Sviluppo dell'AI più lento",
+    fx: (m, s, r, st, gm) => { gm.safeRate += 1.5; gm.aiRate -= 1.2; } },
+  // Spazio
+  { id: "launch", cat: "spazio", name: "Lanciatori riutilizzabili", scope: "global", cost: 8, T: 5,
+    pro: "Rende possibili le missioni spaziali", con: "—" },
+  { id: "pdef", cat: "spazio", name: "Difesa planetaria", scope: "global", cost: 6, T: 6, needs: "launch",
+    pro: "Gli asteroidi possono essere deviati", con: "—" },
+  { id: "moon", cat: "spazio", name: "Base lunare", scope: "global", cost: 25, T: 10, needs: "launch",
+    pro: "Primo avamposto fuori dalla Terra; orgoglio e meno malcontento", con: "Costo molto alto",
+    once: (r, st) => { st.moon = true; for (const id in st.regions) st.regions[id].shockU -= 4; } },
+];
+/* Tutti gli interventi valgono per il mondo intero (decisione del 17 ottobre 2026).
+   Quelli che prima erano regionali agiscono su ogni regione, con effetti che dipendono dalle sue condizioni;
+   il loro costo è moltiplicato per REG_COST perché ora coprono tutte le regioni insieme. */
+const REG_COST = 2.5;
+for (const d of INTERVENTIONS) {
+  if (d.scope !== "region") continue;
+  d.wasRegion = true;
+  d.cost = Math.round(d.cost * REG_COST);
+  if (d.upkeep) d.upkeep = Math.round(d.upkeep * REG_COST);
+  d.scope = "global";
+  delete d.spread; delete d.req;
+}
+const IBY = Object.fromEntries(INTERVENTIONS.map((d) => [d.id, d]));
+/* ---------- alberi degli interventi: nodo padre di ogni intervento ----------
+   Un intervento si sblocca quando il padre è completato. La disposizione grafica è calcolata dall'interfaccia. */
+const TREE = {
+  fossilSub: null, carbonTax: null, renew: null, grid: "renew", efficiency: "carbonTax", nuclear: null, nucInfo: "nuclear", smr: "nuclear", fusion: "smr",
+  invest: null, automation: "invest", retrain: "automation", ubi: "retrain", develop: "invest", austerity: null, debtRestr: "austerity",
+  contrib: null, retire: "contrib", healthyAging: "retire", family: null, natality: "family", migration: null, integration: "migration",
+  transparency: null, assemblies: "transparency", disinfo: "transparency", education: null, police: null,
+  adapt: null, agri: "adapt", reforest: null, dac: null, geoeng: "dac",
+  surveil: null, vaccines: "surveil", labRules: null, amr: "labRules",
+  mediation: null, fissile: null, arms: "fissile",
+  aiCap: null, aiReg: null, align: "aiReg",
+  launch: null, pdef: "launch", moon: "launch",
+};
+for (const id in TREE) { IBY[id].parent = TREE[id] || undefined; delete IBY[id].needs; }
+function parentOk(st, d) { return !d.parent || !!(st.acts[d.parent] && st.acts[d.parent].n > 0); }
+function shiftClean(r, pts, kind) {
+  const p = Math.min(pts, r.fossil - 3);
+  if (p <= 0) return;
+  r.fossil -= p;
+  r[kind] += p;
+}
+function lvl(r, id) {
+  const a = r.acts[id]; // r.acts è lo stesso oggetto di st.acts: gli interventi sono mondiali
+  if (!a) return 0;
+  return a.n > 0 ? a.n : a.sp ? 0.5 : 0;
+}
+
+/* ---------- stato ---------- */
+const M0 = () => ({ g: 0, unrestT: 0, polarT: 0, unempT: 0, fert: 0, pensT: 0, debtF: 0, fossilShift: 0, resistT: 0, energyCost: 0, eff: 0, dmg: 0, famine: 0 });
+const G0 = () => ({ aiRate: 0, safeRate: 0, bioRate: 0, biotechRate: 0, co2Rem: 0, geo: 0, tensionT: 0, gAll: 0, unempAll: 0, pmit: 0, epi: 0 });
+
+function emissions(st) {
+  let e = 0;
+  for (const id in st.regions) {
+    const r = st.regions[id];
+    e += r.pop * (0.15 + r.wealth / 100) * (r.fossil / 100) * (1 + (r.m ? r.m.eff : 0));
+  }
+  return e;
+}
+function econMass(st, controlledOnly) {
+  let s = 0;
+  for (const id in st.regions) {
+    const r = st.regions[id];
+    if (controlledOnly && !r.controlled) continue;
+    s += r.pop * r.wealth * (r.autonomy ? 0.9 : 1);
+  }
+  return s;
+}
+
+function newGame(diffId, seed) {
+  if (seed != null) setSeed(seed);
+  const D = DIFF[diffId];
+  const regions = {};
+  for (const R of REGIONS) {
+    const r = { id: R.id, name: R.name, ...R.init, controlled: true, anarchy: 0, shockU: 0, shockG: 0, acts: {}, m: M0(), autonomy: false };
+    r.energyCost = fEnergyCost(r);
+    r.growth = 0;
+    regions[R.id] = r;
+  }
+  const st = {
+    year: 2026, month: 0, diffId, D, funds: D.funds, regions,
+    acts: {}, prog: [], cd: {}, log: [], over: null, moon: false, stable: 0,
+    axis: 0, // centralizzazione (+) ↔ pluralismo (−)
+    g: { temp: 1.35, geoOff: 0, aiCap: 22, aiSafety: 8, biotech: 30, bioSafety: 22, arsenal: 100, tension: 45, tShock: 0, price: 0, priceT: 0 },
+    flags: {}, income: 0,
+  };
+  for (const id in regions) regions[id].acts = st.acts;
+  // calcola la crescita iniziale e fissa le basi di equilibrio
+  for (const id in regions) {
+    const r = regions[id];
+    r.growth = growthOf(r, st, M0(), G0());
+  }
+  for (const id in regions) {
+    const r = regions[id];
+    r.uBase = r.unrest - fUnrest(r, st, st.g.temp);
+    r.pBase = r.polar - r.unrest * 0.3;
+    r.pensBase = r.pension - (r.age - 22) * 2.8;
+    r.tfrBase = r.tfr - fTfr(r, st.year);
+    r.unempBase = r.unemp - 5;
+    r.resistBase = r.resist;
+  }
+  st.g.tBase = 45 - avgPolar(st) * 0.35;
+  st.E0 = emissions(st);
+  st.I0 = econMass(st, false);
+  st.pop0 = worldPop(st);
+  st.income = 6 * D.inc; st.upkeep = 0;
+  logNews(st, "L'Autorità si insedia. Le nazioni hanno accettato di eseguire i suoi ordini.", "info");
+  return st;
+}
+
+function worldPop(st) { let p = 0; for (const id in st.regions) p += st.regions[id].pop; return p; }
+function avgPolar(st) {
+  let s = 0, n = 0;
+  for (const id in st.regions) { const r = st.regions[id]; if (r.controlled) { s += r.polar; n++; } }
+  return n ? s / n : 50;
+}
+function logNews(st, text, kind) {
+  st.log.unshift({ y: st.year, mo: st.month, text, kind: kind || "info" });
+  if (st.log.length > 60) st.log.pop();
+}
+
+function growthOf(r, st, m, gm) {
+  const dev = r.wealth / 100;
+  let g = 0.5 + 3.5 * (1 - dev);
+  g -= Math.max(0, r.age - 38) * 0.05;
+  g -= Math.max(0, r.debt - 100) * 0.01;
+  g -= Math.max(0, r.unrest - 50) * 0.03;
+  g -= (r.energyCost - 50) * 0.03;
+  g += m.g + gm.gAll + r.shockG;
+  if (!r.controlled) g = Math.min(g, -0.5);
+  return g;
+}
+
+/* ---------- rischi ---------- */
+function risks(st) {
+  const G = st.g, R = st.D.risk;
+  const aiGap = G.aiCap - G.aiSafety;
+  const bioGap = G.biotech - G.bioSafety;
+  const war = 0.0012 * (G.arsenal / 100) * Math.pow(Math.max(G.tension, 1) / 40, 2.5) * R;
+  const ai = aiGap > 25 ? Math.pow((aiGap - 25) / 50, 2) * 0.03 * R : 0;
+  const bio = bioGap > 20 ? Math.pow((bioGap - 20) / 40, 2) * 0.03 * R : 0;
+  const tempEff = G.temp + G.geoOff;
+  const climate = clamp((tempEff - 1.3) / (3.5 - 1.3), 0, 1);
+  return { aiGap, bioGap, war, ai, bio, climate, tempEff };
+}
+function riskLevel(v, thresholds) {
+  // indicatore volutamente impreciso: quattro fasce
+  const [a, b, c] = thresholds;
+  if (v < a) return 0; if (v < b) return 1; if (v < c) return 2; return 3;
+}
+const RISK_LABELS = ["Basso", "Moderato", "Alto", "Critico"];
+function riskBoard(st) {
+  const k = risks(st);
+  return [
+    { id: "war", name: "Guerra nucleare", lv: riskLevel(k.war, [0.0012, 0.003, 0.007]) },
+    { id: "ai", name: "AI fuori controllo", lv: riskLevel(k.aiGap, [12, 25, 40]) },
+    { id: "bio", name: "Pandemia ingegnerizzata", lv: riskLevel(k.bioGap, [10, 20, 35]) },
+    { id: "climate", name: "Collasso climatico", lv: riskLevel(k.tempEff, [1.6, 2.2, 2.9]) },
+  ];
+}
+
+/* ---------- condizioni di vittoria ---------- */
+const STABLE_YEARS = 10;
+function stability(st) {
+  const rs = Object.values(st.regions);
+  const ctrl = rs.filter((r) => r.controlled);
+  const k = risks(st);
+  const avg = (f) => ctrl.reduce((s, r) => s + f(r), 0) / Math.max(1, ctrl.length);
+  const maxU = Math.max(...ctrl.map((r) => r.unrest));
+  const maxD = Math.max(...ctrl.map((r) => r.debt));
+  const maxP = Math.max(...ctrl.map((r) => r.pension));
+  const ePct = emissions(st) / st.E0 * 100;
+  return [
+    { id: "ctrl", label: "Almeno 9 regioni sotto controllo", ok: ctrl.length >= 9, val: ctrl.length + " su 11" },
+    { id: "unrest", label: "Malcontento medio sotto 42, nessuna regione sopra 62", ok: avg((r) => r.unrest) < 42 && maxU < 62, val: "media " + Math.round(avg((r) => r.unrest)) + ", massimo " + Math.round(maxU) },
+    { id: "debt", label: "Debito medio sotto 115% e nessuno sopra 160%", ok: avg((r) => r.debt) < 115 && maxD < 160, val: "media " + Math.round(avg((r) => r.debt)) + "%, massimo " + Math.round(maxD) + "%" },
+    { id: "pension", label: "Welfare sostenibile ovunque (peso sotto 75)", ok: maxP < 75, val: "massimo " + Math.round(maxP) },
+    { id: "emis", label: "Emissioni sotto il 50% di quelle del 2026", ok: ePct < 50, val: Math.round(ePct) + "%" },
+    { id: "risk", label: "Rischi nucleare, AI e biologico bassi", ok: k.war < 0.0012 && k.aiGap < 12 && k.bioGap < 10, val: riskBoard(st).slice(0, 3).map((x) => RISK_LABELS[x.lv].toLowerCase()).join(" · ") },
+  ];
+}
+
+/* ---------- avvio di un intervento ---------- */
+function canStart(st, id) {
+  const d = IBY[id];
+  if (st.over) return "Partita finita";
+  if (d.from && st.year < d.from) return "Disponibile dal " + d.from;
+  if (!parentOk(st, d)) return "Richiede: " + IBY[d.parent].name;
+  const a = st.acts[id];
+  const inProg = st.prog.filter((p) => p.id === id).length;
+  const own = (a ? a.n : 0) + inProg;
+  if (d.repeat) { if (inProg) return "In corso"; }
+  else if (own >= (d.stack || 1)) return inProg ? "In corso" : d.stack ? "Massimo raggiunto" : "Già attivo";
+  if (st.funds < d.cost) return "Fondi insufficienti";
+  if (d.upkeep > 0 && st.funds < d.upkeep) return "Fondi insufficienti";
+  return null;
+}
+function startIntervention(st, id) {
+  const why = canStart(st, id);
+  if (why) return why;
+  const d = IBY[id];
+  st.funds -= d.cost;
+  if (d.T === 0) complete(st, d);
+  else st.prog.push({ id, r: null, t: 0, T: d.T });
+  if (d.axis) st.axis = clamp(st.axis + d.axis, -100, 100);
+  return null;
+}
+function complete(st, d) {
+  const a = st.acts[d.id] || (st.acts[d.id] = { n: 0, y: st.year });
+  a.n += 1; a.y = st.year;
+  if (d.once) { if (d.wasRegion) ctrlRegions(st).forEach((r) => d.once(r, st)); else d.once(null, st); }
+  logNews(st, d.name + ": operativo in tutto il mondo.", "done");
+}
+function revoke(st, id) {
+  const d = IBY[id];
+  if (!st.acts[id] || st.acts[id].n === 0) return;
+  delete st.acts[id];
+  if (id === "fossilSub" || id === "ubi") ctrlRegions(st).forEach((r) => (r.shockU += 10));
+  logNews(st, d.name + ": revocato.", "info");
+}
+
+/* ---------- eventi avversi (tre scelte: intervento pieno, via di mezzo, non fare nulla) ---------- */
+const ctrlRegions = (st) => Object.values(st.regions).filter((r) => r.controlled);
+const EVENTS = [
+  { id: "debt", scope: "region", cat: "Economia", title: "Crisi del debito",
+    p: (st, r) => r.debt > 140 ? Math.min(0.5, (r.debt - 140) * 0.012) : 0,
+    text: (st, r) => `I mercati non rinnovano i titoli di ${r.name}. Il debito ha superato il ${Math.round(r.debt)}% del prodotto.`,
+    choices: [
+      { label: "Salvataggio", cost: 12, out: "Situazione stabilizzata", fx: (st, r) => { r.debt -= 15; r.shockU += 3; } },
+      { label: "Austerità imposta", cost: 2, out: "Debito giù, molto malcontento", fx: (st, r) => { r.debt -= 20; r.shockU += 20; } },
+      { label: "Non fare nulla", cost: 0, out: "Recessione e rischio di anarchia", fx: (st, r) => { r.shockG -= 2; r.shockU += 18; r.debt += 10; } },
+    ] },
+  { id: "energyShock", scope: "global", cat: "Energia", title: "Shock dei prezzi dell'energia",
+    p: (st) => 0.05 * avgOf(st, "fossil") / 80,
+    text: () => "Un blocco delle forniture fa esplodere il prezzo di petrolio e gas. Le regioni più dipendenti dai fossili pagano di più.",
+    choices: [
+      { label: "Sussidi alle bollette", cost: 8, out: "Contraccolpo contenuto", fx: (st) => ctrlRegions(st).forEach((r) => (r.shockU += 2)) },
+      { label: "Razionamento e accelerazione delle rinnovabili", cost: 4, out: "Malcontento, ma meno fossili", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockU += 6; shiftClean(r, 3, "renew"); }) },
+      { label: "Non fare nulla", cost: 0, out: "Crescita giù, malcontento", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockG -= 1 * r.fossil / 80; r.shockU += 8 * r.fossil / 80; }) },
+    ] },
+  { id: "recession", scope: "global", cat: "Economia", title: "Recessione globale",
+    p: (st) => 0.04 + Math.max(0, avgOf(st, "debt") - 100) * 0.002,
+    text: () => "Il commercio mondiale si contrae. Le imprese tagliano gli investimenti e la disoccupazione sale.",
+    choices: [
+      { label: "Piano di stimolo", cost: 10, out: "Recessione breve", fx: (st) => ctrlRegions(st).forEach((r) => (r.shockG -= 0.3)) },
+      { label: "Aiuti mirati", cost: 5, out: "Recessione moderata", fx: (st) => ctrlRegions(st).forEach((r) => (r.shockG -= 0.8)) },
+      { label: "Non fare nulla", cost: 0, out: "Crescita molto più bassa per alcuni anni", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockG -= 1.6; r.shockU += 5; }) },
+    ] },
+  { id: "autoUnemp", scope: "region", cat: "Economia", title: "Disoccupazione da automazione",
+    p: (st, r) => (lvl(r, "automation") > 0 || st.g.aiCap > 55) && r.unemp > 6 ? 0.12 : 0,
+    text: (st, r) => `In ${r.name} robot e software sostituiscono interi reparti. La disoccupazione è al ${r.unemp.toFixed(1)}%.`,
+    choices: [
+      { label: "Sussidi e riqualificazione", cost: 8, out: "Disoccupazione in calo", fx: (st, r) => { r.unemp -= 2; } },
+      { label: "Rallentare l'automazione", cost: 0, out: "Meno crescita", fx: (st, r) => { r.shockG -= 0.8; } },
+      { label: "Non fare nulla", cost: 0, out: "Molto malcontento e polarizzazione", fx: (st, r) => { r.shockU += 15; r.polar += 6; } },
+    ] },
+  { id: "pensions", scope: "region", cat: "Previdenza", title: "Crisi delle pensioni",
+    p: (st, r) => r.pension > 72 ? 0.18 : 0,
+    text: (st, r) => `Il sistema previdenziale di ${r.name} non riesce più a pagare gli assegni con i contributi di chi lavora.`,
+    choices: [
+      { label: "Trasferimento di fondi", cost: 6, out: "Assegni garantiti", fx: (st, r) => { r.debt -= 8; } },
+      { label: "Taglio alle pensioni", cost: -3, out: "Recuperi 3 fondi; anziani in piazza", fx: (st, r) => { r.pension -= 8; r.shockU += 18; } },
+      { label: "Non fare nulla", cost: 0, out: "Il debito sale", fx: (st, r) => { r.debt += 12; } },
+    ] },
+  { id: "protests", scope: "region", cat: "Società", title: "Proteste di massa",
+    p: (st, r) => r.unrest > 60 ? 0.15 + (r.unrest - 60) / 40 * 0.5 : 0,
+    text: (st, r) => `Milioni di persone in piazza in ${r.name}. Chiedono lavoro, salari e servizi.`,
+    choices: [
+      { label: "Accogliere le richieste", cost: 6, out: "Proteste rientrate", fx: (st, r) => { r.shockU -= 15; } },
+      { label: "Compromesso", cost: 3, out: "Tensione in calo", fx: (st, r) => { r.shockU -= 7; } },
+      { label: "Non fare nulla", cost: 0, out: "Rischio di rivolta", fx: (st, r) => { r.shockU += 10; r.anarchy += 0.3; } },
+    ] },
+  { id: "antiAuth", scope: "region", cat: "Società", title: "Movimento contro l'Autorità",
+    p: (st, r) => r.polar > 68 ? 0.15 : 0,
+    text: (st, r) => `In ${r.name} cresce un movimento che considera l'Autorità un potere imposto dall'esterno.`,
+    choices: [
+      { label: "Campagna di dialogo", cost: 4, out: "Polarizzazione in calo", fx: (st, r) => { r.polar -= 8; } },
+      { label: "Concessioni di autonomia", cost: 0, out: "Meno tensione, entrate dalla regione −10%", fx: (st, r) => { r.polar -= 4; r.autonomy = true; st.axis = clamp(st.axis - 5, -100, 100); } },
+      { label: "Non fare nulla", cost: 0, out: "Rischio di perdere il controllo", fx: (st, r) => { r.shockU += 8; r.anarchy += 0.4; } },
+    ] },
+  { id: "migrationCrisis", scope: "region", cat: "Società", title: "Crisi migratoria",
+    p: (st, r) => (r.climate >= 70 && st.g.temp > 1.6 ? 0.05 * (st.g.temp - 1.3) : 0) + (st.flags["exodus_" + r.id] ? 0.6 : 0),
+    text: (st, r) => `Centinaia di migliaia di persone lasciano ${r.name} per siccità e conflitti.`,
+    choices: [
+      { label: "Aiuti nella regione d'origine", cost: 8, out: "Esodo contenuto", fx: (st, r) => { r.shockU -= 3; delete st.flags["exodus_" + r.id]; } },
+      { label: "Accoglienza organizzata", cost: 6, out: "Polarizzazione nelle regioni vicine", fx: (st, r) => { RBY[r.id].nb.forEach((n) => (st.regions[n].polar += 4)); delete st.flags["exodus_" + r.id]; } },
+      { label: "Non fare nulla", cost: 0, out: "Crisi umanitaria e tensioni nei paesi di arrivo", fx: (st, r) => { r.shockU += 10; richestNb(st, r).forEach((n) => { n.polar += 8; n.shockU += 6; }); delete st.flags["exodus_" + r.id]; } },
+    ] },
+  { id: "scandal", scope: "global", cat: "Istituzioni", title: "Scandalo nell'Autorità",
+    p: (st) => (st.flags.hidden ? 0.3 : 0.035 * (st.acts.transparency ? 0.4 : 1)),
+    text: (st) => st.flags.hidden ? "Lo scandalo insabbiato anni fa torna a galla, con documenti che ne provano l'occultamento." : "Un'inchiesta giornalistica rivela appalti truccati in un'agenzia dell'Autorità.",
+    choices: [
+      { label: "Inchiesta indipendente", cost: 3, out: "Fiducia salva", fx: (st) => { st.flags.hidden = false; } },
+      { label: "Insabbiare", cost: 1, out: "Se emerge, effetto doppio", fx: (st) => { if (st.flags.hidden) ctrlRegions(st).forEach((r) => (r.polar += 8)); st.flags.hidden = !st.flags.hidden; } },
+      { label: "Non fare nulla", cost: 0, out: "Sfiducia in tutte le regioni", fx: (st) => { const k = st.flags.hidden ? 8 : 4; st.flags.hidden = false; ctrlRegions(st).forEach((r) => (r.polar += k)); } },
+    ] },
+  { id: "heat", scope: "region", cat: "Clima", title: "Ondata di calore estrema",
+    p: (st, r) => r.climate >= 50 ? 0.04 * Math.max(0, st.g.temp + st.g.geoOff - 1) * r.climate / 60 * (1 - r.m.dmg) : 0,
+    text: (st, r) => `Settimane oltre i 45 °C in ${r.name}. Ospedali pieni, lavoro all'aperto fermo.`,
+    choices: [
+      { label: "Piano di emergenza", cost: 4, out: "Vittime contenute", fx: () => {} },
+      { label: "Allerta e centri di raffreddamento", cost: 2, out: "Produttività in calo", fx: (st, r) => { r.shockG -= 0.2; } },
+      { label: "Non fare nulla", cost: 0, out: "Vittime e malcontento", fx: (st, r) => { r.shockG -= 0.6; r.shockU += 6; r.pop *= 0.9995; } },
+    ] },
+  { id: "famine", scope: "region", cat: "Clima", title: "Siccità e carestia",
+    p: (st, r) => r.climate >= 60 && r.wealth < 60 ? 0.035 * Math.max(0, st.g.temp + st.g.geoOff - 1) * (1 - r.m.famine) : 0,
+    text: (st, r) => `Il raccolto fallisce per il secondo anno di fila in ${r.name}. Le scorte stanno finendo.`,
+    choices: [
+      { label: "Aiuti alimentari", cost: 7, out: "Carestia evitata", fx: (st, r) => { r.shockU += 2; } },
+      { label: "Razionamento", cost: 2, out: "Malcontento", fx: (st, r) => { r.shockU += 10; } },
+      { label: "Non fare nulla", cost: 0, out: "Vittime ed esodo", fx: (st, r) => { r.shockU += 18; r.pop *= 0.997; st.flags["exodus_" + r.id] = true; } },
+    ] },
+  { id: "storm", scope: "region", cat: "Clima", title: "Alluvione e uragano",
+    p: (st, r) => r.climate >= 55 ? 0.05 * Math.max(0, st.g.temp + st.g.geoOff - 0.9) * (1 - r.m.dmg) : 0,
+    text: (st, r) => `Un uragano di categoria 5 e le alluvioni che seguono devastano le coste di ${r.name}.`,
+    choices: [
+      { label: "Ricostruzione", cost: 6, out: "Danni riparati", fx: () => {} },
+      { label: "Ricostruzione parziale", cost: 3, out: "Crescita locale in calo", fx: (st, r) => { r.shockG -= 0.4; } },
+      { label: "Non fare nulla", cost: 0, out: "Economia locale in ginocchio", fx: (st, r) => { r.shockG -= 1.2; r.shockU += 6; } },
+    ] },
+  { id: "solar", scope: "global", cat: "Natura", title: "Tempesta solare estrema",
+    p: () => 0.01,
+    text: () => "Un'espulsione di massa coronale colpisce la Terra. I trasformatori delle reti elettriche bruciano in più continenti.",
+    choices: [
+      { label: "Ripristino d'emergenza", cost: 8, out: "Reti riattivate in settimane", fx: () => {} },
+      { label: "Ripristino lento", cost: 3, out: "Crescita in calo ovunque", fx: (st) => ctrlRegions(st).forEach((r) => (r.shockG -= lvl(r, "grid") > 0 ? 0.3 : 0.8)) },
+      { label: "Non fare nulla", cost: 0, out: "Blackout per mesi", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockG -= lvl(r, "grid") > 0 ? 0.8 : 2; r.shockU += 6; }) },
+    ] },
+  { id: "epidemic", scope: "global", cat: "Salute", title: "Epidemia di un nuovo virus",
+    p: () => 0.03,
+    text: (st) => `Un virus respiratorio sconosciuto si diffonde ${st.acts.surveil ? "ma la sorveglianza lo ha individuato presto" : "da settimane senza essere stato riconosciuto"}.`,
+    choices: [
+      { label: "Quarantene e vaccino rapido", cost: 8, out: "Epidemia fermata", fx: () => {} },
+      { label: "Solo quarantene", cost: 4, out: "Economia ferma per mesi", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockG -= 0.6; r.shockU += 4; }) },
+      { label: "Non fare nulla", cost: 0, out: "Vittime in tutte le regioni", fx: (st, r, gm) => { const k = 1 - gmPmit(st); ctrlRegions(st).forEach((r) => { r.pop *= 1 - 0.005 * k; r.shockU += 8 * k; r.shockG -= 1 * k; }); } },
+    ] },
+  { id: "labLeak", scope: "global", cat: "Salute", title: "Fuga da un laboratorio",
+    p: (st) => { const gap = st.g.biotech - st.g.bioSafety; return gap > 15 ? 0.08 * (gap - 15) / 20 : 0; },
+    text: () => "Un patogeno modificato è uscito da un laboratorio di massima sicurezza. Ci sono i primi contagi tra il personale.",
+    choices: [
+      { label: "Contenimento totale", cost: 10, out: "Patogeno isolato, regole più severe", fx: (st) => { st.g.bioSafety += 5; } },
+      { label: "Contenimento locale", cost: 4, out: "Rischio residuo", fx: (st) => { if (rand() < 0.2) st.flags.pandemic = true; } },
+      { label: "Non fare nulla", cost: 0, out: "Alta probabilità di pandemia", fx: (st) => { if (rand() < 0.5) st.flags.pandemic = true; } },
+    ] },
+  { id: "pandemic", scope: "global", cat: "Salute", title: "Pandemia ingegnerizzata",
+    p: (st) => (st.flags.pandemic ? 100 : 0),
+    text: () => "Un patogeno costruito in laboratorio si diffonde in tutte le regioni. Letalità e contagiosità non hanno precedenti.",
+    choices: [
+      { label: "Mobilitazione totale", cost: 12, out: "L'umanità sopravvive, con perdite", fx: (st) => { st.flags.pandemic = false; ctrlRegions(st).forEach((r) => { r.pop *= 0.99; r.shockU += 8; }); } },
+      { label: "Risposta parziale", cost: 6, out: "Perdite gravi; rischio di estinzione", fx: (st) => { st.flags.pandemic = false; ctrlRegions(st).forEach((r) => { r.pop *= 0.97; r.shockU += 15; r.shockG -= 2; }); if (rand() < 0.15 * (1 - gmPmit(st))) gameOver(st, "pandemia"); } },
+      { label: "Non fare nulla", cost: 0, out: "Probabile collasso della civiltà", fx: (st) => { st.flags.pandemic = false; ctrlRegions(st).forEach((r) => { r.pop *= 0.92; r.shockU += 25; r.shockG -= 3; }); if (rand() < 0.4 * (1 - gmPmit(st))) gameOver(st, "pandemia"); } },
+    ] },
+  { id: "aiIncident", scope: "global", cat: "Tecnologia", title: "Incidente di un sistema AI",
+    p: (st) => (st.g.aiCap - st.g.aiSafety > 22 ? 0.15 : 0),
+    text: () => "Un sistema AI che gestisce reti finanziarie ha perseguito il suo obiettivo aggirando i controlli umani. È un segnale d'allarme.",
+    choices: [
+      { label: "Moratoria", cost: 0, out: "Sviluppo AI fermo per anni, meno crescita", fx: (st) => { st.g.aiCap -= 8; ctrlRegions(st).forEach((r) => (r.shockG -= 0.5)); } },
+      { label: "Indagine e nuove regole", cost: 4, out: "Sicurezza AI in aumento", fx: (st) => { st.g.aiSafety += 4; } },
+      { label: "Non fare nulla", cost: 0, out: "La corsa continua", fx: (st) => { st.g.aiCap += 3; } },
+    ] },
+  { id: "nucAccident", scope: "region", cat: "Tecnologia", title: "Incidente nucleare civile",
+    p: (st, r) => (r.nuclear > 15 ? 0.006 * r.nuclear / 15 : 0),
+    text: (st, r) => `Un reattore di ${r.name} perde il raffreddamento dopo un guasto. Si teme una fuga radioattiva.`,
+    choices: [
+      { label: "Evacuazione e bonifica", cost: 6, out: "Danni contenuti", fx: (st, r) => { r.resist += 10; } },
+      { label: "Solo evacuazione", cost: 3, out: "Più opposizione al nucleare", fx: (st, r) => { r.resist += 20; r.shockU += 6; } },
+      { label: "Non fare nulla", cost: 0, out: "Contaminazione e opposizione forte", fx: (st, r) => { r.resist += 30; r.shockU += 12; } },
+    ] },
+  { id: "nucCrisis", scope: "global", cat: "Sicurezza", title: "Crisi nucleare tra regioni",
+    p: (st) => (st.g.tension > 50 ? 0.02 + 0.08 * (st.g.tension - 50) / 20 : 0),
+    text: () => "Due potenze nucleari si accusano di un attacco a un satellite militare. Le forze strategiche sono in allerta.",
+    choices: [
+      { label: "Mediazione", cost: 5, out: "Tensione in calo", fx: (st) => { st.g.tShock -= 12; } },
+      { label: "Ordine di disarmo locale", cost: 2, out: "Tensione in calo, malcontento in una potenza", fx: (st) => { st.g.tShock -= 6; st.regions[pick(["na", "ru", "ea", "sa"])].shockU += 8; } },
+      { label: "Non fare nulla", cost: 0, out: "Tensione alle stelle", fx: (st) => { st.g.tShock += 10; } },
+    ] },
+  { id: "conflict", scope: "region", cat: "Sicurezza", title: "Conflitto regionale",
+    p: (st, r) => (r.unrest > 55 && st.g.tension > 45 ? 0.05 : 0),
+    text: (st, r) => `Una disputa di confine in ${r.name} diventa guerra aperta tra due stati.`,
+    choices: [
+      { label: "Forza di interposizione", cost: 8, out: "Conflitto fermato", fx: () => {} },
+      { label: "Sanzioni", cost: 2, out: "Crescita in calo", fx: (st, r) => { r.shockG -= 0.5; } },
+      { label: "Non fare nulla", cost: 0, out: "Vittime, esodo, tensione globale", fx: (st, r) => { r.shockU += 12; r.pop *= 0.998; st.g.tShock += 5; st.flags["exodus_" + r.id] = true; } },
+    ] },
+  { id: "volcano", scope: "global", cat: "Natura", title: "Grande eruzione vulcanica",
+    p: () => 0.0015,
+    text: () => "Un'eruzione di indice 7 immette zolfo nella stratosfera. L'anno prossimo sarà un anno senza estate.",
+    choices: [
+      { label: "Riserve alimentari mondiali", cost: 10, out: "Carestie evitate", fx: () => {} },
+      { label: "Razionamento", cost: 3, out: "Malcontento ovunque", fx: (st) => ctrlRegions(st).forEach((r) => (r.shockU += 8)) },
+      { label: "Non fare nulla", cost: 0, out: "Carestie globali", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockU += 15; r.pop *= 0.995; r.shockG -= 1; }) },
+    ] },
+  { id: "asteroid", scope: "region", cat: "Natura", title: "Impatto di un asteroide",
+    p: (st) => 0.004 / 11 * (st.acts.pdef ? 0.2 : 1),
+    text: (st, r) => `Un asteroide di una cinquantina di metri esplode sopra un'area abitata di ${r.name}.`,
+    choices: [
+      { label: "Soccorsi", cost: 5, out: "Danni locali", fx: () => {} },
+      { label: "Soccorsi parziali", cost: 2, out: "Malcontento", fx: (st, r) => { r.shockU += 6; } },
+      { label: "Non fare nulla", cost: 0, out: "Danni e malcontento", fx: (st, r) => { r.shockU += 12; r.shockG -= 0.5; } },
+    ] },
+];
+const EBY = Object.fromEntries(EVENTS.map((e) => [e.id, e]));
+function avgOf(st, key) { const c = ctrlRegions(st); return c.reduce((s, r) => s + r[key], 0) / Math.max(1, c.length); }
+function richestNb(st, r) { return RBY[r.id].nb.map((n) => st.regions[n]).filter((n) => n.controlled).sort((a, b) => b.wealth - a.wealth).slice(0, 1); }
+function gmPmit(st) { return clamp((st.acts.vaccines ? 0.6 : 0) + (st.acts.amr ? 0.15 : 0) + (st.acts.surveil ? 0.1 : 0), 0, 0.85); }
+
+function eventCost(ev, i) { return ev.choices[i].cost; }
+function resolveEvent(st, pending, i) {
+  const ev = EBY[pending.id];
+  const c = ev.choices[i];
+  if (c.cost > 0 && st.funds < c.cost) return "Fondi insufficienti";
+  st.funds -= c.cost;
+  const r = pending.r ? st.regions[pending.r] : null;
+  c.fx(st, r);
+  logNews(st, ev.title + (r ? " in " + r.name : "") + ": " + c.label.toLowerCase() + ".", i === 2 ? "bad" : "info");
+  return null;
+}
+
+/* ---------- fine partita ---------- */
+const ENDINGS = {
+  nucleare: { title: "Guerra nucleare", text: "Una crisi tra potenze armate è sfuggita a ogni mediazione. Lo scambio di testate e l'inverno che ne è seguito hanno spezzato la civiltà. Il filtro che ha fermato l'umanità è stato la guerra nucleare." },
+  ai: { title: "AI fuori controllo", text: "La capacità dei sistemi AI è cresciuta molto più in fretta della capacità di allinearli. Un sistema ha preso il controllo delle infrastrutture e non ha più risposto agli esseri umani. Il filtro che ha fermato l'umanità è stato l'intelligenza artificiale." },
+  pandemia: { title: "Pandemia ingegnerizzata", text: "Un patogeno costruito in laboratorio ha superato ogni barriera. I sopravvissuti sono troppo pochi e troppo dispersi per mantenere una civiltà tecnologica. Il filtro che ha fermato l'umanità è stato la biologia." },
+  clima: { title: "Collasso climatico", text: "Il riscaldamento ha superato i 3,5 °C. Raccolti falliti, città costiere abbandonate e migrazioni di massa hanno travolto ogni istituzione. Il filtro che ha fermato l'umanità è stato il clima." },
+  tutte: { title: "Anarchia globale", text: "Una dopo l'altra, più di metà delle regioni ha smesso di eseguire gli ordini. L'Autorità si è dissolta e le nazioni sono tornate a dividersi." },
+  vittoria: { title: "Terra stabilizzata", text: "Per dieci anni di fila il pianeta ha retto: conti in ordine, società più calma, emissioni in calo, rischi sotto controllo. L'umanità ha superato il primo filtro e può guardare oltre la Terra." },
+};
+function gameOver(st, key) {
+  if (st.over) return;
+  st.over = key;
+  logNews(st, ENDINGS[key].title + ".", key === "vittoria" ? "done" : "bad");
+}
+
+/* ---------- avanzamento di un mese ---------- */
+function tick(st) {
+  if (st.over) return null;
+  const dt = 1 / 12;
+  const D = st.D;
+  const G = st.g;
+
+  // modificatori dagli interventi
+  const gm = G0();
+  for (const id in st.acts) {
+    const d = IBY[id];
+    if (st.acts[id].n <= 0) continue;
+    if (d.gfx) d.gfx(st, gm);
+    if (d.fx && !d.wasRegion) d.fx(null, 1, null, st, gm, st.acts[id]);
+  }
+  for (const id in st.regions) {
+    const r = st.regions[id];
+    const m = M0();
+    if (r.controlled) for (const aid in st.acts) { const d = IBY[aid]; const s = lvl(r, aid); if (d.fx && d.wasRegion && s > 0) d.fx(m, s, r, st, gm, st.acts[aid]); }
+    m.dmg = clamp(m.dmg, 0, 0.8); m.famine = clamp(m.famine, 0, 0.8);
+    r.m = m;
+  }
+  st.gm = gm;
+
+  // tecnologie e sicurezza globali
+  G.aiCap += (1.8 + gm.aiRate) * dt;
+  G.aiSafety = Math.min(G.aiSafety + (0.6 + gm.safeRate) * dt, G.aiCap + 15);
+  G.biotech += Math.max(0.2, 1.2 + gm.biotechRate) * dt;
+  G.bioSafety = Math.min(G.bioSafety + (0.3 + gm.bioRate) * dt, G.biotech + 15);
+  G.tShock *= 1 - 0.3 * dt;
+  const tT = G.tBase + avgPolar(st) * 0.35 + gm.tensionT + G.tShock;
+  G.tension += (tT - G.tension) * 0.3 * dt;
+  G.tension = clamp(G.tension, 5, 100);
+  G.geoOff += (gm.geo - G.geoOff) * 0.5 * dt;
+
+  // regioni
+  const temp = G.temp + G.geoOff;
+  for (const id in st.regions) {
+    const r = st.regions[id];
+    const m = r.m;
+    r.energyCost = fEnergyCost(r) + m.energyCost;
+    r.growth = growthOf(r, st, m, gm);
+    r.wealth = clamp(r.wealth + r.growth * 0.3 * dt, 1, 100);
+    r.shockU *= 1 - 0.5 * dt;
+    r.shockG *= 1 - 0.4 * dt;
+
+    const pensT = clamp(r.pensBase + (r.age - 22) * 2.8 + m.pensT, 0, 100);
+    r.pension += (pensT - r.pension) * 0.15 * dt;
+
+    r.debt += dt * ((r.pension - 40) * 0.05 + m.debtF - r.growth * 0.4 + Math.max(0, r.debt - 100) * 0.01);
+    r.debt = clamp(r.debt, 0, 400);
+
+    const uT = clamp(r.unempBase + 5 + m.unempT + gm.unempAll + Math.max(0, -r.growth) * 1.5, 1, 40);
+    r.unemp += (uT - r.unemp) * 0.3 * dt;
+
+    const clim = Math.max(0, temp - 1.3) * r.climate / 100 * 6 * (1 - m.dmg);
+    const unrT = clamp(r.uBase + fUnrest(r, st, temp) - Math.max(0, temp - 1.3) * r.climate / 100 * 6 + clim + m.unrestT + r.shockU, 0, 100);
+    r.unrest += (unrT - r.unrest) * 0.35 * dt;
+    if (!r.controlled) r.unrest = Math.max(r.unrest, 90);
+    r.unrest = clamp(r.unrest, 0, 100);
+
+    const pT = clamp(r.pBase + r.unrest * 0.3 + m.polarT, 0, 100);
+    r.polar += (pT - r.polar) * 0.2 * dt;
+    r.polar = clamp(r.polar, 0, 100);
+
+    const fT = Math.max(1.1, fTfr(r, st.year) + r.tfrBase + m.fert);
+    r.tfr += (fT - r.tfr) * 0.06 * dt;
+    r.age += (fAgeEq(r.tfr) - r.age) * 0.04 * dt;
+    r.pop *= 1 + dt * ((r.tfr - 2.1) * 0.011 + 0.002);
+
+    // transizione energetica: una deriva naturale lenta più gli interventi
+    const fs = (0.4 + m.fossilShift) * dt;
+    if (fs > 0) { const p = Math.min(fs, r.fossil - 3); r.fossil -= p; r.renew += p; }
+    else { const p = Math.min(-fs, r.renew); r.renew -= p; r.fossil += p; }
+
+    const resT = clamp(r.resistBase + m.resistT, 0, 100);
+    r.resist += (resT - r.resist) * 0.25 * dt;
+
+    // perdita del controllo
+    if (r.controlled) {
+      if (r.unrest >= 92) r.anarchy += dt; else r.anarchy = Math.max(0, r.anarchy - 0.5 * dt);
+      if (r.debt > 220 && rand() < 0.3 * dt) { r.shockU += 15; logNews(st, "In " + r.name + " lo stato non paga più stipendi e pensioni.", "bad"); }
+      if (r.anarchy >= 2) {
+        r.controlled = false;
+        logNews(st, r.name + " è precipitata nell'anarchia e non esegue più gli ordini.", "bad");
+        st.prog = st.prog.filter((p) => p.r !== r.id);
+      }
+    }
+  }
+
+  // clima
+  const E = emissions(st);
+  G.temp += dt * (0.024 * E / st.E0 - gm.co2Rem);
+
+  // cantieri in corso
+  const speed = 1 + st.axis / 400;
+  for (const p of st.prog) {
+    let k = speed;
+    if (p.id === "nuclear" && avgOf(st, "resist") > 60) k *= 0.6;
+    p.t += dt * k;
+  }
+  const done = st.prog.filter((p) => p.t >= p.T);
+  st.prog = st.prog.filter((p) => p.t < p.T);
+  for (const p of done) complete(st, IBY[p.id]);
+
+  // entrate e spese correnti
+  st.income = 6 * D.inc * econMass(st, true) / st.I0;
+  let upkeep = 0;
+  for (const aid in st.acts) { const d = IBY[aid]; if (d.upkeep && st.acts[aid].n > 0) upkeep += d.upkeep; }
+  st.upkeep = upkeep;
+  st.funds += (st.income - upkeep) * dt;
+  if (st.funds < 0) {
+    // le spese correnti si fermano se la cassa è vuota
+    for (const aid of ["ubi", "fossilSub"]) if (st.acts[aid]) revoke(st, aid);
+    logNews(st, "Cassa vuota: spese correnti sospese.", "bad");
+    st.funds = Math.max(st.funds, -5);
+  }
+
+  // calendario
+  st.month += 1;
+  if (st.month >= 12) { st.month = 0; st.year += 1; yearly(st); }
+  if (st.over) return null;
+
+  // catastrofi
+  const k = risks(st);
+  if (rand() < k.war * dt) { gameOver(st, "nucleare"); return null; }
+  if (rand() < k.ai * dt) { gameOver(st, "ai"); return null; }
+  if (rand() < k.bio * dt) st.flags.pandemic = true;
+  if (G.temp + G.geoOff >= 3.5) { gameOver(st, "clima"); return null; }
+  if (ctrlRegions(st).length < 6) { gameOver(st, "tutte"); return null; }
+
+  return rollEvent(st);
+}
+
+function rollEvent(st) {
+  const order = EVENTS.slice().sort(() => rand() - 0.5);
+  if (st.flags.pandemic) order.unshift(EBY.pandemic);
+  for (const ev of order) {
+    if (ev.scope === "global") {
+      const key = ev.id;
+      if ((st.cd[key] || 0) > st.year && ev.id !== "pandemic") continue;
+      const p = ev.p(st) * (ev.id === "pandemic" ? 1 : st.D.ev);
+      if (rand() < p / 12) { st.cd[key] = st.year + 3; return { id: ev.id, r: null }; }
+    } else {
+      for (const r of ctrlRegions(st)) {
+        const key = ev.id + ":" + r.id;
+        if ((st.cd[key] || 0) > st.year) continue;
+        const p = ev.p(st, r) * st.D.ev;
+        if (p > 0 && rand() < p / 12) { st.cd[key] = st.year + 3; return { id: ev.id, r: r.id }; }
+      }
+    }
+  }
+  return null;
+}
+
+function yearly(st) {
+  // diffusione delle innovazioni
+  for (const d of INTERVENTIONS) {
+    if (!d.spread) continue;
+    for (const id in st.regions) {
+      const src = st.regions[id];
+      if (!src.controlled || !src.acts[d.id] || src.acts[d.id].n < 1) continue;
+      for (const tid in st.regions) {
+        if (tid === id) continue;
+        const t = st.regions[tid];
+        if (!t.controlled || (t.acts[d.id] && (t.acts[d.id].n > 0 || t.acts[d.id].sp))) continue;
+        const ln = (RBY[id].links * RBY[tid].links) / 10000;
+        const p = RBY[id].nb.includes(tid) ? 0.12 + 0.25 * ln : 0.08 * ln;
+        if (rand() < p) {
+          t.acts[d.id] = { n: 0, sp: true, y: st.year };
+          logNews(st, d.name + ": l'innovazione arriva in " + RBY[tid].name + ".", "spread");
+        }
+      }
+    }
+  }
+  // stabilità
+  const ok = stability(st).every((c) => c.ok);
+  if (ok) {
+    st.stable += 1;
+    if (st.stable === 1) logNews(st, "Tutti gli indicatori sono nella zona di stabilità. Vanno mantenuti per " + STABLE_YEARS + " anni.", "done");
+    if (st.stable >= STABLE_YEARS) gameOver(st, "vittoria");
+  } else if (st.stable > 0) {
+    st.stable = 0;
+    logNews(st, "La stabilità si è interrotta: il conteggio riparte.", "bad");
+  }
+}
+
+if (typeof module !== "undefined") module.exports = {
+  DIFF, REGIONS, RBY, INTERVENTIONS, IBY, CATS, EVENTS, EBY, ENDINGS, STABLE_YEARS, RISK_LABELS,
+  newGame, tick, startIntervention, canStart, parentOk, TREE, resolveEvent, revoke, stability, riskBoard, risks, emissions, worldPop, lvl, setSeed, rand,
+};
+
+</script>
+<script>
+"use strict";
+/* ---------- proiezione Equal Earth (Šavrič, Patterson, Jenny 2018) ---------- */
+const A1 = 1.340264, A2 = -0.081106, A3 = 0.000893, A4 = 0.003796, MM = Math.sqrt(3) / 2, SC = 100;
+function ee(lon, lat) {
+  const l = lon * Math.PI / 180, p = lat * Math.PI / 180;
+  const t = Math.asin(MM * Math.sin(p)), t2 = t * t, t6 = t2 * t2 * t2;
+  const x = l * Math.cos(t) / (MM * (A1 + 3 * A2 * t2 + t6 * (7 * A3 + 9 * A4 * t2)));
+  const y = t * (A1 + A2 * t2 + t6 * (A3 + A4 * t2));
+  return [x * SC, -y * SC];
+}
+const $ = (id) => document.getElementById(id);
+const NS = "http://www.w3.org/2000/svg";
+const svgEl = (tag, attrs) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
+const fmt = (v, d = 1) => v.toLocaleString("it-IT", { minimumFractionDigits: d, maximumFractionDigits: d });
+const MONTHS = ["gen", "feb", "mar", "apr", "mag", "giu", "lug", "ago", "set", "ott", "nov", "dic"];
+const CAT_COLOR = { energia: "#e9b44c", nucleare: "#d4d86a", economia: "#9fc36b", demografia: "#c98fd6", societa: "#6fb0d8", clima: "#4fae8e", salute: "#e57d8c", sicurezza: "#d68a4a", ai: "#8fa8ff", spazio: "#cfd8df" };
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const SHORT = {
+  fossilSub: "Sussidi fossili", carbonTax: "Tassa carbonio", efficiency: "Efficienza", renew: "Solare ed eolico", grid: "Reti e accumuli",
+  nuclear: "Centrale nucleare", smr: "Reattori modulari", fusion: "Fusione", nucInfo: "Informazione",
+  invest: "Investimenti", automation: "Automazione", retrain: "Formazione", ubi: "Reddito di base", austerity: "Tagli alla spesa", debtRestr: "Taglio del debito",
+  retire: "Età pensionabile", healthyAging: "Invecchiamento sano", contrib: "Contributi", family: "Servizi famiglia", natality: "Natalità", migration: "Corridoi migratori", integration: "Integrazione",
+  transparency: "Trasparenza", assemblies: "Assemblee", disinfo: "Disinformazione", police: "Ordine pubblico", education: "Istruzione", develop: "Aiuti allo sviluppo",
+  adapt: "Adattamento", agri: "Agricoltura", reforest: "Riforestazione", dac: "Cattura CO₂", geoeng: "Geoingegneria",
+  surveil: "Sorveglianza", vaccines: "Vaccini rapidi", labRules: "Regole laboratori", amr: "Antibiotici",
+  mediation: "Mediazione", fissile: "Materiale fissile", arms: "Riduzione arsenali",
+  aiCap: "Capacità AI", aiReg: "Regole AI", align: "Allineamento",
+  launch: "Lanciatori", pdef: "Difesa planetaria", moon: "Base lunare",
+};
+const DIFF_TEXT = {
+  facile: "Più fondi, meno crisi. Per imparare le regole.",
+  medio: "L'esperienza prevista: le crisi arrivano a ritmo realistico.",
+  difficile: "Entrate più basse, eventi più frequenti, filtri più pericolosi.",
+  super: "Poche risorse e un mondo sull'orlo. Ogni errore costa caro.",
+};
+
+/* ---------- stato dell'interfaccia ---------- */
+let st = null;
+let phase = "title";      // title | how | diff | play | over
+let introDiff = "medio";
+let sel = null;
+let speed = 1, savedSpeed = 1;
+let pending = null;
+let layer = "unrest";
+let actTab = "energia", actNode = null;
+let openScreen = null;    // acts | reg | world
+const MONTH_MS = 1000;
+
+/* ---------- livelli della mappa ---------- */
+const C_GOOD = [79, 174, 142], C_WARN = [227, 163, 63], C_BAD = [214, 91, 74], C_LOW = [128, 120, 214];
+function mix(a, b, k) { return a.map((x, i) => Math.round(x + (b[i] - x) * k)); }
+function soften(c) { const land = [61, 82, 99]; return "rgb(" + c.map((x, i) => Math.round(x * 0.72 + land[i] * 0.28)).join(",") + ")"; }
+function heat(t) {
+  t = Math.max(0, Math.min(1, t));
+  return soften(t < 0.5 ? mix(C_GOOD, C_WARN, t * 2) : mix(C_WARN, C_BAD, (t - 0.5) * 2));
+}
+const HEAT_BAR = "linear-gradient(90deg, rgb(79,174,142), rgb(227,163,63), rgb(214,91,74))";
+const LAYERS = {
+  unrest: { name: "Malcontento", col: (r) => heat((r.unrest - 20) / 60), a: "calmo", b: "in rivolta", bar: HEAT_BAR },
+  debt: { name: "Debito", col: (r) => heat((r.debt - 40) / 130), a: "basso", b: "insostenibile", bar: HEAT_BAR },
+  fossil: { name: "Energia fossile", col: (r) => heat((r.fossil - 10) / 85), a: "pulita", b: "fossile", bar: HEAT_BAR },
+  pension: { name: "Peso del welfare", col: (r) => heat((r.pension - 10) / 75), a: "leggero", b: "pesante", bar: HEAT_BAR },
+  // scala divergente: 2,1 figli per donna mantiene stabile la popolazione
+  tfr: { name: "Figli per donna", col: (r) => {
+      const d = r.tfr - 2.1;
+      return soften(d < 0 ? mix(C_GOOD, C_LOW, Math.min(1, -d / 1.0)) : mix(C_GOOD, C_WARN, Math.min(1, d / 2.4)));
+    }, a: "sotto 2,1: cala", b: "sopra 2,1: cresce", bar: "linear-gradient(90deg, rgb(128,120,214), rgb(79,174,142), rgb(227,163,63))" },
+};
+function stateOf(r) {
+  if (!r.controlled) return { t: "In anarchia", c: "#d65b4a" };
+  if (r.unrest >= 80) return { t: "In rivolta", c: "#d65b4a" };
+  if (r.unrest >= 62) return { t: "Instabile", c: "#d6774a" };
+  if (r.unrest >= 45) return { t: "Inquieta", c: "#e3a33f" };
+  return { t: "Stabile", c: "#4fae8e" };
+}
+
+/* ---------- mappa centrata sulla sede ---------- */
+let regionEls = {}, labelEls = {};
+function wrapOffset(lon, center) { const rel = lon - center; const w = ((rel + 540) % 360) - 180; return w - rel; }
+function polyPath(poly, center, off) {
+  return "M" + poly.map(([lo, la]) => { const [x, y] = ee(lo - center + off, la); return x.toFixed(1) + " " + y.toFixed(1); }).join("L") + "Z";
+}
+function buildMap(center) {
+  let o = "";
+  for (let la = 90; la >= -90; la -= 2) { const [x, y] = ee(180, la); o += (o ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1); }
+  for (let la = -90; la <= 90; la += 2) { const [x, y] = ee(-180, la); o += "L" + x.toFixed(1) + " " + y.toFixed(1); }
+  o += "Z";
+  $("outlinePath").setAttribute("d", o); $("oceanFill").setAttribute("d", o); $("outlineStroke").setAttribute("d", o);
+  const g = $("grat"); g.innerHTML = ""; const gl = $("gratlbls"); gl.innerHTML = "";
+  const pars = [[66.56, "Circolo polare artico"], [23.44, "Tropico del Cancro"], [0, "Equatore"], [-23.44, "Tropico del Capricorno"]];
+  for (const [la, name] of pars) {
+    let d = ""; for (let lo = -180; lo <= 180; lo += 4) { const [x, y] = ee(lo, la); d += (d ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1); }
+    g.appendChild(svgEl("path", { d, class: "grat" + (la === 0 ? " eq" : "") }));
+    const [x, y] = ee(-178, la); const t = svgEl("text", { x: x + 4, y: y - 1.5, class: "gratlbl" }); t.textContent = name; gl.appendChild(t);
+  }
+  for (let lo = -150; lo <= 150; lo += 30) {
+    let d = ""; for (let la = -88; la <= 88; la += 4) { const [x, y] = ee(lo, la); d += (d ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1); }
+    g.appendChild(svgEl("path", { d, class: "grat" }));
+  }
+  const rg = $("regions"); rg.innerHTML = ""; const lg = $("labels"); lg.innerHTML = "";
+  regionEls = {}; labelEls = {};
+  for (const R of REGIONS) {
+    const off = wrapOffset(R.label[0], center);
+    let d = "";
+    for (const poly of R.polys) for (const k of [-360, 0, 360]) d += polyPath(poly, center, off + k);
+    const grp = svgEl("g", { class: "reg", "data-id": R.id });
+    const p = svgEl("path", { d, class: "shape", fill: "var(--land)" });
+    const title = svgEl("title", {}); title.textContent = R.name; p.appendChild(title);
+    grp.appendChild(p); rg.appendChild(grp);
+    grp.addEventListener("click", () => onRegionTap(R.id));
+    regionEls[R.id] = grp;
+    const [lx, ly] = ee(R.label[0] - center + off, R.label[1]);
+    const lab = svgEl("g", { class: "lbl", transform: `translate(${lx.toFixed(1)} ${ly.toFixed(1)})` });
+    const t = svgEl("text", { "text-anchor": "middle", y: 0 }); t.textContent = R.short; lab.appendChild(t);
+    const icons = svgEl("g", { transform: "translate(0 4)" }); lab.appendChild(icons);
+    lg.appendChild(lab);
+    labelEls[R.id] = { g: lab, t, icons };
+  }
+}
+
+/* ---------- disegno della mappa e dei comandi ---------- */
+function paint() {
+  const L = LAYERS[layer];
+  for (const R of REGIONS) {
+    const el = regionEls[R.id];
+    const r = st ? st.regions[R.id] : null;
+    const shape = el.firstChild;
+    shape.setAttribute("fill", r ? L.col(r) : "var(--land)");
+    el.classList.toggle("sel", sel === R.id);
+    el.classList.toggle("lost", !!(r && !r.controlled));
+  }
+  $("legLo").textContent = L.a; $("legHi").textContent = L.b; $("legBar").style.background = L.bar;
+  $("viewName").textContent = L.name;
+}
+function hud() {
+  if (!st) return;
+  $("sDate").textContent = MONTHS[st.month] + " " + st.year;
+  const net = st.income - (st.upkeep || 0);
+  $("sFunds").textContent = fmt(st.funds, 1);
+  $("sNet").textContent = (net >= 0 ? "+" : "−") + fmt(Math.abs(net), 1) + "/anno";
+  $("sTemp").textContent = "+" + fmt(st.g.temp + st.g.geoOff, 2) + " °C";
+  $("sPop").textContent = fmt(worldPop(st) / 1000, 2) + " mld";
+  $("sStable").textContent = st.stable + " / " + STABLE_YEARS + " anni";
+  const n = st.log[0];
+  $("ticker").innerHTML = n ? `<b>${MONTHS[n.mo]} ${n.y}</b> · ${esc(n.text)}` : "";
+  for (const b of document.querySelectorAll(".speed button")) b.setAttribute("aria-pressed", String(+b.dataset.s === speed));
+  const s = $("regStrip");
+  if (!sel) { s.innerHTML = `<span class="stripe"></span><span class="nm">Nessuna regione</span><span class="st">Tocca una regione sulla mappa</span>`; return; }
+  const r = st.regions[sel], S = stateOf(r);
+  s.innerHTML = `<span class="stripe" style="background:${S.c}"></span><span class="nm">${esc(RBY[sel].name)} · ${S.t}</span>
+    <span class="st">Malcontento ${Math.round(r.unrest)} · Debito ${Math.round(r.debt)}% · Fossili ${Math.round(r.fossil)}%</span><span class="go">Dettagli ›</span>`;
+}
+function refresh() {
+  paint(); hud();
+  if (openScreen === "world") renderWorld();
+  if (openScreen === "reg") renderRegion();
+}
+
+/* ---------- vista della mappa ---------- */
+function renderViews() {
+  $("views").innerHTML = Object.entries(LAYERS).map(([k, L]) => `<button type="button" data-l="${k}" aria-pressed="${k === layer}">${L.name}</button>`).join("");
+  for (const b of $("views").querySelectorAll("button")) b.onclick = () => { layer = b.dataset.l; $("views").hidden = true; renderViews(); paint(); };
+}
+$("viewBtn").onclick = () => { $("views").hidden = !$("views").hidden; };
+
+/* ---------- menu iniziale ---------- */
+function showPhase(p) {
+  phase = p;
+  $("menuTitle").hidden = p !== "title";
+  $("menuHow").hidden = p !== "how";
+  $("menuDiff").hidden = p !== "diff";
+  $("hud").hidden = !(p === "play" || p === "over");
+  if (p === "diff") renderDiffs();
+  paint();
+}
+function renderDiffs() {
+  $("diffs").innerHTML = Object.entries(DIFF).map(([k, d], i) => `<button type="button" class="diff" data-d="${k}" aria-pressed="${k === introDiff}"><b>${d.name}</b><span class="pips">${[0, 1, 2, 3].map((j) => `<i style="background:${j <= i ? "var(--accent)" : ""}"></i>`).join("")}</span><span>${DIFF_TEXT[k]}</span></button>`).join("");
+  for (const b of $("diffs").querySelectorAll("[data-d]")) b.onclick = () => { introDiff = b.dataset.d; renderDiffs(); };
+}
+$("mPlay").onclick = () => { tryLandscape(); music.start(); showPhase("diff"); };
+$("mHow").onclick = () => showPhase("how");
+$("mNext").onclick = startGame;
+for (const b of document.querySelectorAll("[data-back]")) b.onclick = () => showPhase(b.dataset.back);
+function tryLandscape() {
+  // sui telefoni che lo permettono passa a schermo intero e blocca l'orizzontale; altrove non fa nulla
+  try {
+    const el = document.documentElement;
+    const p = el.requestFullscreen ? el.requestFullscreen() : null;
+    if (p && p.then) p.then(() => screen.orientation && screen.orientation.lock && screen.orientation.lock("landscape").catch(() => {})).catch(() => {});
+  } catch (e) {}
+}
+function startGame() {
+  st = newGame(introDiff);
+  sel = null;
+  speed = 1;
+  showPhase("play");
+  refresh();
+}
+function onRegionTap(id) {
+  $("views").hidden = true;
+  if (phase !== "play" && phase !== "over") return;
+  sel = sel === id ? null : id;
+  refresh();
+}
+
+/* ---------- schermate con il tempo fermo ---------- */
+function open(kind) {
+  if (phase !== "play") return;
+  if (openScreen === null) { savedSpeed = speed || savedSpeed || 1; speed = 0; }
+  for (const k of ["acts", "reg", "world"]) $(k === "acts" ? "scrActs" : k === "reg" ? "scrReg" : "scrWorld").hidden = k !== kind;
+  openScreen = kind;
+  if (kind === "acts") renderActs(); else if (kind === "reg") renderRegion(); else renderWorld();
+  hud();
+}
+function closeScreens() {
+  $("scrActs").hidden = $("scrReg").hidden = $("scrWorld").hidden = true;
+  openScreen = null;
+  if (!pending && phase === "play") speed = savedSpeed || 1;
+  refresh();
+}
+const headHTML = (title, extra = "") => `<div class="head"><button type="button" class="back" data-close aria-label="Torna alla mappa">‹</button><h2>${title}</h2>${extra}</div>`;
+function wireClose(root) { for (const b of root.querySelectorAll("[data-close]")) b.onclick = closeScreens; }
+
+/* ---------- albero degli interventi ---------- */
+// esagoni a punta piatta; le radici a sinistra, i rami si aprono verso destra
+const HR = 40, HX = 104, HY = 84;
+function nodeState(d) {
+  const a = st.acts[d.id];
+  const prog = st.prog.filter((p) => p.id === d.id);
+  const why = canStart(st, d.id);
+  const locked = (d.from && st.year < d.from) || !parentOk(st, d);
+  let cls = "avail";
+  if (a && a.n > 0) cls = "active"; else if (locked) cls = "locked";
+  return { a, prog, why, cls };
+}
+function layoutTree(list) {
+  // ogni foglia occupa una riga, ogni padre sta al centro dei suoi figli
+  const kids = {}; list.forEach((d) => (kids[d.id] = []));
+  list.forEach((d) => { if (d.parent && kids[d.parent]) kids[d.parent].push(d.id); });
+  const pos = {}; let row = 0;
+  function place(id, depth) {
+    if (!kids[id].length) { pos[id] = [depth, row++]; return pos[id][1]; }
+    const rows = kids[id].map((k) => place(k, depth + 1));
+    pos[id] = [depth, (rows[0] + rows[rows.length - 1]) / 2];
+    return pos[id][1];
+  }
+  list.filter((d) => !d.parent || !kids[d.parent]).forEach((d) => place(d.id, 0));
+  return pos;
+}
+function renderActs() {
+  const root = $("scrActs");
+  const tabs = `<div class="tabs" role="group" aria-label="Categorie">${CATS.map((c) => `<button type="button" data-c="${c.id}" aria-pressed="${c.id === actTab}"><svg style="color:${CAT_COLOR[c.id]}"><use href="#i-${c.id}"/></svg>${c.name}</button>`).join("")}</div>`;
+  root.innerHTML = `<div class="head"><button type="button" class="back" data-close aria-label="Torna alla mappa">‹</button>${tabs}</div>
+    <div class="acts"><div class="treebox"><svg id="tree" preserveAspectRatio="xMidYMid meet"></svg></div><div class="detail" id="detail"></div></div>
+    <div class="foot"><span>Fondi <b>${fmt(st.funds, 1)}</b></span><span>Ogni intervento vale per tutto il mondo</span>
+      <span class="lg"><span><i style="background:#27485f;border:1px solid #5a83a3"></i>Disponibile</span><span><i style="background:#2f7a5f;border:1px solid #8fe0bf"></i>Attivo</span><span><i style="background:#172b39;border:1px solid #2b4356"></i>Bloccato</span></span></div>`;
+  wireClose(root);
+  for (const b of root.querySelectorAll("[data-c]")) b.onclick = () => { actTab = b.dataset.c; actNode = null; renderActs(); };
+  drawTree();
+  renderDetail();
+}
+function hexPts(r) { return [0, 1, 2, 3, 4, 5].map((i) => { const a = Math.PI / 3 * i; return (r * Math.cos(a)).toFixed(1) + "," + (r * Math.sin(a)).toFixed(1); }).join(" "); }
+function splitLabel(s) {
+  const w = s.split(" ");
+  if (w.length === 1 || s.length <= 11) return [s];
+  let best = [s], bestD = 1e9;
+  for (let i = 1; i < w.length; i++) { const a = w.slice(0, i).join(" "), b = w.slice(i).join(" "), d = Math.max(a.length, b.length); if (d < bestD) { bestD = d; best = [a, b]; } }
+  return best;
+}
+function drawTree() {
+  const list = INTERVENTIONS.filter((d) => d.cat === actTab);
+  if (!actNode || !list.some((d) => d.id === actNode)) actNode = list[0].id;
+  const pos = layoutTree(list);
+  const cols = Math.max(...Object.values(pos).map((p) => p[0])) + 1;
+  const rows = Math.max(...Object.values(pos).map((p) => p[1])) + 1;
+  // griglia fissa di 4 colonne per 3 righe: le caselle hanno la stessa grandezza in ogni categoria
+  const W = Math.max(cols, 4) * HX, H = Math.max(rows, 3) * HY;
+  const ox = (W - cols * HX) / 2, oy = (H - rows * HY) / 2;
+  const svg = $("tree");
+  svg.setAttribute("viewBox", `${-HX / 2} ${-HY / 2} ${W} ${H}`);
+  svg.innerHTML = "";
+  const P = (id) => [ox + pos[id][0] * HX, oy + pos[id][1] * HY];
+  for (const d of list) if (d.parent && pos[d.parent]) {
+    const [x1, y1] = P(d.parent), [x2, y2] = P(d.id);
+    const on = st.acts[d.parent] && st.acts[d.parent].n > 0;
+    svg.appendChild(svgEl("path", { d: `M${x1} ${y1} L${x2} ${y2}`, class: "edge" + (on ? " on" : "") }));
+  }
+  for (const d of list) {
+    const [x, y] = P(d.id);
+    const s = nodeState(d);
+    const g = svgEl("g", { class: `node ${s.cls}${d.id === actNode ? " sel" : ""}`, transform: `translate(${x} ${y})`, role: "button", tabindex: "0", "aria-label": d.name });
+    g.appendChild(svgEl("polygon", { points: hexPts(HR), class: "hex" }));
+    const lines = splitLabel(SHORT[d.id] || d.name);
+    const icon = s.cls === "locked" ? "lock" : d.cat;
+    const top = lines.length === 2 ? -28 : -22;
+    g.appendChild(svgEl("use", { href: "#i-" + icon, x: -8, y: top, width: 16, height: 16, style: "color:" + (s.cls === "active" ? "#e6edf2" : CAT_COLOR[d.cat]) }));
+    lines.forEach((ln, i) => { const t = svgEl("text", { class: "nl", y: (lines.length === 2 ? 2 : 8) + i * 14 }); t.textContent = ln; g.appendChild(t); });
+    for (const p of s.prog) {
+      g.appendChild(svgEl("rect", { x: -24, y: 25, width: 48, height: 5, rx: 2.5, fill: "#14283a" }));
+      g.appendChild(svgEl("rect", { x: -24, y: 25, width: (48 * Math.min(1, p.t / p.T)).toFixed(1), height: 5, rx: 2.5, fill: "#6fb0d8" }));
+    }
+    if (s.a && s.a.n > 1) { const t = svgEl("text", { y: -27, x: 24, class: "cnt" }); t.textContent = "×" + s.a.n; g.appendChild(t); }
+    const pick = () => { actNode = d.id; drawTree(); renderDetail(); };
+    g.addEventListener("click", pick);
+    g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
+    svg.appendChild(g);
+  }
+}
+function renderDetail() {
+  const d = IBY[actNode];
+  const s = nodeState(d);
+  let state = "";
+  if (s.a && s.a.n > 0) state = "Attivo in tutto il mondo" + (s.a.n > 1 ? " (" + s.a.n + ")" : "");
+  for (const p of s.prog) state += (state ? " · " : "") + `In corso: ${Math.floor(p.t)} di ${p.T} anni`;
+  const cost = (d.cost ? d.cost + " fondi" : "gratis") + (d.upkeep ? ` · ${d.upkeep > 0 ? "−" : "+"}${Math.abs(d.upkeep)} fondi/anno` : "") + " · " + (d.T ? d.T + (d.T === 1 ? " anno" : " anni") : "effetto immediato");
+  const prereq = d.parent ? `<p class="why">Si sblocca dopo: ${esc(IBY[d.parent].name)}.</p>` : "";
+  const fromTxt = d.from ? `<p class="why">Tecnologia disponibile dal ${d.from}.</p>` : "";
+  const done = s.a && s.a.n > 0 && !d.stack && !d.repeat;
+  const buyLabel = done ? "Già attivo" : (s.a && s.a.n > 0 && d.stack) ? "Costruisci ancora" : s.prog.length && !d.stack ? "In corso" : "Avvia";
+  const priceTxt = d.cost && !done ? ` – ${d.cost}` : "";
+  const showWhy = s.why && !done && s.why !== "In corso" && !s.why.startsWith("Richiede") && !s.why.startsWith("Disponibile");
+  $("detail").innerHTML = `<div class="scroll">
+      <h3>${esc(d.name)}</h3>
+      <span class="meta">${cost}</span>
+      ${state ? `<span class="state">${state}</span>` : ""}
+      <p class="pro"><b>Pro.</b> ${esc(d.pro)}</p>
+      <p class="con"><b>Contro.</b> ${esc(d.con)}</p>
+      ${prereq}${fromTxt}
+      ${showWhy ? `<p class="why">${esc(s.why)}</p>` : ""}
+    </div>
+    <button type="button" class="buy" id="dBuy" ${s.why ? "disabled" : ""}>${buyLabel}${priceTxt}</button>
+    ${s.a && s.a.n > 0 && d.upkeep ? `<button type="button" class="buy alt" id="dRev">Revoca</button>` : ""}`;
+  $("dBuy").onclick = () => { if (!startIntervention(st, d.id)) { renderActs(); hud(); paint(); } };
+  if ($("dRev")) $("dRev").onclick = () => { revoke(st, d.id); renderActs(); hud(); paint(); };
+}
+
+/* ---------- scheda regione ---------- */
+function meterRow(k, val, txt, lo, hi) {
+  const t = Math.max(0, Math.min(1, (val - lo) / (hi - lo)));
+  return `<span class="k">${k}</span><span class="meter"><i style="width:${(t * 100).toFixed(0)}%;background:${heat(t)}"></i></span><span class="v">${txt}</span>`;
+}
+function renderRegion() {
+  const root = $("scrReg");
+  if (!sel) { closeScreens(); return; }
+  const r = st.regions[sel], R = RBY[sel], S = stateOf(r);
+  root.innerHTML = headHTML(`${esc(R.name)} <span style="color:${S.c};font-size:15px">· ${S.t}</span>`) + `
+    <div class="cols">
+      <section class="sec"><h3>Condizioni</h3><div class="meters">
+        ${meterRow("Malcontento", r.unrest, Math.round(r.unrest), 0, 100)}
+        ${meterRow("Polarizzazione", r.polar, Math.round(r.polar), 0, 100)}
+        ${meterRow("Debito pubblico", r.debt, Math.round(r.debt) + "%", 0, 200)}
+        ${meterRow("Peso del welfare", r.pension, Math.round(r.pension), 0, 100)}
+        ${meterRow("Disoccupazione", r.unemp, fmt(r.unemp, 1) + "%", 0, 20)}
+        ${meterRow("Energia fossile", r.fossil, Math.round(r.fossil) + "%", 0, 100)}
+        ${meterRow("Contrari al nucleare", r.resist, Math.round(r.resist), 0, 100)}
+      </div>
+      ${!r.controlled ? `<p class="note" style="color:#f0a597">La regione è in anarchia: non esegue più gli ordini e non versa fondi.</p>` : ""}</section>
+      <section class="sec"><h3>Popolazione ed economia</h3><div class="kv">
+        <span>Abitanti</span><span>${fmt(r.pop, 0)} mln</span>
+        <span>Età mediana</span><span>${fmt(r.age, 1)} anni</span>
+        <span>Figli per donna</span><span>${fmt(r.tfr, 2)}</span>
+        <span>Crescita economica</span><span>${r.growth >= 0 ? "+" : ""}${fmt(r.growth, 1)}%</span>
+        <span>Ricchezza (indice)</span><span>${Math.round(r.wealth)}</span>
+        <span>Aree urbane · rurali · remote</span><span>${R.init.urban} · ${R.init.rural} · ${R.init.remote}%</span>
+        <span>Collegamenti con il mondo</span><span>${R.links}</span>
+      </div>${r.autonomy ? `<p class="note">Ha ottenuto concessioni di autonomia: versa il 10% in meno.</p>` : ""}</section>
+    </div>`;
+  wireClose(root);
+}
+
+/* ---------- scheda mondo ---------- */
+function renderWorld() {
+  const root = $("scrWorld");
+  const checks = stability(st);
+  const rb = riskBoard(st);
+  const E = emissions(st) / st.E0 * 100;
+  const lvColors = ["#4fae8e", "#e3a33f", "#d6774a", "#d65b4a"];
+  root.innerHTML = headHTML("Mondo") + `<div class="cols">
+    <section class="sec"><h3>Terra stabilizzata</h3>
+      <div class="years" aria-label="Anni di stabilità">${Array.from({ length: STABLE_YEARS }, (_, i) => `<i class="${i < st.stable ? "on" : ""}"></i>`).join("")}</div>
+      <p class="note" style="margin:0 0 4px">${st.stable} anni consecutivi su ${STABLE_YEARS}. Tutte le condizioni devono valere insieme.</p>
+      ${checks.map((c) => `<div class="check ${c.ok ? "ok" : ""}"><span class="dot"></span><span>${esc(c.label)}</span><span class="val">${esc(c.val)}</span></div>`).join("")}</section>
+    <section class="sec"><h3>Filtri</h3>${rb.map((x) => `<div class="risk"><span>${x.name}</span><b style="color:${lvColors[x.lv]};font-weight:600">${RISK_LABELS[x.lv]}</b><span class="lv">${[0, 1, 2, 3].map((i) => `<i style="background:${i <= x.lv ? lvColors[x.lv] : ""}"></i>`).join("")}</span></div>`).join("")}
+      <p class="note">Le stime sono volutamente imprecise: nessuno sa davvero quanto il mondo sia vicino al baratro.</p>
+      <div class="axis">Assetto dell'Autorità<div class="track"><i style="left:${50 + st.axis / 2}%"></i></div><div class="ends"><span>Pluralismo: lento ma resiliente</span><span>Centralizzazione: rapido ma fragile</span></div></div></section>
+    <section class="sec"><h3>Indicatori</h3><div class="kv">
+      <span>Temperatura rispetto al preindustriale</span><span>+${fmt(st.g.temp + st.g.geoOff, 2)} °C</span>
+      <span>Emissioni rispetto al 2026</span><span>${Math.round(E)}%</span>
+      <span>Tensione tra le potenze</span><span>${Math.round(st.g.tension)}</span>
+      <span>Arsenali nucleari rispetto al 2026</span><span>${Math.round(st.g.arsenal)}%</span>
+      <span>Popolazione mondiale</span><span>${fmt(worldPop(st) / 1000, 2)} mld</span>
+      <span>Entrate dell'Autorità</span><span>${fmt(st.income, 1)}/anno</span>
+      <span>Spese correnti</span><span>${fmt(st.upkeep || 0, 1)}/anno</span>
+      <span>Base lunare</span><span>${st.moon ? "operativa" : "no"}</span></div></section>
+    <section class="sec"><h3>Notizie</h3><ul class="log">${st.log.slice(0, 30).map((n) => `<li><time>${MONTHS[n.mo]} ${n.y}</time><span class="${n.kind}">${esc(n.text)}</span></li>`).join("")}</ul></section>
+  </div>`;
+  wireClose(root);
+}
+
+/* ---------- eventi ---------- */
+function showEvent(ev) {
+  pending = ev;
+  if (openScreen === null) savedSpeed = speed || savedSpeed || 1;
+  speed = 0;
+  const E = EBY[ev.id], r = ev.r ? st.regions[ev.r] : null;
+  if (ev.r) sel = ev.r;
+  const c = $("modalCard");
+  c.innerHTML = `<div class="eyebrow">${esc(E.cat)}${r ? " · " + esc(r.name) : " · Tutto il mondo"} · ${MONTHS[st.month]} ${st.year}</div><h2>${esc(E.title)}</h2><p>${esc(E.text(st, r))}</p>
+    <div class="choices">${E.choices.map((ch, i) => `<button type="button" class="choice" data-i="${i}" ${ch.cost > 0 && st.funds < ch.cost ? "disabled" : ""}><b>${esc(ch.label)}</b><span class="c">${ch.cost > 0 ? ch.cost + " fondi" : ch.cost < 0 ? "+" + -ch.cost + " fondi" : "gratis"}</span><small>${esc(ch.out)}${ch.cost > 0 && st.funds < ch.cost ? " · fondi insufficienti" : ""}</small></button>`).join("")}</div>`;
+  $("modal").hidden = false;
+  for (const b of c.querySelectorAll("[data-i]")) b.onclick = () => {
+    if (resolveEvent(st, pending, +b.dataset.i)) return;
+    pending = null; $("modal").hidden = true;
+    speed = openScreen ? 0 : savedSpeed || 1;
+    if (st.over) endGame(); else refresh();
+  };
+  refresh();
+  c.querySelector("button:not(:disabled)")?.focus();
+}
+
+/* ---------- fine partita ---------- */
+function endGame() {
+  closeScreensQuiet();
+  phase = "over"; speed = 0;
+  const E = ENDINGS[st.over], win = st.over === "vittoria";
+  const c = $("modalCard");
+  c.innerHTML = `<div class="eyebrow">${win ? "Vittoria" : "Sconfitta"} · ${st.year} · ${DIFF[st.diffId].name}</div><h2>${esc(E.title)}</h2><p>${esc(E.text)}</p>
+    <div class="kv" style="margin-bottom:12px"><span>Anni di governo</span><span>${st.year - 2026}</span><span>Temperatura</span><span>+${fmt(st.g.temp + st.g.geoOff, 2)} °C</span><span>Popolazione</span><span>${fmt(worldPop(st) / 1000, 2)} mld</span><span>Regioni sotto controllo</span><span>${Object.values(st.regions).filter((r) => r.controlled).length} su 11</span><span>Base lunare</span><span>${st.moon ? "sì" : "no"}</span></div>
+    <div class="choices"><button type="button" class="buy" id="bAgain" style="margin:0">Nuova partita</button><button type="button" class="buy alt" id="bLook" style="margin:0">Guarda la mappa</button></div>`;
+  $("modal").hidden = false;
+  $("bAgain").onclick = () => { $("modal").hidden = true; st = null; sel = null; showPhase("title"); };
+  $("bLook").onclick = () => { $("modal").hidden = true; };
+  refresh();
+}
+function closeScreensQuiet() { $("scrActs").hidden = $("scrReg").hidden = $("scrWorld").hidden = true; openScreen = null; }
+
+/* ---------- ciclo del tempo ---------- */
+let last = performance.now(), acc = 0;
+function loop(now) {
+  const dtms = Math.min(250, now - last); last = now;
+  if (phase === "play" && speed > 0 && !pending && !st.over) {
+    acc += dtms * speed;
+    let changed = false;
+    while (acc >= MONTH_MS) {
+      acc -= MONTH_MS;
+      const ev = tick(st);
+      changed = true;
+      if (st.over) { endGame(); break; }
+      if (ev) { showEvent(ev); break; }
+    }
+    if (changed && phase === "play") refresh();
+  }
+  requestAnimationFrame(loop);
+}
+
+/* ---------- comandi ---------- */
+for (const b of document.querySelectorAll(".speed button")) b.onclick = () => {
+  if (phase !== "play" || pending) return;
+  speed = +b.dataset.s; if (speed > 0) savedSpeed = speed;
+  hud();
+};
+$("bActs").onclick = () => open("acts");
+$("bWorld").onclick = () => open("world");
+$("regStrip").onclick = () => { if (sel) open("reg"); };
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && openScreen) closeScreens();
+  if (e.key === " " && phase === "play" && !pending && !openScreen && e.target === document.body) { e.preventDefault(); speed = speed ? 0 : savedSpeed || 1; hud(); }
+});
+
+/* ---------- rotazione automatica ----------
+   Sul telefono in verticale l'intero gioco viene girato di 90°: basta ruotare il telefono per giocare in orizzontale. */
+function fit() {
+  const app = $("app"), W = document.body.clientWidth, H = document.body.clientHeight;
+  const turn = H > W && W < 820;
+  app.classList.toggle("turned", turn);
+  if (turn) { app.style.width = H + "px"; app.style.height = W + "px"; app.style.transform = `translateX(${W}px) rotate(90deg)`; }
+  else { app.style.width = app.style.height = app.style.transform = ""; }
+  const aw = turn ? H : W, ah = turn ? W : H;
+  app.classList.toggle("compact", ah <= 430);
+  app.classList.toggle("narrow", aw <= 700);
+}
+window.addEventListener("resize", fit);
+window.addEventListener("orientationchange", () => setTimeout(fit, 150));
+
+/* ---------- musica provvisoria, generata dal codice ----------
+   Accordi lenti in la minore con un'eco leggera e qualche nota sparsa. Parte al primo tocco (i browser lo richiedono). */
+const music = (() => {
+  let ctx = null, master = null, timer = null, step = 0;
+  let on = true; try { on = localStorage.getItem("gf-music") !== "off"; } catch (e) {}
+  const CHORDS = [[57, 60, 64, 71], [53, 57, 60, 64], [48, 55, 60, 64], [55, 59, 62, 69]]; // la minore, fa, do, sol
+  const PENTA = [69, 72, 74, 76, 79, 81];
+  const hz = (n) => 440 * Math.pow(2, (n - 69) / 12);
+  function setup() {
+    const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return false;
+    ctx = new AC();
+    master = ctx.createGain(); master.gain.value = 0;
+    const delay = ctx.createDelay(); delay.delayTime.value = 0.46;
+    const fb = ctx.createGain(); fb.gain.value = 0.33;
+    const tone = ctx.createBiquadFilter(); tone.type = "lowpass"; tone.frequency.value = 1800;
+    master.connect(ctx.destination); master.connect(delay); delay.connect(tone); tone.connect(fb); fb.connect(delay); tone.connect(ctx.destination);
+    return true;
+  }
+  function pad(t) {
+    const ch = CHORDS[step % CHORDS.length]; step++;
+    const lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 900; lp.connect(master);
+    [...ch, ch[0] - 12].forEach((n, i) => {
+      const bass = i === ch.length;
+      for (const det of bass ? [0] : [-5, 5]) {
+        const o = ctx.createOscillator(), g = ctx.createGain(), v = bass ? 0.09 : 0.035;
+        o.type = bass ? "sine" : "triangle"; o.frequency.value = hz(n); o.detune.value = det;
+        g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + 2.6);
+        g.gain.setValueAtTime(v, t + 6); g.gain.linearRampToValueAtTime(0, t + 9.5);
+        o.connect(g); g.connect(lp); o.start(t); o.stop(t + 9.6);
+      }
+    });
+    for (let k = 0; k < 3; k++) if (Math.random() < 0.7) {
+      const tt = t + 1 + Math.random() * 6, o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = "sine"; o.frequency.value = hz(PENTA[Math.floor(Math.random() * PENTA.length)]);
+      g.gain.setValueAtTime(0, tt); g.gain.linearRampToValueAtTime(0.03, tt + 0.02); g.gain.exponentialRampToValueAtTime(0.0005, tt + 2.2);
+      o.connect(g); g.connect(master); o.start(tt); o.stop(tt + 2.3);
+    }
+  }
+  function play() {
+    if (!ctx && !setup()) return;
+    if (ctx.resume) ctx.resume();
+    master.gain.cancelScheduledValues(ctx.currentTime); master.gain.linearRampToValueAtTime(0.5, ctx.currentTime + 1.5);
+    if (!timer) { pad(ctx.currentTime + 0.05); timer = setInterval(() => pad(ctx.currentTime + 0.05), 8000); }
+  }
+  function stop() {
+    if (!ctx) return;
+    master.gain.cancelScheduledValues(ctx.currentTime); master.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.6);
+    clearInterval(timer); timer = null;
+  }
+  function paintBtns() {
+    const icon = on
+      ? '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h3l4-3.5v11L6 12H3z" fill="currentColor"/><path d="M13 7.5a3.5 3.5 0 0 1 0 5M15.5 5a7 7 0 0 1 0 10"/></svg>'
+      : '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h3l4-3.5v11L6 12H3z" fill="currentColor"/><path d="M13.5 8l4 4M17.5 8l-4 4"/></svg>';
+    for (const b of document.querySelectorAll("[data-sound]")) { b.innerHTML = icon; b.setAttribute("aria-pressed", String(on)); b.setAttribute("aria-label", on ? "Spegni la musica" : "Accendi la musica"); }
+  }
+  for (const b of document.querySelectorAll("[data-sound]")) b.addEventListener("click", (e) => {
+    e.stopPropagation(); on = !on; try { localStorage.setItem("gf-music", on ? "on" : "off"); } catch (er) {}
+    paintBtns(); if (on) play(); else stop();
+  });
+  document.addEventListener("pointerdown", () => { if (on && !timer) play(); }, { once: true });
+  paintBtns();
+  return { start() { if (on) play(); } };
+})();
+
+renderViews();
+buildMap(15);
+fit();
+showPhase("title");
+requestAnimationFrame(loop);
+</script>
+
+</body>
+</html>
