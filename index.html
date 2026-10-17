@@ -390,13 +390,21 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
 .menu .sound { position: absolute; top: 10px; right: var(--gr); }
 
 /* messaggi brevi sulla mappa */
-.toasts { position: absolute; z-index: 5; left: 50%; transform: translateX(-50%); top: max(56px, calc(env(safe-area-inset-top, 0px) + 48px)); display: flex; flex-direction: column; align-items: center; gap: 4px; pointer-events: none; width: min(60%, 460px); }
+.toasts { position: absolute; z-index: 5; left: 50%; transform: translateX(-50%); bottom: 96px; flex-direction: column-reverse !important; display: flex; flex-direction: column; align-items: center; gap: 4px; pointer-events: none; width: min(60%, 460px); }
 .toast { background: rgba(21,38,52,.96); border: 1px solid var(--line); border-left: 4px solid var(--good); border-radius: 8px; padding: 5px 10px; font-size: 12px; max-width: 100%; animation: tin .25s ease-out; }
 .toast.bad { border-left-color: var(--bad); }
 .toast.spread { border-left-color: var(--info); }
 .toast.out { opacity: 0; transition: opacity .5s; }
 @keyframes tin { from { opacity: 0; transform: translateY(-6px); } }
-.compact .toasts { top: 44px; }
+.compact .toasts { bottom: 86px; }
+/* segnali delle crisi in arrivo, come le bolle degli altri giochi: si toccano per decidere */
+#bubbles .bub { cursor: pointer; }
+#bubbles .bub .halo { fill: var(--bad); opacity: .25; animation: bub 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+#bubbles .bub.good .halo { fill: var(--good); }
+#bubbles .bub .core { stroke: #fff4dc; stroke-width: .9; }
+#bubbles .bub text { font-family: var(--font-m); font-size: 4.6px; fill: var(--fg); text-anchor: middle; paint-order: stroke; stroke: rgba(8,16,22,.9); stroke-width: 1.6px; }
+@keyframes bub { 50% { transform: scale(1.35); opacity: .08; } }
+@media (prefers-reduced-motion: reduce) { #bubbles .bub .halo { animation: none; } }
 .ping { fill: none; stroke: var(--accent); stroke-width: 1.4; animation: ping 1.4s ease-out infinite; transform-box: fill-box; transform-origin: center; pointer-events: none; }
 @keyframes ping { from { transform: scale(.4); opacity: 1; } to { transform: scale(2.2); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .ping { animation: none; } .toast { animation: none; } }
@@ -485,6 +493,7 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
     <path id="outlineStroke" fill="none" stroke="#2b4356" stroke-width=".8"></path>
     <g id="gratlbls"></g>
     <g id="labels"></g>
+    <g id="bubbles"></g>
   </svg>
 
   <svg id="globe" viewBox="-205 -150 410 300" preserveAspectRatio="xMidYMid meet" hidden aria-label="La Terra e la Luna">
@@ -562,6 +571,7 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
       <p>Ogni regione versa all'Autorità una parte della sua ricchezza: le entrate crescono se l'economia cresce e calano se una regione cade nell'anarchia, che smette di versare (ma smetti anche di pagare i programmi in quella regione). Se i fondi non bastano puoi indebitarti, anche per rispondere a una crisi, ma si pagano interessi del 12% l'anno. A −${DEBT_LIMIT} fondi l'Autorità fa bancarotta e la partita è persa.</p>
       <h3>Eventi</h3>
       <p>Crisi ed emergenze ti chiedono di scegliere tra intervento pieno, una via di mezzo o non fare nulla. Il tempo si ferma finché non decidi, e si ferma anche quando apri un menu.</p>
+      <p>Le crisi che si vedono arrivare, come una crisi del debito o delle pensioni, compaiono prima sulla mappa come un segnale sulla regione, con il conto alla rovescia: toccalo per decidere subito, oppure usa quei mesi per raccogliere i fondi. Allo scadere la decisione si apre da sola. Le catastrofi improvvise, come uragani ed epidemie, si aprono subito, dopo averti mostrato dove colpiscono.</p>
       <p>Ogni tanto arrivano anche opportunità: scoperte, svolte tecnologiche, riprese economiche.</p>
       <h3>La Luna</h3>
       <p>Il programma lunare, nella scheda Tecnologia, non serve per vincere ma cambia la partita: una base costruita insieme dalle potenze riduce la tensione tra loro e la polarizzazione, gli osservatori portano scoperte e tecnologie, un insediamento permanente custodisce un archivio dell'umanità e apre la strada alla fase successiva. Il pulsante "Terra e Luna" mostra il globo e la Luna con lo stato del programma.</p>
@@ -1707,6 +1717,14 @@ function tick(st) {
   return rollEvent(st);
 }
 
+/* Preavviso in mesi: le crisi che maturano lentamente compaiono prima sulla mappa come un segnale con il conto
+   alla rovescia, così il giocatore può raccogliere i fondi; le catastrofi improvvise (uragani, epidemie, incidenti)
+   non hanno preavviso e si aprono subito. */
+const EV_WARN = {
+  debt: 6, pensions: 6, autoUnemp: 6, antiAuth: 6, recession: 4, bubble: 4, govCrisis: 4, migrationCrisis: 4, scandal: 4,
+  protests: 3, strike: 3, energyShock: 3, famine: 3, moonRace: 6,
+  tradeBoom: 6, batteries: 6, uniVax: 6, moonDiscovery: 6,
+};
 // problema a cui appartiene ogni evento: compare solo negli scenari dove quel problema è in gioco
 const EV_SYS = {
   energyShock: "energia", batteries: "energia", nucAccident: "energia",
@@ -1843,7 +1861,7 @@ function loadState(txt) {
 
 if (typeof module !== "undefined") module.exports = {
   DIFF, LEVELS, LBY, GOVS, GBY, sysOn, REGIONS, RBY, INTERVENTIONS, IBY, CATS, EVENTS, EBY, ENDINGS, STABLE_YEARS, RISK_LABELS,
-  newGame, tick, advise, preview, DEBT_LIMIT, ctrlShare, available, anarchyNear, saveState, loadState, honors, endingText, costOf, upkeepOf, built, startIntervention, payoffNow, stabParts, stabNow, worldStab, unrestCauses, STAB_PARTS, WIN_WORLD, canStart, parentOk, TREE, resolveEvent, revoke, stability, riskBoard, risks, emissions, worldPop, lvl, setSeed, rand,
+  newGame, tick, EV_WARN, advise, preview, DEBT_LIMIT, ctrlShare, available, anarchyNear, saveState, loadState, honors, endingText, costOf, upkeepOf, built, startIntervention, payoffNow, stabParts, stabNow, worldStab, unrestCauses, STAB_PARTS, WIN_WORLD, canStart, parentOk, TREE, resolveEvent, revoke, stability, riskBoard, risks, emissions, worldPop, lvl, setSeed, rand,
 };
 
 </script>
@@ -2055,7 +2073,7 @@ function hud() {
     <span class="st">${weak ? "Punto debole: " + weak.name.toLowerCase() : "In anarchia: non esegue più gli ordini"}</span><span class="go">Cosa fare ›</span>`;
 }
 function refresh() {
-  paint(); hud(); newsToasts();
+  paint(); hud(); newsToasts(); drawBubbles();
   if (globeOn) drawGlobe();
   if (phase === "play" && !pending && !openScreen) checkTips();
   if (openScreen === "world") renderWorld();
@@ -2548,6 +2566,46 @@ function wireCharts(root, h) {
 }
 
 /* ---------- eventi ---------- */
+/* ---------- crisi in arrivo ---------- */
+const absMonth = () => st.year * 12 + st.month;
+const EV_ICON = { Economia: "economia", Previdenza: "demografia", "Società": "societa", Istituzioni: "societa", Energia: "energia", Clima: "clima", Natura: "clima", Salute: "salute", Tecnologia: "ai", Sicurezza: "sicurezza", Spazio: "spazio" };
+// punti sull'oceano per i segnali delle crisi mondiali
+const GLOBAL_SPOTS = [[-150, 8], [-32, 0], [72, -18], [-150, -28], [-32, -28], [160, 30]];
+function queueEvent(ev) {
+  const E = EBY[ev.id], n = EV_WARN[ev.id];
+  (st.queue || (st.queue = [])).push({ id: ev.id, r: ev.r, due: absMonth() + n, start: absMonth() });
+  toast(`${E.good ? "Opportunità" : "Crisi in arrivo"}: ${E.title}${ev.r ? " in " + st.regions[ev.r].name : ""}. Hai ${n} mesi: tocca il segnale sulla mappa per decidere.`, E.good ? "" : "bad");
+  drawBubbles();
+}
+function drawBubbles() {
+  const g = $("bubbles"); g.innerHTML = "";
+  if (!st || phase !== "play") return;
+  const perRegion = {}; let gi = 0;
+  for (const q of st.queue || []) {
+    const E = EBY[q.id];
+    let x, y;
+    if (q.r) { const R = RBY[q.r], k = perRegion[q.r] = (perRegion[q.r] || 0) + 1; [x, y] = ee(R.label[0], R.label[1]); y -= 19; x += (k - 1) * 30; }
+    else { [x, y] = ee(...GLOBAL_SPOTS[gi++ % GLOBAL_SPOTS.length]); }
+    const left = Math.max(0, q.due - absMonth()), frac = Math.min(1, (absMonth() - q.start) / Math.max(1, q.due - q.start));
+    const b = svgEl("g", { class: "bub" + (E.good ? " good" : ""), transform: `translate(${x.toFixed(1)} ${y.toFixed(1)})`, role: "button", "aria-label": E.title });
+    b.appendChild(svgEl("circle", { r: 10.5, class: "halo" }));
+    b.appendChild(svgEl("circle", { r: 7, class: "core", fill: E.good ? "#2f7a5f" : "#9a3a2e" }));
+    // conto alla rovescia: l'anello si chiude man mano che la scadenza si avvicina
+    const a = frac * 2 * Math.PI, R0 = 9;
+    if (frac > 0.01) b.appendChild(svgEl("path", { d: `M0 ${-R0}A${R0} ${R0} 0 ${a > Math.PI ? 1 : 0} 1 ${(R0 * Math.sin(a)).toFixed(2)} ${(-R0 * Math.cos(a)).toFixed(2)}`, fill: "none", stroke: "#ffd27a", "stroke-width": 1.1 }));
+    b.appendChild(svgEl("use", { href: "#i-" + (EV_ICON[E.cat] || "sicurezza"), x: -4, y: -4, width: 8, height: 8, style: "color:#fff4dc" }));
+    const t = svgEl("text", { x: 11.5, y: 1.7, "text-anchor": "start" }); t.textContent = left <= 1 ? "ora" : left + " mesi"; b.appendChild(t);
+    b.addEventListener("click", (e) => { e.stopPropagation(); if (pending) return; st.queue = st.queue.filter((x) => x !== q); showEvent(q); });
+    g.appendChild(b);
+  }
+}
+// catastrofi improvvise: prima si mostra dove, poi si apre la decisione
+function revealEvent(ev) {
+  if (!ev.r) { showEvent(ev); return; }
+  pending = { reveal: true }; savedSpeed = speed || savedSpeed || 1; speed = 0;
+  sel = ev.r; pingRegion(ev.r); refresh();
+  setTimeout(() => { pending = null; showEvent(ev); }, 1100);
+}
 function showEvent(ev) {
   pending = ev;
   if (openScreen === null) savedSpeed = speed || savedSpeed || 1;
@@ -2620,7 +2678,9 @@ function loop(now) {
       changed = true;
       if (st.month === 0) save();
       if (st.over) { endGame(); break; }
-      if (ev) { showEvent(ev); break; }
+      if (ev) { if (EV_WARN[ev.id]) queueEvent(ev); else { revealEvent(ev); break; } }
+      const due = (st.queue || []).find((q) => q.due <= absMonth());
+      if (due) { st.queue = st.queue.filter((q) => q !== due); showEvent(due); break; }
       // nel tutorial la prima crisi arriva sempre, pochi mesi dopo l'avvio del tempo
       if (tut && tut.step === 7 && !tut.forced && (tut.wait = (tut.wait || 0) + 1) >= 5) { tut.forced = true; showEvent({ id: "recession", r: null }); break; }
     }
