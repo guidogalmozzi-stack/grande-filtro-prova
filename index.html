@@ -274,6 +274,63 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
 .sound svg { width: 18px; height: 18px; }
 .sound[aria-pressed="true"] { color: var(--accent); }
 .menu .sound { position: absolute; top: 10px; right: var(--gr); }
+
+/* messaggi brevi sulla mappa */
+.toasts { position: absolute; z-index: 5; left: 50%; transform: translateX(-50%); top: max(56px, calc(env(safe-area-inset-top, 0px) + 48px)); display: flex; flex-direction: column; align-items: center; gap: 4px; pointer-events: none; width: min(60%, 460px); }
+.toast { background: rgba(21,38,52,.96); border: 1px solid var(--line); border-left: 4px solid var(--good); border-radius: 8px; padding: 5px 10px; font-size: 12px; max-width: 100%; animation: tin .25s ease-out; }
+.toast.bad { border-left-color: var(--bad); }
+.toast.spread { border-left-color: var(--info); }
+.toast.out { opacity: 0; transition: opacity .5s; }
+@keyframes tin { from { opacity: 0; transform: translateY(-6px); } }
+.compact .toasts { top: 44px; }
+.ping { fill: none; stroke: var(--accent); stroke-width: 1.4; animation: ping 1.4s ease-out infinite; transform-box: fill-box; transform-origin: center; pointer-events: none; }
+@keyframes ping { from { transform: scale(.4); opacity: 1; } to { transform: scale(2.2); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .ping { animation: none; } .toast { animation: none; } }
+
+/* vista Terra e Luna */
+.globebtn { position: absolute; z-index: 2; top: 64px; background: rgba(21,38,52,.93); border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; font-size: 12px; color: var(--fg); display: inline-flex; gap: 6px; align-items: center; }
+.globebtn svg { width: 14px; height: 14px; color: var(--accent); }
+.compact .globebtn { top: 50px; }
+#globe { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+#globe .reg path { stroke: var(--sea); stroke-width: .5; cursor: pointer; transition: fill .6s; }
+#globe .reg.sel path { stroke: var(--accent); stroke-width: 1.3; }
+#globe .reg.lost path { fill: url(#hatch) !important; }
+.gl-grat { fill: none; stroke: #1e3647; stroke-width: .4; }
+.gl-num { font-family: var(--font-m); font-size: 7.5px; fill: var(--fg); paint-order: stroke; stroke: rgba(8,16,22,.9); stroke-width: 2px; text-anchor: middle; pointer-events: none; }
+.moon-t { font-family: var(--font-d); font-weight: 600; font-size: 11px; fill: var(--fg); letter-spacing: .04em; }
+.moon-s { font-family: var(--font-b); font-size: 7.6px; fill: var(--muted); }
+.moon-row { font-family: var(--font-b); font-size: 8px; fill: var(--fg); }
+.moon-row tspan.off { fill: var(--muted); }
+.fac { cursor: pointer; }
+.scale-note { font-family: var(--font-b); font-size: 5.5px; fill: #4f6b80; }
+
+/* consigli */
+.card.tip { border-color: #4b6a80; width: min(560px, 100%); }
+.tipfoot { display: flex; align-items: center; gap: 12px; margin-top: 4px; }
+.tipfoot .buy { margin: 0; padding: 8px 18px; }
+.linkbtn { background: none; border: 0; color: var(--muted); font-size: 12px; text-decoration: underline; padding: 4px; }
+
+/* grafici dell'andamento */
+.charts { display: grid; gap: 10px; }
+.chart { position: relative; }
+.chart .ct { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 2px; }
+.chart .ct b { color: var(--fg); font-weight: 500; font-family: var(--font-m); }
+.chart svg { display: block; width: 100%; height: 64px; overflow: visible; }
+.chart .ax { font-family: var(--font-m); font-size: 9px; fill: var(--muted); }
+.chart .tipv { position: absolute; top: 14px; transform: translateX(-50%); background: var(--panel-3); border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; font-family: var(--font-m); font-size: 11px; pointer-events: none; white-space: nowrap; }
+
+/* fine partita */
+.honors { list-style: none; padding: 0; margin: 0 0 12px; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0 14px; }
+.honors li { display: grid; grid-template-columns: 20px 1fr; gap: 0 8px; font-size: 12.5px; padding: 4px 0; border-bottom: 1px solid var(--line); }
+.honors li .s { color: var(--panel-3); font-size: 16px; line-height: 1; }
+.honors li.ok .s { color: var(--accent); }
+.honors li small { grid-column: 2; color: var(--muted); font-size: 11.5px; }
+.stars { color: var(--accent); font-size: 22px; letter-spacing: .1em; }
+.stars i { font-style: normal; color: var(--panel-3); }
+.endgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px 18px; margin-bottom: 12px; }
+.diff .best { font-size: 11.5px; color: var(--accent); }
+.nextph { background: var(--panel-2); border: 1px dashed var(--line); border-radius: 8px; padding: 7px 10px; font-size: 12.5px; color: var(--muted); margin-bottom: 12px; }
+.nextph b { color: var(--fg); }
 </style>
 
 <div class="app" id="app">
@@ -306,6 +363,18 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
     <g id="labels"></g>
   </svg>
 
+  <svg id="globe" viewBox="-205 -150 410 300" preserveAspectRatio="xMidYMid meet" hidden aria-label="La Terra e la Luna">
+    <defs>
+      <radialGradient id="gOcean" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#173246"/><stop offset="1" stop-color="#0b1823"/></radialGradient>
+      <radialGradient id="gMoon" cx="38%" cy="35%" r="75%"><stop offset="0" stop-color="#b9bfc4"/><stop offset=".7" stop-color="#7d858c"/><stop offset="1" stop-color="#4f565c"/></radialGradient>
+      <radialGradient id="gAtmo" cx="50%" cy="50%" r="50%"><stop offset=".86" stop-color="#6fb0d8" stop-opacity="0"/><stop offset=".95" stop-color="#6fb0d8" stop-opacity=".22"/><stop offset="1" stop-color="#6fb0d8" stop-opacity="0"/></radialGradient>
+      <clipPath id="gClip"><circle id="gClipC"></circle></clipPath>
+    </defs>
+    <g id="gEarth"></g>
+    <g id="gMoonG"></g>
+    <text class="scale-note" id="gNote">Distanze e dimensioni non in scala · trascina il globo per ruotarlo</text>
+  </svg>
+
   <div id="hud" hidden>
     <div class="hud tl">
       <button type="button" class="sound" data-sound aria-label="Musica" aria-pressed="true"></button>
@@ -324,6 +393,8 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
       </div>
     </div>
     <button type="button" class="viewbtn" id="viewBtn">Vista: <b id="viewName">Malcontento</b> ▾</button>
+    <button type="button" class="globebtn" id="globeBtn"></button>
+    <div class="toasts" id="toasts" aria-live="polite"></div>
     <div class="views" id="views" hidden></div>
     <div class="legend" id="legend"><span id="legLo"></span><span class="bar" id="legBar"></span><span id="legHi"></span></div>
     <div class="ticker" id="ticker" aria-live="polite"></div>
@@ -340,9 +411,10 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
   <div class="menu" id="menuTitle">
     <button type="button" class="sound" data-sound aria-label="Musica" aria-pressed="true"></button>
     <div class="in">
-      <div class="logo"><h1>Grande<br>Filtro</h1><div class="sub">Fase 1 · Terra · prototipo</div></div>
+      <div class="logo"><h1>Grande<br>Filtro</h1><div class="sub">Fase 1 · La Terra</div></div>
       <div class="btns">
-        <button type="button" class="mbtn" id="mPlay">Gioca</button>
+        <button type="button" class="mbtn" id="mCont" hidden>Continua</button>
+        <button type="button" class="mbtn" id="mPlay">Nuova partita</button>
         <button type="button" class="mbtn" id="mHow">Come si gioca</button>
       </div>
     </div>
@@ -362,6 +434,13 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
       <p>Con i fondi avvii interventi che valgono per tutto il mondo; ogni regione ne risente in base alle sue condizioni. Sono organizzati ad albero: alcuni si sbloccano solo dopo averne completato un altro. Molti richiedono anni per entrare in funzione.</p>
       <h3>Eventi</h3>
       <p>Crisi ed emergenze ti chiedono di scegliere tra intervento pieno, una via di mezzo o non fare nulla. Il tempo si ferma finché non decidi, e si ferma anche quando apri un menu.</p>
+      <p>Ogni tanto arrivano anche opportunità: scoperte, svolte tecnologiche, riprese economiche.</p>
+      <h3>La Luna</h3>
+      <p>Il programma lunare, nella scheda Tecnologia, non serve per vincere ma cambia la partita: una base costruita insieme dalle potenze riduce la tensione tra loro e la polarizzazione, gli osservatori portano scoperte e tecnologie, un insediamento permanente custodisce un archivio dell'umanità e apre la strada alla fase successiva. Il pulsante "Terra e Luna" mostra il globo e la Luna con lo stato del programma.</p>
+      <h3>Stelle</h3>
+      <p>Alla vittoria ricevi fino a quattro stelle: per la rapidità, per non aver perso nessuna regione, per aver contenuto il riscaldamento e per aver portato una comunità stabile sulla Luna.</p>
+      <h3>Salvataggio</h3>
+      <p>La partita si salva da sola. Se chiudi il gioco, dal menu iniziale scegli "Continua".</p>
     </div></div>
   </div>
 
@@ -660,13 +739,30 @@ const INTERVENTIONS = [
     pro: "Satelliti per comunicazioni, osservazione della Terra e navigazione: un'entrata modesta ma rapida", con: "Investimento iniziale" },
   { id: "pdef", cat: "spazio", name: "Difesa planetaria", scope: "global", cost: 6, T: 6,
     pro: "Gli asteroidi pericolosi possono essere individuati e deviati", con: "Nessun ritorno economico" },
-  { id: "moon", cat: "spazio", name: "Base lunare", scope: "global", cost: 10, T: 10, buildUpkeep: 3, upkeep: 2,
-    payoff: { amount: 5, after: 12, ramp: 6 },
-    pro: "Primo avamposto permanente fuori dalla Terra: ricerca, tecnologie derivate, turismo e ghiaccio lunare per il propellente. Orgoglio e meno malcontento. Dopo circa 25 anni dall'avvio inizia a restituire fondi", con: "Costa 3 fondi l'anno per 10 anni di costruzione e 2 l'anno di gestione; il ritorno è lontano e incerto",
+  /* Programma lunare: la Luna vale soprattutto per la cooperazione tra le potenze, la scienza e la sopravvivenza
+     a lungo termine; il ritorno economico è piccolo e incerto, come nella realtà [Probabile]. */
+  { id: "moon", cat: "spazio", name: "Base lunare internazionale", scope: "global", cost: 10, T: 10, buildUpkeep: 3, upkeep: 2,
+    payoff: { amount: 1.5, after: 8, ramp: 6 },
+    pro: "Le potenze costruiscono insieme il primo avamposto permanente fuori dalla Terra, come già avvenuto con la Stazione spaziale internazionale. Un progetto comune riduce la tensione tra le potenze e la polarizzazione in tutte le regioni. Apre il programma lunare. Piccole entrate da contratti e turismo dopo qualche anno", con: "Costa 3 fondi l'anno per 10 anni di costruzione e 2 l'anno di gestione",
+    fx: (m, s, r, st, gm) => { gm.tensionT -= 4; gm.polarAll -= 2; },
     once: (r, st) => { st.moon = true; for (const id in st.regions) st.regions[id].shockU -= 4; } },
-  { id: "lunarMining", cat: "spazio", name: "Estrazione di risorse lunari", scope: "global", cost: 15, T: 8, upkeep: 1,
-    payoff: { amount: 4, after: 4, ramp: 6 },
-    pro: "Ghiaccio d'acqua, metalli e terre rare estratti sulla Luna, in parte usati nello spazio e in parte spediti sulla Terra", con: "Ritorno molto incerto: oggi nessuno sa se sia economicamente conveniente" },
+  { id: "lunarSci", cat: "spazio", name: "Osservatorio e laboratori lunari", scope: "global", cost: 8, T: 4, upkeep: 1,
+    pro: "Sul lato nascosto della Luna la Terra non disturba i radiotelescopi. Scoperte scientifiche, tecnologie derivate (un po' di crescita ovunque), asteroidi individuati con decenni di anticipo. Le tecnologie di frontiera (fusione, cattura della CO₂, spazio) si costruiscono il 25% più in fretta", con: "1 fondo l'anno di gestione",
+    fx: (m, s, r, st, gm) => { gm.gAll += 0.12; gm.frontier += 0.25; } },
+  { id: "lunarIce", cat: "spazio", name: "Ghiaccio e propellente lunare", scope: "global", cost: 10, T: 6,
+    pro: "Il ghiaccio dei crateri del polo sud diventa acqua, ossigeno e propellente. La base lunare non ha più bisogno di rifornimenti dalla Terra: la sua gestione diventa gratuita. Rende possibili l'insediamento e le miniere", con: "Nessun beneficio diretto sulla Terra" },
+  { id: "lunarCity", cat: "spazio", name: "Insediamento permanente e Archivio dell'umanità", scope: "global", cost: 20, T: 12, buildUpkeep: 2, upkeep: 2,
+    pro: "Centinaia di persone vivono stabilmente sulla Luna. Nell'insediamento un archivio custodisce i saperi e i genomi della Terra: un'assicurazione contro i filtri. Orgoglio comune: polarizzazione in calo in tutte le regioni. È il ponte verso la fase successiva del gioco", con: "Il progetto più costoso del programma; 2 fondi l'anno",
+    fx: (m, s, r, st, gm) => { gm.polarAll -= 3; },
+    once: (r, st) => { st.lunarCity = true; for (const id in st.regions) st.regions[id].shockU -= 3; } },
+  { id: "lunarMining", cat: "spazio", name: "Industria mineraria lunare", scope: "global", cost: 15, T: 8, upkeep: 1,
+    payoff: { amount: 3, after: 3, ramp: 6 },
+    pro: "Metalli e terre rare estratti sulla Luna, in parte usati nello spazio e in parte spediti sulla Terra", con: "Ritorno davvero incerto: si scopre solo quando le miniere entrano in funzione, e può essere deludente. Oggi nessuno sa se convenga [Probabile]",
+    once: (r, st) => {
+      const x = rand();
+      st.mineYield = x < 0.35 ? 0.4 : x < 0.8 ? 1 : 2.3;
+      logNews(st, st.mineYield < 1 ? "Miniere lunari: i giacimenti sono più poveri del previsto. Il ritorno sarà modesto." : st.mineYield > 1 ? "Miniere lunari: giacimenti molto ricchi. Il ritorno supera ogni previsione." : "Miniere lunari: i giacimenti sono in linea con le stime.", st.mineYield < 1 ? "bad" : "done");
+    } },
 ];
 /* Tutti gli interventi valgono per il mondo intero (decisione del 17 ottobre 2026).
    Quelli che prima erano regionali agiscono su ogni regione, con effetti che dipendono dalle sue condizioni;
@@ -695,15 +791,21 @@ const TREE = {
   surveil: null, vaccines: "surveil", labRules: null, amr: "labRules",
   mediation: null, fissile: null, arms: "fissile",
   aiCap: null, aiReg: null, align: "aiReg",
-  launch: null, orbital: "launch", pdef: "launch", moon: "launch", lunarMining: "moon",
+  launch: null, orbital: "launch", pdef: "orbital", moon: "launch", lunarSci: "moon", lunarCity: "lunarSci", lunarIce: "moon", lunarMining: "lunarIce",
 };
 for (const id in TREE) { IBY[id].parent = TREE[id] || undefined; delete IBY[id].needs; }
 function parentOk(st, d) { return !d.parent || !!(st.acts[d.parent] && st.acts[d.parent].n > 0); }
 // ritorno economico di un intervento: nullo per "after" anni dal completamento, poi cresce fino al massimo in "ramp" anni
 function payoffNow(d, a, st) {
+  if (d.id === "moon" && st.moonHalt > st.year) return 0; // base evacuata dopo un incidente
   const yrs = st.year + st.month / 12 - a.y - d.payoff.after;
-  return yrs <= 0 ? 0 : d.payoff.amount * Math.min(1, yrs / d.payoff.ramp);
+  const amount = d.payoff.amount * (d.id === "lunarMining" ? st.mineYield || 1 : 1);
+  return yrs <= 0 ? 0 : amount * Math.min(1, yrs / d.payoff.ramp);
 }
+// costo e gestione effettivi: alcuni dipendono da scelte precedenti
+function costOf(st, d) { return d.id === "moon" && st.flags.moonPartners ? d.cost - 4 : d.cost; }
+function upkeepOf(st, d) { return d.id === "moon" && st.acts.lunarIce && st.acts.lunarIce.n > 0 ? 0 : d.upkeep || 0; }
+const FRONTIER = ["fusion", "smr", "dac", "launch", "orbital", "pdef", "moon", "lunarIce", "lunarCity", "lunarMining"];
 function shiftClean(r, pts, kind) {
   const p = Math.min(pts, r.fossil - 3);
   if (p <= 0) return;
@@ -718,7 +820,7 @@ function lvl(r, id) {
 
 /* ---------- stato ---------- */
 const M0 = () => ({ g: 0, unrestT: 0, polarT: 0, unempT: 0, fert: 0, pensT: 0, debtF: 0, fossilShift: 0, resistT: 0, energyCost: 0, eff: 0, dmg: 0, famine: 0 });
-const G0 = () => ({ aiRate: 0, safeRate: 0, bioRate: 0, biotechRate: 0, co2Rem: 0, geo: 0, tensionT: 0, gAll: 0, unempAll: 0, pmit: 0, epi: 0 });
+const G0 = () => ({ aiRate: 0, safeRate: 0, bioRate: 0, biotechRate: 0, co2Rem: 0, geo: 0, tensionT: 0, gAll: 0, unempAll: 0, pmit: 0, epi: 0, polarAll: 0, frontier: 0 });
 
 function emissions(st) {
   let e = 0;
@@ -753,7 +855,7 @@ function newGame(diffId, seed) {
     acts: {}, prog: [], cd: {}, log: [], over: null, moon: false, stable: 0,
     axis: 0, // centralizzazione (+) ↔ pluralismo (−)
     g: { temp: 1.35, geoOff: 0, aiCap: 22, aiSafety: 8, biotech: 30, bioSafety: 22, arsenal: 100, tension: 45, tShock: 0, price: 0, priceT: 0 },
-    flags: {}, income: 0,
+    flags: {}, income: 0, hist: [], logN: 0, tips: {},
   };
   for (const id in regions) regions[id].acts = st.acts;
   // calcola la crescita iniziale e fissa le basi di equilibrio
@@ -786,8 +888,9 @@ function avgPolar(st) {
   for (const id in st.regions) { const r = st.regions[id]; if (r.controlled) { s += r.polar; n++; } }
   return n ? s / n : 50;
 }
-function logNews(st, text, kind) {
-  st.log.unshift({ y: st.year, mo: st.month, text, kind: kind || "info" });
+function logNews(st, text, kind, quiet) {
+  st.logN = (st.logN || 0) + 1;
+  st.log.unshift({ y: st.year, mo: st.month, text, kind: kind || "info", n: st.logN, quiet: !!quiet });
   if (st.log.length > 60) st.log.pop();
 }
 
@@ -903,7 +1006,7 @@ function canStart(st, id) {
   const own = (a ? a.n : 0) + inProg;
   if (d.repeat) { if (inProg) return "In corso"; }
   else if (own >= (d.stack || 1)) return inProg ? "In corso" : d.stack ? "Massimo raggiunto" : "Già attivo";
-  if (st.funds < d.cost) return "Fondi insufficienti";
+  if (st.funds < costOf(st, d)) return "Fondi insufficienti";
   if (d.upkeep > 0 && st.funds < d.upkeep) return "Fondi insufficienti";
   return null;
 }
@@ -911,7 +1014,7 @@ function startIntervention(st, id) {
   const why = canStart(st, id);
   if (why) return why;
   const d = IBY[id];
-  st.funds -= d.cost;
+  st.funds -= costOf(st, d);
   if (d.T === 0) complete(st, d);
   else st.prog.push({ id, r: null, t: 0, T: d.T });
   if (d.axis) st.axis = clamp(st.axis + d.axis, -100, 100);
@@ -933,6 +1036,9 @@ function revoke(st, id) {
 
 /* ---------- eventi avversi (tre scelte: intervento pieno, via di mezzo, non fare nulla) ---------- */
 const ctrlRegions = (st) => Object.values(st.regions).filter((r) => r.controlled);
+const built = (st, id) => !!(st.acts[id] && st.acts[id].n > 0);
+const building = (st, id) => st.prog.some((p) => p.id === id);
+/* good: evento favorevole (nessuna scelta è "non fare nulla") · once: avviene al massimo una volta per partita */
 const EVENTS = [
   { id: "debt", scope: "region", cat: "Economia", title: "Crisi del debito",
     p: (st, r) => r.debt > 140 ? Math.min(0.5, (r.debt - 140) * 0.012) : 0,
@@ -1103,18 +1209,80 @@ const EVENTS = [
       { label: "Non fare nulla", cost: 0, out: "Carestie globali", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockU += 15; r.pop *= 0.995; r.shockG -= 1; }) },
     ] },
   { id: "asteroid", scope: "region", cat: "Natura", title: "Impatto di un asteroide",
-    p: (st) => 0.004 / 11 * (st.acts.pdef ? 0.2 : 1),
+    p: (st) => 0.004 / 11 * (built(st, "pdef") ? (built(st, "lunarSci") ? 0.05 : 0.2) : 1),
     text: (st, r) => `Un asteroide di una cinquantina di metri esplode sopra un'area abitata di ${r.name}.`,
     choices: [
       { label: "Soccorsi", cost: 5, out: "Danni locali", fx: () => {} },
       { label: "Soccorsi parziali", cost: 2, out: "Malcontento", fx: (st, r) => { r.shockU += 6; } },
       { label: "Non fare nulla", cost: 0, out: "Danni e malcontento", fx: (st, r) => { r.shockU += 12; r.shockG -= 0.5; } },
     ] },
+  // Spazio
+  { id: "moonRace", scope: "global", cat: "Spazio", title: "Corsa alla Luna",
+    p: (st) => st.year >= 2030 && !built(st, "moon") && !building(st, "moon") && !st.flags.moonPartners ? 0.035 * st.g.tension / 45 : 0,
+    text: () => "Due potenze annunciano programmi lunari rivali e rivendicano entrambe il ghiaccio dei crateri del polo sud. Ognuna accusa l'altra di voler militarizzare la Luna.",
+    choices: [
+      { label: "Proporre una base comune", cost: 3, out: "Tensione in calo; la base lunare costerà 4 fondi in meno", fx: (st) => { st.g.tShock -= 4; st.flags.moonPartners = true; } },
+      { label: "Regole per le risorse lunari", cost: 1, out: "Tensione in lieve calo", fx: (st) => { st.g.tShock -= 1.5; } },
+      { label: "Non fare nulla", cost: 0, out: "La rivalità alimenta la tensione", fx: (st) => { st.g.tShock += 6; } },
+    ] },
+  { id: "orbitWeapons", scope: "global", cat: "Spazio", title: "Armi in orbita",
+    p: (st) => st.year >= 2029 && st.g.tension > 50 ? 0.03 : 0,
+    text: () => "Una potenza distrugge un proprio satellite con un missile per dimostrare di poterlo fare. I detriti minacciano le orbite basse e le altre potenze preparano risposte.",
+    choices: [
+      { label: "Trattato contro le armi in orbita", cost: 4, out: "Tensione in calo", fx: (st) => { st.g.tShock -= 6; } },
+      { label: "Sorveglianza delle orbite", cost: 2, out: "Tensione in lieve calo", fx: (st) => { st.g.tShock -= 2; } },
+      { label: "Non fare nulla", cost: 0, out: "Corsa agli armamenti spaziali", fx: (st) => { st.g.tShock += 8; } },
+    ] },
+  { id: "moonAccident", scope: "global", cat: "Spazio", title: "Incidente sulla base lunare",
+    p: (st) => built(st, "moon") && !(st.moonHalt > st.year) ? 0.025 : 0,
+    text: () => "Un micrometeorite ha perforato un modulo della base lunare. Sei persone sono bloccate in una sezione isolata con ossigeno per dieci giorni. Tutto il mondo segue la vicenda.",
+    choices: [
+      { label: "Missione di soccorso", cost: 6, out: "Equipaggio salvo; un momento di unità per tutto il mondo", fx: (st) => ctrlRegions(st).forEach((r) => (r.shockU -= 3)) },
+      { label: "Evacuare la base", cost: 2, out: "Equipaggio salvo; base ferma per 3 anni", fx: (st) => { st.moonHalt = st.year + 3; } },
+      { label: "Non fare nulla", cost: 0, out: "Equipaggio perduto, sfiducia ovunque; base ferma per 2 anni", fx: (st) => { st.moonHalt = st.year + 2; ctrlRegions(st).forEach((r) => { r.shockU += 4; r.polar += 2; }); } },
+    ] },
+  { id: "moonDiscovery", scope: "global", cat: "Spazio", title: "Scoperta sulla Luna", good: true,
+    p: (st) => built(st, "lunarSci") ? 0.06 : 0,
+    text: (st) => pick([
+      "Il radiotelescopio del lato nascosto ha registrato per la prima volta i segnali dell'alba cosmica, quando nacquero le prime stelle.",
+      "Nei campioni del polo sud i laboratori lunari hanno trovato tracce dell'acqua portata dalle comete quattro miliardi di anni fa.",
+      "I laboratori lunari hanno prodotto in bassa gravità un nuovo materiale per batterie e superconduttori.",
+    ]),
+    choices: [
+      { label: "Dati aperti a tutta l'umanità", cost: 0, out: "Orgoglio comune: polarizzazione in calo ovunque", fx: (st) => ctrlRegions(st).forEach((r) => (r.polar -= 3)) },
+      { label: "Programma di ricerca dedicato", cost: 4, out: "Tecnologie derivate: più crescita per qualche anno", fx: (st) => ctrlRegions(st).forEach((r) => (r.shockG += 0.5)) },
+      { label: "Brevetti dell'Autorità", cost: -5, out: "Recuperi 5 fondi", fx: () => {} },
+    ] },
+  // Eventi favorevoli
+  { id: "batteries", scope: "global", cat: "Energia", title: "Svolta nelle batterie", good: true, once: true,
+    p: (st) => st.year >= 2030 && built(st, "renew") ? 0.05 : 0,
+    text: () => "Un consorzio di laboratori presenta accumulatori a basso costo che non usano metalli rari. Solare ed eolico potrebbero diventare disponibili giorno e notte.",
+    choices: [
+      { label: "Produzione su larga scala", cost: 6, out: "Molti fossili sostituiti in tutte le regioni", fx: (st) => ctrlRegions(st).forEach((r) => shiftClean(r, 5, "renew")) },
+      { label: "Licenze aperte", cost: 2, out: "Alcuni fossili sostituiti", fx: (st) => ctrlRegions(st).forEach((r) => shiftClean(r, 2.5, "renew")) },
+      { label: "Lasciar fare al mercato", cost: 0, out: "Effetto lento e limitato", fx: (st) => ctrlRegions(st).forEach((r) => shiftClean(r, 1, "renew")) },
+    ] },
+  { id: "tradeBoom", scope: "global", cat: "Economia", title: "Ripresa dei commerci", good: true,
+    p: (st) => avgOf(st, "unrest") < 55 ? 0.025 : 0,
+    text: () => "Nuove rotte e accordi commerciali fanno crescere gli scambi oltre le attese. Le entrate fiscali delle regioni aumentano.",
+    choices: [
+      { label: "Reinvestire nei servizi", cost: 0, out: "Malcontento in calo ovunque", fx: (st) => ctrlRegions(st).forEach((r) => (r.shockU -= 4)) },
+      { label: "Rafforzare le casse dell'Autorità", cost: -6, out: "Recuperi 6 fondi", fx: () => {} },
+      { label: "Ridurre i debiti", cost: 0, out: "Debito in calo in tutte le regioni", fx: (st) => ctrlRegions(st).forEach((r) => (r.debt -= 5)) },
+    ] },
+  { id: "uniVax", scope: "global", cat: "Salute", title: "Vaccino universale", good: true, once: true,
+    p: (st) => built(st, "vaccines") ? 0.05 : 0,
+    text: () => "Le piattaforme per vaccini rapidi hanno prodotto un vaccino efficace contro tutti i ceppi dell'influenza. Resta da decidere come distribuirlo.",
+    choices: [
+      { label: "Distribuzione gratuita ovunque", cost: 6, out: "Pandemie meno letali; fiducia in aumento", fx: (st) => { st.flags.uniVax = true; ctrlRegions(st).forEach((r) => (r.polar -= 2)); } },
+      { label: "Distribuzione a pagamento", cost: -3, out: "Recuperi 3 fondi; malumore nelle regioni povere", fx: (st) => { st.flags.uniVax = true; ctrlRegions(st).forEach((r) => { if (r.wealth < 40) r.shockU += 5; }); } },
+      { label: "Rimandare", cost: 0, out: "Nessun effetto", fx: () => {} },
+    ] },
 ];
 const EBY = Object.fromEntries(EVENTS.map((e) => [e.id, e]));
 function avgOf(st, key) { const c = ctrlRegions(st); return c.reduce((s, r) => s + r[key], 0) / Math.max(1, c.length); }
 function richestNb(st, r) { return RBY[r.id].nb.map((n) => st.regions[n]).filter((n) => n.controlled).sort((a, b) => b.wealth - a.wealth).slice(0, 1); }
-function gmPmit(st) { return clamp((st.acts.vaccines ? 0.6 : 0) + (st.acts.amr ? 0.15 : 0) + (st.acts.surveil ? 0.1 : 0), 0, 0.85); }
+function gmPmit(st) { return clamp((st.acts.vaccines ? 0.6 : 0) + (st.acts.amr ? 0.15 : 0) + (st.acts.surveil ? 0.1 : 0) + (st.flags.uniVax ? 0.1 : 0), 0, 0.9); }
 
 function eventCost(ev, i) { return ev.choices[i].cost; }
 function resolveEvent(st, pending, i) {
@@ -1124,7 +1292,8 @@ function resolveEvent(st, pending, i) {
   st.funds -= c.cost;
   const r = pending.r ? st.regions[pending.r] : null;
   c.fx(st, r);
-  logNews(st, ev.title + (r ? " in " + r.name : "") + ": " + c.label.toLowerCase() + ".", i === 2 ? "bad" : "info");
+  if (ev.once) st.flags["done_" + ev.id] = true;
+  logNews(st, ev.title + (r ? " in " + r.name : "") + ": " + c.label.toLowerCase() + ".", i === 2 && !ev.good ? "bad" : "info", true);
   return null;
 }
 
@@ -1137,6 +1306,25 @@ const ENDINGS = {
   tutte: { title: "Anarchia globale", text: "Una dopo l'altra, più di metà delle regioni ha smesso di eseguire gli ordini. L'Autorità si è dissolta e le nazioni sono tornate a dividersi." },
   vittoria: { title: "Terra stabilizzata", text: "Per dieci anni di fila il pianeta ha retto: conti in ordine, società più calma, emissioni in calo, rischi sotto controllo. L'umanità ha superato il primo filtro e può guardare oltre la Terra." },
 };
+// epilogo aggiuntivo quando l'Archivio dell'umanità è sulla Luna
+const ARCHIVE_EPILOGUE = "Sulla Luna, però, l'insediamento resiste. Il suo archivio custodisce i saperi e i genomi della Terra: un giorno qualcuno potrà ricominciare.";
+const SEP_EPILOGUE = "La base lunare è stata abbandonata: senza rifornimenti dalla Terra nessuno ha potuto restare.";
+function endingText(st) {
+  const E = ENDINGS[st.over];
+  if (!E) return "";
+  if (st.over === "vittoria") return E.text + (st.lunarCity ? " Sulla Luna vive già una comunità permanente: il primo passo verso il sistema solare è compiuto." : "");
+  return E.text + (st.lunarCity ? " " + ARCHIVE_EPILOGUE : st.moon ? " " + SEP_EPILOGUE : "");
+}
+/* riconoscimenti di fine partita: ognuno vale una stella */
+function honors(st) {
+  const lost = Object.values(st.regions).filter((r) => !r.controlled).length;
+  return [
+    { id: "fast", name: "Rapidità", desc: "Vittoria entro 70 anni", ok: st.year - 2026 <= 70 },
+    { id: "all", name: "Nessuno lasciato indietro", desc: "Nessuna regione caduta nell'anarchia", ok: lost === 0 },
+    { id: "cool", name: "Clima sotto controllo", desc: "Temperatura sotto +1,8 °C", ok: st.g.temp + st.g.geoOff < 1.8 },
+    { id: "moon", name: "Ponte verso le stelle", desc: "Insediamento lunare permanente", ok: !!st.lunarCity },
+  ];
+}
 function gameOver(st, key) {
   if (st.over) return;
   st.over = key;
@@ -1204,7 +1392,7 @@ function tick(st) {
     if (!r.controlled) r.unrest = Math.max(r.unrest, 90);
     r.unrest = clamp(r.unrest, 0, 100);
 
-    const pT = clamp(r.pBase + r.unrest * 0.3 + m.polarT, 0, 100);
+    const pT = clamp(r.pBase + r.unrest * 0.3 + m.polarT + gm.polarAll, 0, 100);
     r.polar += (pT - r.polar) * 0.2 * dt;
     r.polar = clamp(r.polar, 0, 100);
 
@@ -1243,6 +1431,7 @@ function tick(st) {
   for (const p of st.prog) {
     let k = speed;
     if (p.id === "nuclear" && avgOf(st, "resist") > 60) k *= 0.6;
+    if (FRONTIER.includes(p.id)) k *= 1 + gm.frontier;
     p.t += dt * k;
   }
   const done = st.prog.filter((p) => p.t >= p.T);
@@ -1255,7 +1444,7 @@ function tick(st) {
   for (const aid in st.acts) { const d = IBY[aid]; if (d.payoff && st.acts[aid].n > 0) st.payoff += payoffNow(d, st.acts[aid], st); }
   st.income += st.payoff;
   let upkeep = 0;
-  for (const aid in st.acts) { const d = IBY[aid]; if (d.upkeep && st.acts[aid].n > 0) upkeep += d.upkeep; }
+  for (const aid in st.acts) { const d = IBY[aid]; if (d.upkeep && st.acts[aid].n > 0) upkeep += upkeepOf(st, d); }
   for (const p of st.prog) { const d = IBY[p.id]; if (d.buildUpkeep) upkeep += d.buildUpkeep; }
   st.upkeep = upkeep;
   st.funds += (st.income - upkeep) * dt;
@@ -1286,6 +1475,7 @@ function rollEvent(st) {
   const order = EVENTS.slice().sort(() => rand() - 0.5);
   if (st.flags.pandemic) order.unshift(EBY.pandemic);
   for (const ev of order) {
+    if (ev.once && st.flags["done_" + ev.id]) continue;
     if (ev.scope === "global") {
       const key = ev.id;
       if ((st.cd[key] || 0) > st.year && ev.id !== "pandemic") continue;
@@ -1304,6 +1494,7 @@ function rollEvent(st) {
 }
 
 function yearly(st) {
+  (st.hist || (st.hist = [])).push({ y: st.year, ws: Math.round(worldStab(st) * 10) / 10, t: Math.round((st.g.temp + st.g.geoOff) * 100) / 100, e: Math.round(emissions(st) / st.E0 * 100), n: ctrlRegions(st).length });
   // diffusione delle innovazioni
   for (const d of INTERVENTIONS) {
     if (!d.spread) continue;
@@ -1335,9 +1526,22 @@ function yearly(st) {
   }
 }
 
+/* ---------- salvataggio ----------
+   Lo stato è un oggetto semplice; al caricamento si ricollegano i riferimenti condivisi. */
+function saveState(st, pending) { return JSON.stringify({ v: 1, seed: _seed, pending: pending || null, st: { ...st, D: undefined, gm: undefined } }); }
+function loadState(txt) {
+  const o = JSON.parse(txt);
+  if (!o || o.v !== 1 || !DIFF[o.st.diffId]) return null;
+  const st = o.st;
+  st.D = DIFF[st.diffId];
+  for (const id in st.regions) st.regions[id].acts = st.acts;
+  setSeed(o.seed);
+  return { st, pending: o.pending };
+}
+
 if (typeof module !== "undefined") module.exports = {
   DIFF, REGIONS, RBY, INTERVENTIONS, IBY, CATS, EVENTS, EBY, ENDINGS, STABLE_YEARS, RISK_LABELS,
-  newGame, tick, startIntervention, payoffNow, stabParts, stabNow, worldStab, unrestCauses, STAB_PARTS, WIN_WORLD, WIN_REGION, canStart, parentOk, TREE, resolveEvent, revoke, stability, riskBoard, risks, emissions, worldPop, lvl, setSeed, rand,
+  newGame, tick, saveState, loadState, honors, endingText, costOf, upkeepOf, built, startIntervention, payoffNow, stabParts, stabNow, worldStab, unrestCauses, STAB_PARTS, WIN_WORLD, WIN_REGION, canStart, parentOk, TREE, resolveEvent, revoke, stability, riskBoard, risks, emissions, worldPop, lvl, setSeed, rand,
 };
 
 </script>
@@ -1370,6 +1574,7 @@ const SHORT = {
   mediation: "Mediazione", fissile: "Materiale fissile", arms: "Riduzione arsenali",
   aiCap: "Capacità AI", aiReg: "Regole AI", align: "Allineamento",
   launch: "Lanciatori", orbital: "Economia orbitale", pdef: "Difesa planetaria", moon: "Base lunare", lunarMining: "Miniere lunari",
+  lunarSci: "Scienza lunare", lunarIce: "Ghiaccio lunare", lunarCity: "Insediamento lunare",
 };
 const DIFF_TEXT = {
   facile: "Più fondi, meno crisi. Per imparare le regole.",
@@ -1495,6 +1700,7 @@ function paint() {
   }
   $("legLo").textContent = L.a; $("legHi").textContent = L.b; $("legBar").style.background = L.bar;
   $("viewName").textContent = L.name;
+  placeGlobeBtn();
 }
 function hud() {
   if (!st) return;
@@ -1517,7 +1723,9 @@ function hud() {
     <span class="st">${weak ? "Punto debole: " + weak.name.toLowerCase() : "Non esegue più gli ordini"}</span><span class="go">Dettagli ›</span>`;
 }
 function refresh() {
-  paint(); hud();
+  paint(); hud(); newsToasts();
+  if (globeOn) drawGlobe();
+  if (phase === "play" && !pending && !openScreen) checkTips();
   if (openScreen === "world") renderWorld();
   if (openScreen === "reg") renderRegion();
 }
@@ -1533,6 +1741,7 @@ $("viewBtn").onclick = () => { $("views").hidden = !$("views").hidden; };
 function showPhase(p) {
   phase = p;
   $("menuTitle").hidden = p !== "title";
+  if (p === "title") { const sv = peekSave(); $("mCont").hidden = !sv; if (sv) $("mCont").textContent = `Continua · ${sv.year} · ${DIFF[sv.diffId].name}`; }
   $("menuHow").hidden = p !== "how";
   $("menuDiff").hidden = p !== "diff";
   $("menuBrief").hidden = p !== "brief";
@@ -1541,10 +1750,11 @@ function showPhase(p) {
   paint();
 }
 function renderDiffs() {
-  $("diffs").innerHTML = Object.entries(DIFF).map(([k, d], i) => `<button type="button" class="diff" data-d="${k}" aria-pressed="${k === introDiff}"><b>${d.name}</b><span class="pips">${[0, 1, 2, 3].map((j) => `<i style="background:${j <= i ? "var(--accent)" : ""}"></i>`).join("")}</span><span>${DIFF_TEXT[k]}</span></button>`).join("");
+  $("diffs").innerHTML = Object.entries(DIFF).map(([k, d], i) => `<button type="button" class="diff" data-d="${k}" aria-pressed="${k === introDiff}"><b>${d.name}</b><span class="pips">${[0, 1, 2, 3].map((j) => `<i style="background:${j <= i ? "var(--accent)" : ""}"></i>`).join("")}</span><span>${DIFF_TEXT[k]}</span>${bestOf(k) ? `<span class="best">Record: ${"★".repeat(bestOf(k).stars) || "vittoria"} · ${bestOf(k).years} anni</span>` : ""}</button>`).join("");
   for (const b of $("diffs").querySelectorAll("[data-d]")) b.onclick = () => { introDiff = b.dataset.d; renderDiffs(); };
 }
 $("mPlay").onclick = () => { tryLandscape(); music.start(); showPhase("diff"); };
+$("mCont").onclick = continueGame;
 $("mHow").onclick = () => showPhase("how");
 $("mNext").onclick = startGame;
 $("mGo").onclick = beginPlay;
@@ -1560,7 +1770,7 @@ function tryLandscape() {
 function startGame() {
   // la partita viene preparata qui, ma il tempo parte solo dopo la schermata della missione
   st = newGame(introDiff);
-  sel = null;
+  sel = null; seenLog = st.logN;
   speed = 1;
   const ws = Math.round(worldStab(st));
   const worst = Object.values(st.regions).sort((a, b) => a.stab - b.stab).slice(0, 3).map((r) => r.name).join(", ");
@@ -1582,7 +1792,15 @@ function startGame() {
     <p>Il numero su ogni regione è la sua stabilità. Toccala per sapere cosa la abbassa e quali interventi aiutano. Con il pulsante Interventi spendi i fondi: ogni intervento vale per tutto il mondo e molti richiedono anni prima di funzionare.</p>`;
   showPhase("brief");
 }
-function beginPlay() { showPhase("play"); refresh(); }
+function beginPlay() { showPhase("play"); refresh(); save(); }
+function continueGame() {
+  const o = loadSave();
+  if (!o) { $("mCont").hidden = true; return; }
+  tryLandscape(); music.start();
+  st = o.st; sel = null; speed = 0; savedSpeed = 1; seenLog = st.logN || 0;
+  showPhase("play"); refresh();
+  if (o.pending) showEvent(o.pending); else toast("Partita ripresa: " + MONTHS[st.month] + " " + st.year + ". Tocca 1× per far ripartire il tempo.", "spread");
+}
 function onRegionTap(id) {
   $("views").hidden = true;
   if (phase !== "play" && phase !== "over") return;
@@ -1639,13 +1857,14 @@ function layoutTree(list) {
     })(rid, 0);
     return { p, w: depth + 1, h: row };
   });
+  const rows = Math.max(3, ...trees.map((t) => t.h));
   const pos = {}; let x = 0, y = 0, colW = 0, cols = 0;
   for (const tr of trees) {
-    if (y > 0 && y + tr.h > 3) { x += colW + GAP; y = 0; colW = 0; }
+    if (y > 0 && y + tr.h > rows) { x += colW + GAP; y = 0; colW = 0; }
     for (const id in tr.p) pos[id] = [x + tr.p[id][0], y + tr.p[id][1]];
     y += tr.h; colW = Math.max(colW, tr.w); cols = Math.max(cols, x + colW);
   }
-  return { pos, cols, rows: 3 };
+  return { pos, cols, rows };
 }
 function renderActs() {
   const root = $("scrActs");
@@ -1710,16 +1929,20 @@ function renderDetail() {
   let state = "";
   if (s.a && s.a.n > 0) state = "Attivo in tutto il mondo" + (s.a.n > 1 ? " (" + s.a.n + ")" : "");
   for (const p of s.prog) state += (state ? " · " : "") + `In corso: ${Math.floor(p.t)} di ${p.T} anni`;
-  const cost = (d.cost ? d.cost + " fondi" : "gratis") + (d.buildUpkeep ? ` · −${d.buildUpkeep}/anno in costruzione` : "") + (d.upkeep ? ` · ${d.upkeep > 0 ? "−" : "+"}${Math.abs(d.upkeep)} fondi/anno` : "") + " · " + (d.T ? d.T + (d.T === 1 ? " anno" : " anni") : "effetto immediato");
+  const c0 = costOf(st, d), up = upkeepOf(st, d);
+  const cost = (c0 ? c0 + " fondi" : "gratis") + (c0 < d.cost ? " (sconto dei partner)" : "") + (d.buildUpkeep ? ` · −${d.buildUpkeep}/anno in costruzione` : "") + (d.upkeep ? (up ? ` · ${up > 0 ? "−" : "+"}${Math.abs(up)} fondi/anno` : " · gestione gratuita") : "") + " · " + (d.T ? d.T + (d.T === 1 ? " anno" : " anni") : "effetto immediato");
   if (d.payoff) {
-    const now = s.a && s.a.n > 0 ? payoffNow(d, s.a, st) : 0;
-    state += (state ? " · " : "") + `Ritorno: fino a +${fmt(d.payoff.amount, 1)} fondi/anno, a partire da ${d.payoff.after} ${d.payoff.after === 1 ? "anno" : "anni"} dopo il completamento` + (s.a && s.a.n > 0 ? ` (ora +${fmt(now, 1)})` : "");
+    const on = s.a && s.a.n > 0, now = on ? payoffNow(d, s.a, st) : 0;
+    const max = d.payoff.amount * (d.id === "lunarMining" ? st.mineYield || 1 : 1);
+    const amt = d.id === "lunarMining" && !on ? "da +1 a +7 fondi/anno, non si sa quanto" : `fino a +${fmt(max, 1)} fondi/anno`;
+    state += (state ? " · " : "") + `Ritorno: ${amt}, a partire da ${d.payoff.after} ${d.payoff.after === 1 ? "anno" : "anni"} dopo il completamento` + (on ? ` (ora +${fmt(now, 1)})` : "");
+    if (d.id === "moon" && st.moonHalt > st.year) state += " · Base ferma dopo l'incidente fino al " + st.moonHalt;
   }
   const prereq = d.parent ? `<p class="why">Si sblocca dopo: ${esc(IBY[d.parent].name)}.</p>` : "";
   const fromTxt = d.from ? `<p class="why">Tecnologia disponibile dal ${d.from}.</p>` : "";
   const done = s.a && s.a.n > 0 && !d.stack && !d.repeat;
   const buyLabel = done ? "Già attivo" : (s.a && s.a.n > 0 && d.stack) ? "Costruisci ancora" : s.prog.length && !d.stack ? "In corso" : "Avvia";
-  const priceTxt = d.cost && !done ? ` – ${d.cost}` : "";
+  const priceTxt = c0 && !done ? ` – ${c0}` : "";
   const showWhy = s.why && !done && s.why !== "In corso" && !s.why.startsWith("Richiede") && !s.why.startsWith("Disponibile");
   $("detail").innerHTML = `<div class="scroll">
       <h3>${esc(d.name)}</h3>
@@ -1732,7 +1955,7 @@ function renderDetail() {
     </div>
     <button type="button" class="buy" id="dBuy" ${s.why ? "disabled" : ""}>${buyLabel}${priceTxt}</button>
     ${s.a && s.a.n > 0 && d.upkeep ? `<button type="button" class="buy alt" id="dRev">Revoca</button>` : ""}`;
-  $("dBuy").onclick = () => { if (!startIntervention(st, d.id)) { renderActs(); hud(); paint(); } };
+  $("dBuy").onclick = () => { if (!startIntervention(st, d.id)) { renderActs(); hud(); paint(); save(); } };
   if ($("dRev")) $("dRev").onclick = () => { revoke(st, d.id); renderActs(); hud(); paint(); };
 }
 
@@ -1802,11 +2025,62 @@ function renderWorld() {
       <span>Popolazione mondiale</span><span>${fmt(worldPop(st) / 1000, 2)} mld</span>
       <span>Entrate dell'Autorità</span><span>${fmt(st.income, 1)}/anno</span>
       <span>Spese correnti</span><span>${fmt(st.upkeep || 0, 1)}/anno</span>
-      <span>Base lunare</span><span>${st.moon ? "operativa" : "no"}</span></div></section>
+      <span>Programma lunare</span><span>${lunarStatus()}</span></div></section>
+    <section class="sec"><h3>Andamento</h3>${chartsHTML()}</section>
     <section class="sec"><h3>Stabilità delle regioni</h3><ul class="rank">${Object.values(st.regions).sort((a, b) => a.stab - b.stab).map((r) => `<li><span>${esc(r.name)}${r.controlled ? "" : " (anarchia)"}</span><b style="background:${stabColor(r.stab)}">${Math.round(r.stab)}</b></li>`).join("")}</ul></section>
     <section class="sec"><h3>Notizie</h3><ul class="log">${st.log.slice(0, 30).map((n) => `<li><time>${MONTHS[n.mo]} ${n.y}</time><span class="${n.kind}">${esc(n.text)}</span></li>`).join("")}</ul></section>
   </div>`;
   wireClose(root);
+  wireCharts(root);
+}
+function lunarStatus() {
+  if (st.lunarCity) return "insediamento permanente";
+  if (st.moon) return st.moonHalt > st.year ? "base ferma" : "base operativa";
+  const p = st.prog.find((x) => x.id === "moon");
+  return p ? `base in costruzione (${Math.floor(p.t)}/${p.T})` : "nessuna presenza";
+}
+
+/* ---------- grafici dell'andamento: piccoli multipli, una serie ciascuno, con il traguardo ---------- */
+const CHARTS = [
+  { k: "ws", name: "Stabilità mondiale", goal: WIN_WORLD, goalTxt: "obiettivo", lo: 30, hi: 70, f: (v) => fmt(v, 0) },
+  { k: "e", name: "Emissioni rispetto al 2026", goal: 50, goalTxt: "obiettivo", lo: 0, hi: 130, f: (v) => Math.round(v) + "%" },
+  { k: "t", name: "Temperatura", goal: 3.5, goalTxt: "collasso", lo: 1.2, hi: 3.6, f: (v) => "+" + fmt(v, 2) + " °C" },
+];
+function chartsHTML(h) {
+  h = h || st.hist || [];
+  if (h.length < 2) return `<p class="note" style="margin:0">I grafici compaiono dopo il primo anno di governo.</p>`;
+  const W = 300, H = 64;
+  return `<div class="charts">${CHARTS.map((c) => {
+    const lo = Math.min(c.lo, ...h.map((p) => p[c.k])), hi = Math.max(c.hi, ...h.map((p) => p[c.k]));
+    const X = (i) => (i / (h.length - 1)) * W, Y = (v) => H - 4 - ((v - lo) / (hi - lo)) * (H - 8);
+    const d = h.map((p, i) => (i ? "L" : "M") + X(i).toFixed(1) + " " + Y(p[c.k]).toFixed(1)).join("");
+    const gy = Y(c.goal).toFixed(1), last = h[h.length - 1];
+    return `<div class="chart" data-k="${c.k}"><div class="ct"><span>${c.name}</span><b>${c.f(last[c.k])}</b></div>
+      <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="${c.name}: da ${c.f(h[0][c.k])} nel ${h[0].y} a ${c.f(last[c.k])} nel ${last.y}">
+        <line x1="0" x2="${W}" y1="${H - 1}" y2="${H - 1}" stroke="#2b4356" stroke-width="1" vector-effect="non-scaling-stroke"/>
+        <line x1="0" x2="${W}" y1="${gy}" y2="${gy}" stroke="#8ea3b4" stroke-width="1" stroke-dasharray="3 3" vector-effect="non-scaling-stroke"/>
+        <path d="${d}" fill="none" stroke="#e9b44c" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+        <line class="xh" x1="0" x2="0" y1="0" y2="${H}" stroke="#e6edf2" stroke-width="1" vector-effect="non-scaling-stroke" visibility="hidden"/>
+      </svg><div class="ct" style="margin-top:1px"><span>${h[0].y}</span><span>- - ${c.goalTxt} ${c.f(c.goal)}</span><span>${last.y}</span></div></div>`;
+  }).join("")}</div>`;
+}
+function wireCharts(root, h) {
+  h = h || st.hist || [];
+  for (const el of root.querySelectorAll(".chart")) {
+    const c = CHARTS.find((x) => x.k === el.dataset.k), svg = el.querySelector("svg"), xh = el.querySelector(".xh");
+    let tip = null;
+    const show = (e) => {
+      const b = svg.getBoundingClientRect();
+      const t = Math.max(0, Math.min(1, (e.clientX - b.left) / b.width));
+      const i = Math.round(t * (h.length - 1)), x = (i / (h.length - 1)) * 300;
+      xh.setAttribute("x1", x); xh.setAttribute("x2", x); xh.setAttribute("visibility", "visible");
+      if (!tip) { tip = document.createElement("span"); tip.className = "tipv"; el.appendChild(tip); }
+      tip.style.left = (svg.offsetLeft + (i / (h.length - 1)) * svg.clientWidth) + "px";
+      tip.textContent = h[i].y + " · " + c.f(h[i][c.k]);
+    };
+    svg.addEventListener("pointermove", show); svg.addEventListener("pointerdown", show);
+    svg.addEventListener("pointerleave", () => { xh.setAttribute("visibility", "hidden"); if (tip) { tip.remove(); tip = null; } });
+  }
 }
 
 /* ---------- eventi ---------- */
@@ -1815,16 +2089,17 @@ function showEvent(ev) {
   if (openScreen === null) savedSpeed = speed || savedSpeed || 1;
   speed = 0;
   const E = EBY[ev.id], r = ev.r ? st.regions[ev.r] : null;
-  if (ev.r) sel = ev.r;
+  if (ev.r) { sel = ev.r; pingRegion(ev.r); }
+  save();
   const c = $("modalCard");
-  c.innerHTML = `<div class="eyebrow">${esc(E.cat)}${r ? " · " + esc(r.name) : " · Tutto il mondo"} · ${MONTHS[st.month]} ${st.year}</div><h2>${esc(E.title)}</h2><p>${esc(E.text(st, r))}</p>
+  c.innerHTML = `<div class="eyebrow">${E.good ? "Opportunità · " : ""}${esc(E.cat)}${r ? " · " + esc(r.name) : " · Tutto il mondo"} · ${MONTHS[st.month]} ${st.year}</div><h2>${esc(E.title)}</h2><p>${esc(E.text(st, r))}</p>
     <div class="choices">${E.choices.map((ch, i) => `<button type="button" class="choice" data-i="${i}" ${ch.cost > 0 && st.funds < ch.cost ? "disabled" : ""}><b>${esc(ch.label)}</b><span class="c">${ch.cost > 0 ? ch.cost + " fondi" : ch.cost < 0 ? "+" + -ch.cost + " fondi" : "gratis"}</span><small>${esc(ch.out)}${ch.cost > 0 && st.funds < ch.cost ? " · fondi insufficienti" : ""}</small></button>`).join("")}</div>`;
   $("modal").hidden = false;
   for (const b of c.querySelectorAll("[data-i]")) b.onclick = () => {
     if (resolveEvent(st, pending, +b.dataset.i)) return;
     pending = null; $("modal").hidden = true;
     speed = openScreen ? 0 : savedSpeed || 1;
-    if (st.over) endGame(); else refresh();
+    if (st.over) endGame(); else { refresh(); save(); }
   };
   refresh();
   c.querySelector("button:not(:disabled)")?.focus();
@@ -1835,13 +2110,26 @@ function endGame() {
   closeScreensQuiet();
   phase = "over"; speed = 0;
   const E = ENDINGS[st.over], win = st.over === "vittoria";
+  clearSave();
+  const hon = honors(st), stars = hon.filter((h) => h.ok).length;
+  let record = false;
+  if (win) {
+    const b = bestOf(st.diffId);
+    const yrs = st.year - 2026;
+    if (!b || stars > b.stars || (stars === b.stars && yrs < b.years)) { record = !!b; setBest(st.diffId, { stars, years: yrs }); }
+  }
   const c = $("modalCard");
-  c.innerHTML = `<div class="eyebrow">${win ? "Vittoria" : "Sconfitta"} · ${st.year} · ${DIFF[st.diffId].name}</div><h2>${esc(E.title)}</h2><p>${esc(E.text)}</p>
-    <div class="kv" style="margin-bottom:12px"><span>Anni di governo</span><span>${st.year - 2026}</span><span>Temperatura</span><span>+${fmt(st.g.temp + st.g.geoOff, 2)} °C</span><span>Popolazione</span><span>${fmt(worldPop(st) / 1000, 2)} mld</span><span>Regioni sotto controllo</span><span>${Object.values(st.regions).filter((r) => r.controlled).length} su 11</span><span>Base lunare</span><span>${st.moon ? "sì" : "no"}</span></div>
+  c.innerHTML = `<div class="eyebrow">${win ? "Vittoria" : "Sconfitta"} · ${st.year} · ${DIFF[st.diffId].name}</div><h2>${esc(E.title)}</h2><p>${esc(endingText(st))}</p>
+    ${win ? `<div class="stars" aria-label="${stars} stelle su 4">${"★".repeat(stars)}<i>${"★".repeat(4 - stars)}</i>${record ? ' <span style="font-size:13px;letter-spacing:0">nuovo record</span>' : ""}</div>
+      <ul class="honors">${hon.map((h) => `<li class="${h.ok ? "ok" : ""}"><span class="s">★</span><span>${h.name}</span><small>${h.desc}</small></li>`).join("")}</ul>
+      <div class="nextph"><b>Fase 2 · Il sistema solare</b> — sbloccata a livello ${DIFF[st.diffId].name.toLowerCase()}. È in preparazione: ${st.lunarCity ? "la comunità lunare sarà il tuo punto di partenza." : "con un insediamento lunare partirai avvantaggiato."}</div>` : ""}
+    <div class="endgrid"><div class="kv"><span>Anni di governo</span><span>${st.year - 2026}</span><span>Temperatura</span><span>+${fmt(st.g.temp + st.g.geoOff, 2)} °C</span><span>Popolazione</span><span>${fmt(worldPop(st) / 1000, 2)} mld</span><span>Regioni sotto controllo</span><span>${Object.values(st.regions).filter((r) => r.controlled).length} su 11</span><span>Programma lunare</span><span>${lunarStatus()}</span></div>
+      <div>${chartsHTML()}</div></div>
     <div class="choices"><button type="button" class="buy" id="bAgain" style="margin:0">Nuova partita</button><button type="button" class="buy alt" id="bLook" style="margin:0">Guarda la mappa</button></div>`;
   $("modal").hidden = false;
-  $("bAgain").onclick = () => { $("modal").hidden = true; st = null; sel = null; showPhase("title"); };
+  $("bAgain").onclick = () => { $("modal").hidden = true; st = null; sel = null; globeOn = false; showGlobe(); showPhase("title"); };
   $("bLook").onclick = () => { $("modal").hidden = true; };
+  wireCharts(c);
   refresh();
 }
 function closeScreensQuiet() { $("scrActs").hidden = $("scrReg").hidden = $("scrWorld").hidden = true; openScreen = null; }
@@ -1857,13 +2145,245 @@ function loop(now) {
       acc -= MONTH_MS;
       const ev = tick(st);
       changed = true;
+      if (st.month === 0) save();
       if (st.over) { endGame(); break; }
       if (ev) { showEvent(ev); break; }
     }
     if (changed && phase === "play") refresh();
   }
+  if (globeOn && !dragging && (phase === "play" || phase === "over")) {
+    const spin = phase === "play" && speed > 0 && !pending && !openScreen;
+    if (spin) { gRot += dtms * 0.006; drawGlobe(); }
+  }
   requestAnimationFrame(loop);
 }
+
+/* ---------- salvataggio automatico ----------
+   La partita resta in memoria nel browser: chiudendo Safari si riprende da dove si era. */
+const SAVE_KEY = "gf-save-1";
+function save() { if (!st || st.over) return; try { localStorage.setItem(SAVE_KEY, saveState(st, pending && pending.id ? pending : null)); } catch (e) {} }
+function clearSave() { try { localStorage.removeItem(SAVE_KEY); } catch (e) {} }
+function loadSave() { try { const t = localStorage.getItem(SAVE_KEY); return t ? loadState(t) : null; } catch (e) { return null; } }
+function peekSave() { try { const t = localStorage.getItem(SAVE_KEY); if (!t) return null; const o = JSON.parse(t); return o && o.st && DIFF[o.st.diffId] ? { year: o.st.year, diffId: o.st.diffId } : null; } catch (e) { return null; } }
+function bestOf(k) { try { return JSON.parse(localStorage.getItem("gf-best-" + k) || "null"); } catch (e) { return null; } }
+function setBest(k, v) { try { localStorage.setItem("gf-best-" + k, JSON.stringify(v)); } catch (e) {} }
+document.addEventListener("visibilitychange", () => { if (document.hidden) save(); });
+window.addEventListener("pagehide", save);
+
+/* ---------- messaggi brevi: interventi completati, regioni perse, novità ---------- */
+let seenLog = 0;
+function toast(text, kind) {
+  const box = $("toasts");
+  const t = document.createElement("div"); t.className = "toast " + (kind || ""); t.textContent = text;
+  box.appendChild(t);
+  while (box.children.length > 3) box.firstChild.remove();
+  setTimeout(() => { t.classList.add("out"); setTimeout(() => t.remove(), 500); }, 4200);
+}
+function newsToasts() {
+  if (!st) return;
+  const fresh = st.log.filter((n) => n.n > seenLog && !n.quiet && n.kind !== "info").reverse();
+  seenLog = st.logN || 0;
+  if (phase !== "play") return;
+  fresh.slice(-3).forEach((n) => toast(n.text, n.kind));
+}
+function pingRegion(id) {
+  const R = RBY[id], lb = labelEls[id]; if (!lb) return;
+  const c = svgEl("circle", { r: 9, cx: 0, cy: 8, class: "ping" });
+  lb.g.appendChild(c);
+  setTimeout(() => c.remove(), 4200);
+}
+
+/* ---------- consigli per le prime partite ----------
+   Compaiono una volta sola per partita, fermano il tempo e si possono disattivare. */
+const TIPS = [
+  { id: "start", when: (s) => true, title: "Il primo anno",
+    text: "Il numero su ogni regione è la sua stabilità. In rosso le più fragili. I fondi sono pochi: conviene partire dalle misure economiche che frenano i rischi più gravi, come le regole per i laboratori e per l'AI (scheda Sicurezza e Tecnologia), e da quelle che servono a più regioni insieme." },
+  { id: "funds", when: (s) => s.year >= 2028 && s.funds >= 18 && Object.keys(s.acts).length + s.prog.length < 3, title: "Fondi fermi in cassa",
+    text: "Hai molti fondi non spesi. Molti interventi impiegano anni prima di funzionare: prima li avvii, prima producono effetti." },
+  { id: "ai", when: (s) => risks(s).aiGap >= 12, title: "Il rischio AI sale",
+    text: "La capacità dei sistemi AI cresce più in fretta della capacità di controllarli. Regole sull'AI e centri per l'allineamento riducono lo scarto. Se il rischio diventa critico, la partita può finire all'improvviso." },
+  { id: "bio", when: (s) => risks(s).bioGap >= 10, title: "Il rischio biologico sale",
+    text: "La ricerca genetica avanza più della biosicurezza. Le regole per i laboratori ad alto rischio costano poco e riducono la probabilità di una pandemia ingegnerizzata." },
+  { id: "unrest", when: (s) => ctrlRegions(s).some((r) => r.unrest > 72), title: "Una regione vicina alla rivolta",
+    text: (s) => `${ctrlRegions(s).sort((a, b) => b.unrest - a.unrest)[0].name} ha un malcontento molto alto. Se resta oltre 92 per due anni la regione cade nell'anarchia e non esegue più gli ordini. Toccala per vedere da dove viene il malcontento.` },
+  { id: "debt", when: (s) => ctrlRegions(s).some((r) => r.debt > 130), title: "Debito pericoloso",
+    text: "Oltre il 140% del prodotto i mercati possono smettere di finanziare una regione. Contributi, età pensionabile e ristrutturazione del debito sono le leve principali." },
+  { id: "globe", when: (s) => s.year >= 2029, title: "La Terra e la Luna",
+    text: "Con il pulsante in alto a sinistra la mappa diventa un globo, con accanto la Luna e lo stato del programma lunare." },
+  { id: "space", when: (s) => s.year >= 2042 && !s.acts.launch, title: "Il programma lunare",
+    text: "Una base lunare costruita insieme dalle potenze riduce la tensione tra loro e la polarizzazione. Osservatori, ghiaccio e un insediamento permanente aprono la strada alla fase successiva. Si parte dai lanciatori riutilizzabili, nella scheda Tecnologia." },
+  { id: "stable", when: (s) => s.stable >= 1, title: "Tutto verde",
+    text: "Tutte le condizioni di vittoria sono soddisfatte. Ora vanno mantenute per 10 anni di fila: se una sola si interrompe, il conteggio riparte." },
+  { id: "lost", when: (s) => ctrlRegions(s).length < 11, title: "Una regione perduta",
+    text: "Una regione in anarchia non versa più fondi e non conta per la stabilità. Con più di 2 regioni perse non si può vincere; con 6 la partita è persa." },
+];
+function tipsOn() { try { return localStorage.getItem("gf-tips") !== "off"; } catch (e) { return true; } }
+function checkTips() {
+  if (!st || !tipsOn() || !$("modal").hidden) return;
+  st.tips = st.tips || {};
+  const t = TIPS.find((x) => !st.tips[x.id] && x.when(st));
+  if (!t) return;
+  st.tips[t.id] = true;
+  savedSpeed = speed || savedSpeed || 1; speed = 0; pending = { tip: true };
+  const c = $("modalCard"); c.classList.add("tip");
+  c.innerHTML = `<div class="eyebrow">Consiglio</div><h2>${esc(t.title)}</h2><p>${esc(typeof t.text === "function" ? t.text(st) : t.text)}</p>
+    <div class="tipfoot"><button type="button" class="buy" id="tipOk">Capito</button><button type="button" class="linkbtn" id="tipOff">Non mostrare più consigli</button></div>`;
+  $("modal").hidden = false;
+  const close = () => { c.classList.remove("tip"); $("modal").hidden = true; pending = null; speed = savedSpeed || 1; refresh(); };
+  $("tipOk").onclick = close;
+  $("tipOff").onclick = () => { try { localStorage.setItem("gf-tips", "off"); } catch (e) {} close(); };
+  $("tipOk").focus(); hud();
+}
+
+/* ---------- vista Terra e Luna ----------
+   Globo in proiezione ortografica, inclinato di 20°; i punti sull'altro emisfero vengono schiacciati sul bordo. */
+let globeOn = false, gRot = -15, dragging = false;
+const G_R = 92, G_CX = -62, G_CY = 0, G_TILT = 20 * Math.PI / 180;
+const M_CX = 112, M_CY = -30, M_R = 34;
+const densePolys = {};
+function densify(poly) {
+  const out = [];
+  for (let i = 0; i < poly.length; i++) {
+    const a = poly[i], b = poly[(i + 1) % poly.length];
+    const n = Math.max(1, Math.ceil(Math.max(Math.abs(b[0] - a[0]), Math.abs(b[1] - a[1])) / 3));
+    for (let k = 0; k < n; k++) out.push([a[0] + (b[0] - a[0]) * k / n, a[1] + (b[1] - a[1]) * k / n]);
+  }
+  return out;
+}
+function ortho(lon, lat) {
+  const l = (lon - gRot) * Math.PI / 180, p = lat * Math.PI / 180;
+  const cosc = Math.sin(G_TILT) * Math.sin(p) + Math.cos(G_TILT) * Math.cos(p) * Math.cos(l);
+  let x = Math.cos(p) * Math.sin(l), y = Math.cos(G_TILT) * Math.sin(p) - Math.sin(G_TILT) * Math.cos(p) * Math.cos(l);
+  if (cosc < 0) { const k = Math.hypot(x, y) || 1; x /= k; y /= k; }
+  return [G_CX + x * G_R, G_CY - y * G_R, cosc];
+}
+let gBuilt = false, gEls = {};
+function buildGlobe() {
+  const g = $("gEarth"); g.innerHTML = "";
+  $("gClipC").setAttribute("cx", G_CX); $("gClipC").setAttribute("cy", G_CY); $("gClipC").setAttribute("r", G_R);
+  g.appendChild(svgEl("circle", { cx: G_CX, cy: G_CY, r: G_R + 7, fill: "url(#gAtmo)" }));
+  g.appendChild(svgEl("circle", { cx: G_CX, cy: G_CY, r: G_R, fill: "url(#gOcean)" }));
+  const inner = svgEl("g", { "clip-path": "url(#gClip)" }); g.appendChild(inner);
+  gEls.grat = svgEl("path", { class: "gl-grat" }); inner.appendChild(gEls.grat);
+  gEls.reg = {}; gEls.num = {};
+  for (const R of REGIONS) {
+    densePolys[R.id] = R.polys.map(densify);
+    const grp = svgEl("g", { class: "reg" }); const p = svgEl("path", {}); grp.appendChild(p); inner.appendChild(grp);
+    grp.addEventListener("click", () => { if (!movedDrag) onRegionTap(R.id); });
+    gEls.reg[R.id] = grp;
+  }
+  for (const R of REGIONS) { const t = svgEl("text", { class: "gl-num" }); g.appendChild(t); gEls.num[R.id] = t; }
+  g.appendChild(svgEl("circle", { cx: G_CX, cy: G_CY, r: G_R, fill: "none", stroke: "#2b4356", "stroke-width": 0.8 }));
+  $("gNote").setAttribute("x", G_CX - 70); $("gNote").setAttribute("y", G_CY + G_R + 13);
+  gBuilt = true;
+}
+function drawGlobe() {
+  if (!gBuilt) buildGlobe();
+  const L = LAYERS[layer];
+  // reticolo: un tratto si interrompe quando passa sull'emisfero nascosto
+  let gd = "";
+  const line = (pts) => { let pen = false; for (const [lo, la] of pts) { const [x, y, c] = ortho(lo, la); if (c < 0) { pen = false; continue; } gd += (pen ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1); pen = true; } };
+  for (let lo = -180; lo < 180; lo += 30) line(Array.from({ length: 37 }, (_, i) => [lo, -90 + i * 5]));
+  for (const la of [-60, -30, 0, 30, 60]) line(Array.from({ length: 73 }, (_, i) => [-180 + i * 5, la]));
+  gEls.grat.setAttribute("d", gd);
+  for (const R of REGIONS) {
+    const r = st.regions[R.id];
+    let d = "";
+    for (const poly of densePolys[R.id]) {
+      const pts = poly.map(([lo, la]) => ortho(lo, la));
+      if (pts.every((p) => p[2] < 0)) continue;
+      d += "M" + pts.map((p) => p[0].toFixed(1) + " " + p[1].toFixed(1)).join("L") + "Z";
+    }
+    const grp = gEls.reg[R.id];
+    grp.firstChild.setAttribute("d", d);
+    grp.firstChild.setAttribute("fill", L.col(r));
+    grp.classList.toggle("sel", sel === R.id);
+    grp.classList.toggle("lost", !r.controlled);
+    const [x, y, c] = ortho(R.label[0], R.label[1]);
+    const t = gEls.num[R.id];
+    t.setAttribute("x", x.toFixed(1)); t.setAttribute("y", (y + 2).toFixed(1));
+    t.style.display = c > 0.25 ? "" : "none";
+    t.textContent = r.controlled ? String(L.num(r)) : "—";
+  }
+  drawMoon();
+}
+// strutture lunari: posizione sul disco (in frazioni del raggio), stato dal programma
+const FACS = [
+  { id: "moon", name: "Base internazionale", x: -0.12, y: 0.72 },
+  { id: "lunarSci", name: "Osservatorio e laboratori", x: 0.9, y: 0.05 },
+  { id: "lunarIce", name: "Ghiaccio del polo sud", x: 0.18, y: 0.88 },
+  { id: "lunarCity", name: "Insediamento e archivio", x: -0.42, y: 0.42 },
+  { id: "lunarMining", name: "Miniere", x: 0.35, y: 0.4 },
+];
+function drawMoon() {
+  const g = $("gMoonG"); g.innerHTML = "";
+  const m = svgEl("g", { class: "fac", role: "button", "aria-label": "Programma lunare" });
+  m.appendChild(svgEl("circle", { cx: M_CX, cy: M_CY, r: M_R, fill: "url(#gMoon)" }));
+  for (const [x, y, r] of [[-0.35, -0.3, 0.2], [0.25, -0.45, 0.12], [-0.1, 0.1, 0.16], [0.45, 0.15, 0.1], [-0.5, 0.25, 0.09], [0.1, -0.05, 0.07]])
+    m.appendChild(svgEl("circle", { cx: M_CX + x * M_R, cy: M_CY + y * M_R, r: r * M_R, fill: "#5f676e", opacity: 0.55 }));
+  m.addEventListener("click", () => { actTab = "tecnologia"; actNode = built(st, "launch") ? "moon" : "launch"; open("acts"); });
+  g.appendChild(m);
+  const rows = [];
+  for (const f of FACS) {
+    const on = built(st, f.id), p = st.prog.find((x) => x.id === f.id);
+    const halted = f.id === "moon" && st.moonHalt > st.year;
+    let txt = "non avviato", cls = "off";
+    if (on) { txt = halted ? "ferma dopo l'incidente" : "operativo"; cls = ""; }
+    else if (p) { txt = `cantiere ${Math.floor(p.t)}/${p.T} anni`; cls = ""; }
+    rows.push({ f, txt, cls, on, p, halted });
+    if (!on && !p) continue;
+    const x = M_CX + f.x * M_R, y = M_CY + f.y * M_R;
+    if (p) {
+      g.appendChild(svgEl("circle", { cx: x, cy: y, r: 3.6, fill: "none", stroke: "#14283a", "stroke-width": 1.6 }));
+      const frac = Math.min(1, p.t / p.T), a = frac * 2 * Math.PI;
+      g.appendChild(svgEl("path", { d: `M${x} ${y - 3.6}A3.6 3.6 0 ${a > Math.PI ? 1 : 0} 1 ${(x + 3.6 * Math.sin(a)).toFixed(2)} ${(y - 3.6 * Math.cos(a)).toFixed(2)}`, fill: "none", stroke: "#6fb0d8", "stroke-width": 1.6 }));
+    } else {
+      g.appendChild(svgEl("polygon", { points: hexPts(3.4).split(" ").map((q) => { const [a, b] = q.split(",").map(Number); return (a + x).toFixed(1) + "," + (b + y).toFixed(1); }).join(" "), fill: halted ? "#d65b4a" : "#4fae8e", stroke: "#0c1822", "stroke-width": 0.8 }));
+    }
+  }
+  const tx = M_CX - M_R - 14, ty = M_CY + M_R + 16;
+  const T = (cls, x, y, s) => { const t = svgEl("text", { class: cls, x, y }); t.textContent = s; g.appendChild(t); return t; };
+  T("moon-t", tx, ty, "LA LUNA · " + lunarStatus().toUpperCase());
+  if (!built(st, "launch") && !building(st, "launch")) {
+    T("moon-s", tx, ty + 12, "Nessuna presenza umana permanente.");
+    T("moon-s", tx, ty + 22, "Il programma parte dai lanciatori riutilizzabili:");
+    T("moon-s", tx, ty + 32, "Interventi › Tecnologia. Tocca la Luna.");
+  } else rows.forEach((rw, i) => {
+    const t = svgEl("text", { class: "moon-row", x: tx, y: ty + 12 + i * 10.5 });
+    const a = svgEl("tspan", {}); a.textContent = rw.f.name + " · ";
+    const b = svgEl("tspan", { class: rw.cls }); b.textContent = rw.txt;
+    if (rw.halted) b.setAttribute("fill", "#f0a597");
+    t.appendChild(a); t.appendChild(b); g.appendChild(t);
+  });
+  if (st.lunarCity) T("moon-s", tx, ty + 14 + FACS.length * 10.5, "Archivio dell'umanità al sicuro fuori dalla Terra.");
+}
+let movedDrag = false;
+(() => {
+  // con il telefono in verticale il gioco è girato di 90°: lo spostamento orizzontale del gioco è quello verticale dello schermo
+  const svg = $("globe"); let s0 = 0, r0 = 0;
+  const along = (e) => $("app").classList.contains("turned") ? e.clientY : e.clientX;
+  svg.addEventListener("pointerdown", (e) => {
+    const [x, y] = svgPt(e); if (Math.hypot(x - G_CX, y - G_CY) > G_R) return;
+    dragging = true; movedDrag = false; s0 = along(e); r0 = gRot;
+  });
+  window.addEventListener("pointermove", (e) => {
+    if (!dragging) return;
+    const d = along(e) - s0; if (Math.abs(d) > 4) movedDrag = true;
+    const b = svg.getBoundingClientRect(), span = Math.max(b.width, b.height) * 0.45;
+    gRot = r0 - d * 180 / span; drawGlobe();
+  });
+  window.addEventListener("pointerup", () => { dragging = false; setTimeout(() => (movedDrag = false), 0); });
+})();
+function svgPt(e) { const svg = $("globe"); const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; const q = p.matrixTransform(svg.getScreenCTM().inverse()); return [q.x, q.y]; }
+function showGlobe() {
+  $("globe").toggleAttribute("hidden", !globeOn); $("map").style.visibility = globeOn ? "hidden" : "";
+  $("globeBtn").innerHTML = globeOn
+    ? '<svg viewBox="0 0 16 16"><rect x="1" y="3" width="14" height="10" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>Planisfero'
+    : '<svg viewBox="0 0 16 16"><circle cx="6.5" cy="8" r="5.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="13.5" cy="4" r="2" fill="currentColor"/></svg>Terra e Luna';
+  if (globeOn && st) drawGlobe();
+}
+$("globeBtn").onclick = () => { globeOn = !globeOn; showGlobe(); };
+function placeGlobeBtn() { $("globeBtn").style.left = ($("viewBtn").offsetLeft + $("viewBtn").offsetWidth + 6) + "px"; }
 
 /* ---------- comandi ---------- */
 for (const b of document.querySelectorAll(".speed button")) b.onclick = () => {
@@ -1961,6 +2481,7 @@ const music = (() => {
 renderViews();
 buildMap(15);
 fit();
+showGlobe();
 showPhase("title");
 requestAnimationFrame(loop);
 </script>
