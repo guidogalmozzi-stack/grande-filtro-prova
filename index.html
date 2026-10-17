@@ -15,6 +15,7 @@
 <style>html{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);background:#0f1d29;color-scheme:dark}body{margin:0;font-family:system-ui,-apple-system,sans-serif;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
+<meta charset="utf-8">
 <title>Grande Filtro</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -63,7 +64,8 @@ button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); o
 .reg.lost path.shape { fill: url(#hatch) !important; }
 .picking .reg:hover path.shape { stroke: var(--accent); stroke-width: 1; }
 .lbl text { font-family: var(--font-d); font-weight: 600; font-size: 8.5px; fill: var(--fg); paint-order: stroke; stroke: rgba(8,16,22,.85); stroke-width: 2.4px; letter-spacing: .03em; pointer-events: none; }
-.lbl .base { fill: var(--accent); }
+.lbl .num { font-family: var(--font-m); font-weight: 500; font-size: 8px; fill: var(--fg); stroke: none; }
+.lbl .pill { stroke-width: .6; }
 .lbl g { pointer-events: none; }
 .grat { fill: none; stroke: #1d3242; stroke-width: .5; }
 .grat.eq { stroke: #27445a; stroke-dasharray: 2 2; }
@@ -168,6 +170,34 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
 .tag { display: inline-flex; align-items: center; gap: 4px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px 2px 4px; font-size: 11px; }
 .tag svg { width: 13px; height: 13px; }
 .tag.sp { opacity: .75; border-style: dashed; }
+.score { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
+.score .big { font-family: var(--font-d); font-weight: 700; font-size: 52px; line-height: .9; font-variant-numeric: tabular-nums; }
+.score .lab { font-size: 12.5px; color: var(--muted); line-height: 1.4; }
+.score .lab b { display: block; font-family: var(--font-d); font-size: 19px; letter-spacing: .03em; }
+.gauge { position: relative; height: 10px; border-radius: 5px; background: linear-gradient(90deg, rgb(214,91,74), rgb(227,163,63) 45%, rgb(79,174,142)); margin: 2px 0 14px; }
+.gauge i { position: absolute; top: -4px; width: 4px; height: 18px; border-radius: 2px; background: var(--fg); transform: translateX(-50%); box-shadow: 0 0 0 2px var(--bg); }
+.gauge s { position: absolute; top: 12px; transform: translateX(-50%); font-size: 10px; color: var(--muted); text-decoration: none; white-space: nowrap; }
+.parts { display: grid; grid-template-columns: minmax(0, 1fr) 70px 28px; gap: 4px 10px; align-items: center; font-size: 12.5px; }
+.parts .k small { display: block; font-size: 11px; color: var(--muted); }
+.parts .v { font-family: var(--font-m); text-align: right; font-variant-numeric: tabular-nums; }
+.causes { list-style: none; margin: 0; padding: 0; font-size: 12.5px; }
+.causes li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 4px 0; border-bottom: 1px solid var(--line); }
+.causes li span:last-child { font-family: var(--font-m); color: #f0a597; }
+.helps { display: flex; flex-direction: column; gap: 8px; }
+.help { background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; padding: 7px 9px; font-size: 12.5px; }
+.help b { display: block; margin-bottom: 4px; }
+.help .acts2 { display: flex; flex-wrap: wrap; gap: 4px; }
+.help button { background: var(--panel-3); border: 1px solid var(--line); border-radius: 999px; padding: 3px 9px; font-size: 12px; color: var(--fg); }
+.help button.on { border-color: #7fd3b2; color: #9fd6c2; }
+.rank { list-style: none; margin: 0; padding: 0; font-size: 12.5px; }
+.rank li { display: grid; grid-template-columns: 1fr 34px; gap: 8px; padding: 4px 0; border-bottom: 1px solid var(--line); align-items: center; }
+.rank li b { font-family: var(--font-m); font-weight: 500; text-align: right; padding: 1px 4px; border-radius: 4px; color: #0c1822; }
+.brief { max-width: 72ch; margin: 0 auto; font-size: 13.5px; line-height: 1.55; color: #cbd6df; }
+.brief h3 { font-family: var(--font-d); font-size: 18px; letter-spacing: .04em; color: var(--accent); margin: 12px 0 4px; }
+.brief p { margin: 0 0 8px; }
+.goals { list-style: none; padding: 0; margin: 4px 0 8px; display: grid; gap: 4px; }
+.goals li { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.goals li span:last-child { font-family: var(--font-m); color: var(--muted); font-size: 12px; }
 .check { display: grid; grid-template-columns: 16px 1fr; gap: 1px 8px; padding: 5px 0; font-size: 12.5px; border-bottom: 1px solid var(--line); }
 .check .dot { width: 11px; height: 11px; border-radius: 50%; margin-top: 3px; background: var(--bad); }
 .check.ok .dot { background: var(--good); }
@@ -279,9 +309,9 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
   <div id="hud" hidden>
     <div class="hud tl">
       <button type="button" class="sound" data-sound aria-label="Musica" aria-pressed="true"></button>
+      <div class="chip"><span class="k">Stabilità mondiale</span><span class="v" id="sWorld">45 <small>obiettivo 52</small></span></div>
+      <div class="chip"><span class="k">Anni stabili</span><span class="v" id="sStable">0 / 10</span></div>
       <div class="chip"><span class="k">Temperatura</span><span class="v" id="sTemp">+1,35 °C</span></div>
-      <div class="chip"><span class="k">Popolazione</span><span class="v" id="sPop">8,26 mld</span></div>
-      <div class="chip"><span class="k">Stabilità</span><span class="v" id="sStable">0 / 10 anni</span></div>
     </div>
     <div class="hud tr">
       <div class="datebox"><span class="d" id="sDate">gen 2026</span>
@@ -322,8 +352,10 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
     <div class="head screen-head" style="display:flex;align-items:center;gap:10px;padding:6px var(--gr) 6px var(--gl);border-bottom:1px solid var(--line);background:var(--panel)"><button type="button" class="back" data-back="title" aria-label="Indietro">‹</button><h2 style="margin:0;font-family:var(--font-d);font-size:20px;letter-spacing:.04em">Come si gioca</h2></div>
     <div class="body"><div class="howto">
       <p>Il pianeta affronta una crisi su molti fronti: debito, invecchiamento, clima, tensioni tra potenze, tecnologie sempre più potenti. Dopo lunghe trattative le nazioni hanno istituito un'Autorità sovranazionale e accettano di eseguirne gli ordini. Tu sei l'Autorità.</p>
+      <h3>La stabilità</h3>
+      <p>Ogni regione ha un indice di stabilità da 1 a 100, il numero che vedi sulla mappa. Riassume otto aspetti: pace sociale, coesione, conti pubblici, welfare, lavoro, energia pulita, sicurezza climatica ed equilibrio demografico. Tocca una regione per vedere cosa la abbassa, da dove viene il malcontento e quali interventi aiutano.</p>
       <h3>Obiettivo</h3>
-      <p>Vinci quando la Terra resta stabile per 10 anni di fila: malcontento contenuto, debiti sostenibili, welfare finanziabile, emissioni dimezzate e rischi bassi. Le condizioni sono nella schermata Mondo.</p>
+      <p>Vinci quando, per 10 anni di fila, la stabilità mondiale è almeno 52, nessuna regione scende sotto 32, le emissioni sono dimezzate rispetto al 2026 e i rischi nucleare, AI e biologico sono bassi. A che punto sei lo vedi nella schermata Mondo.</p>
       <h3>Sconfitta</h3>
       <p>Perdi se più di metà delle regioni cade nell'anarchia, oppure se l'umanità non supera uno dei filtri: guerra nucleare, intelligenza artificiale fuori controllo, pandemia ingegnerizzata, collasso climatico.</p>
       <h3>Interventi</h3>
@@ -331,6 +363,11 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
       <h3>Eventi</h3>
       <p>Crisi ed emergenze ti chiedono di scegliere tra intervento pieno, una via di mezzo o non fare nulla. Il tempo si ferma finché non decidi, e si ferma anche quando apri un menu.</p>
     </div></div>
+  </div>
+
+  <div class="panelscreen" id="menuBrief" hidden>
+    <div style="display:flex;align-items:center;gap:10px;padding:6px var(--gr) 6px var(--gl);border-bottom:1px solid var(--line);background:var(--panel)"><button type="button" class="back" data-back="diff" aria-label="Indietro">‹</button><h2 style="margin:0;font-family:var(--font-d);font-size:20px;letter-spacing:.04em;flex:1">La missione</h2><button type="button" class="mbtn" id="mGo" style="font-size:17px;padding:7px 14px">Assumi il comando</button></div>
+    <div class="body"><div class="brief" id="briefBody"></div></div>
   </div>
 
   <div class="panelscreen" id="menuDiff" hidden>
@@ -469,15 +506,11 @@ const fEnergyCost = (r) => 40 + 0.15 * r.fossil;
    fx(m, s, r, st, gm, a): effetti continui, s = intensità · once(r, st): effetto al completamento */
 const CATS = [
   { id: "energia", name: "Energia" },
-  { id: "nucleare", name: "Nucleare" },
   { id: "economia", name: "Economia" },
-  { id: "demografia", name: "Demografia" },
   { id: "societa", name: "Società" },
   { id: "clima", name: "Clima" },
-  { id: "salute", name: "Salute" },
   { id: "sicurezza", name: "Sicurezza" },
-  { id: "ai", name: "AI" },
-  { id: "spazio", name: "Spazio" },
+  { id: "tecnologia", name: "Tecnologia" },
 ];
 const INTERVENTIONS = [
   // Energia
@@ -619,13 +652,21 @@ const INTERVENTIONS = [
     pro: "Rischio AI più basso", con: "Sviluppo dell'AI più lento",
     fx: (m, s, r, st, gm) => { gm.safeRate += 1.5; gm.aiRate -= 1.2; } },
   // Spazio
+  // Spazio: spese alte e lunghe, ritorno economico solo dopo decenni (payoff: fondi/anno dopo "after" anni dal completamento)
   { id: "launch", cat: "spazio", name: "Lanciatori riutilizzabili", scope: "global", cost: 8, T: 5,
-    pro: "Rende possibili le missioni spaziali", con: "—" },
-  { id: "pdef", cat: "spazio", name: "Difesa planetaria", scope: "global", cost: 6, T: 6, needs: "launch",
-    pro: "Gli asteroidi possono essere deviati", con: "—" },
-  { id: "moon", cat: "spazio", name: "Base lunare", scope: "global", cost: 25, T: 10, needs: "launch",
-    pro: "Primo avamposto fuori dalla Terra; orgoglio e meno malcontento", con: "Costo molto alto",
+    pro: "Abbattono il costo di ogni missione spaziale e aprono il ramo dello spazio", con: "Nessun ritorno diretto" },
+  { id: "orbital", cat: "spazio", name: "Economia orbitale", scope: "global", cost: 10, T: 4,
+    payoff: { amount: 1.5, after: 2, ramp: 4 },
+    pro: "Satelliti per comunicazioni, osservazione della Terra e navigazione: un'entrata modesta ma rapida", con: "Investimento iniziale" },
+  { id: "pdef", cat: "spazio", name: "Difesa planetaria", scope: "global", cost: 6, T: 6,
+    pro: "Gli asteroidi pericolosi possono essere individuati e deviati", con: "Nessun ritorno economico" },
+  { id: "moon", cat: "spazio", name: "Base lunare", scope: "global", cost: 10, T: 10, buildUpkeep: 3, upkeep: 2,
+    payoff: { amount: 5, after: 12, ramp: 6 },
+    pro: "Primo avamposto permanente fuori dalla Terra: ricerca, tecnologie derivate, turismo e ghiaccio lunare per il propellente. Orgoglio e meno malcontento. Dopo circa 25 anni dall'avvio inizia a restituire fondi", con: "Costa 3 fondi l'anno per 10 anni di costruzione e 2 l'anno di gestione; il ritorno è lontano e incerto",
     once: (r, st) => { st.moon = true; for (const id in st.regions) st.regions[id].shockU -= 4; } },
+  { id: "lunarMining", cat: "spazio", name: "Estrazione di risorse lunari", scope: "global", cost: 15, T: 8, upkeep: 1,
+    payoff: { amount: 4, after: 4, ramp: 6 },
+    pro: "Ghiaccio d'acqua, metalli e terre rare estratti sulla Luna, in parte usati nello spazio e in parte spediti sulla Terra", con: "Ritorno molto incerto: oggi nessuno sa se sia economicamente conveniente" },
 ];
 /* Tutti gli interventi valgono per il mondo intero (decisione del 17 ottobre 2026).
    Quelli che prima erano regionali agiscono su ogni regione, con effetti che dipendono dalle sue condizioni;
@@ -639,6 +680,9 @@ for (const d of INTERVENTIONS) {
   d.scope = "global";
   delete d.spread; delete d.req;
 }
+// famiglia (icona e colore) e scheda in cui compare ogni intervento
+const TAB_OF = { energia: "energia", nucleare: "energia", economia: "economia", demografia: "societa", societa: "societa", clima: "clima", salute: "sicurezza", sicurezza: "sicurezza", ai: "tecnologia", spazio: "tecnologia" };
+for (const d of INTERVENTIONS) { d.fam = d.cat; d.cat = TAB_OF[d.cat]; }
 const IBY = Object.fromEntries(INTERVENTIONS.map((d) => [d.id, d]));
 /* ---------- alberi degli interventi: nodo padre di ogni intervento ----------
    Un intervento si sblocca quando il padre è completato. La disposizione grafica è calcolata dall'interfaccia. */
@@ -651,10 +695,15 @@ const TREE = {
   surveil: null, vaccines: "surveil", labRules: null, amr: "labRules",
   mediation: null, fissile: null, arms: "fissile",
   aiCap: null, aiReg: null, align: "aiReg",
-  launch: null, pdef: "launch", moon: "launch",
+  launch: null, orbital: "launch", pdef: "launch", moon: "launch", lunarMining: "moon",
 };
 for (const id in TREE) { IBY[id].parent = TREE[id] || undefined; delete IBY[id].needs; }
 function parentOk(st, d) { return !d.parent || !!(st.acts[d.parent] && st.acts[d.parent].n > 0); }
+// ritorno economico di un intervento: nullo per "after" anni dal completamento, poi cresce fino al massimo in "ramp" anni
+function payoffNow(d, a, st) {
+  const yrs = st.year + st.month / 12 - a.y - d.payoff.after;
+  return yrs <= 0 ? 0 : d.payoff.amount * Math.min(1, yrs / d.payoff.ramp);
+}
 function shiftClean(r, pts, kind) {
   const p = Math.min(pts, r.fossil - 3);
   if (p <= 0) return;
@@ -721,6 +770,7 @@ function newGame(diffId, seed) {
     r.unempBase = r.unemp - 5;
     r.resistBase = r.resist;
   }
+  for (const id in regions) regions[id].stab = stabNow(regions[id], st);
   st.g.tBase = 45 - avgPolar(st) * 0.35;
   st.E0 = emissions(st);
   st.I0 = econMass(st, false);
@@ -782,7 +832,48 @@ function riskBoard(st) {
 }
 
 /* ---------- condizioni di vittoria ---------- */
+/* ---------- indice di stabilità di una regione (1-100) ----------
+   Media pesata di otto componenti, ciascuna da 0 (pessima) a 100 (ottima).
+   Il valore mostrato è smussato su qualche anno, per misurare la tenuta nel lungo periodo. */
+const STAB_PARTS = [
+  { id: "peace", name: "Pace sociale", w: 25, v: (r) => (70 - r.unrest) * 2, hint: "Il malcontento la abbassa" },
+  { id: "cohesion", name: "Coesione", w: 15, v: (r) => (80 - r.polar) * 2, hint: "Polarizzazione e sfiducia nelle istituzioni" },
+  { id: "debt", name: "Conti pubblici", w: 15, v: (r) => 100 - (r.debt - 50), hint: "Il debito pubblico oltre il 50% del prodotto" },
+  { id: "welfare", name: "Welfare sostenibile", w: 10, v: (r) => (85 - r.pension) / 0.45, hint: "Il peso di pensioni e welfare" },
+  { id: "jobs", name: "Lavoro", w: 10, v: (r) => 100 - (r.unemp - 3) * 10, hint: "La disoccupazione" },
+  { id: "energy", name: "Energia pulita", w: 10, v: (r) => (90 - r.fossil) * 1.25, hint: "La dipendenza dai combustibili fossili" },
+  { id: "climate", name: "Sicurezza climatica", w: 10, v: (r, st) => 100 - Math.max(0, st.g.temp + st.g.geoOff - 1.1) / 1.6 * r.climate * 1.5, hint: "Riscaldamento globale ed esposizione della regione" },
+  { id: "demo", name: "Equilibrio demografico", w: 5, v: (r) => 100 - Math.abs(r.tfr - 2.1) / 1.4 * 100, hint: "Figli per donna lontani da 2,1" },
+];
+function stabParts(r, st) { return STAB_PARTS.map((p) => ({ ...p, val: clamp(p.v(r, st), 0, 100) })); }
+function stabNow(r, st) {
+  if (!r.controlled) return 1;
+  const parts = stabParts(r, st);
+  const raw = parts.reduce((s, p) => s + p.val * p.w, 0) / 100;
+  return clamp((raw - 40) * 2, 1, 100); // scala allargata: il mondo del 2026 parte intorno a 45
+}
+function worldStab(st) {
+  const rs = Object.values(st.regions);
+  return rs.reduce((s, r) => s + r.stab * r.pop, 0) / rs.reduce((s, r) => s + r.pop, 0);
+}
+// da dove viene il malcontento: le voci della formula fUnrest, in punti
+function unrestCauses(r, st) {
+  const temp = st.g.temp + st.g.geoOff;
+  const pot = 0.5 + 3.5 * (1 - r.wealth / 100);
+  return [
+    { name: "Disoccupazione", v: r.unemp * 1.5 },
+    { name: "Polarizzazione e sfiducia", v: r.polar * 0.2 },
+    { name: "Debito troppo alto", v: Math.max(0, r.debt - 110) * 0.12 },
+    { name: "Energia cara", v: Math.max(0, r.energyCost - 55) * 0.5 },
+    { name: "Welfare in difficoltà", v: Math.max(0, r.pension - 60) * 0.15 },
+    { name: "Economia sotto le attese", v: Math.max(0, -(r.growth - pot) * 2) },
+    { name: "Effetti del clima", v: Math.max(0, temp - 1.3) * r.climate / 100 * 6 * (1 - (r.m ? r.m.dmg : 0)) },
+    { name: "Crisi recenti", v: Math.max(0, r.shockU) },
+  ].filter((c) => c.v >= 0.5).sort((a, b) => b.v - a.v);
+}
+
 const STABLE_YEARS = 10;
+const WIN_WORLD = 52, WIN_REGION = 32;
 function stability(st) {
   const rs = Object.values(st.regions);
   const ctrl = rs.filter((r) => r.controlled);
@@ -792,11 +883,10 @@ function stability(st) {
   const maxD = Math.max(...ctrl.map((r) => r.debt));
   const maxP = Math.max(...ctrl.map((r) => r.pension));
   const ePct = emissions(st) / st.E0 * 100;
+  const ws = worldStab(st), minR = Math.min(...ctrl.map((r) => r.stab));
   return [
-    { id: "ctrl", label: "Almeno 9 regioni sotto controllo", ok: ctrl.length >= 9, val: ctrl.length + " su 11" },
-    { id: "unrest", label: "Malcontento medio sotto 42, nessuna regione sopra 62", ok: avg((r) => r.unrest) < 42 && maxU < 62, val: "media " + Math.round(avg((r) => r.unrest)) + ", massimo " + Math.round(maxU) },
-    { id: "debt", label: "Debito medio sotto 115% e nessuno sopra 160%", ok: avg((r) => r.debt) < 115 && maxD < 160, val: "media " + Math.round(avg((r) => r.debt)) + "%, massimo " + Math.round(maxD) + "%" },
-    { id: "pension", label: "Welfare sostenibile ovunque (peso sotto 75)", ok: maxP < 75, val: "massimo " + Math.round(maxP) },
+    { id: "world", label: `Stabilità mondiale almeno ${WIN_WORLD}`, ok: ws >= WIN_WORLD, val: Math.round(ws) + " su 100" },
+    { id: "regions", label: `Tutte le regioni sopra ${WIN_REGION} (al massimo 2 in anarchia)`, ok: ctrl.length >= 9 && minR >= WIN_REGION, val: "la più debole è a " + Math.round(minR) },
     { id: "emis", label: "Emissioni sotto il 50% di quelle del 2026", ok: ePct < 50, val: Math.round(ePct) + "%" },
     { id: "risk", label: "Rischi nucleare, AI e biologico bassi", ok: k.war < 0.0012 && k.aiGap < 12 && k.bioGap < 10, val: riskBoard(st).slice(0, 3).map((x) => RISK_LABELS[x.lv].toLowerCase()).join(" · ") },
   ];
@@ -1130,6 +1220,7 @@ function tick(st) {
 
     const resT = clamp(r.resistBase + m.resistT, 0, 100);
     r.resist += (resT - r.resist) * 0.25 * dt;
+    r.stab += (stabNow(r, st) - r.stab) * 0.4 * dt; // media mobile di circa due anni e mezzo
 
     // perdita del controllo
     if (r.controlled) {
@@ -1160,8 +1251,12 @@ function tick(st) {
 
   // entrate e spese correnti
   st.income = 6 * D.inc * econMass(st, true) / st.I0;
+  st.payoff = 0;
+  for (const aid in st.acts) { const d = IBY[aid]; if (d.payoff && st.acts[aid].n > 0) st.payoff += payoffNow(d, st.acts[aid], st); }
+  st.income += st.payoff;
   let upkeep = 0;
   for (const aid in st.acts) { const d = IBY[aid]; if (d.upkeep && st.acts[aid].n > 0) upkeep += d.upkeep; }
+  for (const p of st.prog) { const d = IBY[p.id]; if (d.buildUpkeep) upkeep += d.buildUpkeep; }
   st.upkeep = upkeep;
   st.funds += (st.income - upkeep) * dt;
   if (st.funds < 0) {
@@ -1242,7 +1337,7 @@ function yearly(st) {
 
 if (typeof module !== "undefined") module.exports = {
   DIFF, REGIONS, RBY, INTERVENTIONS, IBY, CATS, EVENTS, EBY, ENDINGS, STABLE_YEARS, RISK_LABELS,
-  newGame, tick, startIntervention, canStart, parentOk, TREE, resolveEvent, revoke, stability, riskBoard, risks, emissions, worldPop, lvl, setSeed, rand,
+  newGame, tick, startIntervention, payoffNow, stabParts, stabNow, worldStab, unrestCauses, STAB_PARTS, WIN_WORLD, WIN_REGION, canStart, parentOk, TREE, resolveEvent, revoke, stability, riskBoard, risks, emissions, worldPop, lvl, setSeed, rand,
 };
 
 </script>
@@ -1262,7 +1357,7 @@ const NS = "http://www.w3.org/2000/svg";
 const svgEl = (tag, attrs) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
 const fmt = (v, d = 1) => v.toLocaleString("it-IT", { minimumFractionDigits: d, maximumFractionDigits: d });
 const MONTHS = ["gen", "feb", "mar", "apr", "mag", "giu", "lug", "ago", "set", "ott", "nov", "dic"];
-const CAT_COLOR = { energia: "#e9b44c", nucleare: "#d4d86a", economia: "#9fc36b", demografia: "#c98fd6", societa: "#6fb0d8", clima: "#4fae8e", salute: "#e57d8c", sicurezza: "#d68a4a", ai: "#8fa8ff", spazio: "#cfd8df" };
+const CAT_COLOR = { tecnologia: "#8fa8ff", energia: "#e9b44c", nucleare: "#d4d86a", economia: "#9fc36b", demografia: "#c98fd6", societa: "#6fb0d8", clima: "#4fae8e", salute: "#e57d8c", sicurezza: "#d68a4a", ai: "#8fa8ff", spazio: "#cfd8df" };
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const SHORT = {
   fossilSub: "Sussidi fossili", carbonTax: "Tassa carbonio", efficiency: "Efficienza", renew: "Solare ed eolico", grid: "Reti e accumuli",
@@ -1274,7 +1369,7 @@ const SHORT = {
   surveil: "Sorveglianza", vaccines: "Vaccini rapidi", labRules: "Regole laboratori", amr: "Antibiotici",
   mediation: "Mediazione", fissile: "Materiale fissile", arms: "Riduzione arsenali",
   aiCap: "Capacità AI", aiReg: "Regole AI", align: "Allineamento",
-  launch: "Lanciatori", pdef: "Difesa planetaria", moon: "Base lunare",
+  launch: "Lanciatori", orbital: "Economia orbitale", pdef: "Difesa planetaria", moon: "Base lunare", lunarMining: "Miniere lunari",
 };
 const DIFF_TEXT = {
   facile: "Più fondi, meno crisi. Per imparare le regole.",
@@ -1290,7 +1385,7 @@ let introDiff = "medio";
 let sel = null;
 let speed = 1, savedSpeed = 1;
 let pending = null;
-let layer = "unrest";
+let layer = "stab";
 let actTab = "energia", actNode = null;
 let openScreen = null;    // acts | reg | world
 const MONTH_MS = 1000;
@@ -1305,23 +1400,32 @@ function heat(t) {
 }
 const HEAT_BAR = "linear-gradient(90deg, rgb(79,174,142), rgb(227,163,63), rgb(214,91,74))";
 const LAYERS = {
-  unrest: { name: "Malcontento", col: (r) => heat((r.unrest - 20) / 60), a: "calmo", b: "in rivolta", bar: HEAT_BAR },
-  debt: { name: "Debito", col: (r) => heat((r.debt - 40) / 130), a: "basso", b: "insostenibile", bar: HEAT_BAR },
-  fossil: { name: "Energia fossile", col: (r) => heat((r.fossil - 10) / 85), a: "pulita", b: "fossile", bar: HEAT_BAR },
-  pension: { name: "Peso del welfare", col: (r) => heat((r.pension - 10) / 75), a: "leggero", b: "pesante", bar: HEAT_BAR },
+  stab: { name: "Stabilità", col: (r) => heat((60 - r.stab) / 45), num: (r) => Math.round(r.stab), a: "solida", b: "critica", bar: "linear-gradient(90deg, rgb(79,174,142), rgb(227,163,63), rgb(214,91,74))" },
+  unrest: { name: "Malcontento", col: (r) => heat((r.unrest - 20) / 60), num: (r) => Math.round(r.unrest), a: "calmo", b: "in rivolta", bar: HEAT_BAR },
+  debt: { name: "Debito", col: (r) => heat((r.debt - 40) / 130), num: (r) => Math.round(r.debt) + "%", a: "basso", b: "insostenibile", bar: HEAT_BAR },
+  fossil: { name: "Energia fossile", col: (r) => heat((r.fossil - 10) / 85), num: (r) => Math.round(r.fossil) + "%", a: "pulita", b: "fossile", bar: HEAT_BAR },
+  pension: { name: "Peso del welfare", col: (r) => heat((r.pension - 10) / 75), num: (r) => Math.round(r.pension), a: "leggero", b: "pesante", bar: HEAT_BAR },
   // scala divergente: 2,1 figli per donna mantiene stabile la popolazione
   tfr: { name: "Figli per donna", col: (r) => {
       const d = r.tfr - 2.1;
       return soften(d < 0 ? mix(C_GOOD, C_LOW, Math.min(1, -d / 1.0)) : mix(C_GOOD, C_WARN, Math.min(1, d / 2.4)));
-    }, a: "sotto 2,1: cala", b: "sopra 2,1: cresce", bar: "linear-gradient(90deg, rgb(128,120,214), rgb(79,174,142), rgb(227,163,63))" },
+    }, num: (r) => fmt(r.tfr, 1), a: "sotto 2,1: cala", b: "sopra 2,1: cresce", bar: "linear-gradient(90deg, rgb(128,120,214), rgb(79,174,142), rgb(227,163,63))" },
 };
 function stateOf(r) {
   if (!r.controlled) return { t: "In anarchia", c: "#d65b4a" };
-  if (r.unrest >= 80) return { t: "In rivolta", c: "#d65b4a" };
-  if (r.unrest >= 62) return { t: "Instabile", c: "#d6774a" };
-  if (r.unrest >= 45) return { t: "Inquieta", c: "#e3a33f" };
-  return { t: "Stabile", c: "#4fae8e" };
+  if (r.stab < WIN_REGION) return { t: "Critica", c: "#d65b4a" };
+  if (r.stab < 45) return { t: "Instabile", c: "#d6774a" };
+  if (r.stab < 60) return { t: "Fragile", c: "#e3a33f" };
+  return { t: "Solida", c: "#4fae8e" };
 }
+const stabColor = (v) => v < WIN_REGION ? "#d65b4a" : v < 45 ? "#d6774a" : v < 60 ? "#e3a33f" : "#4fae8e";
+// interventi che migliorano ciascuna componente della stabilità
+const HELPS = {
+  peace: ["transparency", "invest", "retrain", "police"], cohesion: ["assemblies", "transparency", "integration"],
+  debt: ["austerity", "debtRestr", "retire"], welfare: ["contrib", "retire", "healthyAging", "migration"],
+  jobs: ["retrain", "invest", "develop"], energy: ["renew", "carbonTax", "nuclear", "grid"],
+  climate: ["adapt", "agri", "reforest", "renew"], demoLow: ["family", "natality", "migration"], demoHigh: ["education", "develop"],
+};
 
 /* ---------- mappa centrata sulla sede ---------- */
 let regionEls = {}, labelEls = {};
@@ -1361,9 +1465,10 @@ function buildMap(center) {
     const [lx, ly] = ee(R.label[0] - center + off, R.label[1]);
     const lab = svgEl("g", { class: "lbl", transform: `translate(${lx.toFixed(1)} ${ly.toFixed(1)})` });
     const t = svgEl("text", { "text-anchor": "middle", y: 0 }); t.textContent = R.short; lab.appendChild(t);
-    const icons = svgEl("g", { transform: "translate(0 4)" }); lab.appendChild(icons);
+    const pill = svgEl("rect", { x: -9, y: 3, width: 18, height: 10, rx: 5, class: "pill", fill: "#152634", stroke: "#2b4356" }); lab.appendChild(pill);
+    const num = svgEl("text", { "text-anchor": "middle", y: 10.8, class: "num" }); lab.appendChild(num);
     lg.appendChild(lab);
-    labelEls[R.id] = { g: lab, t, icons };
+    labelEls[R.id] = { g: lab, t, pill, num };
   }
 }
 
@@ -1377,6 +1482,16 @@ function paint() {
     shape.setAttribute("fill", r ? L.col(r) : "var(--land)");
     el.classList.toggle("sel", sel === R.id);
     el.classList.toggle("lost", !!(r && !r.controlled));
+    const lb = labelEls[R.id];
+    const show = !!r;
+    lb.pill.style.display = lb.num.style.display = show ? "" : "none";
+    if (show) {
+      const txt = r.controlled ? String(L.num(r)) : "—";
+      lb.num.textContent = txt;
+      const w = Math.max(16, txt.length * 5.2 + 7);
+      lb.pill.setAttribute("x", -w / 2); lb.pill.setAttribute("width", w);
+      lb.pill.setAttribute("stroke", layer === "stab" && r.controlled ? stabColor(r.stab) : "#2b4356");
+    }
   }
   $("legLo").textContent = L.a; $("legHi").textContent = L.b; $("legBar").style.background = L.bar;
   $("viewName").textContent = L.name;
@@ -1388,16 +1503,18 @@ function hud() {
   $("sFunds").textContent = fmt(st.funds, 1);
   $("sNet").textContent = (net >= 0 ? "+" : "−") + fmt(Math.abs(net), 1) + "/anno";
   $("sTemp").textContent = "+" + fmt(st.g.temp + st.g.geoOff, 2) + " °C";
-  $("sPop").textContent = fmt(worldPop(st) / 1000, 2) + " mld";
-  $("sStable").textContent = st.stable + " / " + STABLE_YEARS + " anni";
+  const ws = worldStab(st);
+  $("sWorld").innerHTML = `<span style="color:${ws >= WIN_WORLD ? "#9fd6c2" : "inherit"}">${Math.round(ws)}</span> <small>obiettivo ${WIN_WORLD}</small>`;
+  $("sStable").textContent = st.stable + " / " + STABLE_YEARS;
   const n = st.log[0];
   $("ticker").innerHTML = n ? `<b>${MONTHS[n.mo]} ${n.y}</b> · ${esc(n.text)}` : "";
   for (const b of document.querySelectorAll(".speed button")) b.setAttribute("aria-pressed", String(+b.dataset.s === speed));
   const s = $("regStrip");
   if (!sel) { s.innerHTML = `<span class="stripe"></span><span class="nm">Nessuna regione</span><span class="st">Tocca una regione sulla mappa</span>`; return; }
   const r = st.regions[sel], S = stateOf(r);
-  s.innerHTML = `<span class="stripe" style="background:${S.c}"></span><span class="nm">${esc(RBY[sel].name)} · ${S.t}</span>
-    <span class="st">Malcontento ${Math.round(r.unrest)} · Debito ${Math.round(r.debt)}% · Fossili ${Math.round(r.fossil)}%</span><span class="go">Dettagli ›</span>`;
+  const weak = r.controlled ? stabParts(r, st).sort((a, b) => a.val - b.val)[0] : null;
+  s.innerHTML = `<span class="stripe" style="background:${S.c}"></span><span class="nm">${esc(RBY[sel].name)} · Stabilità ${Math.round(r.stab)} · ${S.t}</span>
+    <span class="st">${weak ? "Punto debole: " + weak.name.toLowerCase() : "Non esegue più gli ordini"}</span><span class="go">Dettagli ›</span>`;
 }
 function refresh() {
   paint(); hud();
@@ -1418,6 +1535,7 @@ function showPhase(p) {
   $("menuTitle").hidden = p !== "title";
   $("menuHow").hidden = p !== "how";
   $("menuDiff").hidden = p !== "diff";
+  $("menuBrief").hidden = p !== "brief";
   $("hud").hidden = !(p === "play" || p === "over");
   if (p === "diff") renderDiffs();
   paint();
@@ -1429,6 +1547,7 @@ function renderDiffs() {
 $("mPlay").onclick = () => { tryLandscape(); music.start(); showPhase("diff"); };
 $("mHow").onclick = () => showPhase("how");
 $("mNext").onclick = startGame;
+$("mGo").onclick = beginPlay;
 for (const b of document.querySelectorAll("[data-back]")) b.onclick = () => showPhase(b.dataset.back);
 function tryLandscape() {
   // sui telefoni che lo permettono passa a schermo intero e blocca l'orizzontale; altrove non fa nulla
@@ -1439,12 +1558,31 @@ function tryLandscape() {
   } catch (e) {}
 }
 function startGame() {
+  // la partita viene preparata qui, ma il tempo parte solo dopo la schermata della missione
   st = newGame(introDiff);
   sel = null;
   speed = 1;
-  showPhase("play");
-  refresh();
+  const ws = Math.round(worldStab(st));
+  const worst = Object.values(st.regions).sort((a, b) => a.stab - b.stab).slice(0, 3).map((r) => r.name).join(", ");
+  $("briefBody").innerHTML = `
+    <p>È il 2026. Debiti pubblici fuori controllo, popolazioni che invecchiano, un clima che si scalda, tensioni tra potenze armate e tecnologie sempre più potenti: il mondo è in crisi su molti fronti nello stesso momento.</p>
+    <p>Dopo lunghe trattative i governi hanno deciso che serve un ente sovranazionale capace di guidare il pianeta verso la stabilità. Le nazioni si sono impegnate a seguirne gli ordini. Quell'ente è l'Autorità, e la guidi tu.</p>
+    <p><b>La tua missione è garantire all'umanità una stabilità duratura.</b> Oggi la stabilità mondiale è ${ws} su 100. Le regioni più fragili sono ${esc(worst)}.</p>
+    <h3>Per vincere</h3>
+    <p>Queste quattro condizioni devono valere insieme per 10 anni di fila:</p>
+    <ul class="goals">
+      <li><span>Stabilità mondiale almeno ${WIN_WORLD}</span><span>oggi ${ws}</span></li>
+      <li><span>Nessuna regione sotto ${WIN_REGION}, al massimo 2 in anarchia</span><span>11 regioni</span></li>
+      <li><span>Emissioni dimezzate rispetto al 2026</span><span>oggi 100%</span></li>
+      <li><span>Rischi nucleare, AI e biologico bassi</span><span>schermata Mondo</span></li>
+    </ul>
+    <h3>Per perdere</h3>
+    <p>Basta che più di metà delle regioni cada nell'anarchia, oppure che l'umanità non superi uno dei grandi filtri: guerra nucleare, intelligenza artificiale fuori controllo, pandemia ingegnerizzata, collasso climatico.</p>
+    <h3>Come si gioca</h3>
+    <p>Il numero su ogni regione è la sua stabilità. Toccala per sapere cosa la abbassa e quali interventi aiutano. Con il pulsante Interventi spendi i fondi: ogni intervento vale per tutto il mondo e molti richiedono anni prima di funzionare.</p>`;
+  showPhase("brief");
 }
+function beginPlay() { showPhase("play"); refresh(); }
 function onRegionTap(id) {
   $("views").hidden = true;
   if (phase !== "play" && phase !== "over") return;
@@ -1482,23 +1620,36 @@ function nodeState(d) {
   if (a && a.n > 0) cls = "active"; else if (locked) cls = "locked";
   return { a, prog, why, cls };
 }
+const TAB_ICON = { tecnologia: "ai" };
+const GAP = 0.3; // spazio tra un albero e l'altro, in colonne
 function layoutTree(list) {
-  // ogni foglia occupa una riga, ogni padre sta al centro dei suoi figli
+  // ogni albero: una foglia per riga, ogni padre al centro dei suoi figli.
+  // Gli alberi si impilano in colonne alte al massimo 3 righe, come in Rebel Inc.
   const kids = {}; list.forEach((d) => (kids[d.id] = []));
   list.forEach((d) => { if (d.parent && kids[d.parent]) kids[d.parent].push(d.id); });
-  const pos = {}; let row = 0;
-  function place(id, depth) {
-    if (!kids[id].length) { pos[id] = [depth, row++]; return pos[id][1]; }
-    const rows = kids[id].map((k) => place(k, depth + 1));
-    pos[id] = [depth, (rows[0] + rows[rows.length - 1]) / 2];
-    return pos[id][1];
+  const roots = list.filter((d) => !d.parent || !kids[d.parent]).map((d) => d.id);
+  const trees = roots.map((rid) => {
+    const p = {}; let row = 0, depth = 0;
+    (function place(id, dep) {
+      depth = Math.max(depth, dep);
+      if (!kids[id].length) { p[id] = [dep, row++]; return p[id][1]; }
+      const rows = kids[id].map((k) => place(k, dep + 1));
+      p[id] = [dep, (rows[0] + rows[rows.length - 1]) / 2];
+      return p[id][1];
+    })(rid, 0);
+    return { p, w: depth + 1, h: row };
+  });
+  const pos = {}; let x = 0, y = 0, colW = 0, cols = 0;
+  for (const tr of trees) {
+    if (y > 0 && y + tr.h > 3) { x += colW + GAP; y = 0; colW = 0; }
+    for (const id in tr.p) pos[id] = [x + tr.p[id][0], y + tr.p[id][1]];
+    y += tr.h; colW = Math.max(colW, tr.w); cols = Math.max(cols, x + colW);
   }
-  list.filter((d) => !d.parent || !kids[d.parent]).forEach((d) => place(d.id, 0));
-  return pos;
+  return { pos, cols, rows: 3 };
 }
 function renderActs() {
   const root = $("scrActs");
-  const tabs = `<div class="tabs" role="group" aria-label="Categorie">${CATS.map((c) => `<button type="button" data-c="${c.id}" aria-pressed="${c.id === actTab}"><svg style="color:${CAT_COLOR[c.id]}"><use href="#i-${c.id}"/></svg>${c.name}</button>`).join("")}</div>`;
+  const tabs = `<div class="tabs" role="group" aria-label="Categorie">${CATS.map((c) => `<button type="button" data-c="${c.id}" aria-pressed="${c.id === actTab}"><svg style="color:${CAT_COLOR[c.id]}"><use href="#i-${TAB_ICON[c.id] || c.id}"/></svg>${c.name}</button>`).join("")}</div>`;
   root.innerHTML = `<div class="head"><button type="button" class="back" data-close aria-label="Torna alla mappa">‹</button>${tabs}</div>
     <div class="acts"><div class="treebox"><svg id="tree" preserveAspectRatio="xMidYMid meet"></svg></div><div class="detail" id="detail"></div></div>
     <div class="foot"><span>Fondi <b>${fmt(st.funds, 1)}</b></span><span>Ogni intervento vale per tutto il mondo</span>
@@ -1519,11 +1670,9 @@ function splitLabel(s) {
 function drawTree() {
   const list = INTERVENTIONS.filter((d) => d.cat === actTab);
   if (!actNode || !list.some((d) => d.id === actNode)) actNode = list[0].id;
-  const pos = layoutTree(list);
-  const cols = Math.max(...Object.values(pos).map((p) => p[0])) + 1;
-  const rows = Math.max(...Object.values(pos).map((p) => p[1])) + 1;
-  // griglia fissa di 4 colonne per 3 righe: le caselle hanno la stessa grandezza in ogni categoria
-  const W = Math.max(cols, 4) * HX, H = Math.max(rows, 3) * HY;
+  const { pos, cols, rows } = layoutTree(list);
+  // area minima di 5 colonne per 3 righe: le caselle hanno la stessa grandezza nelle varie schede
+  const W = Math.max(cols, 5) * HX, H = rows * HY;
   const ox = (W - cols * HX) / 2, oy = (H - rows * HY) / 2;
   const svg = $("tree");
   svg.setAttribute("viewBox", `${-HX / 2} ${-HY / 2} ${W} ${H}`);
@@ -1540,9 +1689,9 @@ function drawTree() {
     const g = svgEl("g", { class: `node ${s.cls}${d.id === actNode ? " sel" : ""}`, transform: `translate(${x} ${y})`, role: "button", tabindex: "0", "aria-label": d.name });
     g.appendChild(svgEl("polygon", { points: hexPts(HR), class: "hex" }));
     const lines = splitLabel(SHORT[d.id] || d.name);
-    const icon = s.cls === "locked" ? "lock" : d.cat;
+    const icon = s.cls === "locked" ? "lock" : d.fam;
     const top = lines.length === 2 ? -28 : -22;
-    g.appendChild(svgEl("use", { href: "#i-" + icon, x: -8, y: top, width: 16, height: 16, style: "color:" + (s.cls === "active" ? "#e6edf2" : CAT_COLOR[d.cat]) }));
+    g.appendChild(svgEl("use", { href: "#i-" + icon, x: -8, y: top, width: 16, height: 16, style: "color:" + (s.cls === "active" ? "#e6edf2" : CAT_COLOR[d.fam]) }));
     lines.forEach((ln, i) => { const t = svgEl("text", { class: "nl", y: (lines.length === 2 ? 2 : 8) + i * 14 }); t.textContent = ln; g.appendChild(t); });
     for (const p of s.prog) {
       g.appendChild(svgEl("rect", { x: -24, y: 25, width: 48, height: 5, rx: 2.5, fill: "#14283a" }));
@@ -1561,7 +1710,11 @@ function renderDetail() {
   let state = "";
   if (s.a && s.a.n > 0) state = "Attivo in tutto il mondo" + (s.a.n > 1 ? " (" + s.a.n + ")" : "");
   for (const p of s.prog) state += (state ? " · " : "") + `In corso: ${Math.floor(p.t)} di ${p.T} anni`;
-  const cost = (d.cost ? d.cost + " fondi" : "gratis") + (d.upkeep ? ` · ${d.upkeep > 0 ? "−" : "+"}${Math.abs(d.upkeep)} fondi/anno` : "") + " · " + (d.T ? d.T + (d.T === 1 ? " anno" : " anni") : "effetto immediato");
+  const cost = (d.cost ? d.cost + " fondi" : "gratis") + (d.buildUpkeep ? ` · −${d.buildUpkeep}/anno in costruzione` : "") + (d.upkeep ? ` · ${d.upkeep > 0 ? "−" : "+"}${Math.abs(d.upkeep)} fondi/anno` : "") + " · " + (d.T ? d.T + (d.T === 1 ? " anno" : " anni") : "effetto immediato");
+  if (d.payoff) {
+    const now = s.a && s.a.n > 0 ? payoffNow(d, s.a, st) : 0;
+    state += (state ? " · " : "") + `Ritorno: fino a +${fmt(d.payoff.amount, 1)} fondi/anno, a partire da ${d.payoff.after} ${d.payoff.after === 1 ? "anno" : "anni"} dopo il completamento` + (s.a && s.a.n > 0 ? ` (ora +${fmt(now, 1)})` : "");
+  }
   const prereq = d.parent ? `<p class="why">Si sblocca dopo: ${esc(IBY[d.parent].name)}.</p>` : "";
   const fromTxt = d.from ? `<p class="why">Tecnologia disponibile dal ${d.from}.</p>` : "";
   const done = s.a && s.a.n > 0 && !d.stack && !d.repeat;
@@ -1592,29 +1745,38 @@ function renderRegion() {
   const root = $("scrReg");
   if (!sel) { closeScreens(); return; }
   const r = st.regions[sel], R = RBY[sel], S = stateOf(r);
+  const parts = stabParts(r, st);
+  const sorted = parts.slice().sort((a, b) => a.val - b.val);
+  const causes = unrestCauses(r, st).slice(0, 5);
+  const weak = sorted.slice(0, 3);
+  const helpFor = (p) => p.id === "demo" ? (r.tfr > 2.1 ? HELPS.demoHigh : HELPS.demoLow) : HELPS[p.id];
+  const pos = (v) => Math.max(0, Math.min(100, v));
   root.innerHTML = headHTML(`${esc(R.name)} <span style="color:${S.c};font-size:15px">· ${S.t}</span>`) + `
     <div class="cols">
-      <section class="sec"><h3>Condizioni</h3><div class="meters">
-        ${meterRow("Malcontento", r.unrest, Math.round(r.unrest), 0, 100)}
-        ${meterRow("Polarizzazione", r.polar, Math.round(r.polar), 0, 100)}
-        ${meterRow("Debito pubblico", r.debt, Math.round(r.debt) + "%", 0, 200)}
-        ${meterRow("Peso del welfare", r.pension, Math.round(r.pension), 0, 100)}
-        ${meterRow("Disoccupazione", r.unemp, fmt(r.unemp, 1) + "%", 0, 20)}
-        ${meterRow("Energia fossile", r.fossil, Math.round(r.fossil) + "%", 0, 100)}
-        ${meterRow("Contrari al nucleare", r.resist, Math.round(r.resist), 0, 100)}
-      </div>
-      ${!r.controlled ? `<p class="note" style="color:#f0a597">La regione è in anarchia: non esegue più gli ordini e non versa fondi.</p>` : ""}</section>
+      <section class="sec"><h3>Stabilità</h3>
+        <div class="score"><span class="big" style="color:${stabColor(r.stab)}">${Math.round(r.stab)}</span>
+          <span class="lab"><b>${S.t}</b>Media di otto aspetti, misurata sul lungo periodo. Per vincere deve restare sopra ${WIN_REGION}.</span></div>
+        <div class="gauge"><i style="left:${pos(r.stab)}%"></i><s style="left:${WIN_REGION}%">${WIN_REGION}</s></div>
+        <div class="parts">${parts.map((p) => `<span class="k">${p.name}<small>${p.hint} · peso ${p.w}%</small></span><span class="meter"><i style="width:${p.val.toFixed(0)}%;background:${heat(1 - p.val / 100)}"></i></span><span class="v">${Math.round(p.val)}</span>`).join("")}</div>
+        ${!r.controlled ? `<p class="note" style="color:#f0a597">La regione è in anarchia: non esegue più gli ordini e non versa fondi.</p>` : ""}</section>
+      <section class="sec"><h3>Da dove viene il malcontento</h3>
+        <p class="note" style="margin:0 0 6px">Malcontento attuale ${Math.round(r.unrest)} su 100. Le cause principali:</p>
+        <ul class="causes">${causes.map((c) => `<li><span>${c.name}</span><span>+${Math.round(c.v)}</span></li>`).join("") || "<li><span>Nessuna causa rilevante</span><span></span></li>"}</ul>
+        <h3 style="margin-top:14px">Cosa aiuterebbe</h3>
+        <div class="helps">${weak.map((p) => `<div class="help"><b>${p.name}: ${Math.round(p.val)}</b><span class="acts2">${helpFor(p).map((id) => { const on = st.acts[id] && st.acts[id].n > 0; return `<button type="button" data-go="${id}" class="${on ? "on" : ""}">${esc(SHORT[id])}${on ? " ✓" : ""}</button>`; }).join("")}</span></div>`).join("")}</div></section>
       <section class="sec"><h3>Popolazione ed economia</h3><div class="kv">
         <span>Abitanti</span><span>${fmt(r.pop, 0)} mln</span>
         <span>Età mediana</span><span>${fmt(r.age, 1)} anni</span>
         <span>Figli per donna</span><span>${fmt(r.tfr, 2)}</span>
         <span>Crescita economica</span><span>${r.growth >= 0 ? "+" : ""}${fmt(r.growth, 1)}%</span>
-        <span>Ricchezza (indice)</span><span>${Math.round(r.wealth)}</span>
-        <span>Aree urbane · rurali · remote</span><span>${R.init.urban} · ${R.init.rural} · ${R.init.remote}%</span>
-        <span>Collegamenti con il mondo</span><span>${R.links}</span>
+        <span>Debito pubblico</span><span>${Math.round(r.debt)}%</span>
+        <span>Disoccupazione</span><span>${fmt(r.unemp, 1)}%</span>
+        <span>Energia da fossili</span><span>${Math.round(r.fossil)}%</span>
+        <span>Contrari al nucleare</span><span>${Math.round(r.resist)}</span>
       </div>${r.autonomy ? `<p class="note">Ha ottenuto concessioni di autonomia: versa il 10% in meno.</p>` : ""}</section>
     </div>`;
   wireClose(root);
+  for (const b of root.querySelectorAll("[data-go]")) b.onclick = () => { actTab = IBY[b.dataset.go].cat; actNode = b.dataset.go; open("acts"); };
 }
 
 /* ---------- scheda mondo ---------- */
@@ -1641,6 +1803,7 @@ function renderWorld() {
       <span>Entrate dell'Autorità</span><span>${fmt(st.income, 1)}/anno</span>
       <span>Spese correnti</span><span>${fmt(st.upkeep || 0, 1)}/anno</span>
       <span>Base lunare</span><span>${st.moon ? "operativa" : "no"}</span></div></section>
+    <section class="sec"><h3>Stabilità delle regioni</h3><ul class="rank">${Object.values(st.regions).sort((a, b) => a.stab - b.stab).map((r) => `<li><span>${esc(r.name)}${r.controlled ? "" : " (anarchia)"}</span><b style="background:${stabColor(r.stab)}">${Math.round(r.stab)}</b></li>`).join("")}</ul></section>
     <section class="sec"><h3>Notizie</h3><ul class="log">${st.log.slice(0, 30).map((n) => `<li><time>${MONTHS[n.mo]} ${n.y}</time><span class="${n.kind}">${esc(n.text)}</span></li>`).join("")}</ul></section>
   </div>`;
   wireClose(root);
