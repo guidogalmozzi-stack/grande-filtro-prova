@@ -109,7 +109,11 @@ button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); o
 .views button[aria-pressed="true"] { background: var(--panel-2); color: var(--accent); }
 .legend { position: absolute; z-index: 2; right: var(--gr); top: 52px; background: rgba(21,38,52,.93); border: 1px solid var(--line); border-radius: 8px; padding: 4px 8px; font-size: 10.5px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
 .legend .bar { width: 84px; height: 7px; border-radius: 4px; }
-.ticker { position: absolute; z-index: 2; left: 50%; transform: translateX(-50%); bottom: 66px; max-width: min(48%, 420px); background: rgba(21,38,52,.88); border: 1px solid var(--line); border-radius: 999px; padding: 3px 12px; font-size: 11.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ticker { position: absolute; z-index: 2; left: 50%; transform: translateX(-50%); bottom: 66px; width: min(52%, 460px); background: rgba(21,38,52,.88); border: 1px solid var(--line); border-radius: 999px; padding: 3px 0; font-size: 11.5px; color: var(--muted); white-space: nowrap; overflow: hidden; }
+.ticker .run { display: inline-block; padding-left: 100%; animation: tick var(--dur, 40s) linear infinite; }
+.ticker .run span + span::before { content: "  ·  "; color: #4f6b80; }
+@keyframes tick { to { transform: translateX(-100%); } }
+@media (prefers-reduced-motion: reduce) { .ticker .run { animation: none; padding-left: 12px; } }
 .ticker b { color: var(--fg); font-weight: 500; }
 
 /* barra in basso, come in Rebel Inc: fondi e interventi a sinistra, regione al centro, mondo a destra */
@@ -469,6 +473,12 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
 
 /* consigli */
 .card.tip { border-color: #4b6a80; width: min(560px, 100%); }
+.card.good { border-color: #4fae8e; box-shadow: 0 0 0 1px #4fae8e, 0 14px 40px -14px #4fae8e; }
+.card.disc { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 14px 40px -14px var(--accent); }
+.notehead { display: flex; gap: 12px; align-items: center; }
+.notehead svg { width: 52px; height: 52px; flex: none; }
+.notehead polygon { fill: #4fae8e; } .card.disc .notehead polygon { fill: var(--accent); }
+.notehead use { color: #0f1d29; }
 .tipfoot { display: flex; align-items: center; gap: 12px; margin-top: 4px; }
 .tipfoot .buy { margin: 0; padding: 8px 18px; }
 .linkbtn { background: none; border: 0; color: var(--muted); font-size: 12px; text-decoration: underline; padding: 4px; }
@@ -1296,8 +1306,9 @@ function newGame(diffId, seed, levelId = "l5", govId = "base") {
     acts: {}, prog: [], cd: {}, log: [], over: null, moon: false, stable: 0,
     axis: 0, // centralizzazione (+) ↔ pluralismo (−)
     g: { temp: 1.35, geoOff: 0, aiCap: 22, aiSafety: 8, biotech: 30, bioSafety: 22, arsenal: 100, tension: 45, tShock: 0, price: 0, priceT: 0,
-      infl: 3, anchor: 3, piShock: 0, rate: 4, rateT: 4, longR: 4.2, gW0: null },
-    flags: {}, income: 0, hist: [], logN: 0, tips: {}, lv: 2,
+      infl: 3, anchor: 3, piShock: 0, rate: 4, rateT: 4, longR: 4.2, gW0: null,
+      disc: { g: 0, energy: 0, famine: 0, labor: 0, co2: 0, bio: 0 } },
+    flags: {}, income: 0, hist: [], logN: 0, tips: {}, lv: 2, notes: [],
   };
   for (const id in regions) regions[id].acts = st.acts;
   // calcola la crescita iniziale e fissa le basi di equilibrio
@@ -1489,11 +1500,71 @@ function startIntervention(st, id) {
   return null;
 }
 function complete(st, d) {
+  const ec0 = avgEc(st);
   const a = st.acts[d.id] || (st.acts[d.id] = { n: 0, y: st.year, y0: st.year });
   a.n += 1; a.y = st.year;
   if (d.once) { if (d.wasRegion) ctrlRegions(st).forEach((r) => d.once(r, st)); else d.once(null, st); }
   logNews(st, d.name + ": operativo in tutto il mondo.", "done");
+  if (COMPLETE_NOTE[d.id] && a.n === 1) note(st, "good", d.id, COMPLETE_NOTE[d.id].title, COMPLETE_NOTE[d.id].text(st, ec0));
 }
+/* ---------- notizie: buone notizie che mostrano i frutti delle scelte passate (schede a tutto schermo) ---------- */
+function note(st, kind, icon, title, text) {
+  if (st.sim) return;
+  (st.notes || (st.notes = [])).push({ kind, icon, title, text, y: st.year, mo: st.month });
+  logNews(st, title, "done", true);
+}
+const avgEc = (st) => { const rs = ctrlRegions(st), t = rs.reduce((a, r) => a + r.gdp, 0) || 1; return rs.reduce((a, r) => a + fEnergyCost(r) * r.gdp, 0) / t; };
+const avgShare = (st, k) => { const rs = ctrlRegions(st), t = rs.reduce((a, r) => a + r.pop, 0) || 1; return rs.reduce((a, r) => a + r[k] * r.pop, 0) / t; };
+const pct = (a, b) => Math.round((1 - b / a) * 100);
+// "il 9%", "l'11%", "l'80%": articolo giusto davanti a una percentuale
+const ilPct = (v) => { const n = Math.round(v); return (n === 1 || n === 8 || n === 11 || n === 18 || (n >= 80 && n < 90) ? "l'" : "il ") + n + "%"; };
+const COMPLETE_NOTE = {
+  nuclear: { title: "Accese le prime nuove centrali nucleari", text: (st, ec0) => `Dopo ${IBY.nuclear.T} anni di cantiere le nuove centrali pubbliche producono elettricità. Ora ${ilPct(avgShare(st, "nuclear"))} dell'energia del mondo viene dal nucleare e il costo dell'energia è sceso di circa ${ilPct(Math.max(1, pct(ec0, avgEc(st))))}. Energia più economica significa imprese più produttive.` },
+  nucPrivate: { title: "Le centrali private entrano in funzione", text: (st, ec0) => `Le imprese private hanno completato le loro centrali. Il nucleare copre ora ${ilPct(avgShare(st, "nuclear"))} dell'energia e il costo dell'energia è sceso di circa ${ilPct(Math.max(1, pct(ec0, avgEc(st))))}. Per trent'anni l'Autorità pagherà il prezzo garantito.` },
+  fusion: { title: "La prima centrale a fusione è accesa", text: (st, ec0) => `Dopo decenni di ricerca la fusione produce elettricità come il Sole: quasi niente scorie, niente CO₂. Il costo dell'energia è sceso di circa ${ilPct(Math.max(1, pct(ec0, avgEc(st))))} e l'energia pulita è ${ilPct(100 - avgShare(st, "fossil")).replace("il ", "al ").replace("l'", "all'")}.` },
+  fusionResearch: { title: "La fusione funziona", text: () => "Il reattore sperimentale ha prodotto più energia di quanta ne consumi, per mesi di fila. Ora si possono costruire le prime centrali a fusione." },
+  renew: { title: "Accesi i nuovi parchi solari ed eolici", text: (st, ec0) => `I nuovi parchi solari ed eolici sono collegati alla rete. L'energia pulita è salita ${ilPct(100 - avgShare(st, "fossil")).replace("il ", "al ").replace("l'", "all'")} e il costo dell'energia è sceso di circa ${ilPct(Math.max(1, pct(ec0, avgEc(st))))}.` },
+  smr: { title: "In funzione i primi reattori modulari", text: (st) => `I reattori costruiti in fabbrica sono già al lavoro: il nucleare copre ${ilPct(avgShare(st, "nuclear"))} dell'energia.` },
+  dac: { title: "Gli impianti di cattura della CO₂ funzionano", text: () => "I primi grandi impianti tolgono ogni anno milioni di tonnellate di CO₂ dall'aria e le chiudono sottoterra." },
+};
+/* Scoperte scientifiche: la ricerca ne aumenta la probabilità ma non dà certezze; ognuna avviene al massimo una volta */
+const DISCOVERIES = [
+  { id: "superc", title: "Superconduttori a temperatura ambiente", text: "Un laboratorio ha creato un materiale che porta la corrente senza perdite, anche a temperatura ambiente. Le reti elettriche disperderanno molta meno energia: il costo dell'energia scende e l'industria diventa più produttiva.", fx: { energy: 4, g: 0.1 } },
+  { id: "sodium", title: "Batterie al sodio economiche", text: "Nuove batterie fatte di sale comune costano un decimo di quelle al litio. Conservare l'energia del sole e del vento diventa facile: energia più economica e meno emissioni.", fx: { energy: 3, co2: 0.003 } },
+  { id: "materials", title: "Cemento e acciaio di nuova generazione", text: "Nuovi materiali da costruzione, più leggeri e resistenti, abbattono i costi di case, strade e ponti. La produttività cresce in tutte le regioni.", fx: { g: 0.15 } },
+  { id: "crops", title: "Cereali che resistono alla siccità", text: "Varietà di riso e grano che crescono con metà dell'acqua arrivano nei campi. Le carestie diventano più rare e i raccolti più stabili.", fx: { famine: 0.2, g: 0.05 } },
+  { id: "aging", title: "Farmaci contro le malattie dell'età", text: "Una nuova classe di farmaci rallenta le malattie dell'invecchiamento. Si resta in salute più a lungo e si può lavorare qualche anno in più.", fx: { labor: 0.015 } },
+  { id: "co2fuel", title: "Carburanti dalla CO₂", text: "Un catalizzatore trasforma la CO₂ dell'aria in carburante usando l'energia del sole. Una parte delle emissioni viene recuperata.", fx: { co2: 0.004 } },
+  { id: "mrna", title: "Vaccini universali", text: "Una piattaforma di vaccini protegge da intere famiglie di virus, anche da quelli non ancora comparsi. Le epidemie faranno molti meno danni.", fx: { bio: 0.15 } },
+  { id: "photonic", title: "Chip che calcolano con la luce", text: "Processori fotonici consumano cento volte meno energia dei chip di oggi. Computer, reti e automazione costano meno: la produttività cresce ovunque.", fx: { g: 0.2 } },
+];
+function yearlyNews(st) {
+  if (st.sim) return;
+  const F = st.flags, act = (id) => st.acts[id] && st.acts[id].n > 0 ? st.acts[id] : null;
+  // la scuola dà frutti dopo una decina d'anni: chi studiava allora oggi lavora
+  const edu = act("education");
+  if (edu && !F.n_edu && st.year - (edu.y0 || edu.y) >= 10) {
+    F.n_edu = true;
+    const r = ctrlRegions(st).sort((a, b) => b.bh[0] - a.bh[0])[0];
+    note(st, "good", "education", "La scuola dà i suoi frutti", `Sono passati dieci anni da quando è partita la Scuola per tutti. In ${r.name} ogni anno ${fmt1(r.bh[0] * 0.3)} milioni di giovani in più entrano nel lavoro con un diploma, e succede in tutto il mondo. La produttività cresce più in fretta, e crescerà ancora: l'effetto pieno arriva dopo quasi vent'anni.`);
+  }
+  const uni = act("university");
+  if (uni && !F.n_uni && st.year - (uni.y0 || uni.y) >= 8) {
+    F.n_uni = true;
+    const r = ctrlRegions(st).sort((a, b) => b.wrk - a.wrk)[0];
+    note(st, "good", "university", "Una generazione di tecnici e laureati", `Le università e le scuole tecniche aperte otto anni fa sfornano ingegneri, medici e tecnici. In ${r.name} le imprese trovano finalmente le competenze che cercavano: la produttività sale.`);
+  }
+  // scoperte: più probabili con ricerca, università e laboratori lunari, mai più di una ogni quattro anni
+  const pDisc = (act("research") ? 0.12 : 0) + (act("university") ? 0.03 : 0) + (act("lunarSci") ? 0.05 : 0) + (st.acts.aiCap ? 0.02 * st.acts.aiCap.n : 0);
+  const left = DISCOVERIES.filter((d) => !F["disc_" + d.id]);
+  if (pDisc > 0 && left.length && st.year - (F.lastDisc || 0) >= 4 && rand() < pDisc) {
+    const d = left[Math.floor(rand() * left.length)];
+    F["disc_" + d.id] = true; F.lastDisc = st.year;
+    for (const k in d.fx) st.g.disc[k] = (st.g.disc[k] || 0) + d.fx[k];
+    note(st, "discovery", "research", "Scoperta: " + d.title, d.text);
+  }
+}
+const fmt1 = (v) => (Math.round(v * 10) / 10).toString().replace(".", ",");
 function revoke(st, id) {
   const d = IBY[id];
   if (!st.acts[id] || st.acts[id].n === 0) return;
@@ -2024,6 +2095,10 @@ function tick(st) {
     r.m = m;
   }
   gm.frontier += st.G.frontier || 0; gm.safeRate += st.G.safeRate || 0; gm.bioRate += st.G.bioRate || 0;
+  // scoperte scientifiche già fatte: effetti permanenti
+  const D0 = G.disc || {};
+  gm.gAll += D0.g || 0; gm.co2Rem += D0.co2 || 0; gm.pmit += D0.bio || 0;
+  for (const id in st.regions) { const m = st.regions[id].m; m.energyCost -= D0.energy || 0; m.famine += D0.famine || 0; m.labor += D0.labor || 0; }
   st.gm = gm;
 
   // tecnologie e sicurezza globali
@@ -2244,6 +2319,7 @@ function rollEvent(st) {
 }
 
 function yearly(st) {
+  yearlyNews(st);
   // i nati dell'anno entrano nella storia: lavoreranno fra 18 anni
   for (const id in st.regions) { const r = st.regions[id]; r.bh.shift(); r.bh.push(r.bCur); r.bCur = 0; }
   (st.hist || (st.hist = [])).push(histRow(st));
@@ -2366,7 +2442,7 @@ function loadState(txt) {
 }
 
 if (typeof module !== "undefined") module.exports = {
-  P, OLD_LEVEL, clampRate, snowball, regionRate, co2Gt, GDP_2026, CO2_2026, DIFF, LEVELS, LBY, GOVS, GBY, sysOn, REGIONS, RBY, INTERVENTIONS, IBY, CATS, EVENTS, EBY, ENDINGS, STABLE_YEARS, RISK_LABELS,
+  P, OLD_LEVEL, DISCOVERIES, clampRate, snowball, regionRate, co2Gt, GDP_2026, CO2_2026, DIFF, LEVELS, LBY, GOVS, GBY, sysOn, REGIONS, RBY, INTERVENTIONS, IBY, CATS, EVENTS, EBY, ENDINGS, STABLE_YEARS, RISK_LABELS,
   newGame, tick, EV_WARN, advise, preview, DEBT_LIMIT, ctrlShare, available, anarchyNear, saveState, loadState, honors, endingText, costOf, upkeepOf, built, startIntervention, payoffNow, stabParts, stabNow, worldStab, unrestCauses, STAB_PARTS, WIN_WORLD, canStart, parentOk, TREE, resolveEvent, revoke, stability, riskBoard, risks, emissions, worldPop, lvl, setSeed, rand,
 };
 
@@ -2727,8 +2803,7 @@ function hud() {
   const ws = worldStab(st);
   $("sWorld").innerHTML = `<span style="color:${ws >= st.L.win ? "#9fd6c2" : "inherit"}">${Math.round(ws)}</span> <small>obiettivo ${st.L.win}</small>`;
   $("sStable").textContent = st.stable + " / " + st.L.years;
-  const n = st.log[0];
-  $("ticker").innerHTML = n ? `<b>${MONTHS[n.mo]} ${n.y}</b> · ${esc(n.text)}` : "";
+  updateTicker();
   for (const b of document.querySelectorAll(".speed button")) b.setAttribute("aria-pressed", String(+b.dataset.s === speed));
   const s = $("regStrip");
   if (!sel) { s.innerHTML = `<span class="stripe"></span><span class="nm">Nessuna regione</span><span class="st">Tocca una regione sulla mappa</span>`; return; }
@@ -2740,6 +2815,7 @@ function hud() {
 function refresh() {
   paint(); hud(); newsToasts(); drawBubbles();
   if (globeOn) drawGlobe();
+  if (phase === "play" && !pending && !openScreen && st.notes && st.notes.length) showNote();
   if (phase === "play" && !pending && !openScreen) checkTips();
   if (openScreen === "world") renderWorld();
   if (openScreen === "reg") renderRegion();
@@ -3623,6 +3699,50 @@ function toast(text, kind) {
   while (box.children.length > 2) box.firstChild.remove();
   setTimeout(() => { t.classList.add("out"); setTimeout(() => t.remove(), 500); }, 3200);
 }
+/* notiziario che scorre: le ultime notizie della partita e titoli sullo stato del mondo, ricalcolati ogni pochi mesi */
+let tickKey = "", flavor = [], flavorAt = -1;
+function flavorLine() {
+  const rs = ctrlRegions(st), r = rs[Math.floor(Math.random() * rs.length)], w = st.hist[st.hist.length - 1] || {};
+  const on = (id) => built(st, id);
+  const pool = [
+    () => `${r.name}: crescita economica ${r.growth >= 0 ? "del " + fmt(r.growth, 1) : "negativa, " + fmt(r.growth, 1)}% quest'anno`,
+    () => `${r.name}: disoccupazione al ${fmt(r.unemp, 1)}%`,
+    () => `${r.name}: debito pubblico al ${Math.round(r.debt)}% del PIL`,
+    () => `${r.name}: ${fmt(r.tfr, 2)} figli per donna`,
+    () => `Inflazione mondiale al ${fmt(st.g.infl, 1)}%, tasso della Banca centrale al ${fmt(st.g.rate, 1)}%`,
+    () => `Popolazione mondiale: ${fmt(worldPop(st) / 1000, 2)} miliardi`,
+    () => sysOn(st, "climate") ? `Emissioni di CO₂: ${fmt(co2Gt(st), 1)} miliardi di tonnellate l'anno` : null,
+    () => on("education") ? `${r.name}: record di diplomati quest'anno` : null,
+    () => on("university") ? `${r.name}: nuove facoltà di ingegneria aperte in tre città` : null,
+    () => on("research") ? `Ricerca: nuovi laboratori internazionali inaugurati in ${r.name}` : null,
+    () => on("invest") ? `${r.name}: inaugurata una nuova linea ferroviaria veloce` : null,
+    () => on("renew") ? `${r.name}: acceso un nuovo grande parco solare` : null,
+    () => on("healthcare") ? `${r.name}: la speranza di vita sale ancora` : null,
+    () => r.unrest > 65 ? `${r.name}: manifestazioni nelle capitali contro il carovita` : null,
+    () => r.pension > 65 ? `${r.name}: i pensionati superano i lavoratori in molte città` : null,
+  ];
+  for (let i = 0; i < 8; i++) { const t = pool[Math.floor(Math.random() * pool.length)](); if (t) return t; }
+  return `Popolazione mondiale: ${fmt(worldPop(st) / 1000, 2)} miliardi`;
+}
+function updateTicker() {
+  const now = st.year * 12 + st.month;
+  if (flavorAt < 0 || now - flavorAt >= 4) { flavorAt = now; flavor.unshift(flavorLine()); flavor = flavor.slice(0, 3); }
+  const items = [...st.log.slice(0, 4).map((n) => `<b>${MONTHS[n.mo]} ${n.y}</b> ${esc(n.text)}`), ...flavor.map(esc)];
+  const key = items.join("|");
+  if (key === tickKey) return;
+  tickKey = key;
+  const len = items.join(" ").length;
+  tickNext = { html: items.map((t) => `<span>${t}</span>`).join(""), dur: Math.max(25, len / 6).toFixed(0) + "s" };
+  // il testo nuovo entra solo quando il giro precedente è finito, così ogni notizia si legge per intero
+  let run = $("ticker").querySelector(".run");
+  if (!run) { $("ticker").innerHTML = `<span class="run"></span>`; run = $("ticker").querySelector(".run"); run.addEventListener("animationiteration", applyTick); applyTick(); }
+}
+let tickNext = null;
+function applyTick() {
+  const run = $("ticker").querySelector(".run");
+  if (!run || !tickNext) return;
+  run.innerHTML = tickNext.html; run.style.setProperty("--dur", tickNext.dur); tickNext = null;
+}
 function newsToasts() {
   if (!st) return;
   const fresh = st.log.filter((n) => n.n > seenLog && !n.quiet && n.kind !== "info").reverse();
@@ -3669,6 +3789,17 @@ const TIPS = [
   { id: "lost", when: (s) => ctrlRegions(s).length < 11, title: "Una regione nell'anarchia",
     text: "Una regione in anarchia non versa più fondi, vale zero nella stabilità mondiale e spinge verso il caos le vicine. Aiuta subito le regioni intorno." },
 ];
+/* buone notizie e scoperte: una scheda a tutto schermo che ferma il tempo, con un solo pulsante */
+function showNote() {
+  const n = st.notes.shift();
+  savedSpeed = speed || savedSpeed || 1; speed = 0; pending = { note: true };
+  const c = $("modalCard"); c.classList.add("tip", n.kind === "discovery" ? "disc" : "good");
+  c.innerHTML = `<div class="notehead"><svg viewBox="-20 -20 40 40"><polygon points="${hexPts(18)}"/><use href="${iconHref(n.icon)}" x="-10" y="-10" width="20" height="20"/></svg><div><div class="eyebrow">${n.kind === "discovery" ? "Scoperta scientifica" : "Buona notizia"} · ${MONTHS[n.mo]} ${n.y}</div><h2>${esc(n.title.replace(/^Scoperta: /, ""))}</h2></div></div><p>${esc(n.text)}</p>
+    <div class="tipfoot"><button type="button" class="buy" id="noteOk">Continua</button></div>`;
+  $("modal").hidden = false;
+  $("noteOk").onclick = () => { c.classList.remove("tip", "disc", "good"); $("modal").hidden = true; pending = null; speed = savedSpeed || 1; save(); refresh(); };
+  $("noteOk").focus(); hud();
+}
 function tipsOn() { try { return localStorage.getItem("gf-tips") !== "off"; } catch (e) { return true; } }
 function checkTips() {
   if (!st || !tipsOn() || !$("modal").hidden || st.L.tutorial) return;
