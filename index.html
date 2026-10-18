@@ -172,7 +172,13 @@ button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); o
 .sumrow .st { display: flex; align-items: center; gap: 6px; font-family: var(--font-d); font-weight: 600; font-size: 17px; letter-spacing: .03em; }
 .sumrow .st svg { width: 15px; height: 15px; color: var(--c); }
 .sumrow .mt { display: grid; grid-template-columns: 18px 1fr; gap: 1px 8px; align-items: center; }
-.legend2 { display: grid; gap: 8px; font-size: 12.5px; color: #cbd6df; line-height: 1.4; }
+.legend2 { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: #cbd6df; line-height: 1.4; }
+.mt small b { color: var(--fg); font-weight: 500; }
+.mt small em { font-style: normal; font-family: var(--font-m); } .mt small em.up { color: #7fe0a8; } .mt small em.down { color: #ff8a7a; }
+.bank { display: grid; grid-template-columns: 56px 1fr 56px; gap: 8px; align-items: center; text-align: center; }
+.bank .buy { margin: 0; font-size: 26px; padding: 4px; }
+.bank b { display: block; font-family: var(--font-m); font-size: 26px; color: var(--accent); }
+.bank small { color: var(--muted); font-size: 11.5px; }
 .legend2 svg { width: 14px; height: 14px; vertical-align: -2px; margin-right: 6px; }
 /* esagoni come in Rebel Inc: colore pieno del settore se attivo, scuro con bordo colorato se disponibile */
 .node { cursor: pointer; }
@@ -466,6 +472,7 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
 .tipfoot { display: flex; align-items: center; gap: 12px; margin-top: 4px; }
 .tipfoot .buy { margin: 0; padding: 8px 18px; }
 .linkbtn { background: none; border: 0; color: var(--muted); font-size: 12px; text-decoration: underline; padding: 4px; }
+.linkbtn.later { display: block; margin: 10px auto 0; font-size: 13.5px; color: #cbd6df; }
 
 /* statistiche */
 .stats { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(150px, 30%) 1fr; gap: 12px; padding: 10px var(--gr) 10px var(--gl); }
@@ -628,9 +635,9 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
       <h3>Fondi e debito</h3>
       <p>Ogni regione versa all'Autorità una parte della sua ricchezza: le entrate crescono se l'economia cresce e calano se una regione cade nell'anarchia, che smette di versare (ma smetti anche di pagare i programmi in quella regione). Se i fondi non bastano puoi indebitarti, anche per rispondere a una crisi, ma si pagano interessi del ${Math.round(P.debtRate * 100)}% l'anno. Si parte senza fondi: le entrate arrivano mese dopo mese. A −${DEBT_LIMIT} fondi l'Autorità fa bancarotta e la partita è persa.</p>
       <h3>Eventi</h3>
-      <p>Crisi ed emergenze compaiono sulla mappa come un segnaposto sulla regione colpita; possono essercene più di uno insieme. Hai un anno di tempo per toccarlo: intanto puoi raccogliere i fondi. Più aspetti, più il segnaposto si gonfia; dopo un anno il tempo si ferma finché non lo tocchi. Toccandolo scegli tra intervento pieno, una via di mezzo o non fare nulla. Il tempo si ferma anche quando apri un menu.</p>
+      <p>Crisi ed emergenze compaiono sulla mappa come un segnaposto sulla regione colpita; possono essercene più di uno insieme. Hai un anno di tempo per toccarlo: intanto puoi raccogliere i fondi. Più aspetti, più il segnaposto si gonfia; dopo un anno il tempo si ferma finché non lo tocchi. Toccandolo leggi che cosa succede: puoi scegliere subito tra intervento pieno, una via di mezzo o non fare nulla, oppure rimandare la decisione. Il tempo si ferma anche quando apri un menu.</p>
       <h3>Economia e popolazione</h3>
-      <p>La ricchezza prodotta da una regione è il numero di lavoratori occupati per quanto produce ciascuno. Tecnologia, istruzione, automazione e robot fanno crescere la produttività; ma se nascono meno bambini, fra 18 anni ci saranno meno lavoratori e l'economia rallenta. Chi aiuta le famiglie oggi vede più crescita una generazione dopo. Nella schermata Mondo, alla voce Statistiche, trovi l'andamento nel tempo di popolazione, lavoratori, produttività, debito e molto altro, per il mondo intero o per una regione; a fine partita lo stesso resoconto.</p>
+      <p>La ricchezza prodotta da una regione è il numero di lavoratori occupati per quanto produce ciascuno. Tecnologia, istruzione, automazione e robot fanno crescere la produttività; ma se nascono meno bambini, fra 18 anni ci saranno meno lavoratori e l'economia rallenta. Chi aiuta le famiglie oggi vede più crescita una generazione dopo. Il debito di uno stato cresce da solo quando gli interessi superano la crescita (l'effetto palla di neve). Nella scheda Economia la Banca centrale ti fa scegliere il tasso di interesse: alzarlo frena l'inflazione ma anche crescita e lavoro, abbassarlo fa il contrario. Nella schermata Mondo, alla voce Statistiche, trovi l'andamento nel tempo di popolazione, lavoratori, produttività, debito e molto altro, per il mondo intero o per una regione; a fine partita lo stesso resoconto.</p>
       <p>Ogni tanto arrivano anche opportunità: scoperte, svolte tecnologiche, riprese economiche.</p>
       <h3>La Luna</h3>
       <p>Il programma lunare, nella scheda Tecnologia, non serve per vincere ma cambia la partita: una base costruita insieme dalle potenze riduce la tensione tra loro e la polarizzazione, gli osservatori portano scoperte e tecnologie, un insediamento permanente custodisce un archivio dell'umanità e apre la strada alla fase successiva. Il pulsante "Terra e Luna" mostra il globo e la Luna con lo stato del programma.</p>
@@ -802,7 +809,7 @@ const NUCLEAR_POWERS = ["na", "ru", "ea", "sa", "eu"];
 // malcontento dovuto al clima: cresce più che in proporzione con il riscaldamento
 const climUnrest = (r, temp) => Math.pow(Math.max(0, temp - 1.3), 1.6) * r.climate / 100 * 7;
 const fUnrest = (r, t, temp) =>
-  unempPain(r) * 1.5 + Math.max(0, r.debt - 110) * 0.12 + r.polar * 0.2 + Math.max(0, r.energyCost - 55) * 0.5 +
+  unempPain(r) * 1.5 + (t.g ? Math.max(0, t.g.infl - 4) * 1.5 + Math.max(0, -t.g.infl) * 2 : 0) + Math.max(0, r.debt - 110) * 0.12 + r.polar * 0.2 + Math.max(0, r.energyCost - 55) * 0.5 +
   Math.max(0, r.pension - 60) * 0.15 - (r.gpc - basePg(r)) * 2 - r.wealth * 0.15 +
   climUnrest(r, temp);
 const fTfr = (r, year) => 1.35 + 4 * Math.pow(1 - r.wealth / 100, 2.5) - 0.012 * Math.min(30, year - 2026);
@@ -869,6 +876,8 @@ const INTERVENTIONS = [
     pro: "Molta energia pulita, senza scorie di lunga durata", con: "Costo altissimo e tempi lunghi",
     once: (r) => { shiftClean(r, 25, "nuclear"); } },
   // Economia
+  { id: "centralBank", cat: "economia", name: "Banca centrale mondiale", bank: true, desc: "Decide il tasso di interesse a breve termine della moneta unica mondiale.", scope: "global", cost: 0, T: 0,
+    pro: "Alzare il tasso frena l'inflazione", con: "Ma frena anche crescita e lavoro; abbassarlo fa il contrario e spinge l'inflazione" },
   { id: "invest", cat: "economia", name: "Investimenti pubblici", desc: "Lo Stato finanzia strade, ferrovie, ospedali e reti digitali.", scope: "region", cost: 6, upkeep: 3, T: 2,
     pro: "Più crescita economica, meno disoccupazione", con: "Costa ogni anno e fa salire il debito",
     fx: (m) => { m.g += 0.8; m.unempT -= 1.5; m.debtF += 1.2; } },
@@ -905,7 +914,7 @@ const INTERVENTIONS = [
     fx: (m) => { m.unempT -= 2.2; } },
   { id: "ubi", cat: "economia", name: "Reddito di base", desc: "Ogni adulto riceve ogni mese una somma fissa, che lavori o no.", scope: "region", cost: 0, upkeep: 25, T: 2,
     pro: "Malcontento e disuguaglianza crollano", con: "Costa moltissimo ogni anno e fa salire il debito",
-    fx: (m) => { m.unrestT -= 15; m.polarT -= 3; m.debtF += 1.5; } },
+    fx: (m) => { m.unrestT -= 15; m.polarT -= 3; m.debtF += 1.5; }, geff: { infl: 0.6 } },
   { id: "debtRestr", cat: "economia", name: "Ristrutturazione del debito", desc: "Un accordo con i creditori per cancellare o rinviare una parte del debito.", scope: "region", cost: 5, T: 1, repeat: true,
     pro: "Il debito scende di colpo", con: "Per qualche anno meno crescita e più malcontento; i mercati si fidano meno",
     once: (r) => { r.debt -= 25; r.shockU += 6; r.shockG -= 1; } },
@@ -947,9 +956,16 @@ const INTERVENTIONS = [
   { id: "police", cat: "sicurezza", name: "Ordine pubblico rafforzato", desc: "Più agenti e poteri speciali per sciogliere manifestazioni e disordini.", scope: "region", cost: 5, upkeep: 2, T: 0, axis: 10,
     pro: "I disordini calano subito", con: "Dopo tre anni il malcontento torna più alto di prima",
     fx: (m, s, r, st, gm, a) => { m.unrestT += st.year - a.y < 3 ? -14 : 5; } },
-  { id: "education", cat: "societa", name: "Istruzione", desc: "Più fondi per scuole e università: insegnanti, edifici, borse di studio.", scope: "region", cost: 5, upkeep: 2.5, T: 2, ramp: 20, spread: true,
-    pro: "Più crescita economica nel lungo periodo: l'effetto pieno arriva dopo circa vent'anni, quando gli studenti di oggi lavorano", con: "Costa ogni anno; il tasso di fecondità tende a scendere",
-    fx: (m, s) => { m.g += 0.7 * s; m.fert -= 0.15 * s; } },
+  /* Istruzione e ricerca: le leve più forti sulla produttività, ma i frutti arrivano dopo 10–20 anni [Probabile] */
+  { id: "education", cat: "societa", name: "Scuola per tutti", desc: "Più insegnanti, scuole migliori e nessun bambino fuori dalla scuola, fino alle superiori.", scope: "region", cost: 5, upkeep: 2.5, T: 2, ramp: 18, spread: true,
+    pro: "Produttività molto più alta quando gli studenti di oggi saranno al lavoro, meno disuguaglianza", con: "Costa ogni anno e l'effetto pieno arriva dopo quasi vent'anni; con più studio si fanno un po' meno figli",
+    fx: (m, s) => { m.g += 0.9 * s; m.polarT -= 2 * s; m.fert -= 0.1 * s; } },
+  { id: "university", cat: "societa", name: "Università e formazione tecnica", desc: "Più posti all'università, borse di studio e scuole tecniche legate alle imprese.", scope: "region", cost: 6, upkeep: 2, T: 3, ramp: 12,
+    pro: "Più lavoratori qualificati: la produttività cresce in una decina d'anni", con: "Costa ogni anno",
+    fx: (m, s) => { m.g += 0.7 * s; m.unempT -= 0.5 * s; } },
+  { id: "research", cat: "societa", name: "Ricerca scientifica", desc: "Grandi programmi pubblici di ricerca, laboratori e scienziati da tutto il mondo.", scope: "region", cost: 8, upkeep: 3, T: 3, ramp: 10,
+    pro: "Nuove tecnologie: produttività più alta ovunque, tecnologie di frontiera più rapide, più sicurezza su AI e laboratori", con: "Costa ogni anno; i risultati arrivano dopo anni",
+    fx: (m, s) => { m.g += 0.6 * s; }, geff: { frontier: 0.2, safeRate: 0.3, bioRate: 0.2 } },
   { id: "develop", cat: "economia", name: "Aiuti allo sviluppo", desc: "Fondi per scuole, ospedali, strade ed energia nelle regioni più povere.", scope: "region", cost: 8, upkeep: 2.5, T: 3, req: (r) => r.wealth < 45 ? null : "Solo per regioni a basso reddito",
     pro: "Crescita forte nelle regioni povere; con il reddito che sale le famiglie fanno meno figli", con: "Costa ogni anno; nessun effetto diretto nelle regioni ricche",
     fx: (m, s, r) => { if (r.wealth < 45) { m.g += 1.6; m.fert -= 0.25; m.unrestT -= 5; } } },
@@ -1013,7 +1029,7 @@ const INTERVENTIONS = [
   // Fisco
   { id: "taxRaise", cat: "economia", name: "Aumento delle tasse", desc: "Imposte un po' più alte su redditi e consumi in tutte le regioni.", scope: "region", cost: 0, T: 1, revocable: true, toggle: "Abbassa le tasse",
     pro: "Le entrate dell'Autorità crescono di un quarto", con: "Malcontento e crescita più bassa",
-    eff: { unrest: 5, g: -0.25 }, geff: { income: 0.25 } },
+    eff: { unrest: 5, g: -0.25 }, geff: { income: 0.25, infl: -0.2 } },
   { id: "wealthTax", cat: "economia", name: "Tassa sui grandi patrimoni", desc: "Un'imposta annuale sulle ricchezze più alte.", scope: "region", cost: 2, T: 2, revocable: true,
     pro: "Più entrate e meno disuguaglianza", con: "Un po' meno investimenti e crescita",
     eff: { polar: -3, g: -0.1 }, geff: { income: 0.12 } },
@@ -1029,14 +1045,14 @@ const INTERVENTIONS = [
     eff: { unrest: -3, polar: -2, unemp: 0.6 } },
   { id: "publicJobs", cat: "economia", name: "Assunzioni pubbliche straordinarie", desc: "Lo Stato assume disoccupati per lavori di pubblica utilità.", scope: "region", cost: 3, upkeep: 3, T: 1, revocable: true, toggle: "Licenzia",
     pro: "Disoccupazione e malcontento giù subito", con: "Costa ogni anno e fa salire il debito",
-    eff: { unemp: -2.5, unrest: -3, debt: 0.6 } },
+    eff: { unemp: -2.5, unrest: -3, debt: 0.6 }, geff: { infl: 0.2 } },
   { id: "tariffs", cat: "economia", name: "Dazi protettivi", desc: "Tasse sulle merci importate per proteggere le industrie locali.", scope: "region", cost: 1, T: 1, revocable: true, toggle: "Togli i dazi",
     pro: "Salvano subito posti di lavoro", con: "Frenano la crescita",
-    fx: (m, s, r, st, gm, a) => { m.unempT -= 1.5 * s; m.g -= Math.min(1.2, 0.1 + 0.06 * (st.year - a.y)) * s; } },
+    fx: (m, s, r, st, gm, a) => { m.unempT -= 1.5 * s; m.g -= Math.min(1.2, 0.1 + 0.06 * (st.year - a.y)) * s; }, geff: { infl: 0.4 } },
   // Energia
   { id: "priceCap", cat: "energia", name: "Bollette bloccate", desc: "Lo Stato fissa un tetto al prezzo dell'energia e paga la differenza ai produttori.", scope: "region", cost: 0, upkeep: 4, T: 0, revocable: true, toggle: "Sblocca le bollette",
     pro: "Energia meno cara e meno malcontento, subito", con: "Costa molto ogni anno e rallenta il passaggio alle rinnovabili",
-    eff: { unrest: -5, energy: -10, fossil: -0.4 } },
+    eff: { unrest: -5, energy: -10, fossil: -0.4 }, geff: { infl: -0.5 } },
   { id: "evCars", cat: "energia", name: "Auto e trasporti elettrici", desc: "Incentivi per auto elettriche, autobus elettrici e colonnine di ricarica.", scope: "region", cost: 12, T: 4,
     pro: "Meno petrolio e meno emissioni", con: "Serve molta elettricità pulita per avere pieno effetto",
     eff: { fossil: 0.6, energy: -1 } },
@@ -1133,7 +1149,7 @@ for (const d of INTERVENTIONS) {
 const TAB_OF = { energia: "energia", nucleare: "energia", economia: "economia", demografia: "welfare", societa: "societa", clima: "clima", salute: "sicurezza", sicurezza: "sicurezza", ai: "tecnologia", spazio: "tecnologia" };
 for (const d of INTERVENTIONS) { d.fam = d.cat; d.cat = TAB_OF[d.cat]; }
 /* livello di complessità: 1 facile, 2 medio, 3 difficile e super difficile */
-const TIER2 = ["cutStaff", "cutSubsidies", "cutDefense", "cutServices", "robots", "fossilSub", "ubi", "taxRaise", "taxEvasion", "unempBenefit", "housing", "pensionFunds", "socialHousing", "wealthTax", "minWage", "publicJobs", "tariffs", "priceCap", "evCars", "parentalLeave", "ivf", "pensionTax", "birthDowry", "healthcare", "civicService", "cyber", "foodReserve", "forestProtect", "efficiency", "nucInfo", "smr", "automation", "retrain", "family", "natality", "integration", "healthyAging", "surveil", "vaccines", "amr", "dac", "aiCap", "orbital", "pdef", "lunarIce", "lunarMining", "police", "disinfo"];
+const TIER2 = ["centralBank", "university", "research", "cutStaff", "cutSubsidies", "cutDefense", "cutServices", "robots", "fossilSub", "ubi", "taxRaise", "taxEvasion", "unempBenefit", "housing", "pensionFunds", "socialHousing", "wealthTax", "minWage", "publicJobs", "tariffs", "priceCap", "evCars", "parentalLeave", "ivf", "pensionTax", "birthDowry", "healthcare", "civicService", "cyber", "foodReserve", "forestProtect", "efficiency", "nucInfo", "smr", "automation", "retrain", "family", "natality", "integration", "healthyAging", "surveil", "vaccines", "amr", "dac", "aiCap", "orbital", "pdef", "lunarIce", "lunarMining", "police", "disinfo"];
 const TIER3 = ["fusion", "geoeng", "massRobots"]; // reddito di base e sussidi fossili ora già dal livello 2
 for (const d of INTERVENTIONS) d.tier = TIER3.includes(d.id) ? 3 : TIER2.includes(d.id) ? 2 : 1;
 const IBY = Object.fromEntries(INTERVENTIONS.map((d) => [d.id, d]));
@@ -1155,7 +1171,7 @@ const TREE = {
   housing: null, parentalLeave: "family", ivf: "housing", pensionFunds: "contrib", pensionTax: "pensionFunds", birthDowry: "pensionFunds", healthcare: null,
   socialHousing: null, civicService: "assemblies", cyber: "surveil", foodReserve: "agri", forestProtect: "reforest",
   contrib: null, retire: "contrib", healthyAging: "retire", family: null, natality: "family", migration: null, integration: "migration",
-  transparency: null, anticorr: "transparency", assemblies: "transparency", disinfo: "transparency", education: null, police: null,
+  transparency: null, anticorr: "transparency", assemblies: "transparency", disinfo: "transparency", education: null, university: "education", research: "university", police: null, centralBank: null,
   adapt: null, agri: "adapt", reforest: null, dac: null, geoeng: "dac",
   surveil: null, vaccines: "surveil", labRules: null, amr: "labRules",
   mediation: null, fissile: null, arms: "fissile",
@@ -1201,7 +1217,7 @@ function rampK(d, a, st) {
 }
 // tabelle di effetti → modificatori del mese
 const EFF_KEY = { unrest: "unrestT", polar: "polarT", g: "g", unemp: "unempT", fert: "fert", pension: "pensT", debt: "debtF", fossil: "fossilShift", energy: "energyCost", resist: "resistT", dmg: "dmg", famine: "famine", eff: "eff", labor: "labor", robot: "robot", life: "life", mig: "mig", mass: "mass" };
-const GEFF_KEY = { income: "income", tension: "tensionT", co2: "co2Rem", safeRate: "safeRate", bioRate: "bioRate", aiRate: "aiRate", polarAll: "polarAll", gAll: "gAll", frontier: "frontier", geo: "geo" };
+const GEFF_KEY = { infl: "infl", income: "income", tension: "tensionT", co2: "co2Rem", safeRate: "safeRate", bioRate: "bioRate", aiRate: "aiRate", polarAll: "polarAll", gAll: "gAll", frontier: "frontier", geo: "geo" };
 function applyEff(eff, keys, target, s) { for (const k in eff) target[keys[k]] += eff[k] * s; }
 function lvl(r, id) {
   const a = r.acts[id]; // r.acts è lo stesso oggetto di st.acts: gli interventi sono mondiali
@@ -1211,7 +1227,7 @@ function lvl(r, id) {
 
 /* ---------- stato ---------- */
 const M0 = () => ({ g: 0, unrestT: 0, polarT: 0, unempT: 0, fert: 0, pensT: 0, debtF: 0, fossilShift: 0, resistT: 0, energyCost: 0, eff: 0, dmg: 0, famine: 0, labor: 0, robot: 0, life: 0, mig: 0, mass: 0 });
-const G0 = () => ({ aiRate: 0, safeRate: 0, bioRate: 0, biotechRate: 0, co2Rem: 0, geo: 0, tensionT: 0, gAll: 0, unempAll: 0, pmit: 0, epi: 0, polarAll: 0, frontier: 0, income: 0 });
+const G0 = () => ({ aiRate: 0, safeRate: 0, bioRate: 0, biotechRate: 0, co2Rem: 0, geo: 0, tensionT: 0, gAll: 0, unempAll: 0, pmit: 0, epi: 0, polarAll: 0, frontier: 0, income: 0, infl: 0 });
 
 function emissions(st) {
   let e = 0;
@@ -1257,7 +1273,8 @@ function newGame(diffId, seed, levelId = "l4", govId = "base") {
     year: 2026, month: 0, diffId, D, funds: LBY[levelId].funds ?? D.funds, regions, levelId, govId, L: LBY[levelId], G: GBY[govId],
     acts: {}, prog: [], cd: {}, log: [], over: null, moon: false, stable: 0,
     axis: 0, // centralizzazione (+) ↔ pluralismo (−)
-    g: { temp: 1.35, geoOff: 0, aiCap: 22, aiSafety: 8, biotech: 30, bioSafety: 22, arsenal: 100, tension: 45, tShock: 0, price: 0, priceT: 0 },
+    g: { temp: 1.35, geoOff: 0, aiCap: 22, aiSafety: 8, biotech: 30, bioSafety: 22, arsenal: 100, tension: 45, tShock: 0, price: 0, priceT: 0,
+      infl: 3, anchor: 3, piShock: 0, rate: 4, rateT: 4, longR: 4.2, gW0: null },
     flags: {}, income: 0, hist: [], logN: 0, tips: {},
   };
   for (const id in regions) regions[id].acts = st.acts;
@@ -1273,7 +1290,7 @@ function newGame(diffId, seed, levelId = "l4", govId = "base") {
     r.pensBase = r.pension - r.old / r.wrk * PENS_K;
     r.pens0 = r.pension;
     // deficit di partenza: il debito di ogni regione all'inizio sale di circa mezzo punto l'anno
-    r.defBase = 0.5 - (Math.max(0, r.debt - 100) * 0.01 - r.growth * r.debt / 100);
+    r.defBase = 0.5 - snowball(r, st);
     r.tfrBase = r.tfr - fTfr(r, st.year);
     r.unempBase = r.unemp - 5;
     r.resistBase = r.resist;
@@ -1282,6 +1299,8 @@ function newGame(diffId, seed, levelId = "l4", govId = "base") {
   st.g.tBase = 45 - avgPolar(st) * 0.35;
   st.E0 = emissions(st);
   st.I0 = econMass(st, false);
+  st.gdpW0 = Object.values(regions).reduce((a, r) => a + r.gdp, 0);
+  st.ec0 = Object.values(regions).reduce((a, r) => a + r.energyCost * r.gdp, 0) / st.gdpW0;
   st.pop0 = worldPop(st);
   st.income = BASE_INCOME * D.inc * (st.L.inc || 1); st.upkeep = 0;
   logNews(st, "L'Autorità si insedia. Le nazioni hanno accettato di eseguire i suoi ordini.", "info");
@@ -1301,10 +1320,22 @@ function logNews(st, text, kind, quiet) {
   if (st.log.length > 60) st.log.pop();
 }
 
+// effetto palla di neve: (tasso reale a lungo termine della regione − crescita) × debito, in punti di prodotto l'anno
+const regionRate = (r, st) => st.g.longR - st.g.infl + Math.max(0, r.debt - 100) * 0.01;
+const snowball = (r, st) => (regionRate(r, st) - r.growth) * r.debt / 100;
 const PENS_K = 140; // peso del welfare per ogni anziano rispetto ai lavoratori
 // crescita della produttività per lavoratore (% l'anno)
+/* Moneta unica mondiale. La banca centrale (il giocatore) fissa il tasso a breve: un tasso reale sopra il neutrale (0,5%)
+   frena inflazione, crescita e occupazione; sotto il neutrale le spinge. Il tasso a lungo termine, che pesa sui debiti
+   pubblici, non si controlla: segue l'inflazione, il debito medio e la scarsità di capitale (anche il debito dell'Autorità). */
+const NEUTRAL = 1; // tasso reale neutrale: con il 4% e un'inflazione del 3% la politica monetaria non spinge né frena
+const realRate = (st) => st.g.rate - st.g.infl;
+const clampRate = (v) => clamp(v, 0, 15);
+const monetaryPush = (st) => clamp(NEUTRAL - realRate(st), -4, 4); // positivo = politica espansiva
 function prodGrowth(r, st, m, gm) {
   let g = basePg(r);
+  g += st.g ? clamp(monetaryPush(st) * 0.25, -1.2, 0.6) : 0;
+  g -= st.g ? Math.max(0, Math.abs(st.g.infl - 2) - 3) * 0.3 : 0; // inflazione molto alta o deflazione frenano l'economia
   g -= Math.max(0, r.debt - 100) * 0.01;
   g -= Math.max(0, r.unrest - 50) * 0.03;
   g -= (r.energyCost - 50) * 0.03;
@@ -1378,6 +1409,7 @@ function unrestCauses(r, st) {
   const temp = st.g.temp + st.g.geoOff;
   return [
     { name: "Disoccupazione", v: unempPain(r) * 1.5 },
+    { name: "Inflazione", v: Math.max(0, st.g.infl - 4) * 1.5 + Math.max(0, -st.g.infl) * 2 },
     { name: "Polarizzazione e sfiducia", v: r.polar * 0.2 },
     { name: "Debito troppo alto", v: Math.max(0, r.debt - 110) * 0.12 },
     { name: "Energia cara", v: Math.max(0, r.energyCost - 55) * 0.5 },
@@ -1412,6 +1444,7 @@ function canStart(st, id) {
   const d = IBY[id];
   if (st.over) return "Partita finita";
   if (!available(st, d)) return "Non disponibile a questo livello";
+  if (d.bank) return "Sempre attiva";
   if (d.from && st.year < d.from) return "Disponibile dal " + d.from;
   if (!parentOk(st, d)) return "Richiede: " + IBY[d.parent].name;
   if (d.need) { const w = d.need(st); if (w) return w; }
@@ -1465,9 +1498,13 @@ const EVENTS = [
       { label: "Austerità imposta", cost: 3, out: "Il debito scende molto, ma il malcontento esplode", fx: (st, r) => { r.debt -= 35; r.shockU += 28; } },
       { label: "Non fare nulla", cost: 0, out: "Recessione, debito ancora più alto, rischio di anarchia", fx: (st, r) => { r.shockG -= 3; r.shockU += 25; r.debt += 15; } },
     ] },
-  { id: "energyShock", scope: "global", cat: "Energia", title: "Shock dei prezzi dell'energia",
-    p: (st) => 0.05 * avgOf(st, "fossil") / 80,
-    text: () => "Un blocco delle forniture fa esplodere il prezzo di petrolio e gas. Le regioni più dipendenti dai fossili pagano di più.",
+  { id: "energyShock", scope: "global", cat: "Energia", title: "Crisi del petrolio e del gas",
+    p: (st) => 0.05 * avgOf(st, "fossil") / 80 * (st.g.tension > 55 ? 1.5 : 1),
+    onFire: (st) => { st.g.piShock += 2.5 * avgOf(st, "fossil") / 80; },
+    text: () => pick([
+      "Un blocco delle forniture fa esplodere il prezzo di petrolio e gas. Le regioni più dipendenti dai fossili pagano di più e i prezzi salgono ovunque.",
+      "Una guerra nel cuore delle regioni petrolifere chiude gli oleodotti. Il prezzo del petrolio triplica e l'inflazione sale.",
+    ]),
     choices: [
       { label: "Sussidi alle bollette", cost: 8, out: "Contraccolpo contenuto", fx: (st) => ctrlRegions(st).forEach((r) => (r.shockU += 2)) },
       { label: "Razionamento e accelerazione delle rinnovabili", cost: 4, out: "Malcontento, ma meno fossili", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockU += 6; shiftClean(r, 3, "renew"); }) },
@@ -1481,9 +1518,9 @@ const EVENTS = [
       "I prezzi delle materie prime crollano e trascinano con sé le economie che le esportano.",
     ]),
     choices: [
-      { label: "Piano di stimolo", cost: 15, out: "Recessione breve", fx: (st) => ctrlRegions(st).forEach((r) => (r.shockG -= 0.4)) },
-      { label: "Aiuti mirati", cost: 7, out: "Recessione moderata", fx: (st) => ctrlRegions(st).forEach((r) => (r.shockG -= 1.2)) },
-      { label: "Non fare nulla", cost: 0, out: "Crescita molto più bassa per alcuni anni", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockG -= 2.4; r.shockU += 8; }) },
+      { label: "Piano di stimolo", cost: 10, out: "Recessione breve e poca disoccupazione; un po' di inflazione", fx: (st) => { st.g.piShock += 0.6; ctrlRegions(st).forEach((r) => (r.shockG -= 0.3)); } },
+      { label: "Aiuti mirati", cost: 5, out: "Recessione moderata", fx: (st) => { st.g.piShock -= 0.3; ctrlRegions(st).forEach((r) => { r.shockG -= 1.2; r.shockU += 2; }); } },
+      { label: "Non fare nulla", cost: 0, out: "Crescita molto più bassa per alcuni anni, disoccupazione", fx: (st) => { st.g.piShock -= 0.8; ctrlRegions(st).forEach((r) => { r.shockG -= 2.4; r.shockU += 8; r.unemp += 1.5; }); } },
     ] },
   { id: "autoUnemp", scope: "region", cat: "Economia", title: "Disoccupazione da automazione",
     p: (st, r) => (lvl(r, "automation") > 0 || st.g.aiCap > 55) && r.unemp > 9 ? 0.05 : 0,
@@ -1648,7 +1685,7 @@ const EVENTS = [
       { label: "Ordine di disarmo locale", cost: 2, out: "Tensione in calo, malcontento in una potenza", fx: (st) => { st.g.tShock -= 6; st.regions[pick(["na", "ru", "ea", "sa"])].shockU += 8; } },
       { label: "Non fare nulla", cost: 0, out: "Tensione alle stelle", fx: (st) => { st.g.tShock += 10; } },
     ] },
-  { id: "conflict", scope: "region", cat: "Sicurezza", title: "Conflitto regionale",
+  { id: "conflict", onFire: (st) => { st.g.piShock += 0.4; }, scope: "region", cat: "Sicurezza", title: "Conflitto regionale",
     p: (st, r) => (r.unrest > 55 && st.g.tension > 45 ? 0.05 : 0),
     text: (st, r) => `Una disputa di confine in ${r.name} diventa guerra aperta tra due stati.`,
     choices: [
@@ -1711,7 +1748,7 @@ const EVENTS = [
     ] },
   // Eventi favorevoli
   /* ----- Eventi aggiunti il 18 ottobre 2026: più varietà di crisi, guerre e tensioni ----- */
-  { id: "civilWar", scope: "region", cat: "Sicurezza", title: "Guerra civile",
+  { id: "civilWar", onFire: (st) => { st.g.piShock += 0.3; }, scope: "region", cat: "Sicurezza", title: "Guerra civile",
     p: (st, r) => (r.unrest > 70 && r.polar > 60 ? 0.06 : 0),
     text: (st, r) => pick([
       `In uno degli stati di ${r.name} l'esercito si spacca in due. Le città si riempiono di posti di blocco e milizie armate.`,
@@ -1722,7 +1759,7 @@ const EVENTS = [
       { label: "Mediazione tra le fazioni", cost: 6, out: "Tregua fragile, economia ferita", fx: (st, r) => { r.shockU += 10; r.shockG -= 1; } },
       { label: "Non fare nulla", cost: 0, out: "Vittime, profughi e rischio di anarchia", fx: (st, r) => { r.shockU += 20; r.anarchy += 0.6; popLoss(r, 0.996); st.flags["exodus_" + r.id] = true; } },
     ] },
-  { id: "borderWar", scope: "region", cat: "Sicurezza", title: "Guerra tra regioni vicine",
+  { id: "borderWar", onFire: (st) => { st.g.piShock += 1; }, scope: "region", cat: "Sicurezza", title: "Guerra tra regioni vicine",
     p: (st, r) => (st.g.tension > 50 && r.unrest > 50 ? 0.03 : 0),
     text: (st, r) => { const n = RBY[r.id].nb.map((x) => st.regions[x]).find((x) => x.controlled) || r; return pick([
       `Uno scontro di frontiera tra ${r.name} e ${n.name} diventa guerra aperta. Le due parti richiamano i riservisti.`,
@@ -1766,7 +1803,7 @@ const EVENTS = [
       { label: "Ritorsione contro i sospetti", cost: 2, out: "Danni contenuti, tensione tra le potenze", fx: (st) => { st.g.tShock += 6; } },
       { label: "Non fare nulla", cost: 0, out: "Crescita giù e paura diffusa", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockG -= 0.6; r.shockU += 4; }) },
     ] },
-  { id: "navalStandoff", scope: "global", cat: "Sicurezza", title: "Scontro navale tra potenze",
+  { id: "navalStandoff", onFire: (st) => { st.g.piShock += 0.4; }, scope: "global", cat: "Sicurezza", title: "Scontro navale tra potenze",
     p: (st) => (st.g.tension > 50 ? 0.04 : 0.01),
     text: () => pick([
       "Due flotte delle grandi potenze si fronteggiano in uno stretto conteso. Un cacciatorpediniere viene colpito.",
@@ -1785,7 +1822,7 @@ const EVENTS = [
       { label: "Ispezioni reciproche", cost: 3, out: "Crescita degli arsenali contenuta", fx: (st) => { st.g.arsenal += 8; } },
       { label: "Non fare nulla", cost: 0, out: "Arsenali più grandi, rischio nucleare più alto", fx: (st) => { st.g.arsenal += 25; st.g.tShock += 4; } },
     ] },
-  { id: "crash", scope: "global", cat: "Economia", title: "Crollo delle borse",
+  { id: "crash", onFire: (st) => { st.g.piShock += -1; }, scope: "global", cat: "Economia", title: "Crollo delle borse",
     p: (st) => 0.015 + Math.max(0, avgOf(st, "debt") - 110) * 0.001,
     text: () => pick([
       "In tre giorni le borse perdono un terzo del loro valore. I fondi pensione bruciano anni di risparmi.",
@@ -1796,7 +1833,7 @@ const EVENTS = [
       { label: "Salvare solo le banche più grandi", cost: 5, out: "Crisi più lunga, rabbia per i salvataggi", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockG -= 1; r.polar += 3; }) },
       { label: "Non fare nulla", cost: 0, out: "Recessione e risparmi perduti", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockG -= 2; r.shockU += 8; r.pension += 2; }) },
     ] },
-  { id: "tradeWar", scope: "global", cat: "Economia", title: "Guerra commerciale",
+  { id: "tradeWar", onFire: (st) => { st.g.piShock += 0.8; }, scope: "global", cat: "Economia", title: "Guerra commerciale",
     p: (st) => (built(st, "tariffs") ? 0.06 : 0.02) * (st.g.tension > 50 ? 1.5 : 1),
     text: () => "Le grandi potenze si impongono dazi a vicenda. Le catene di fornitura si spezzano.",
     choices: [
@@ -1978,6 +2015,24 @@ function tick(st) {
   G.tension = clamp(G.tension, 5, 100);
   G.geoOff += (gm.geo - G.geoOff) * 0.5 * dt;
 
+  // moneta: il tasso a breve va verso quello scelto, l'inflazione verso il suo livello di equilibrio
+  {
+    const ws = Object.values(st.regions), gdp = ws.reduce((a, r) => a + r.gdp, 0) || 1;
+    const uW = ws.reduce((a, r) => a + r.unemp * r.gdp, 0) / gdp, dW = ws.reduce((a, r) => a + r.debt * r.gdp, 0) / gdp;
+    const ecW = ws.reduce((a, r) => a + r.energyCost * r.gdp, 0) / gdp;
+    G.rate += clamp(G.rateT - G.rate, -0.5, 0.5);
+    G.piShock *= 1 - 0.6 * dt;
+    if (G.gW0 == null) { G.gW0 = uW; G.ec0 = ecW; }
+    // le attese restano ancorate al 3%: la disoccupazione molto bassa (economia surriscaldata), l'energia cara e gli shock la spostano;
+    // la crescita dovuta alla produttività non fa salire i prezzi
+    // se l'inflazione resta lontana dal 3% per anni, le attese si spostano con lei: va corretta con il tasso
+    G.anchor += (G.infl - G.anchor) * 0.06 * dt;
+    const piT = G.anchor + 0.1 * clamp(G.gW0 - uW, -4, 4) + 0.1 * Math.max(0, ecW - G.ec0) + gm.infl + G.piShock + 0.6 * monetaryPush(st);
+    G.infl += (piT - G.infl) * 0.7 * dt;
+    // il premio per il debito alto è della singola regione (vedi regionRate); qui pesa la scarsità di capitale mondiale
+    const RT = 1.5 + G.infl * 0.9 - 0.3 * monetaryPush(st) + Math.max(0, dW - 120) * 0.005 + (st.funds < 0 ? 0.6 : 0);
+    G.longR += (RT - G.longR) * 0.5 * dt;
+  }
   // regioni
   const temp = G.temp + G.geoOff;
   // migrazioni: chi arriva nelle regioni ricche parte da quelle a basso reddito, in proporzione ai loro lavoratori
@@ -2020,10 +2075,10 @@ function tick(st) {
     r.pension += (pensT - r.pension) * 0.15 * dt;
 
     /* debito in % del prodotto: sale con il deficit (welfare che cresce, spese in più), scende se il prodotto cresce */
-    r.debt += dt * (r.defBase + (r.pension - r.pens0) * 0.08 + m.debtF + Math.max(0, r.debt - 100) * 0.01 - r.growth * r.debt / 100);
+    r.debt += dt * (r.defBase + (r.pension - r.pens0) * 0.08 + m.debtF + snowball(r, st));
     r.debt = clamp(r.debt, 0, 400);
 
-    const uT = clamp(r.unempBase + 5 + m.unempT + gm.unempAll + Math.max(0, -r.growth) * 1.5, 1, 85);
+    const uT = clamp(r.unempBase + 5 + m.unempT + gm.unempAll + Math.max(0, -r.growth) * 1.5 - monetaryPush(st) * 0.35, 1, 85);
     r.unemp += (uT - r.unemp) * 0.3 * dt;
 
     const clim = climUnrest(r, temp) * (1 - m.dmg);
@@ -2088,7 +2143,7 @@ function tick(st) {
   st.upkeep = upkeep;
   st.funds += (st.income - upkeep) * dt;
   // debito: sotto zero si pagano gli interessi, che riducono il saldo annuo; a -DEBT_LIMIT l'Autorità fallisce
-  st.interest = st.funds < 0 ? -st.funds * DEBT_RATE : 0;
+  st.interest = st.funds < 0 ? -st.funds * Math.max(0.01, st.g.longR / 100) : 0;
   st.funds -= st.interest * dt;
   for (const [lim, txt] of [[0, "L'Autorità è in debito: ogni anno paga gli interessi."], [-15, "Il debito dell'Autorità è a metà del limite. A −" + DEBT_LIMIT + " i finanziatori si ritirano."], [-25, "Debito vicino al limite: a −" + DEBT_LIMIT + " l'Autorità fallisce."]]) {
     const k = "debt" + lim;
@@ -2148,13 +2203,13 @@ function rollEvent(st) {
       const key = ev.id;
       if ((st.cd[key] || 0) > st.year && ev.id !== "pandemic") continue;
       const p = ev.p(st) * (ev.id === "pandemic" ? 1 : st.D.ev * evMult(st, ev.id));
-      if (rand() < p / 12) { st.cd[key] = st.year + EV_CD_GLOBAL; st.lastEv = now; return { id: ev.id, r: null }; }
+      if (rand() < p / 12) { st.cd[key] = st.year + EV_CD_GLOBAL; st.lastEv = now; if (ev.onFire) ev.onFire(st, null); return { id: ev.id, r: null }; }
     } else {
       for (const r of ctrlRegions(st)) {
         const key = ev.id + ":" + r.id;
         if ((st.cd[key] || 0) > st.year) continue;
         const p = ev.p(st, r) * st.D.ev * evMult(st, ev.id);
-        if (p > 0 && rand() < p / 12) { st.cd[key] = st.year + EV_CD_REGION; st.lastEv = now; return { id: ev.id, r: r.id }; }
+        if (p > 0 && rand() < p / 12) { st.cd[key] = st.year + EV_CD_REGION; st.lastEv = now; if (ev.onFire) ev.onFire(st, r); return { id: ev.id, r: r.id }; }
       }
     }
   }
@@ -2203,19 +2258,31 @@ function yearly(st) {
 
 /* Statistiche di un anno, per il mondo (w) e per ogni regione: servono ai grafici e al resoconto finale */
 const r1 = (v, d = 1) => Math.round(v * Math.pow(10, d)) / Math.pow(10, d);
-function statsOf(rs) {
+/* Valori reali di partenza (2025, arrotondati [Probabile]): prodotto mondiale circa 115 mila miliardi di dollari,
+   emissioni di CO₂ da combustibili fossili circa 37 miliardi di tonnellate l'anno. Poi crescono con il gioco. */
+const GDP_2026 = 115, CO2_2026 = 37;
+const co2Gt = (st) => CO2_2026 * emissions(st) / st.E0;
+// il prodotto mondiale in dollari segue il prodotto del gioco; la quota di ogni regione usa un reddito per abitante realistico
+// (da circa 1.500 dollari l'anno con benessere 12 a circa 80.000 con benessere 90)
+const realW = (r) => r.pop * 1500 * Math.exp(0.051 * (r.wealth - 12));
+function usdOf(rs, st) {
+  const all = Object.values(st.regions), world = GDP_2026 * all.reduce((a, r) => a + r.gdp, 0) / st.gdpW0;
+  return world * rs.reduce((a, r) => a + realW(r), 0) / all.reduce((a, r) => a + realW(r), 0);
+}
+function statsOf(rs, st) {
   const pop = rs.reduce((a, r) => a + r.pop, 0) || 1, wrk = rs.reduce((a, r) => a + r.wrk, 0) || 1;
   const gdp = rs.reduce((a, r) => a + r.gdp, 0), gdp0 = rs.reduce((a, r) => a + r.gdp0, 0) || 1, pop0 = rs.reduce((a, r) => a + r.pop0, 0) || 1;
   const L = rs.reduce((a, r) => a + r.L, 0) || 1;
   const wp = (k) => rs.reduce((a, r) => a + r[k] * r.pop, 0) / pop, wg = (k) => rs.reduce((a, r) => a + r[k] * r.gdp, 0) / (gdp || 1);
   return { pop: r1(pop / 1000, 3), wrk: r1(wrk / 1000, 3), old: r1(rs.reduce((a, r) => a + r.old, 0) / wrk * 100, 0), gdp: r1(gdp / gdp0 * 100, 0), gpc: r1(gdp / pop / (gdp0 / pop0) * 100, 0),
-    prod: r1(gdp / L / (gdp0 / rs.reduce((a, r) => a + r.gdp0 / r.prod0, 0)) * 100, 0), g: r1(wg("growth")), tfr: r1(wp("tfr"), 2), debt: r1(wg("debt"), 0), unemp: r1(wp("unemp")), pens: r1(wp("pension"), 0), unrest: r1(wp("unrest"), 0), stab: r1(wp("stab"), 0) };
+    prod: r1(gdp / L / (gdp0 / rs.reduce((a, r) => a + r.gdp0 / r.prod0, 0)) * 100, 0), g: r1(wg("growth")),
+    usd: r1(usdOf(rs, st), 1), snow: r1(rs.reduce((a, r) => a + snowball(r, st) * r.gdp, 0) / (gdp || 1), 2), ec: r1(wg("energyCost") / st.ec0 * 100, 0), fossil: r1(wp("fossil"), 0), tfr: r1(wp("tfr"), 2), debt: r1(wg("debt"), 0), unemp: r1(wp("unemp")), pens: r1(wp("pension"), 0), unrest: r1(wp("unrest"), 0), stab: r1(wp("stab"), 0) };
 }
 function histRow(st) {
   const rs = Object.values(st.regions);
-  const row = { y: st.year, ws: r1(worldStab(st)), t: r1(st.g.temp + st.g.geoOff, 2), e: Math.round(emissions(st) / st.E0 * 100), n: ctrlRegions(st).length, f: r1(st.funds), inc: r1(st.income),
-    w: statsOf(rs), r: {} };
-  for (const r of rs) row.r[r.id] = statsOf([r]);
+  const row = { y: st.year, ws: r1(worldStab(st)), t: r1(st.g.temp + st.g.geoOff, 2), e: Math.round(emissions(st) / st.E0 * 100), co2: r1(co2Gt(st)), n: ctrlRegions(st).length, f: r1(st.funds), inc: r1(st.income),
+    infl: r1(st.g.infl), rate: r1(st.g.rate), R: r1(st.g.longR), w: statsOf(rs, st), r: {} };
+  for (const r of rs) row.r[r.id] = statsOf([r], st);
   return row;
 }
 
@@ -2271,7 +2338,7 @@ function loadState(txt) {
 }
 
 if (typeof module !== "undefined") module.exports = {
-  P, DIFF, LEVELS, LBY, GOVS, GBY, sysOn, REGIONS, RBY, INTERVENTIONS, IBY, CATS, EVENTS, EBY, ENDINGS, STABLE_YEARS, RISK_LABELS,
+  P, clampRate, snowball, regionRate, co2Gt, GDP_2026, CO2_2026, DIFF, LEVELS, LBY, GOVS, GBY, sysOn, REGIONS, RBY, INTERVENTIONS, IBY, CATS, EVENTS, EBY, ENDINGS, STABLE_YEARS, RISK_LABELS,
   newGame, tick, EV_WARN, advise, preview, DEBT_LIMIT, ctrlShare, available, anarchyNear, saveState, loadState, honors, endingText, costOf, upkeepOf, built, startIntervention, payoffNow, stabParts, stabNow, worldStab, unrestCauses, STAB_PARTS, WIN_WORLD, canStart, parentOk, TREE, resolveEvent, revoke, stability, riskBoard, risks, emissions, worldPop, lvl, setSeed, rand,
 };
 
@@ -2378,14 +2445,17 @@ const GLYPH = {
   drop: `<path d="M5 1.2C3.6 3.4 2.4 4.8 2.4 6.2a2.6 2.6 0 0 0 5.2 0C7.6 4.8 6.4 3.4 5 1.2z"/>`,
   dome: `<path d="M1 8.2h8M1.8 8.2a3.2 3.2 0 0 1 6.4 0M3.4 8.2a1.6 1.6 0 0 1 3.2 0"/>`,
   pick: `<path d="M1.4 3.4c2.2-1.8 5-1.8 7.2 0M5 2.2l-2.8 7.2"/>`,
+  rateCoin: `<circle cx="5" cy="5" r="3.8"/><path d="M3.4 6.6 6.6 3.4"/><circle cx="3.6" cy="3.6" r=".6" ${F}/><circle cx="6.4" cy="6.4" r=".6" ${F}/>`,
+  school: `<path d="M1.4 9V4.6L5 2.2l3.6 2.4V9zM4 9V6.6h2V9M5 2.2V.8l1.4.5L5 1.6"/>`,
+  microscope: `<path d="M3.6 1.2l2.2 1.3-1.6 2.8-2.2-1.3zM4.9 4.8 6 7M2 9.2h6M6.6 9.2a3 3 0 0 0-1-4.6"/>`,
   dollarCut: `<path d="M6.6 2.6C6.2 2 5.6 1.8 5 1.8c-1 0-1.8.6-1.8 1.4 0 1.8 3.6 1.2 3.6 3.2 0 .8-.8 1.4-1.8 1.4-.7 0-1.3-.3-1.7-.9M5 .8v1M5 7.8v1.2"/>`,
 };
 const ICON_OF = {
   fossilSub: "fuel", carbonTax: "smoke", renew: "sun", grid: "battery", efficiency: "bulb", nuclear: "i-nucleare", nucInfo: "megaphone", smr: "tower", fusion: "fusion", priceCap: "plug", evCars: "car",
-  invest: "bridge", austerity: "scissors", cutStaff: "personMinus", cutSubsidies: "factoryDown", cutDefense: "shieldMinus", cutServices: "hospital", automation: "gear", robots: "robot", retrain: "wrench", ubi: "coins", debtRestr: "handshake", develop: "sprout",
+  centralBank: "rateCoin", university: "cap", research: "microscope", invest: "bridge", austerity: "scissors", cutStaff: "personMinus", cutSubsidies: "factoryDown", cutDefense: "shieldMinus", cutServices: "hospital", automation: "gear", robots: "robot", retrain: "wrench", ubi: "coins", debtRestr: "handshake", develop: "sprout",
   taxRaise: "percent", wealthTax: "diamond", taxEvasion: "magnifier", unempBenefit: "umbrella", minWage: "wallet", publicJobs: "hardhat", tariffs: "crate", privat: "tag",
   retire: "clock", contrib: "piggy", natality: "baby", family: "family", migration: "plane", integration: "puzzle", healthyAging: "heart", housing: "house", parentalLeave: "stroller", ivf: "dna", pensionFunds: "vault", pensionTax: "chartUp", birthDowry: "gift", healthcare: "i-salute",
-  transparency: "eye", anticorr: "gavel", assemblies: "people", disinfo: "newspaper", police: "badge", education: "cap", socialHousing: "buildings", civicService: "hands",
+  transparency: "eye", anticorr: "gavel", assemblies: "people", disinfo: "newspaper", police: "badge", education: "school", socialHousing: "buildings", civicService: "hands",
   adapt: "waves", agri: "wheat", reforest: "tree", dac: "fan", geoeng: "cloud", foodReserve: "silo", forestProtect: "pine",
   surveil: "virus", vaccines: "syringe", labRules: "flask", amr: "pill", arms: "missile", fissile: "radiation", mediation: "dove", cyber: "chipShield", massSurveil: "cctv",
   aiCap: "i-ai", align: "target", aiReg: "scale", launch: "i-spazio", orbital: "satellite", pdef: "comet", moon: "moon", lunarSci: "telescope", lunarIce: "drop", lunarCity: "dome", lunarMining: "pick",
@@ -2403,13 +2473,13 @@ const SHORT = {
   nuclear: "Centrali nucleari", smr: "Reattori modulari", fusion: "Fusione", nucInfo: "Informazione",
   invest: "Investimenti", automation: "Automazione", retrain: "Formazione", ubi: "Reddito di base", austerity: "Tagli alla spesa", debtRestr: "Taglio del debito",
   retire: "Età pensionabile", healthyAging: "Invecchiamento sano", contrib: "Contributi", family: "Servizi famiglia", natality: "Bonus figli", migration: "Immigrazione regolata", integration: "Integrazione",
-  transparency: "Trasparenza", anticorr: "Anticorruzione", assemblies: "Assemblee", disinfo: "Disinformazione", police: "Ordine pubblico", education: "Istruzione", develop: "Aiuti allo sviluppo",
+  transparency: "Trasparenza", anticorr: "Anticorruzione", assemblies: "Assemblee", disinfo: "Disinformazione", police: "Ordine pubblico", develop: "Aiuti allo sviluppo",
   adapt: "Adattamento", agri: "Agricoltura", reforest: "Riforestazione", dac: "Cattura CO₂", geoeng: "Geoingegneria",
   surveil: "Sorveglianza", vaccines: "Vaccini rapidi", labRules: "Regole laboratori", amr: "Antibiotici",
   mediation: "Mediazione", fissile: "Materiale fissile", arms: "Riduzione arsenali",
   aiCap: "Capacità AI", aiReg: "Regole AI", align: "Allineamento",
   launch: "Lanciatori", orbital: "Economia orbitale", pdef: "Difesa planetaria", moon: "Base lunare", lunarMining: "Miniere lunari",
-  lunarSci: "Scienza lunare", lunarIce: "Ghiaccio lunare", lunarCity: "Insediamento lunare",
+  lunarSci: "Scienza lunare", centralBank: "Banca centrale", university: "Università", research: "Ricerca", education: "Scuola", lunarIce: "Ghiaccio lunare", lunarCity: "Insediamento lunare",
   taxRaise: "Più tasse", wealthTax: "Tassa patrimoni", taxEvasion: "Lotta all'evasione", unempBenefit: "Sussidio lavoro", minWage: "Salario minimo",
   publicJobs: "Assunzioni pubbliche", tariffs: "Dazi", priceCap: "Bollette bloccate", evCars: "Auto elettriche", housing: "Case giovani",
   parentalLeave: "Congedi parentali", ivf: "Fecondazione", pensionFunds: "Pensioni integrative", pensionTax: "Fondi pensione", birthDowry: "Dote alla nascita",
@@ -2814,7 +2884,7 @@ function nodeState(d) {
   const why = canStart(st, d.id);
   const locked = (d.from && st.year < d.from) || !parentOk(st, d) || !!(d.need && d.need(st));
   let cls = "avail";
-  if (a && a.n > 0) cls = "active"; else if (prog.length) cls = "building"; else if (locked) cls = "locked";
+  if ((a && a.n > 0) || d.bank) cls = "active"; else if (prog.length) cls = "building"; else if (locked) cls = "locked";
   return { a, prog, why, cls };
 }
 // saldo annuo dell'Autorità: entrate meno costi annui e interessi sul debito
@@ -2827,21 +2897,26 @@ function hexPts(r) { return [0, 1, 2, 3, 4, 5].map((i) => { const a = Math.PI / 
 /* ---------- indicatori: ognuno va da 0 (pessimo) a 1 (ottimo); x è il mondo, vero o simulato ---------- */
 const avgOfW = (x, k) => { const rs = Object.values(x.regions).filter((r) => r.controlled), t = rs.reduce((a, r) => a + r.pop, 0) || 1; return rs.reduce((a, r) => a + r[k] * r.pop, 0) / t; };
 const lvOf = (x, id) => { const r = riskBoard(x).find((q) => q.id === id); return r ? r.lv : 0; };
+// valori pesati sul prodotto delle regioni controllate
+const avgOfG = (x, f) => { const rs = Object.values(x.regions).filter((r) => r.controlled), t = rs.reduce((a, r) => a + r.gdp, 0) || 1; return rs.reduce((a, r) => a + f(r) * r.gdp, 0) / t; };
+const usdNow = (x) => usdOf(Object.values(x.regions), x);
+/* indicatori mostrati al giocatore: pochi, ciascuno con il suo valore; v va da 0 (grave) a 1 (buono) */
 const IND = [
-  { id: "energy", tab: "energia", icon: "#g-sun", name: "Energia pulita", what: "Quanta energia viene da fonti senza emissioni", v: (x) => 1 - avgOfW(x, "fossil") / 100 },
-  { id: "debt", tab: "economia", icon: "#g-vault", name: "Conti pubblici", what: "Più il debito degli stati è basso, più la barra è piena", v: (x) => 1 - clamp((avgOfW(x, "debt") - 40) / 160, 0, 1) },
-  { id: "wealth", tab: "economia", icon: "#g-chartUp", name: "Benessere", what: "Il reddito medio per abitante", v: (x) => avgOfW(x, "wealth") / 100 },
-  { id: "jobs", tab: "economia", icon: "#g-hardhat", name: "Lavoro", what: "Più la disoccupazione è bassa, più la barra è piena", v: (x) => 1 - clamp((avgOfW(x, "unemp") - 3) / 12, 0, 1) },
-  { id: "pens", tab: "welfare", icon: "#g-piggy", name: "Pensioni sostenibili", what: "Quanto pesano pensioni e welfare sui conti", v: (x) => 1 - clamp((avgOfW(x, "pension") - 10) / 80, 0, 1) },
-  { id: "births", tab: "welfare", icon: "#g-baby", name: "Ricambio delle generazioni", what: "Piena quando nascono circa 2,1 figli per donna", v: (x) => 1 - clamp(Math.abs(avgOfW(x, "tfr") - 2.1) / 1.6, 0, 1) },
-  { id: "peace", tab: "societa", icon: "#i-societa", name: "Pace sociale", what: "Più il malcontento è basso, più la barra è piena", v: (x) => 1 - avgOfW(x, "unrest") / 100 },
-  { id: "cohesion", tab: "societa", icon: "#g-people", name: "Coesione", what: "Meno polarizzazione e sfiducia", v: (x) => 1 - avgOfW(x, "polar") / 100 },
-  { id: "climate", tab: "clima", icon: "#g-sun", name: "Clima", what: "Più la temperatura resta bassa, più la barra è piena", v: (x) => 1 - clamp((x.g.temp + x.g.geoOff - 1.1) / 2.2, 0, 1) },
-  { id: "security", tab: "sicurezza", icon: "#i-sicurezza", name: "Sicurezza", what: "Rischio di guerra nucleare e di pandemia", v: (x) => 1 - (lvOf(x, "war") + lvOf(x, "bio")) / 6 },
-  { id: "ai", tab: "tecnologia", icon: "#i-ai", name: "Sicurezza dell'AI", what: "Quanto la sicurezza tiene il passo con la potenza dell'AI", v: (x) => 1 - lvOf(x, "ai") / 3 },
+  { id: "ecost", num: (x) => avgOfG(x, (r) => r.energyCost) / x.ec0 * 100, dfmt: (v) => sign(v, 0), tab: "energia", icon: "#g-plug", name: "Costo dell'energia", v: (x) => 1 - clamp((avgOfG(x, (r) => r.energyCost) / x.ec0 * 100 - 70) / 60, 0, 1), txt: (x) => Math.round(avgOfG(x, (r) => r.energyCost) / x.ec0 * 100) + " (2026 = 100)" },
+  { id: "energy", num: (x) => 100 - avgOfW(x, "fossil"), dfmt: (v) => sign(v, 0) + " punti", tab: "energia", icon: "#g-sun", name: "Energia pulita", v: (x) => 1 - avgOfW(x, "fossil") / 100, txt: (x) => Math.round(100 - avgOfW(x, "fossil")) + "%" },
+  { id: "co2", num: (x) => co2Gt(x), dfmt: (v) => sign(v, 1) + " mld t", tab: "clima", icon: "#g-smoke", name: "Emissioni annue", v: (x) => 1 - clamp(co2Gt(x) / 55, 0, 1), txt: (x) => fmt(co2Gt(x), 1) + " mld t di CO₂" },
+  { id: "climate", num: (x) => x.g.temp + x.g.geoOff, dfmt: (v) => sign(v, 2) + " °C", tab: "clima", icon: "#i-temp", name: "Temperatura", v: (x) => 1 - clamp((x.g.temp + x.g.geoOff - 1.1) / 2.2, 0, 1), txt: (x) => "+" + fmt(x.g.temp + x.g.geoOff, 2) + " °C" },
+  { id: "gdp", num: (x) => usdNow(x), dfmt: (v) => sign(v, Math.abs(v) < 10 ? 1 : 0) + " mila mld $", tab: "economia", icon: "#g-chartUp", name: "PIL mondiale", v: (x) => clamp(0.3 + Math.log(usdNow(x) / GDP_2026) / Math.log(4), 0, 1), txt: (x) => fmt(usdNow(x), 0) + " mila mld $" },
+  { id: "debt", num: (x) => avgOfG(x, (r) => r.debt), dfmt: (v) => sign(v, 0) + " punti", tab: "economia", icon: "#g-vault", name: "Debito pubblico", v: (x) => 1 - clamp((avgOfG(x, (r) => r.debt) - 40) / 160, 0, 1), txt: (x) => Math.round(avgOfG(x, (r) => r.debt)) + "% del PIL" },
+  { id: "snow", num: (x) => avgOfG(x, (r) => snowball(r, x)), dfmt: (v) => sign(v, 2), tab: "economia", icon: "#g-coins", name: "Palla di neve", v: (x) => 1 - clamp((avgOfG(x, (r) => snowball(r, x)) + 1.5) / 4, 0, 1), txt: (x) => { const v = avgOfG(x, (r) => snowball(r, x)); return sign(v) + " punti l'anno"; } },
+  { id: "infl", num: (x) => x.g.infl, dfmt: (v) => sign(v, 1) + " punti", tab: "economia", icon: "#g-percent", name: "Inflazione", v: (x) => 1 - clamp(Math.abs(x.g.infl - 2.5) / 7, 0, 1), txt: (x) => fmt(x.g.infl, 1) + "%" },
+  { id: "pens", tab: "welfare", icon: "#g-piggy", name: "Pensioni sostenibili", v: (x) => 1 - clamp((avgOfW(x, "pension") - 10) / 80, 0, 1) },
+  { id: "wellbeing", tab: "societa", icon: "#g-people", name: "Benessere della popolazione", v: (x) => 0.5 * (1 - avgOfW(x, "unrest") / 100) + 0.3 * (1 - avgOfW(x, "polar") / 100) + 0.2 * avgOfW(x, "wealth") / 100 },
+  { id: "security", tab: "sicurezza", icon: "#i-sicurezza", name: "Sicurezza", v: (x) => 1 - (lvOf(x, "war") + lvOf(x, "bio")) / 6 },
+  { id: "ai", tab: "tecnologia", icon: "#i-ai", name: "Sicurezza dell'AI", v: (x) => 1 - lvOf(x, "ai") / 3 },
 ];
-IND.find((i) => i.id === "climate").icon = "#i-temp";
-const indsOn = () => IND.filter((i) => (i.tab === "sicurezza" ? sysOn(st, "war") || sysOn(st, "bio") : i.tab === "tecnologia" ? sysOn(st, "ai") : i.tab === "clima" ? sysOn(st, "climate") : true));
+const indText = (i, x) => (i.txt ? i.txt(x) : levelWord(i.v(x)));
+const indsOn = () => IND.filter((i) => (i.tab === "sicurezza" ? sysOn(st, "war") || sysOn(st, "bio") : i.tab === "tecnologia" ? sysOn(st, "ai") : i.tab === "clima" ? sysOn(st, "climate") : i.tab === "energia" ? sysOn(st, "energia") : true));
 const indCol = (v) => heat(1 - v);
 // barra di un indicatore; il pezzo a righe mostra di quanto cambierebbe: verde se migliora, rosso se peggiora
 function barHTML(v, dv, col) {
@@ -2949,28 +3024,25 @@ const levelWord = (v) => (v >= 0.75 ? "buono" : v >= 0.5 ? "discreto" : v >= 0.3
 function renderSummary() {
   const cats = CATS.filter((c) => INTERVENTIONS.some((d) => d.cat === c.id && available(st, d)));
   const inds = indsOn();
-  $("sumList").innerHTML = cats.map((c) => {
-    const sd = sectorDone(c.id), rows = inds.filter((i) => i.tab === c.id);
-    return `<button type="button" class="sumrow" data-go-tab="${c.id}" style="--c:${CAT_COLOR[c.id]}">
+  $("sumList").innerHTML = cats.filter((c) => inds.some((i) => i.tab === c.id)).map((c) => `<button type="button" class="sumrow" data-go-tab="${c.id}" style="--c:${CAT_COLOR[c.id]}">
       <span class="st"><svg><use href="#i-${TAB_ICON[c.id] || c.id}"/></svg>${c.name}</span>
-      <span class="mt" title="Interventi avviati nel settore"><svg style="color:${CAT_COLOR[c.id]}"><use href="#i-hex"/></svg>${barHTML(sd.did / sd.n, 0, CAT_COLOR[c.id])}<small>${sd.did} di ${sd.n} avviati</small></span>
-      ${rows.map((i) => { const v = i.v(st); return `<span class="mt"><svg style="color:${indCol(v)}"><use href="${i.icon}"/></svg>${barHTML(v, 0, indCol(v))}<small>${i.name}: ${levelWord(v)}</small></span>`; }).join("")}
-    </button>`;
-  }).join("");
+      ${inds.filter((i) => i.tab === c.id).map((i) => indRow(i, 0)).join("")}
+    </button>`).join("");
   for (const b of $("sumList").querySelectorAll("[data-go-tab]")) b.onclick = () => { actTab = b.dataset.goTab; actNode = null; renderActs(); };
   const ws = worldStab(st);
   $("detail").innerHTML = `<div class="scroll">
       <h3>Situazione del mondo</h3>
       <p class="desc">Stabilità mondiale <b style="color:${stabColor(ws)}">${Math.round(ws)}</b> su un obiettivo di ${st.L.win}.</p>
-      <p class="desc">Ogni riga è un settore. Tocca una riga per vedere i suoi interventi.</p>
-      <div class="legend2">
-        <span><svg style="color:var(--accent)"><use href="#i-hex"/></svg><b>Esagono</b>: quanti interventi del settore hai avviato.</span>
-        <span><svg style="color:#9fd6c2"><use href="#g-chartUp"/></svg><b>Le altre barre</b>: come va il mondo in quel campo. Piena è buono, vuota è grave.</span>
-        <span><i class="sw up"></i>Toccando un intervento, il pezzo <b>verde a righe</b> è quanto quella barra migliorerebbe.</span>
-        <span><i class="sw down"></i>Il pezzo <b>rosso a righe</b> è quanto peggiorerebbe.</span>
-      </div>
+      <div class="legend2"><span>Barra piena: buono. Vuota: grave.</span><span><i class="sw up"></i>migliora</span><span><i class="sw down"></i>peggiora</span></div>
     </div>`;
   $("dFunds").textContent = ""; $("dNet").textContent = "";
+}
+// riga di un indicatore: icona, barra (con il pezzo che cambierebbe) e sotto nome e valore
+// a, b: il mondo simulato senza e con l'intervento; tra parentesi la differenza che fa l'intervento
+function indRow(i, dv, a, b) {
+  const v = i.v(st), diff = a && b && i.num ? i.num(b) - i.num(a) : null;
+  const show = diff != null && Math.abs(dv) > 0.003;
+  return `<span class="mt" data-ind="${i.id}"><svg style="color:${indCol(v)}"><use href="${i.icon}"/></svg>${barHTML(v, dv, indCol(v))}<small>${i.name}: <b>${indText(i, st)}</b>${show ? ` <em class="${dv > 0 ? "up" : "down"}">${i.dfmt(diff)}</em>` : ""}</small></span>`;
 }
 function renderDetail() {
   const d = IBY[actNode];
@@ -2996,16 +3068,13 @@ function renderDetail() {
   const priceTxt = c0 && !done ? ` – ${c0}` : "";
   const showWhy = s.why && !done && s.why !== "In corso" && !s.why.startsWith("Richiede") && !s.why.startsWith("Disponibile");
   const canStop = active && (d.upkeep || d.revocable);
-  const sd = sectorDone(actTab), share = !done && !active && !s.prog.length ? 1 / sd.n : 0;
   const I = indsOn().filter((i) => i.tab === actTab);
+  if (d.bank) { renderBank(d, I); return; }
   $("detail").innerHTML = `<div class="scroll">
       <div class="dhead" style="--c:${CAT_COLOR[d.fam]}"><svg viewBox="-20 -20 40 40"><polygon points="${hexPts(18)}"/><use href="${iconHref(d.id)}" x="-10" y="-10" width="20" height="20"/></svg><h3>${esc(d.name)}</h3></div>
       ${d.desc ? `<p class="desc">${esc(d.desc)}${slow}</p>` : ""}
       ${state ? `<span class="state">${state}</span>` : ""}
-      <div class="imeters" id="indRows">
-        <span class="mt"><svg style="color:${CAT_COLOR[actTab]}"><use href="#i-hex"/></svg>${barHTML(sd.did / sd.n, share, CAT_COLOR[actTab])}<small>Interventi del settore</small></span>
-        ${I.map((i) => { const v = i.v(st); return `<span class="mt" data-ind="${i.id}"><svg style="color:${indCol(v)}"><use href="${i.icon}"/></svg>${barHTML(v, 0, indCol(v))}<small>${i.name}</small></span>`; }).join("")}
-      </div>
+      <div class="imeters" id="indRows">${I.map((i) => indRow(i, 0)).join("")}</div>
       <p class="pro"><b>Pro.</b> ${esc(d.pro)}</p>
       <p class="con"><b>Contro.</b> ${esc(d.con)}</p>
       ${!done && available(st, d) ? `<div class="prev" id="prevBox"><small>Calcolo dell'effetto…</small></div>` : ""}
@@ -3018,6 +3087,22 @@ function renderDetail() {
   if ($("dRev")) $("dRev").onclick = () => { revoke(st, d.id); renderActs(); hud(); paint(); };
 }
 
+/* Banca centrale: il giocatore sceglie il tasso a breve, che arriva al valore scelto in pochi mesi */
+function renderBank(d, I) {
+  const G = st.g;
+  $("dFunds").textContent = ""; $("dNet").textContent = "";
+  $("detail").innerHTML = `<div class="scroll">
+      <div class="dhead" style="--c:${CAT_COLOR.economia}"><svg viewBox="-20 -20 40 40"><polygon points="${hexPts(18)}"/><use href="${iconHref(d.id)}" x="-10" y="-10" width="20" height="20"/></svg><h3>${esc(d.name)}</h3></div>
+      <p class="desc">${esc(d.desc)}</p>
+      <div class="bank"><button type="button" class="buy alt" id="rDown" aria-label="Abbassa il tasso">−</button><div><b>${fmt(G.rateT, 1)}%</b><small>tasso scelto${Math.abs(G.rate - G.rateT) > 0.05 ? ` · ora ${fmt(G.rate, 1)}%` : ""}</small></div><button type="button" class="buy alt" id="rUp" aria-label="Alza il tasso">+</button></div>
+      <div class="imeters" id="indRows">${I.map((i) => indRow(i, 0)).join("")}</div>
+      <p class="pro"><b>Alzare.</b> L'inflazione scende, ma crescita e lavoro rallentano.</p>
+      <p class="con"><b>Abbassare.</b> Più crescita e lavoro, ma l'inflazione sale; se resta alta per anni è sempre più difficile farla scendere.</p>
+      <p class="why">Il tasso a lungo termine, che pesa sui debiti degli stati, non si sceglie: oggi è ${fmt(G.longR, 1)}% e segue l'inflazione.</p>
+    </div>`;
+  $("rDown").onclick = () => { G.rateT = clampRate(G.rateT - 0.5); renderBank(d, I); };
+  $("rUp").onclick = () => { G.rateT = clampRate(G.rateT + 0.5); renderBank(d, I); };
+}
 /* stima dell'effetto: si simula il mondo per qualche anno con e senza l'intervento (senza eventi né catastrofi).
    Le barre mostrano tutti gli indicatori che cambiano, in verde dove migliora e in rosso dove peggiora. */
 let prevCache = { key: "", p: null };
@@ -3032,7 +3117,8 @@ function showPreview(d) {
     const ch = indsOn().map((i) => ({ i, v: i.v(st), dv: i.v(p.b) - i.v(p.a) })).filter((c) => c.i.tab === actTab || Math.abs(c.dv) > 0.006);
     ch.sort((a, b) => (b.i.tab === actTab) - (a.i.tab === actTab) || Math.abs(b.dv) - Math.abs(a.dv));
     for (const el of rows.querySelectorAll("[data-ind]")) el.remove();
-    rows.insertAdjacentHTML("beforeend", ch.map((c) => `<span class="mt" data-ind="${c.i.id}"><svg style="color:${indCol(c.v)}"><use href="${c.i.icon}"/></svg>${barHTML(c.v, c.dv, indCol(c.v))}<small>${c.i.name}</small></span>`).join(""));
+    // la stima riguarda il mondo fra qualche anno: il pezzo a righe è la differenza rispetto a non fare nulla
+    rows.insertAdjacentHTML("beforeend", ch.map((c) => indRow(c.i, c.dv, p.a, p.b)).join(""));
   }
   const cls = (v) => (v >= 0 ? "pos" : "negv");
   box.innerHTML = `<small>Tra ${p.years} anni</small>
@@ -3195,28 +3281,33 @@ function wireCharts(root, h) {
 const STATS = [
   { k: "ws", world: true, name: "Stabilità mondiale", f: (v) => fmt(v, 0), goal: () => st.L.win },
   { k: "stab", name: "Stabilità", f: (v) => fmt(v, 0) },
-  { k: "pop", name: "Popolazione", f: (v) => fmt(v, 2) + " mld", d: "Miliardi di persone" },
-  { k: "wrk", name: "Persone in età da lavoro", f: (v) => fmt(v, 2) + " mld", d: "Tra 18 e 64 anni. Chi nasce oggi entra nel lavoro fra 18 anni" },
-  { k: "old", name: "Anziani ogni 100 lavoratori", f: (v) => fmt(v, 0), d: "Sopra i 65 anni, ogni 100 persone tra 18 e 64" },
-  { k: "tfr", name: "Figli per donna", f: (v) => fmt(v, 2), goal: () => 2.1, d: "Con 2,1 figli per donna la popolazione resta stabile" },
-  { k: "gdp", name: "Prodotto totale", f: (v) => fmt(v, 0), d: "Ricchezza prodotta in un anno, 2026 = 100. Lavoratori occupati × produttività" },
-  { k: "prod", name: "Produttività per lavoratore", f: (v) => fmt(v, 0), d: "Quanto produce in media ogni lavoratore, 2026 = 100. Cresce con tecnologia, istruzione, automazione e robot" },
-  { k: "gpc", name: "Prodotto per abitante", f: (v) => fmt(v, 0), d: "Ricchezza prodotta divisa per tutti gli abitanti, 2026 = 100" },
-  { k: "g", name: "Crescita economica", f: (v) => sign(v) + "%", d: "Variazione del prodotto in un anno" },
+  { k: "usd", name: "PIL", f: (v) => fmt(v, v < 10 ? 1 : 0) + " mila mld $", d: "Ricchezza prodotta in un anno, in dollari del 2026. Lavoratori occupati × produttività" },
+  { k: "g", name: "Crescita economica", f: (v) => sign(v) + "%", d: "Variazione del PIL in un anno" },
+  { k: "prod", name: "Produttività per lavoratore", f: (v) => fmt(v, 0), d: "Quanto produce in media ogni lavoratore, 2026 = 100. Cresce con istruzione, ricerca, automazione e robot" },
+  { k: "debt", name: "Debito pubblico", f: (v) => fmt(v, 0) + "% del PIL" },
+  { k: "snow", name: "Palla di neve", f: (v) => sign(v, 2) + " punti l'anno", d: "Quanto il debito cresce da solo: tasso d'interesse reale meno crescita, per il debito. Sotto zero il debito si riduce" },
+  { k: "infl", world: true, name: "Inflazione", f: (v) => fmt(v, 1) + "%" },
+  { k: "rate", world: true, name: "Tasso della Banca centrale", f: (v) => fmt(v, 1) + "%" },
+  { k: "R", world: true, name: "Tasso a lungo termine", f: (v) => fmt(v, 1) + "%", d: "Quello che pagano gli stati sui loro debiti" },
   { k: "unemp", name: "Disoccupazione", f: (v) => fmt(v, 1) + "%" },
-  { k: "debt", name: "Debito pubblico", f: (v) => fmt(v, 0) + "%", d: "Debito degli stati in percentuale del prodotto" },
-  { k: "pens", name: "Peso del welfare", f: (v) => fmt(v, 0), d: "Quanto pesano pensioni e welfare sui conti, da 0 a 100" },
+  { k: "pop", name: "Popolazione", f: (v) => fmt(v, 2) + " mld" },
+  { k: "wrk", name: "Persone in età da lavoro", f: (v) => fmt(v, 2) + " mld", d: "Tra 18 e 64 anni. Chi nasce oggi entra nel lavoro fra 18 anni" },
+  { k: "old", name: "Anziani ogni 100 lavoratori", f: (v) => fmt(v, 0) },
+  { k: "tfr", name: "Figli per donna", f: (v) => fmt(v, 2), goal: () => 2.1, d: "Con 2,1 figli per donna la popolazione resta stabile" },
+  { k: "pens", name: "Peso delle pensioni", f: (v) => fmt(v, 0), d: "Quanto pesano pensioni e welfare sui conti, da 0 a 100" },
   { k: "unrest", name: "Malcontento", f: (v) => fmt(v, 0) },
+  { k: "ec", name: "Costo dell'energia", f: (v) => fmt(v, 0), d: "2026 = 100", sys: "energia" },
+  { k: "fossil", name: "Energia dai fossili", f: (v) => fmt(v, 0) + "%", sys: "energia" },
+  { k: "co2", world: true, name: "Emissioni di CO₂", f: (v) => fmt(v, 1) + " mld t", d: "Miliardi di tonnellate l'anno: dipendono da quanta energia si consuma e da quanta viene dai fossili", sys: "climate" },
   { k: "t", world: true, name: "Temperatura", f: (v) => "+" + fmt(v, 2) + " °C", sys: "climate" },
-  { k: "e", world: true, name: "Emissioni", f: (v) => Math.round(v) + "%", d: "Rispetto al 2026", sys: "climate" },
   { k: "f", world: true, name: "Fondi dell'Autorità", f: (v) => fmt(v, 1) },
   { k: "inc", world: true, name: "Entrate dell'Autorità", f: (v) => fmt(v, 1) + "/anno" },
 ];
-let statK = "gdp", statR = "w";
+let statK = "usd", statR = "w";
 const statVal = (row, S) => (S.world ? row[S.k] : statR === "w" ? row.w && row.w[S.k] : row.r && row.r[statR] && row.r[statR][S.k]);
 function statsHTML(h) {
   const list = STATS.filter((S) => !S.sys || sysOn(st, S.sys));
-  if (!list.some((S) => S.k === statK)) statK = "gdp";
+  if (!list.some((S) => S.k === statK)) statK = "usd";
   return `<div class="stats">
     <div class="slist">${list.map((S) => `<button type="button" data-sk="${S.k}" aria-pressed="${S.k === statK}">${S.name}</button>`).join("")}</div>
     <div class="sview"><div class="sbar"><select id="statR" aria-label="Regione"><option value="w">Tutto il mondo</option>${REGIONS.map((R) => `<option value="${R.id}" ${statR === R.id ? "selected" : ""}>${esc(R.name)}</option>`).join("")}</select></div><div id="statChart"></div></div>
@@ -3264,6 +3355,9 @@ function wireStats(root, h) {
 /* ---------- crisi in arrivo ---------- */
 const absMonth = () => st.year * 12 + st.month;
 const EV_ICON = { Economia: "economia", Previdenza: "demografia", "Società": "societa", Istituzioni: "societa", Energia: "energia", Clima: "clima", Natura: "clima", Salute: "salute", Tecnologia: "ai", Sicurezza: "sicurezza", Spazio: "spazio" };
+// dove si appoggia il segnaposto di una regione, se diverso dall'etichetta [lon, lat, scarto verticale]: il Nord America
+// sotto il nome, per non finire dietro ai pulsanti in alto a sinistra
+const PIN_AT = { na: [-99, 41, 24], ru: [70, 56, -9] };
 // icona di ogni evento sul segnaposto (le altre usano l'icona della categoria)
 const EV_GLYPH = { debt: "vault", energyShock: "fuel", recession: "factoryDown", autoUnemp: "robot", pensions: "piggy", protests: "people", strike: "hardhat", govCrisis: "gavel", bubble: "house",
   antiAuth: "megaphone", migrationCrisis: "plane", scandal: "newspaper", heat: "sun", famine: "wheat", storm: "waves", solar: "sun", epidemic: "virus", labLeak: "flask", pandemic: "virus",
@@ -3321,7 +3415,7 @@ function drawBubbles() {
   for (const q of (st.queue || []).slice().sort((a, b) => b.due - a.due)) {
     const E = EBY[q.id];
     let x, y;
-    if (q.r) { const R = RBY[q.r], k = perRegion[q.r] = (perRegion[q.r] || 0) + 1; [x, y] = ee(R.label[0], R.label[1]); y -= 9; x += (k - 1) * 20; }
+    if (q.r) { const R = RBY[q.r], k = perRegion[q.r] = (perRegion[q.r] || 0) + 1, at = PIN_AT[q.r] || [R.label[0], R.label[1], -9]; [x, y] = ee(at[0], at[1]); y += at[2]; x += (k - 1) * 20; }
     else { [x, y] = ee(...GLOBAL_SPOTS[gi++ % GLOBAL_SPOTS.length]); }
     q.x = x; q.y = y;
     const left = Math.max(0, q.due - absMonth()), frac = Math.min(1, (absMonth() - q.start) / Math.max(1, q.due - q.start));
@@ -3348,10 +3442,19 @@ function showEvent(ev) {
   if (ev.r) { sel = ev.r; pingRegion(ev.r); }
   save();
   const c = $("modalCard");
-  c.innerHTML = `<div class="eyebrow">${E.good ? "Opportunità · " : ""}${esc(E.cat)}${r ? " · " + esc(r.name) : " · Tutto il mondo"} · ${MONTHS[st.month]} ${st.year}</div><h2>${esc(E.title)}</h2><p>${esc(E.text(st, r))}</p>
+  ev.txt = ev.txt || E.text(st, r); // lo stesso testo anche se la decisione viene rimandata
+  const canWait = ev.due != null;
+  c.innerHTML = `<div class="eyebrow">${E.good ? "Opportunità · " : ""}${esc(E.cat)}${r ? " · " + esc(r.name) : " · Tutto il mondo"} · ${MONTHS[st.month]} ${st.year}</div><h2>${esc(E.title)}</h2><p>${esc(ev.txt)}</p>
     <div class="choices">${E.choices.map((ch, i) => { const no = ch.cost > 0 && st.funds - ch.cost < -DEBT_LIMIT, debt = ch.cost > 0 && st.funds < ch.cost && !no;
-      return `<button type="button" class="choice" data-i="${i}" ${no ? "disabled" : ""}><b>${esc(ch.label)}</b><span class="c">${ch.cost > 0 ? ch.cost + " fondi" : ch.cost < 0 ? "+" + -ch.cost + " fondi" : "gratis"}</span><small>${esc(ch.out)}${no ? " · oltre il limite di debito" : debt ? " · a debito: i fondi andranno sotto zero" : ""}</small></button>`; }).join("")}</div>`;
+      return `<button type="button" class="choice" data-i="${i}" ${no ? "disabled" : ""}><b>${esc(ch.label)}</b><span class="c">${ch.cost > 0 ? ch.cost + " fondi" : ch.cost < 0 ? "+" + -ch.cost + " fondi" : "gratis"}</span><small>${esc(ch.out)}${no ? " · oltre il limite di debito" : debt ? " · a debito: i fondi andranno sotto zero" : ""}</small></button>`; }).join("")}</div>
+    ${canWait ? `<button type="button" class="linkbtn later" id="evLater">${ev.due <= absMonth() ? "Chiudi (il tempo resta fermo finché non decidi)" : `Decidi più tardi · hai ancora ${Math.max(1, ev.due - absMonth())} ${ev.due - absMonth() === 1 ? "mese" : "mesi"}`}</button>` : ""}`;
   $("modal").hidden = false;
+  if (canWait) $("evLater").onclick = () => {
+    // la crisi torna sulla mappa con la stessa scadenza
+    st.queue.push(ev); pending = null; $("modal").hidden = true;
+    speed = openScreen ? 0 : savedSpeed || 1;
+    refresh(); drawBubbles(); save();
+  };
   for (const b of c.querySelectorAll("[data-i]")) b.onclick = () => {
     if (resolveEvent(st, pending, +b.dataset.i)) return;
     if (tut) tut.events++;
@@ -3512,7 +3615,11 @@ const TIPS = [
   { id: "unrest", when: (s) => ctrlRegions(s).some((r) => r.unrest > 80), title: "Una regione vicina alla rivolta",
     text: (s) => `${ctrlRegions(s).sort((a, b) => b.unrest - a.unrest)[0].name} rischia di cadere nell'anarchia, e trascinerebbe con sé le regioni vicine. Toccala per vedere cosa fare.` },
   { id: "debt", when: (s) => ctrlRegions(s).some((r) => r.debt > 150), title: "Debito pericoloso",
-    text: "Una regione ha un debito così alto che i mercati possono smettere di finanziarla. Ti consiglio Contributi, Età pensionabile o Taglio del debito." },
+    text: (s) => { const rs = ctrlRegions(s).filter((r) => r.debt > 150).sort((a, b) => b.debt - a.debt); return `${rs.map((r) => `${r.name} (${Math.round(r.debt)}% del PIL)`).join(", ")}: ${rs.length > 1 ? "hanno" : "ha"} un debito così alto che i mercati possono smettere di finanziarle. Il debito sale quando la crescita è più bassa degli interessi e quando il welfare pesa troppo: guarda pensioni, crescita e tagli alla spesa, oppure la ristrutturazione del debito.`; } },
+  { id: "inflHigh", when: (s) => s.g.infl > 5.5, title: "Inflazione alta",
+    text: (s) => `I prezzi salgono del ${fmt(s.g.infl, 1)}% l'anno e la gente si arrabbia. Alzare il tasso della Banca centrale, nella scheda Economia, la fa scendere, ma frena la crescita.` },
+  { id: "inflLow", when: (s) => s.g.infl < 0.5, title: "Prezzi in calo",
+    text: "Quando i prezzi scendono le famiglie rimandano gli acquisti e l'economia si ferma. Abbassare il tasso della Banca centrale, nella scheda Economia, aiuta." },
   { id: "globe", when: (s) => s.year >= 2031, title: "La Terra e la Luna",
     text: "Con il pulsante in alto a sinistra la mappa diventa un globo, con accanto la Luna e il programma lunare." },
   { id: "space", when: (s) => sysOn(s, "space") && s.year >= 2045 && !s.acts.launch, title: "Il programma lunare",
