@@ -333,7 +333,7 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
 #menuLevels, #menuGov { background: radial-gradient(ellipse at 50% 120%, rgba(111,176,216,.10), transparent 60%), rgba(8,16,22,.9); }
 #menuLevels .body { display: flex; align-items: center; }
 .levels { display: flex; gap: 10px; width: min(1100px, 100%); margin: 0 auto; overflow-x: auto; padding: 6px 2px 8px; scrollbar-width: thin; }
-.lvl { flex: 1 1 150px; min-width: 148px; position: relative; text-align: left; background: linear-gradient(180deg, var(--panel-2), var(--panel)); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; transition: transform .2s, border-color .2s, box-shadow .2s; }
+.lvl { flex: 1 1 124px; min-width: 122px; position: relative; text-align: left; background: linear-gradient(180deg, var(--panel-2), var(--panel)); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; transition: transform .2s, border-color .2s, box-shadow .2s; }
 .lvl .num { font-family: var(--font-d); font-weight: 700; font-size: 34px; line-height: .9; color: transparent; -webkit-text-stroke: 1px var(--info); }
 .lvl.tut .num { -webkit-text-stroke-color: var(--good); }
 .lvl b { font-family: var(--font-d); font-size: 19px; font-weight: 700; letter-spacing: .03em; line-height: 1.05; text-wrap: balance; }
@@ -733,11 +733,14 @@ const LEVELS = [
     intro: "Le basi del gioco, passo per passo: la stabilità, gli interventi, le crisi.", adds: "Economia e società" },
   { id: "l1", name: "Primo mandato", cats: ["economia", "welfare", "societa"], tier: 2, sys: [], inc: 0.85, win: 72, years: 5, fast: 30,
     intro: "Debiti, pensioni e malcontento: rimetti in piedi le società del pianeta.", adds: "Tutti gli interventi di economia e società" },
-  { id: "l2", name: "Il clima che cambia", cats: ["energia", "economia", "welfare", "societa", "clima"], tier: 2, sys: ["energia", "climate", "nature"], inc: 0.9, win: 77, years: 8, fast: 50,
-    intro: "Un pianeta che si scalda e una transizione energetica da guidare.", adds: "Energia, clima, catastrofi naturali" },
-  { id: "l3", name: "Equilibrio del terrore", cats: ["energia", "economia", "welfare", "societa", "clima", "sicurezza"], tier: 2, sys: ["energia", "climate", "nature", "war", "bio"], win: 79, years: 10, fast: 60,
+  /* Dopo il primo mandato ogni scenario aggiunge un solo settore (decisione del 18 ottobre 2026) */
+  { id: "l2", name: "Energia per tutti", cats: ["energia", "economia", "welfare", "societa"], tier: 2, sys: ["energia"], inc: 0.88, win: 75, years: 6, fast: 40,
+    intro: "Bollette, petrolio e centrali: un'economia che ha fame di energia.", adds: "Energia" },
+  { id: "l3", name: "Il clima che cambia", cats: ["energia", "economia", "welfare", "societa", "clima"], tier: 2, sys: ["energia", "climate", "nature"], inc: 0.9, win: 77, years: 8, fast: 50,
+    intro: "Un pianeta che si scalda e una transizione energetica da guidare.", adds: "Clima e catastrofi naturali" },
+  { id: "l4", name: "Equilibrio del terrore", cats: ["energia", "economia", "welfare", "societa", "clima", "sicurezza"], tier: 2, sys: ["energia", "climate", "nature", "war", "bio"], win: 79, years: 10, fast: 60,
     intro: "Potenze armate, epidemie e laboratori pericolosi: i primi grandi filtri.", adds: "Sicurezza, guerra nucleare, pandemie" },
-  { id: "l4", name: "Il Grande Filtro", cats: ALL_CATS, tier: 3, sys: ["energia", "climate", "nature", "war", "bio", "ai", "space"], win: 80, years: 10, fast: 70,
+  { id: "l5", name: "Il Grande Filtro", cats: ALL_CATS, tier: 3, sys: ["energia", "climate", "nature", "war", "bio", "ai", "space"], win: 80, years: 10, fast: 70,
     intro: "Tutto insieme: anche l'intelligenza artificiale e la corsa alla Luna.", adds: "Tecnologia, AI, programma lunare" },
 ];
 const LBY = Object.fromEntries(LEVELS.map((l) => [l.id, l]));
@@ -1168,7 +1171,7 @@ const TIER3 = ["fusionResearch", "fusion", "geoeng", "massRobots"]; // reddito d
 for (const d of INTERVENTIONS) d.tier = TIER3.includes(d.id) ? 3 : TIER2.includes(d.id) ? 2 : 1;
 const IBY = Object.fromEntries(INTERVENTIONS.map((d) => [d.id, d]));
 function available(st, d) {
-  const G = st.G || GBY.base, L = st.L || LBY.l4;
+  const G = st.G || GBY.base, L = st.L || LBY.l5;
   if (d.gov) return d.gov === G.id;
   if (G.ban && G.ban.includes(d.id)) return false;
   if (G.grant && G.grant.includes(d.id)) return true;
@@ -1265,7 +1268,9 @@ function econMass(st, controlledOnly) {
 }
 
 const BASE_INCOME = P.baseIncome, DEBT_LIMIT = P.debtLimit, DEBT_RATE = P.debtRate;
-function newGame(diffId, seed, levelId = "l4", govId = "base") {
+// scenari rinumerati il 18 ottobre 2026 (aggiunto «Energia per tutti»): vecchio l2 → l3, l3 → l4, l4 → l5
+const OLD_LEVEL = { l2: "l3", l3: "l4", l4: "l5" };
+function newGame(diffId, seed, levelId = "l5", govId = "base") {
   if (seed != null) setSeed(seed);
   const D = DIFF[diffId];
   const regions = {};
@@ -1292,7 +1297,7 @@ function newGame(diffId, seed, levelId = "l4", govId = "base") {
     axis: 0, // centralizzazione (+) ↔ pluralismo (−)
     g: { temp: 1.35, geoOff: 0, aiCap: 22, aiSafety: 8, biotech: 30, bioSafety: 22, arsenal: 100, tension: 45, tShock: 0, price: 0, priceT: 0,
       infl: 3, anchor: 3, piShock: 0, rate: 4, rateT: 4, longR: 4.2, gW0: null },
-    flags: {}, income: 0, hist: [], logN: 0, tips: {},
+    flags: {}, income: 0, hist: [], logN: 0, tips: {}, lv: 2,
   };
   for (const id in regions) regions[id].acts = st.acts;
   // calcola la crescita iniziale e fissa le basi di equilibrio
@@ -2352,7 +2357,8 @@ function loadState(txt) {
   if (!o || o.v !== 2 || !DIFF[o.st.diffId]) return null; // le partite salvate prima del nuovo modello economico non si riprendono
   const st = o.st;
   st.D = DIFF[st.diffId];
-  st.levelId = LBY[st.levelId] ? st.levelId : "l4"; st.govId = GBY[st.govId] ? st.govId : "base";
+  if (!st.lv) { st.levelId = OLD_LEVEL[st.levelId] || st.levelId; st.lv = 2; }
+  st.levelId = LBY[st.levelId] ? st.levelId : "l5"; st.govId = GBY[st.govId] ? st.govId : "base";
   st.L = LBY[st.levelId]; st.G = GBY[st.govId];
   for (const id in st.regions) st.regions[id].acts = st.acts;
   setSeed(o.seed);
@@ -2360,7 +2366,7 @@ function loadState(txt) {
 }
 
 if (typeof module !== "undefined") module.exports = {
-  P, clampRate, snowball, regionRate, co2Gt, GDP_2026, CO2_2026, DIFF, LEVELS, LBY, GOVS, GBY, sysOn, REGIONS, RBY, INTERVENTIONS, IBY, CATS, EVENTS, EBY, ENDINGS, STABLE_YEARS, RISK_LABELS,
+  P, OLD_LEVEL, clampRate, snowball, regionRate, co2Gt, GDP_2026, CO2_2026, DIFF, LEVELS, LBY, GOVS, GBY, sysOn, REGIONS, RBY, INTERVENTIONS, IBY, CATS, EVENTS, EBY, ENDINGS, STABLE_YEARS, RISK_LABELS,
   newGame, tick, EV_WARN, advise, preview, DEBT_LIMIT, ctrlShare, available, anarchyNear, saveState, loadState, honors, endingText, costOf, upkeepOf, built, startIntervention, payoffNow, stabParts, stabNow, worldStab, unrestCauses, STAB_PARTS, WIN_WORLD, canStart, parentOk, TREE, resolveEvent, revoke, stability, riskBoard, risks, emissions, worldPop, lvl, setSeed, rand,
 };
 
@@ -3514,7 +3520,7 @@ function endGame() {
     ${win ? `<div class="stars" aria-label="${stars} stelle su ${maxS}">${"★".repeat(stars)}<i>${"★".repeat(maxS - stars)}</i>${record ? ' <span style="font-size:13px;letter-spacing:0">nuovo record</span>' : ""}</div>
       ${unl.map((u) => `<div class="unlock">${u}</div>`).join("")}
       <ul class="honors">${hon.map((h) => `<li class="${h.ok ? "ok" : ""}"><span class="s">★</span><span>${h.name}</span><small>${h.desc}</small></li>`).join("")}</ul>
-      ${st.levelId === "l4" ? `<div class="nextph"><b>Fase 2 · Il sistema solare</b> — sbloccata a livello ${DIFF[st.diffId].name.toLowerCase()}. È in preparazione: ${st.lunarCity ? "la comunità lunare sarà il tuo punto di partenza." : "con un insediamento lunare partirai avvantaggiato."}</div>` : ""}` : ""}
+      ${st.levelId === "l5" ? `<div class="nextph"><b>Fase 2 · Il sistema solare</b> — sbloccata a livello ${DIFF[st.diffId].name.toLowerCase()}. È in preparazione: ${st.lunarCity ? "la comunità lunare sarà il tuo punto di partenza." : "con un insediamento lunare partirai avvantaggiato."}</div>` : ""}` : ""}
     <div class="endgrid"><div class="kv"><span>Anni di governo</span><span>${st.year - 2026}</span><span>Temperatura</span><span>+${fmt(st.g.temp + st.g.geoOff, 2)} °C</span><span>Popolazione</span><span>${fmt(worldPop(st) / 1000, 2)} mld</span><span>Regioni sotto controllo</span><span>${Object.values(st.regions).filter((r) => r.controlled).length} su 11</span><span>Programma lunare</span><span>${lunarStatus()}</span></div>
       <div>${chartsHTML()}</div></div>
     <div class="choices">${win && next ? `<button type="button" class="buy" id="bNext" style="margin:0">Scenario successivo</button>` : ""}<button type="button" class="buy ${win && next ? "alt" : ""}" id="bAgain" style="margin:0">${win ? "Scegli lo scenario" : "Riprova"}</button><button type="button" class="buy alt" id="bStats" style="margin:0">Statistiche</button><button type="button" class="buy alt" id="bLook" style="margin:0">Guarda la mappa</button></div>`;
@@ -3576,8 +3582,17 @@ function clearSave() { try { localStorage.removeItem(SAVE_KEY); } catch (e) {} }
 function loadSave() { try { const t = localStorage.getItem(SAVE_KEY); return t ? loadState(t) : null; } catch (e) { return null; } }
 function peekSave() { try { const t = localStorage.getItem(SAVE_KEY); if (!t) return null; const o = JSON.parse(t); return o && o.v === 2 && o.st && DIFF[o.st.diffId] ? { year: o.st.year, diffId: o.st.diffId } : null; } catch (e) { return null; } }
 /* progressi: per ogni scenario, record per difficoltà e governi con cui è stato vinto */
-function getProg() { try { return JSON.parse(localStorage.getItem("gf-prog-1") || "{}") || {}; } catch (e) { return {}; } }
-function setProg(p) { try { localStorage.setItem("gf-prog-1", JSON.stringify(p)); } catch (e) {} }
+function getProg() {
+  try {
+    const t = localStorage.getItem("gf-prog-2");
+    if (t) return JSON.parse(t) || {};
+    // progressi della versione con quattro scenari: si spostano sui nuovi numeri
+    const old = JSON.parse(localStorage.getItem("gf-prog-1") || "{}") || {}, p = {};
+    for (const k in old) p[OLD_LEVEL[k] || k] = old[k];
+    return p;
+  } catch (e) { return {}; }
+}
+function setProg(p) { try { localStorage.setItem("gf-prog-2", JSON.stringify(p)); } catch (e) {} }
 function bestOf(lid, k) { const p = getProg()[lid]; return p && p.best ? p.best[k] || null : null; }
 function levelWon(lid) { const p = getProg()[lid]; return !!(p && p.best && Object.keys(p.best).length); }
 function govsWon(lid) { const p = getProg()[lid]; return (p && p.govs) || []; }
