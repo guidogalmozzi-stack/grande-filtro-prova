@@ -438,6 +438,7 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
 #bubbles .bub text { font-family: var(--font-d); font-weight: 700; font-size: 5.5px; fill: #ffd27a; text-anchor: middle; paint-order: stroke; stroke: rgba(8,16,22,.9); stroke-width: 1.6px; letter-spacing: .04em; text-transform: uppercase; }
 @keyframes bub { 50% { transform: scale(1.35); opacity: .08; } }
 #bubbles .bub.due .halo { fill: #ffd27a; opacity: .5; animation-duration: .7s; }
+#bubbles .bub.first .core { stroke: #ffd27a; stroke-width: 1.4; }
 @media (prefers-reduced-motion: reduce) { #bubbles .bub .halo { animation: none; } }
 .ping { fill: none; stroke: var(--accent); stroke-width: 1.4; animation: ping 1.4s ease-out infinite; transform-box: fill-box; transform-origin: center; pointer-events: none; }
 @keyframes ping { from { transform: scale(.4); opacity: 1; } to { transform: scale(2.2); opacity: 0; } }
@@ -625,7 +626,7 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
       <h3>Difficoltà</h3>
       <p>Le crisi sono le stesse a ogni livello. Cambia quanto in fretta la popolazione accetta le riforme e quanto reagisce male ai sacrifici: a livello facile gli interventi entrano a regime prima e fanno meno malcontento.</p>
       <h3>Fondi e debito</h3>
-      <p>Ogni regione versa all'Autorità una parte della sua ricchezza: le entrate crescono se l'economia cresce e calano se una regione cade nell'anarchia, che smette di versare (ma smetti anche di pagare i programmi in quella regione). Se i fondi non bastano puoi indebitarti, anche per rispondere a una crisi, ma si pagano interessi del 12% l'anno. A −${DEBT_LIMIT} fondi l'Autorità fa bancarotta e la partita è persa.</p>
+      <p>Ogni regione versa all'Autorità una parte della sua ricchezza: le entrate crescono se l'economia cresce e calano se una regione cade nell'anarchia, che smette di versare (ma smetti anche di pagare i programmi in quella regione). Se i fondi non bastano puoi indebitarti, anche per rispondere a una crisi, ma si pagano interessi del ${Math.round(P.debtRate * 100)}% l'anno. Si parte senza fondi: le entrate arrivano mese dopo mese. A −${DEBT_LIMIT} fondi l'Autorità fa bancarotta e la partita è persa.</p>
       <h3>Eventi</h3>
       <p>Crisi ed emergenze compaiono sulla mappa come un segnaposto sulla regione colpita; possono essercene più di uno insieme. Hai un anno di tempo per toccarlo: intanto puoi raccogliere i fondi. Più aspetti, più il segnaposto si gonfia; dopo un anno il tempo si ferma finché non lo tocchi. Toccandolo scegli tra intervento pieno, una via di mezzo o non fare nulla. Il tempo si ferma anche quando apri un menu.</p>
       <h3>Economia e popolazione</h3>
@@ -693,7 +694,7 @@ const pick = (arr) => arr[Math.floor(rand() * arr.length)];
 const P = {
   baseIncome: 10,        // fondi l'anno nel 2026 nello scenario completo, livello medio; crescono con l'economia
   debtLimit: 30,         // l'Autorità può indebitarsi fino a questo limite; oltre, bancarotta
-  debtRate: 0.12,        // interessi annui sul debito
+  debtRate: 0.04,        // interessi annui sul debito: un'autorità sovranazionale si finanzia a buon mercato
   stabC: 50.66, stabK: 3.8, // scala dell'indice di stabilità (mondo del 2026 ≈ 45)
   anarchySpread: 12,     // malcontento portato da ogni regione vicina in anarchia
   lowStab: 15, lowYears: 5, // sotto questa stabilità mondiale per tanti anni: sconfitta
@@ -708,10 +709,10 @@ const P = {
    adopt = quanto in fretta accetta gli interventi (gli effetti arrivano prima), backlash = quanto reagisce male
    ai lati negativi dei cambiamenti (malcontento e polarizzazione causati dagli interventi). */
 const DIFF = {
-  facile:    { name: "Facile",          inc: 1.1,  ev: 1, funds: 25, risk: 0.8,  adopt: 1.6, backlash: 0.6 },
-  medio:     { name: "Medio",           inc: 1.0,  ev: 1, funds: 20, risk: 1.0,  adopt: 1.0, backlash: 1.0 },
-  difficile: { name: "Difficile",       inc: 0.95, ev: 1, funds: 18, risk: 1.15, adopt: 0.8, backlash: 1.15 },
-  super:     { name: "Super difficile", inc: 0.85, ev: 1, funds: 16, risk: 1.3,  adopt: 0.55, backlash: 1.45 },
+  facile:    { name: "Facile",          inc: 1.1,  ev: 1, funds: 0, risk: 0.8,  adopt: 1.6, backlash: 0.6 },
+  medio:     { name: "Medio",           inc: 1.0,  ev: 1, funds: 0, risk: 1.0,  adopt: 1.0, backlash: 1.0 },
+  difficile: { name: "Difficile",       inc: 0.95, ev: 1, funds: 0, risk: 1.15, adopt: 0.8, backlash: 1.15 },
+  super:     { name: "Super difficile", inc: 0.9,  ev: 1, funds: 0, risk: 1.3,  adopt: 0.6, backlash: 1.35 },
 };
 
 /* ---------- scenari ----------
@@ -720,7 +721,7 @@ const DIFF = {
    inc: entrate in proporzione (negli scenari con pochi interventi servono meno fondi). */
 const ALL_CATS = ["energia", "economia", "welfare", "societa", "clima", "sicurezza", "tecnologia"];
 const LEVELS = [
-  { id: "tut", name: "Addestramento", tutorial: true, cats: ["economia", "welfare", "societa"], tier: 1, sys: [], inc: 0.65, win: 52, years: 3, fast: 15,
+  { id: "tut", name: "Addestramento", tutorial: true, funds: 10, cats: ["economia", "welfare", "societa"], tier: 1, sys: [], inc: 0.65, win: 52, years: 3, fast: 15,
     intro: "Le basi del gioco, passo per passo: la stabilità, gli interventi, le crisi.", adds: "Economia e società" },
   { id: "l1", name: "Primo mandato", cats: ["economia", "welfare", "societa"], tier: 2, sys: [], inc: 0.85, win: 72, years: 5, fast: 30,
     intro: "Debiti, pensioni e malcontento: rimetti in piedi le società del pianeta.", adds: "Tutti gli interventi di economia e società" },
@@ -748,7 +749,7 @@ const GOVS = [
   { id: "social", name: "Stato sociale", icon: "social", short: "Protezione per tutti, a caro prezzo",
     pro: ["Malcontento più basso ovunque", "Reddito di base sempre disponibile, con spese di gestione più basse"],
     con: ["Il debito cresce più in fretta", "Crescita più bassa", "Niente tagli alla spesa pubblica"],
-    m: { unrestT: -4, debtF: 0.7, g: -0.2 }, ban: ["austerity", "cutServices", "cutStaff"], grant: ["ubi"], cheapUp: { ubi: 0.6 } },
+    m: { unrestT: -4, debtF: 0.4, g: -0.1 }, ban: ["austerity", "cutServices", "cutStaff"], grant: ["ubi"], cheapUp: { ubi: 0.6 } },
   { id: "market", name: "Libero mercato", icon: "market", short: "Crescita prima di tutto",
     pro: ["Crescita più alta", "Debito più basso", "Esclusivo: privatizzazioni per fare cassa"],
     con: ["Più disoccupazione", "Più disuguaglianza: polarizzazione più alta", "Niente reddito di base"],
@@ -801,7 +802,7 @@ const NUCLEAR_POWERS = ["na", "ru", "ea", "sa", "eu"];
 // malcontento dovuto al clima: cresce più che in proporzione con il riscaldamento
 const climUnrest = (r, temp) => Math.pow(Math.max(0, temp - 1.3), 1.6) * r.climate / 100 * 7;
 const fUnrest = (r, t, temp) =>
-  r.unemp * 1.5 + Math.max(0, r.debt - 110) * 0.12 + r.polar * 0.2 + Math.max(0, r.energyCost - 55) * 0.5 +
+  unempPain(r) * 1.5 + Math.max(0, r.debt - 110) * 0.12 + r.polar * 0.2 + Math.max(0, r.energyCost - 55) * 0.5 +
   Math.max(0, r.pension - 60) * 0.15 - (r.gpc - basePg(r)) * 2 - r.wealth * 0.15 +
   climUnrest(r, temp);
 const fTfr = (r, year) => 1.35 + 4 * Math.pow(1 - r.wealth / 100, 2.5) - 0.012 * Math.min(30, year - 2026);
@@ -811,11 +812,17 @@ const fAge = (r) => clamp(37.4 - 44.35 * r.yng / r.pop + 61.6 * r.old / r.pop, 1
    Meno giovani oggi significa meno lavoratori fra 18 anni: con la produttività ferma il prodotto scende. */
 // crescita naturale della produttività: più rapida nei paesi a reddito medio che rincorrono, più lenta nei più poveri e nei più ricchi
 const basePg = (r) => { const d = r.wealth / 100; return 0.8 + 2.4 * (1 - d) * Math.min(1, d * 3); };
-const laborOf = (r, m) => r.wrk * (1 + (m ? m.labor : 0)) * (1 + (m ? m.robot : 0)) * (1 - r.unemp / 100);
+// con i robot pensanti (mass da 0 a 1) il lavoro umano viene sostituito da una forza lavoro di macchine pari a 1,3 volte il massimo raggiunto
+const laborOf = (r, m) => {
+  const human = r.wrk * (1 + (m ? m.labor : 0)) * (1 + (m ? m.robot : 0)) * (1 - r.unemp / 100), a = m ? Math.min(1, m.mass) : 0;
+  return a > 0 ? (1 - a) * human + a * 1.3 * (r.Lpeak || human) : human;
+};
 // mortalità annua per fascia: dipende dallo sviluppo
 const mortY = (r) => 0.002 + 0.008 * Math.pow(1 - r.wealth / 100, 2);
 const mortW = (r) => 0.002 + 0.004 * (1 - r.wealth / 100);
 const lifeOld = (r, m) => 12 + 10 * r.wealth / 100 + (m ? m.life : 0); // anni di vita attesi dopo i 65
+// quanto pesa la disoccupazione su malcontento e stabilità: con il reddito di base chi resta senza lavoro non resta senza reddito
+const unempPain = (r) => (r.acts && r.acts.ubi && r.acts.ubi.n > 0 ? Math.min(r.unemp, 6) + Math.max(0, r.unemp - 6) * 0.02 : r.unemp);
 const fEnergyCost = (r) => 40 + 0.15 * r.fossil;
 
 /* ---------- interventi ----------
@@ -886,6 +893,13 @@ const INTERVENTIONS = [
   { id: "robots", cat: "economia", name: "Robot umanoidi", desc: "Robot dalla forma umana che lavorano in fabbriche, magazzini, cantieri e nell'assistenza agli anziani.", scope: "region", cost: 20, T: 4, ramp: 15, from: 2035,
     pro: "Fanno il lavoro che mancherà quando i lavoratori diminuiscono: il prodotto cresce anche con meno persone", con: "Molta disoccupazione tra chi fa lavori manuali e più disuguaglianza",
     eff: { robot: 0.25, unemp: 2.5, polar: 4 } },
+  /* Robot pensanti: con l'AI al massimo livello quasi ogni lavoro può essere svolto da macchine. Il prodotto si stacca
+     quasi del tutto dal numero di lavoratori, ma l'occupazione crolla nel giro di dieci anni. Senza reddito di base è il
+     disfacimento della società; con il reddito di base è un'alternativa alla crescita della popolazione [Ipotesi]. */
+  { id: "massRobots", cat: "economia", name: "Robot pensanti al posto dei lavoratori", desc: "Robot umanoidi guidati da un'AI generale sostituiscono gradualmente quasi tutti i lavori, nell'arco di dieci anni.", scope: "region", cost: 30, T: 3, ramp: 10, sys: "ai",
+    need: (st) => (st.acts.aiCap && st.acts.aiCap.n >= 3 ? null : "Richiede lo Sviluppo dell'AI al livello massimo"),
+    pro: "La ricchezza prodotta non dipende quasi più da quante persone lavorano", con: "Quasi tutti perdono il lavoro: senza un reddito per tutti la società si sfalda",
+    eff: { mass: 1, unemp: 60, polar: 6 } },
   { id: "retrain", cat: "economia", name: "Riqualificazione dei lavoratori", desc: "Corsi pagati dallo Stato per insegnare un nuovo mestiere a chi perde il lavoro.", scope: "region", cost: 4, upkeep: 1.5, T: 2,
     pro: "Meno disoccupazione", con: "Costa ogni anno; funziona finché i corsi continuano",
     fx: (m) => { m.unempT -= 2.2; } },
@@ -979,9 +993,9 @@ const INTERVENTIONS = [
     pro: "Meno tensione e meno conflitti", con: "Costa ogni anno",
     fx: (m) => { m.unrestT -= 2; }, gfx: (st, gm) => { gm.tensionT -= 5; } },
   // AI
-  { id: "aiCap", cat: "ai", name: "Sviluppo dell'AI", desc: "Finanziamenti a centri di ricerca e aziende per costruire intelligenze artificiali più potenti.", scope: "global", cost: 6, T: 3,
-    pro: "Molta crescita economica in tutte le regioni", con: "Il rischio AI cresce in fretta; più disoccupazione",
-    fx: (m, s, r, st, gm) => { gm.aiRate += 4; gm.gAll += 0.5; gm.unempAll += 1; } },
+  { id: "aiCap", cat: "ai", name: "Sviluppo dell'AI", desc: "Finanziamenti a centri di ricerca e aziende per costruire intelligenze artificiali più potenti. Si può finanziare fino a tre volte.", scope: "global", cost: 6, T: 3, stack: 3,
+    pro: "Molta crescita economica in tutte le regioni, di più a ogni livello", con: "Il rischio AI cresce in fretta; più disoccupazione",
+    fx: (m, s, r, st, gm, a) => { const n = a ? a.n : 1; gm.aiRate += 4 * n; gm.gAll += 0.5 * n; gm.unempAll += 1 * n; } },
   { id: "align", cat: "ai", name: "Ricerca sull'allineamento", desc: "Centri di ricerca che studiano come far fare alle intelligenze artificiali ciò che vogliamo davvero.", scope: "global", cost: 5, upkeep: 1, T: 4,
     pro: "Rischio AI molto più basso", con: "Nessun beneficio economico visibile",
     fx: (m, s, r, st, gm) => { gm.safeRate += 3; } },
@@ -1120,7 +1134,7 @@ const TAB_OF = { energia: "energia", nucleare: "energia", economia: "economia", 
 for (const d of INTERVENTIONS) { d.fam = d.cat; d.cat = TAB_OF[d.cat]; }
 /* livello di complessità: 1 facile, 2 medio, 3 difficile e super difficile */
 const TIER2 = ["cutStaff", "cutSubsidies", "cutDefense", "cutServices", "robots", "fossilSub", "ubi", "taxRaise", "taxEvasion", "unempBenefit", "housing", "pensionFunds", "socialHousing", "wealthTax", "minWage", "publicJobs", "tariffs", "priceCap", "evCars", "parentalLeave", "ivf", "pensionTax", "birthDowry", "healthcare", "civicService", "cyber", "foodReserve", "forestProtect", "efficiency", "nucInfo", "smr", "automation", "retrain", "family", "natality", "integration", "healthyAging", "surveil", "vaccines", "amr", "dac", "aiCap", "orbital", "pdef", "lunarIce", "lunarMining", "police", "disinfo"];
-const TIER3 = ["fusion", "geoeng"]; // reddito di base e sussidi fossili ora già dal livello 2
+const TIER3 = ["fusion", "geoeng", "massRobots"]; // reddito di base e sussidi fossili ora già dal livello 2
 for (const d of INTERVENTIONS) d.tier = TIER3.includes(d.id) ? 3 : TIER2.includes(d.id) ? 2 : 1;
 const IBY = Object.fromEntries(INTERVENTIONS.map((d) => [d.id, d]));
 function available(st, d) {
@@ -1128,6 +1142,7 @@ function available(st, d) {
   if (d.gov) return d.gov === G.id;
   if (G.ban && G.ban.includes(d.id)) return false;
   if (G.grant && G.grant.includes(d.id)) return true;
+  if (d.sys && !L.sys.includes(d.sys)) return false;
   return L.cats.includes(d.cat) && d.tier <= L.tier;
 }
 /* ---------- alberi degli interventi: nodo padre di ogni intervento ----------
@@ -1136,7 +1151,7 @@ const TREE = {
   fossilSub: null, carbonTax: null, renew: null, grid: "renew", efficiency: "carbonTax", nuclear: null, nucInfo: "nuclear", smr: "nuclear", fusion: "smr",
   invest: null, automation: "invest", retrain: "automation", ubi: "unempBenefit", develop: "invest", austerity: null, debtRestr: "austerity",
   taxRaise: null, wealthTax: "taxRaise", taxEvasion: "taxRaise", unempBenefit: null, minWage: "unempBenefit", publicJobs: "unempBenefit", tariffs: null,
-  priceCap: "fossilSub", evCars: "renew", cutStaff: "austerity", cutSubsidies: "austerity", cutDefense: "austerity", cutServices: "austerity", robots: "automation",
+  priceCap: "fossilSub", evCars: "renew", cutStaff: "austerity", cutSubsidies: "austerity", cutDefense: "austerity", cutServices: "austerity", robots: "automation", massRobots: "robots",
   housing: null, parentalLeave: "family", ivf: "housing", pensionFunds: "contrib", pensionTax: "pensionFunds", birthDowry: "pensionFunds", healthcare: null,
   socialHousing: null, civicService: "assemblies", cyber: "surveil", foodReserve: "agri", forestProtect: "reforest",
   contrib: null, retire: "contrib", healthyAging: "retire", family: null, natality: "family", migration: null, integration: "migration",
@@ -1177,13 +1192,15 @@ function shiftClean(r, pts, kind) {
 }
 // quota dell'effetto raggiunta: cresce dall'avvio fino al pieno in "ramp" anni (o nel tempo di accettazione),
 // più in fretta se la popolazione è aperta ai cambiamenti (D.adopt)
+// vittime di una catastrofe: tutte le fasce d'età calano nella stessa proporzione
+const popLoss = (r, k) => { r.yng *= k; r.wrk *= k; r.old *= k; r.pop = r.yng + r.wrk + r.old; };
 const comply = (r) => 1 - clamp((r.unrest - 60) / 75, 0, 0.4);
 function rampK(d, a, st) {
   const years = (d.ramp || P.adoptYears) / ((st.D && st.D.adopt) || 1);
   return clamp((st.year + st.month / 12 - a.y) / years, 0.05, 1);
 }
 // tabelle di effetti → modificatori del mese
-const EFF_KEY = { unrest: "unrestT", polar: "polarT", g: "g", unemp: "unempT", fert: "fert", pension: "pensT", debt: "debtF", fossil: "fossilShift", energy: "energyCost", resist: "resistT", dmg: "dmg", famine: "famine", eff: "eff", labor: "labor", robot: "robot", life: "life", mig: "mig" };
+const EFF_KEY = { unrest: "unrestT", polar: "polarT", g: "g", unemp: "unempT", fert: "fert", pension: "pensT", debt: "debtF", fossil: "fossilShift", energy: "energyCost", resist: "resistT", dmg: "dmg", famine: "famine", eff: "eff", labor: "labor", robot: "robot", life: "life", mig: "mig", mass: "mass" };
 const GEFF_KEY = { income: "income", tension: "tensionT", co2: "co2Rem", safeRate: "safeRate", bioRate: "bioRate", aiRate: "aiRate", polarAll: "polarAll", gAll: "gAll", frontier: "frontier", geo: "geo" };
 function applyEff(eff, keys, target, s) { for (const k in eff) target[keys[k]] += eff[k] * s; }
 function lvl(r, id) {
@@ -1193,7 +1210,7 @@ function lvl(r, id) {
 }
 
 /* ---------- stato ---------- */
-const M0 = () => ({ g: 0, unrestT: 0, polarT: 0, unempT: 0, fert: 0, pensT: 0, debtF: 0, fossilShift: 0, resistT: 0, energyCost: 0, eff: 0, dmg: 0, famine: 0, labor: 0, robot: 0, life: 0, mig: 0 });
+const M0 = () => ({ g: 0, unrestT: 0, polarT: 0, unempT: 0, fert: 0, pensT: 0, debtF: 0, fossilShift: 0, resistT: 0, energyCost: 0, eff: 0, dmg: 0, famine: 0, labor: 0, robot: 0, life: 0, mig: 0, mass: 0 });
 const G0 = () => ({ aiRate: 0, safeRate: 0, bioRate: 0, biotechRate: 0, co2Rem: 0, geo: 0, tensionT: 0, gAll: 0, unempAll: 0, pmit: 0, epi: 0, polarAll: 0, frontier: 0, income: 0 });
 
 function emissions(st) {
@@ -1237,7 +1254,7 @@ function newGame(diffId, seed, levelId = "l4", govId = "base") {
     regions[R.id] = r;
   }
   const st = {
-    year: 2026, month: 0, diffId, D, funds: D.funds, regions, levelId, govId, L: LBY[levelId], G: GBY[govId],
+    year: 2026, month: 0, diffId, D, funds: LBY[levelId].funds ?? D.funds, regions, levelId, govId, L: LBY[levelId], G: GBY[govId],
     acts: {}, prog: [], cd: {}, log: [], over: null, moon: false, stable: 0,
     axis: 0, // centralizzazione (+) ↔ pluralismo (−)
     g: { temp: 1.35, geoOff: 0, aiCap: 22, aiSafety: 8, biotech: 30, bioSafety: 22, arsenal: 100, tension: 45, tShock: 0, price: 0, priceT: 0 },
@@ -1334,7 +1351,7 @@ const STAB_PARTS = [
   { id: "cohesion", name: "Coesione", w: 15, v: (r) => (80 - r.polar) * 2, hint: "Polarizzazione e sfiducia nelle istituzioni" },
   { id: "debt", name: "Conti pubblici", w: 15, v: (r) => 100 - (r.debt - 50), hint: "Il debito pubblico oltre il 50% del prodotto" },
   { id: "welfare", name: "Welfare sostenibile", w: 10, v: (r) => (85 - r.pension) / 0.45, hint: "Il peso di pensioni e welfare" },
-  { id: "jobs", name: "Lavoro", w: 10, v: (r) => 100 - (r.unemp - 3) * 10, hint: "La disoccupazione" },
+  { id: "jobs", name: "Lavoro", w: 10, v: (r) => 100 - (unempPain(r) - 3) * 10, hint: "La disoccupazione" },
   { id: "energy", name: "Energia pulita", w: 10, v: (r) => (90 - r.fossil) * 1.25, hint: "La dipendenza dai combustibili fossili" },
   { id: "climate", name: "Sicurezza climatica", w: 10, v: (r, st) => 100 - Math.max(0, st.g.temp + st.g.geoOff - 1.1) / 1.6 * r.climate * 1.5, hint: "Riscaldamento globale ed esposizione della regione" },
   { id: "demo", name: "Equilibrio demografico", w: 5, v: (r) => 100 - Math.abs(r.tfr - 2.1) / 1.4 * 100, hint: "Figli per donna lontani da 2,1" },
@@ -1360,7 +1377,7 @@ function worldStab(st) {
 function unrestCauses(r, st) {
   const temp = st.g.temp + st.g.geoOff;
   return [
-    { name: "Disoccupazione", v: r.unemp * 1.5 },
+    { name: "Disoccupazione", v: unempPain(r) * 1.5 },
     { name: "Polarizzazione e sfiducia", v: r.polar * 0.2 },
     { name: "Debito troppo alto", v: Math.max(0, r.debt - 110) * 0.12 },
     { name: "Energia cara", v: Math.max(0, r.energyCost - 55) * 0.5 },
@@ -1397,6 +1414,7 @@ function canStart(st, id) {
   if (!available(st, d)) return "Non disponibile a questo livello";
   if (d.from && st.year < d.from) return "Disponibile dal " + d.from;
   if (!parentOk(st, d)) return "Richiede: " + IBY[d.parent].name;
+  if (d.need) { const w = d.need(st); if (w) return w; }
   const a = st.acts[id];
   const inProg = st.prog.filter((p) => p.id === id).length;
   const own = (a ? a.n : 0) + inProg;
@@ -1552,7 +1570,7 @@ const EVENTS = [
     choices: [
       { label: "Piano di emergenza", cost: 4, out: "Vittime contenute", fx: () => {} },
       { label: "Allerta e centri di raffreddamento", cost: 2, out: "Produttività in calo", fx: (st, r) => { r.shockG -= 0.2; } },
-      { label: "Non fare nulla", cost: 0, out: "Vittime e malcontento", fx: (st, r) => { r.shockG -= 0.6; r.shockU += 6; r.pop *= 0.9995; } },
+      { label: "Non fare nulla", cost: 0, out: "Vittime e malcontento", fx: (st, r) => { r.shockG -= 0.6; r.shockU += 6; popLoss(r, 0.9995); } },
     ] },
   { id: "famine", scope: "region", cat: "Clima", title: "Siccità e carestia",
     p: (st, r) => r.climate >= 60 && r.wealth < 60 ? 0.035 * Math.max(0, st.g.temp + st.g.geoOff - 1) * (1 - r.m.famine) : 0,
@@ -1560,7 +1578,7 @@ const EVENTS = [
     choices: [
       { label: "Aiuti alimentari", cost: 7, out: "Carestia evitata", fx: (st, r) => { r.shockU += 2; } },
       { label: "Razionamento", cost: 2, out: "Malcontento", fx: (st, r) => { r.shockU += 10; } },
-      { label: "Non fare nulla", cost: 0, out: "Vittime ed esodo", fx: (st, r) => { r.shockU += 18; r.pop *= 0.997; st.flags["exodus_" + r.id] = true; } },
+      { label: "Non fare nulla", cost: 0, out: "Vittime ed esodo", fx: (st, r) => { r.shockU += 18; popLoss(r, 0.997); st.flags["exodus_" + r.id] = true; } },
     ] },
   { id: "storm", scope: "region", cat: "Clima", title: "Alluvione e uragano",
     p: (st, r) => r.climate >= 55 ? 0.05 * Math.max(0, st.g.temp + st.g.geoOff - 0.9) * (1 - r.m.dmg) : 0,
@@ -1588,7 +1606,7 @@ const EVENTS = [
     choices: [
       { label: "Quarantene e vaccino rapido", cost: 8, out: "Epidemia fermata", fx: () => {} },
       { label: "Solo quarantene", cost: 4, out: "Economia ferma per mesi", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockG -= 0.6; r.shockU += 4; }) },
-      { label: "Non fare nulla", cost: 0, out: "Vittime in tutte le regioni", fx: (st, r, gm) => { const k = 1 - gmPmit(st); ctrlRegions(st).forEach((r) => { r.pop *= 1 - 0.005 * k; r.shockU += 8 * k; r.shockG -= 1 * k; }); } },
+      { label: "Non fare nulla", cost: 0, out: "Vittime in tutte le regioni", fx: (st, r, gm) => { const k = 1 - gmPmit(st); ctrlRegions(st).forEach((r) => { popLoss(r, 1 - 0.005 * k); r.shockU += 8 * k; r.shockG -= 1 * k; }); } },
     ] },
   { id: "labLeak", scope: "global", cat: "Salute", title: "Fuga da un laboratorio",
     p: (st) => { const gap = st.g.biotech - st.g.bioSafety; return gap > 15 ? 0.08 * (gap - 15) / 20 : 0; },
@@ -1602,9 +1620,9 @@ const EVENTS = [
     p: (st) => (st.flags.pandemic ? 100 : 0),
     text: () => "Un patogeno costruito in laboratorio si diffonde in tutte le regioni. Letalità e contagiosità non hanno precedenti.",
     choices: [
-      { label: "Mobilitazione totale", cost: 12, out: "L'umanità sopravvive, con perdite", fx: (st) => { st.flags.pandemic = false; ctrlRegions(st).forEach((r) => { r.pop *= 0.99; r.shockU += 8; }); } },
-      { label: "Risposta parziale", cost: 6, out: "Perdite gravi; rischio di estinzione", fx: (st) => { st.flags.pandemic = false; ctrlRegions(st).forEach((r) => { r.pop *= 0.97; r.shockU += 15; r.shockG -= 2; }); if (rand() < 0.15 * (1 - gmPmit(st))) gameOver(st, "pandemia"); } },
-      { label: "Non fare nulla", cost: 0, out: "Probabile collasso della civiltà", fx: (st) => { st.flags.pandemic = false; ctrlRegions(st).forEach((r) => { r.pop *= 0.92; r.shockU += 25; r.shockG -= 3; }); if (rand() < 0.4 * (1 - gmPmit(st))) gameOver(st, "pandemia"); } },
+      { label: "Mobilitazione totale", cost: 12, out: "L'umanità sopravvive, con perdite", fx: (st) => { st.flags.pandemic = false; ctrlRegions(st).forEach((r) => { popLoss(r, 0.99); r.shockU += 8; }); } },
+      { label: "Risposta parziale", cost: 6, out: "Perdite gravi; rischio di estinzione", fx: (st) => { st.flags.pandemic = false; ctrlRegions(st).forEach((r) => { popLoss(r, 0.97); r.shockU += 15; r.shockG -= 2; }); if (rand() < 0.15 * (1 - gmPmit(st))) gameOver(st, "pandemia"); } },
+      { label: "Non fare nulla", cost: 0, out: "Probabile collasso della civiltà", fx: (st) => { st.flags.pandemic = false; ctrlRegions(st).forEach((r) => { popLoss(r, 0.92); r.shockU += 25; r.shockG -= 3; }); if (rand() < 0.4 * (1 - gmPmit(st))) gameOver(st, "pandemia"); } },
     ] },
   { id: "aiIncident", scope: "global", cat: "Tecnologia", title: "Incidente di un sistema AI",
     p: (st) => (st.g.aiCap - st.g.aiSafety > 22 ? 0.15 : 0),
@@ -1636,7 +1654,7 @@ const EVENTS = [
     choices: [
       { label: "Forza di interposizione", cost: 8, out: "Conflitto fermato", fx: () => {} },
       { label: "Sanzioni", cost: 2, out: "Crescita in calo", fx: (st, r) => { r.shockG -= 0.5; } },
-      { label: "Non fare nulla", cost: 0, out: "Vittime, esodo, tensione globale", fx: (st, r) => { r.shockU += 12; r.pop *= 0.998; st.g.tShock += 5; st.flags["exodus_" + r.id] = true; } },
+      { label: "Non fare nulla", cost: 0, out: "Vittime, esodo, tensione globale", fx: (st, r) => { r.shockU += 12; popLoss(r, 0.998); st.g.tShock += 5; st.flags["exodus_" + r.id] = true; } },
     ] },
   { id: "volcano", scope: "global", cat: "Natura", title: "Grande eruzione vulcanica",
     p: () => 0.0015,
@@ -1644,7 +1662,7 @@ const EVENTS = [
     choices: [
       { label: "Riserve alimentari mondiali", cost: 10, out: "Carestie evitate", fx: () => {} },
       { label: "Razionamento", cost: 3, out: "Malcontento ovunque", fx: (st) => ctrlRegions(st).forEach((r) => (r.shockU += 8)) },
-      { label: "Non fare nulla", cost: 0, out: "Carestie globali", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockU += 15; r.pop *= 0.995; r.shockG -= 1; }) },
+      { label: "Non fare nulla", cost: 0, out: "Carestie globali", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockU += 15; popLoss(r, 0.995); r.shockG -= 1; }) },
     ] },
   { id: "asteroid", scope: "region", cat: "Natura", title: "Impatto di un asteroide",
     p: (st) => 0.004 / 11 * (built(st, "pdef") ? (built(st, "lunarSci") ? 0.05 : 0.2) : 1),
@@ -1692,6 +1710,146 @@ const EVENTS = [
       { label: "Brevetti dell'Autorità", cost: -5, out: "Recuperi 5 fondi", fx: () => {} },
     ] },
   // Eventi favorevoli
+  /* ----- Eventi aggiunti il 18 ottobre 2026: più varietà di crisi, guerre e tensioni ----- */
+  { id: "civilWar", scope: "region", cat: "Sicurezza", title: "Guerra civile",
+    p: (st, r) => (r.unrest > 70 && r.polar > 60 ? 0.06 : 0),
+    text: (st, r) => pick([
+      `In uno degli stati di ${r.name} l'esercito si spacca in due. Le città si riempiono di posti di blocco e milizie armate.`,
+      `Le proteste in ${r.name} sono degenerate: due fazioni armate si contendono la capitale di uno stato e i campi profughi crescono ogni giorno.`,
+    ]),
+    choices: [
+      { label: "Missione di pace dell'Autorità", cost: 14, out: "Il conflitto si ferma; resta molta tensione", fx: (st, r) => { r.shockU += 4; } },
+      { label: "Mediazione tra le fazioni", cost: 6, out: "Tregua fragile, economia ferita", fx: (st, r) => { r.shockU += 10; r.shockG -= 1; } },
+      { label: "Non fare nulla", cost: 0, out: "Vittime, profughi e rischio di anarchia", fx: (st, r) => { r.shockU += 20; r.anarchy += 0.6; popLoss(r, 0.996); st.flags["exodus_" + r.id] = true; } },
+    ] },
+  { id: "borderWar", scope: "region", cat: "Sicurezza", title: "Guerra tra regioni vicine",
+    p: (st, r) => (st.g.tension > 50 && r.unrest > 50 ? 0.03 : 0),
+    text: (st, r) => { const n = RBY[r.id].nb.map((x) => st.regions[x]).find((x) => x.controlled) || r; return pick([
+      `Uno scontro di frontiera tra ${r.name} e ${n.name} diventa guerra aperta. Le due parti richiamano i riservisti.`,
+      `Un conteso giacimento di gas al confine tra ${r.name} e ${n.name} scatena bombardamenti e blocchi navali.`,
+    ]); },
+    choices: [
+      { label: "Forza di interposizione e conferenza di pace", cost: 12, out: "La guerra si ferma; la tensione tra le potenze cala", fx: (st) => { st.g.tShock -= 3; } },
+      { label: "Sanzioni a entrambe le parti", cost: 3, out: "Combattimenti più brevi, economie colpite", fx: (st, r) => { r.shockG -= 1.2; for (const n of RBY[r.id].nb) st.regions[n].shockG -= 0.4; } },
+      { label: "Non fare nulla", cost: 0, out: "Vittime, profughi, la tensione mondiale sale", fx: (st, r) => { r.shockU += 15; r.shockG -= 2; popLoss(r, 0.997); st.g.tShock += 8; for (const n of RBY[r.id].nb) st.regions[n].shockU += 6; } },
+    ] },
+  { id: "terror", scope: "region", cat: "Sicurezza", title: "Attentato terroristico",
+    p: (st, r) => (r.polar > 60 ? 0.03 + (r.polar - 60) * 0.002 : 0),
+    text: (st, r) => pick([
+      `Una serie di esplosioni colpisce le stazioni di una grande città di ${r.name}. Centinaia di vittime.`,
+      `Un gruppo armato prende in ostaggio un teatro in ${r.name}. La paura si diffonde in tutta la regione.`,
+    ]),
+    choices: [
+      { label: "Cooperazione tra le polizie e aiuto alle vittime", cost: 5, out: "Paura contenuta", fx: (st, r) => { r.shockU += 2; } },
+      { label: "Leggi d'emergenza", cost: 1, out: "Più controlli e più divisioni", fx: (st, r) => { r.polar += 6; st.axis = clamp(st.axis + 5, -100, 100); } },
+      { label: "Non fare nulla", cost: 0, out: "Paura, rabbia e divisioni", fx: (st, r) => { r.shockU += 10; r.polar += 8; } },
+    ] },
+  { id: "coup", scope: "region", cat: "Istituzioni", title: "Colpo di stato",
+    p: (st, r) => (r.unrest > 60 && r.stab < 30 ? 0.04 : 0),
+    text: (st, r) => pick([
+      `In uno stato di ${r.name} i militari arrestano il governo e chiudono il parlamento. Chiedono all'Autorità di riconoscerli.`,
+      `Un generale prende il potere in uno stato di ${r.name} promettendo ordine. Le piazze si dividono.`,
+    ]),
+    choices: [
+      { label: "Sostegno ai civili e nuove elezioni", cost: 9, out: "Il governo civile torna; la fiducia cresce", fx: (st, r) => { r.polar -= 4; } },
+      { label: "Riconoscere la giunta", cost: 0, out: "Ordine apparente, più rancore", fx: (st, r) => { r.shockU -= 6; r.polar += 10; st.axis = clamp(st.axis + 6, -100, 100); } },
+      { label: "Non fare nulla", cost: 0, out: "Instabilità e repressione", fx: (st, r) => { r.shockU += 12; r.polar += 6; } },
+    ] },
+  { id: "cyberAttack", scope: "global", cat: "Tecnologia", title: "Attacco informatico",
+    p: (st) => (built(st, "cyber") ? 0.01 : 0.035),
+    text: () => pick([
+      "Un attacco informatico spegne le reti elettriche di decine di città per giorni. Ospedali e treni si fermano.",
+      "Un virus informatico blocca i sistemi di pagamento di mezzo mondo. Nessuno sa chi l'abbia lanciato.",
+    ]),
+    choices: [
+      { label: "Squadre di emergenza e ripristino rapido", cost: 7, out: "Danni limitati", fx: () => {} },
+      { label: "Ritorsione contro i sospetti", cost: 2, out: "Danni contenuti, tensione tra le potenze", fx: (st) => { st.g.tShock += 6; } },
+      { label: "Non fare nulla", cost: 0, out: "Crescita giù e paura diffusa", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockG -= 0.6; r.shockU += 4; }) },
+    ] },
+  { id: "navalStandoff", scope: "global", cat: "Sicurezza", title: "Scontro navale tra potenze",
+    p: (st) => (st.g.tension > 50 ? 0.04 : 0.01),
+    text: () => pick([
+      "Due flotte delle grandi potenze si fronteggiano in uno stretto conteso. Un cacciatorpediniere viene colpito.",
+      "Un sottomarino di una potenza viene speronato vicino alle coste di un'altra. Le marine sono in allerta.",
+    ]),
+    choices: [
+      { label: "Vertice d'emergenza tra le potenze", cost: 6, out: "La tensione scende", fx: (st) => { st.g.tShock -= 5; } },
+      { label: "Linea rossa di comunicazione", cost: 2, out: "Si evita il peggio", fx: (st) => { st.g.tShock += 2; } },
+      { label: "Non fare nulla", cost: 0, out: "La tensione tra le potenze sale molto", fx: (st) => { st.g.tShock += 12; } },
+    ] },
+  { id: "armsRace", scope: "global", cat: "Sicurezza", title: "Corsa agli armamenti",
+    p: (st) => (st.g.tension > 55 ? 0.03 : 0),
+    text: () => "Una potenza annuncia nuovi missili ipersonici. Le altre rispondono aumentando le testate.",
+    choices: [
+      { label: "Nuovo trattato di controllo", cost: 8, out: "Gli arsenali non crescono", fx: () => {} },
+      { label: "Ispezioni reciproche", cost: 3, out: "Crescita degli arsenali contenuta", fx: (st) => { st.g.arsenal += 8; } },
+      { label: "Non fare nulla", cost: 0, out: "Arsenali più grandi, rischio nucleare più alto", fx: (st) => { st.g.arsenal += 25; st.g.tShock += 4; } },
+    ] },
+  { id: "crash", scope: "global", cat: "Economia", title: "Crollo delle borse",
+    p: (st) => 0.015 + Math.max(0, avgOf(st, "debt") - 110) * 0.001,
+    text: () => pick([
+      "In tre giorni le borse perdono un terzo del loro valore. I fondi pensione bruciano anni di risparmi.",
+      "Un grande fondo d'investimento fallisce e trascina con sé decine di banche.",
+    ]),
+    choices: [
+      { label: "Garanzia sui depositi e liquidità", cost: 12, out: "Il panico rientra", fx: (st) => ctrlRegions(st).forEach((r) => (r.shockG -= 0.3)) },
+      { label: "Salvare solo le banche più grandi", cost: 5, out: "Crisi più lunga, rabbia per i salvataggi", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockG -= 1; r.polar += 3; }) },
+      { label: "Non fare nulla", cost: 0, out: "Recessione e risparmi perduti", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockG -= 2; r.shockU += 8; r.pension += 2; }) },
+    ] },
+  { id: "tradeWar", scope: "global", cat: "Economia", title: "Guerra commerciale",
+    p: (st) => (built(st, "tariffs") ? 0.06 : 0.02) * (st.g.tension > 50 ? 1.5 : 1),
+    text: () => "Le grandi potenze si impongono dazi a vicenda. Le catene di fornitura si spezzano.",
+    choices: [
+      { label: "Negoziato sotto l'Autorità", cost: 6, out: "Dazi ritirati", fx: () => {} },
+      { label: "Accordo parziale", cost: 2, out: "Un po' meno commercio", fx: (st) => ctrlRegions(st).forEach((r) => (r.shockG -= 0.5)) },
+      { label: "Non fare nulla", cost: 0, out: "Meno crescita, più tensione", fx: (st) => { st.g.tShock += 4; ctrlRegions(st).forEach((r) => (r.shockG -= 1.2)); } },
+    ] },
+  { id: "wildfire", scope: "region", cat: "Clima", title: "Incendi giganteschi",
+    p: (st, r) => Math.max(0, st.g.temp + st.g.geoOff - 1.5) * r.climate / 100 * 0.06,
+    text: (st, r) => pick([
+      `In ${r.name} bruciano milioni di ettari di foreste. Il fumo copre le città per settimane.`,
+      `Incendi fuori controllo distruggono interi paesi in ${r.name}. Decine di migliaia di sfollati.`,
+    ]),
+    choices: [
+      { label: "Flotte antincendio e ricostruzione", cost: 8, out: "Danni contenuti", fx: (st, r) => { r.shockU += 2; } },
+      { label: "Evacuazioni", cost: 3, out: "Danni pesanti, poche vittime", fx: (st, r) => { r.shockG -= 0.6; r.shockU += 5; } },
+      { label: "Non fare nulla", cost: 0, out: "Vittime, sfollati, più CO₂", fx: (st, r) => { r.shockU += 10; r.shockG -= 1; st.g.temp += 0.005; } },
+    ] },
+  { id: "waterCrisis", scope: "region", cat: "Clima", title: "Crisi dell'acqua",
+    p: (st, r) => (r.climate > 70 ? Math.max(0, st.g.temp + st.g.geoOff - 1.4) * 0.05 : 0),
+    text: (st, r) => `In ${r.name} i fiumi sono in secca e le falde si esauriscono. Città e campagne si contendono l'acqua.`,
+    choices: [
+      { label: "Dissalatori e reti idriche", cost: 10, out: "Acqua garantita", fx: () => {} },
+      { label: "Razionamento", cost: 2, out: "Malcontento e meno raccolti", fx: (st, r) => { r.shockU += 8; r.shockG -= 0.4; } },
+      { label: "Non fare nulla", cost: 0, out: "Scontri per l'acqua e migrazioni", fx: (st, r) => { r.shockU += 14; st.flags["exodus_" + r.id] = true; } },
+    ] },
+  { id: "quake", scope: "region", cat: "Natura", title: "Terremoto devastante",
+    p: () => 0.004,
+    text: (st, r) => pick([
+      `Un terremoto di magnitudo 8 colpisce una grande città di ${r.name}. Interi quartieri sono crollati.`,
+      `Una scossa fortissima e poi uno tsunami devastano la costa di ${r.name}.`,
+    ]),
+    choices: [
+      { label: "Soccorsi internazionali e ricostruzione", cost: 10, out: "Ricostruzione rapida", fx: (st, r) => { r.shockU += 2; } },
+      { label: "Soccorsi d'urgenza", cost: 4, out: "Ricostruzione lenta", fx: (st, r) => { r.shockG -= 0.8; r.shockU += 6; } },
+      { label: "Non fare nulla", cost: 0, out: "Molte vittime e rabbia", fx: (st, r) => { popLoss(r, 0.9995); r.shockG -= 1.5; r.shockU += 14; } },
+    ] },
+  { id: "deepfake", scope: "global", cat: "Tecnologia", title: "Elezioni falsate dall'AI",
+    p: (st) => (st.g.aiCap > 40 ? 0.03 : 0),
+    text: () => "Alla vigilia di elezioni decisive milioni di video falsi, creati con l'AI, mostrano candidati che dicono cose mai dette.",
+    choices: [
+      { label: "Marchio obbligatorio sui contenuti creati dall'AI", cost: 6, out: "Fiducia salvata", fx: () => {} },
+      { label: "Annullare le elezioni contestate", cost: 2, out: "Rabbia e sospetti", fx: (st) => ctrlRegions(st).forEach((r) => (r.polar += 3)) },
+      { label: "Non fare nulla", cost: 0, out: "Polarizzazione in forte aumento", fx: (st) => ctrlRegions(st).forEach((r) => { r.polar += 6; r.shockU += 3; }) },
+    ] },
+  { id: "robotRiots", scope: "region", cat: "Società", title: "Rivolta contro i robot",
+    p: (st, r) => ((lvl(r, "robots") > 0 || lvl(r, "massRobots") > 0) && r.unemp > 12 ? 0.08 : 0),
+    text: (st, r) => `In ${r.name} folle di disoccupati assaltano magazzini e fabbriche automatiche e distruggono i robot.`,
+    choices: [
+      { label: "Fondo per chi ha perso il lavoro", cost: 10, out: "La rabbia si placa", fx: (st, r) => { r.shockU -= 6; } },
+      { label: "Tassa sui robot", cost: 0, out: "Meno rabbia, un po' meno crescita", fx: (st, r) => { r.shockU -= 3; r.shockG -= 0.8; } },
+      { label: "Non fare nulla", cost: 0, out: "Disordini e polarizzazione", fx: (st, r) => { r.shockU += 15; r.polar += 6; } },
+    ] },
   { id: "batteries", scope: "global", cat: "Energia", title: "Svolta nelle batterie", good: true, once: true,
     p: (st) => st.year >= 2030 && built(st, "renew") ? 0.05 : 0,
     text: () => "Un consorzio di laboratori presenta accumulatori a basso costo che non usano metalli rari. Solare ed eolico potrebbero diventare disponibili giorno e notte.",
@@ -1848,6 +2006,7 @@ function tick(st) {
     const pg = prodGrowth(r, st, m, gm);
     r.prod *= 1 + pg / 100 * dt;
     const L = laborOf(r, m);
+    if (m.mass <= 0) r.Lpeak = Math.max(r.Lpeak || 0, L);
     r.lg += ((L / r.L - 1) / dt * 100 - r.lg) * 0.15; r.L = L;
     r.gdp = L * r.prod;
     r.growth = pg + r.lg;
@@ -1856,14 +2015,15 @@ function tick(st) {
     r.shockU *= 1 - 0.5 * dt;
     r.shockG *= 1 - 0.4 * dt;
 
-    const pensT = clamp(r.pensBase + r.old / r.wrk * PENS_K + m.pensT, 0, 100);
+    // il peso delle pensioni dipende da quanti anziani ci sono per ogni lavoratore; i robot aiutano a pagarle
+    const pensT = clamp(r.pensBase + r.old / (r.wrk * (1 + m.robot) * (1 + 0.6 * Math.min(1, m.mass))) * PENS_K + m.pensT, 0, 100);
     r.pension += (pensT - r.pension) * 0.15 * dt;
 
     /* debito in % del prodotto: sale con il deficit (welfare che cresce, spese in più), scende se il prodotto cresce */
     r.debt += dt * (r.defBase + (r.pension - r.pens0) * 0.08 + m.debtF + Math.max(0, r.debt - 100) * 0.01 - r.growth * r.debt / 100);
     r.debt = clamp(r.debt, 0, 400);
 
-    const uT = clamp(r.unempBase + 5 + m.unempT + gm.unempAll + Math.max(0, -r.growth) * 1.5, 1, 40);
+    const uT = clamp(r.unempBase + 5 + m.unempT + gm.unempAll + Math.max(0, -r.growth) * 1.5, 1, 85);
     r.unemp += (uT - r.unemp) * 0.3 * dt;
 
     const clim = climUnrest(r, temp) * (1 - m.dmg);
@@ -1960,7 +2120,8 @@ const EV_SYS = {
   energyShock: "energia", batteries: "energia", nucAccident: "energia",
   heat: "climate", famine: "climate", storm: "climate", migrationCrisis: "climate",
   solar: "nature", volcano: "nature", asteroid: "nature",
-  nucCrisis: "war", conflict: "war", orbitWeapons: "war",
+  nucCrisis: "war", conflict: "war", orbitWeapons: "war", civilWar: "war", borderWar: "war", navalStandoff: "war", armsRace: "war", terror: "war",
+  wildfire: "climate", waterCrisis: "climate", quake: "nature", deepfake: "ai", cyberAttack: "ai", robotRiots: "ai",
   epidemic: "bio", labLeak: "bio", pandemic: "bio", uniVax: "bio",
   aiIncident: "ai",
   moonRace: "space", moonAccident: "space", moonDiscovery: "space",
@@ -1974,7 +2135,7 @@ function evMult(st, id) {
    che con un clima caldo è giusto siano frequenti); lo stesso evento non si ripete prima di 8 anni nella stessa regione
    (6 anni per quelli mondiali). Meno interruzioni, ognuna più importante. */
 const EV_GAP = P.evGap, EV_GAP_CLIMATE = P.evGapClimate, EV_CD_REGION = P.evCdRegion, EV_CD_GLOBAL = P.evCdGlobal;
-const CLIMATE_EV = ["storm", "heat", "famine"];
+const CLIMATE_EV = ["storm", "heat", "famine", "wildfire", "waterCrisis"];
 function rollEvent(st) {
   const now = st.year * 12 + st.month, since = now - (st.lastEv || -99);
   const order = EVENTS.slice().sort(() => rand() - 0.5);
@@ -2562,7 +2723,7 @@ function renderDiffs() {
     const L = DIFF_LOOK[k], b = bestOf(introLevel, k), locked = k === "super" && !superUnlocked(introLevel);
     return `<button type="button" class="diff ${locked ? "locked" : ""}" data-d="${k}" aria-pressed="${k === introDiff}" ${locked ? 'aria-disabled="true"' : ""} style="--lc:${L.c}">
       ${emblem(i + 1)}<span class="tagl">${L.tag}</span><b>${d.name}</b><span class="txt">${DIFF_TEXT[k]}</span>
-      <dl><dt>Fondi iniziali</dt><dd>${d.funds}</dd><dt>Entrate</dt><dd>${L.inc}</dd><dt>Accettazione</dt><dd>${L.acc}</dd></dl>
+      <dl><dt>Entrate</dt><dd>${L.inc}</dd><dt>Accettazione</dt><dd>${L.acc}</dd></dl>
       ${locked ? `<span class="lockmsg">${LOCK_SVG}Vinci questo scenario a livello difficile per sbloccarlo</span>` : `<span class="best ${b ? "" : "none"}">${b ? `Record: ${"★".repeat(b.stars) || "vittoria"} · ${b.years} anni` : "Nessuna vittoria"}</span>`}</button>`;
   }).join("");
   for (const b of $("diffs").querySelectorAll("[data-d]")) b.onclick = () => { if (b.classList.contains("locked")) return; introDiff = b.dataset.d; renderDiffs(); };
@@ -2602,7 +2763,7 @@ function startGame() {
       <li><span>Il debito dell'Autorità arriva a −${DEBT_LIMIT} fondi: è la bancarotta</span><span></span></li></ul>`;
   showPhase("brief");
 }
-function beginPlay() { showPhase("play"); refresh(); save(); rotateHint(); renderCoach(); }
+function beginPlay() { zoomMap(null); showPhase("play"); refresh(); save(); rotateHint(); renderCoach(); }
 function rotateHint() {
   // il gioco girato dal codice funziona, ma solo con il telefono davvero in orizzontale spariscono ora e batteria
   if (!$("app").classList.contains("turned")) return;
@@ -2613,6 +2774,7 @@ function continueGame() {
   const o = loadSave();
   if (!o) { $("mCont").hidden = true; return; }
   tryLandscape(); music.start();
+  zoomMap(null);
   st = o.st; sel = null; speed = 0; savedSpeed = 1; seenLog = st.logN || 0; tut = st.L.tutorial ? { step: 0, events: 0 } : null;
   showPhase("play"); refresh();
   rotateHint();
@@ -2650,7 +2812,7 @@ function nodeState(d) {
   const a = st.acts[d.id];
   const prog = st.prog.filter((p) => p.id === d.id);
   const why = canStart(st, d.id);
-  const locked = (d.from && st.year < d.from) || !parentOk(st, d);
+  const locked = (d.from && st.year < d.from) || !parentOk(st, d) || !!(d.need && d.need(st));
   let cls = "avail";
   if (a && a.n > 0) cls = "active"; else if (prog.length) cls = "building"; else if (locked) cls = "locked";
   return { a, prog, why, cls };
@@ -3102,11 +3264,19 @@ function wireStats(root, h) {
 /* ---------- crisi in arrivo ---------- */
 const absMonth = () => st.year * 12 + st.month;
 const EV_ICON = { Economia: "economia", Previdenza: "demografia", "Società": "societa", Istituzioni: "societa", Energia: "energia", Clima: "clima", Natura: "clima", Salute: "salute", Tecnologia: "ai", Sicurezza: "sicurezza", Spazio: "spazio" };
+// icona di ogni evento sul segnaposto (le altre usano l'icona della categoria)
+const EV_GLYPH = { debt: "vault", energyShock: "fuel", recession: "factoryDown", autoUnemp: "robot", pensions: "piggy", protests: "people", strike: "hardhat", govCrisis: "gavel", bubble: "house",
+  antiAuth: "megaphone", migrationCrisis: "plane", scandal: "newspaper", heat: "sun", famine: "wheat", storm: "waves", solar: "sun", epidemic: "virus", labLeak: "flask", pandemic: "virus",
+  aiIncident: "chipShield", nucAccident: "radiation", nucCrisis: "radiation", conflict: "missile", volcano: "cloud", asteroid: "comet", moonRace: "moon", orbitWeapons: "satellite",
+  moonAccident: "dome", moonDiscovery: "telescope", batteries: "battery", tradeBoom: "crate", uniVax: "syringe", civilWar: "missile", borderWar: "missile", terror: "badge", coup: "gavel",
+  cyberAttack: "chipShield", navalStandoff: "dove", armsRace: "missile", crash: "dollarCut", tradeWar: "crate", wildfire: "tree", waterCrisis: "drop", quake: "buildings", deepfake: "eye", robotRiots: "robot" };
 // punti sull'oceano per i segnali delle crisi mondiali
 const GLOBAL_SPOTS = [[-150, 8], [-32, 0], [72, -18], [-150, -28], [-32, -28], [160, 30]];
 function queueEvent(ev) {
   const E = EBY[ev.id], n = EV_WARN[ev.id] || 12;
-  (st.queue || (st.queue = [])).push({ id: ev.id, r: ev.r, due: absMonth() + n, start: absMonth() });
+  // due segnaposto non scadono mai nello stesso mese: ce n'è sempre uno più urgente degli altri
+  const q0 = st.queue || (st.queue = []), lastDue = q0.reduce((a, q) => Math.max(a, q.due), -1);
+  q0.push({ id: ev.id, r: ev.r, due: Math.max(absMonth() + n, lastDue + 1), start: absMonth() });
   // i segnali stanno sul planisfero: dal globo si torna alla cartina
   if (globeOn) { globeOn = false; moonMode = false; showGlobe(); }
   if (ev.r) pingRegion(ev.r);
@@ -3120,6 +3290,24 @@ function onExpire() {
   q.warned = true;
   if (globeOn) { globeOn = false; showGlobe(); }
   drawBubbles();
+  // come in Rebel Inc: la mappa si avvicina al problema
+  if (q.x != null) zoomMap(q.x, q.y - 18, 2.2);
+}
+/* zoom della cartina: si anima il riquadro visibile; zoomMap(null) torna alla vista intera */
+const VB0 = [-276, -134, 552, 236];
+let vbNow = VB0.slice(), vbAnim = 0;
+function zoomMap(x, y, k) {
+  const W = VB0[2] / (k || 1), H = VB0[3] / (k || 1);
+  const to = x == null ? VB0.slice() : [clamp(x - W / 2, VB0[0], VB0[0] + VB0[2] - W), clamp(y - H / 2, VB0[1], VB0[1] + VB0[3] - H), W, H];
+  const from = vbNow.slice(), t0 = performance.now(), id = ++vbAnim;
+  const step = (now) => {
+    if (id !== vbAnim) return;
+    const t = Math.min(1, (now - t0) / 700), e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+    vbNow = from.map((v, i) => v + (to[i] - v) * e);
+    $("map").setAttribute("viewBox", vbNow.map((v) => v.toFixed(2)).join(" "));
+    if (t < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
 }
 /* Segnaposto delle crisi, come le bolle degli altri giochi: la punta indica il luogo, la testa porta l'icona.
    Più il tempo passa più il segnaposto si gonfia; dopo un anno il tempo si ferma finché non lo si tocca. */
@@ -3128,23 +3316,27 @@ function drawBubbles() {
   const g = $("bubbles"); g.innerHTML = "";
   if (!st || phase !== "play") return;
   const perRegion = {}; let gi = 0;
-  for (const q of st.queue || []) {
+  const urgent = (st.queue || []).reduce((a, q) => (!a || q.due < a.due ? q : a), null);
+  // il più urgente si disegna per ultimo, sopra gli altri
+  for (const q of (st.queue || []).slice().sort((a, b) => b.due - a.due)) {
     const E = EBY[q.id];
     let x, y;
     if (q.r) { const R = RBY[q.r], k = perRegion[q.r] = (perRegion[q.r] || 0) + 1; [x, y] = ee(R.label[0], R.label[1]); y -= 9; x += (k - 1) * 20; }
     else { [x, y] = ee(...GLOBAL_SPOTS[gi++ % GLOBAL_SPOTS.length]); }
+    q.x = x; q.y = y;
     const left = Math.max(0, q.due - absMonth()), frac = Math.min(1, (absMonth() - q.start) / Math.max(1, q.due - q.start));
     const sc = left <= 0 ? 1.55 : 1 + 0.45 * frac;
-    const b = svgEl("g", { class: "bub" + (E.good ? " good" : "") + (left <= 0 ? " due" : ""), transform: `translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${sc.toFixed(2)})`, role: "button", "aria-label": E.title });
+    const first = q === urgent;
+    const b = svgEl("g", { class: "bub" + (E.good ? " good" : "") + (left <= 0 ? " due" : "") + (first && left > 0 ? " first" : ""), transform: `translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${sc.toFixed(2)})`, role: "button", "aria-label": E.title });
     b.appendChild(svgEl("ellipse", { cx: 0, cy: 0, rx: 3.2, ry: 1.2, class: "shadow" }));
     b.appendChild(svgEl("circle", { cx: 0, cy: -13.6, r: 11, class: "halo" }));
     b.appendChild(svgEl("path", { d: PIN_D, class: "core", fill: E.good ? "#2f8a68" : "#b8402f" }));
     // conto alla rovescia: l'anello intorno alla testa si chiude man mano che passa il tempo
     const a = frac * 2 * Math.PI, R0 = 9.6;
     if (frac > 0.01 && left > 0) b.appendChild(svgEl("path", { d: `M0 ${-13.6 - R0}A${R0} ${R0} 0 ${a > Math.PI ? 1 : 0} 1 ${(R0 * Math.sin(a)).toFixed(2)} ${(-13.6 - R0 * Math.cos(a)).toFixed(2)}`, class: "count" }));
-    b.appendChild(svgEl("use", { href: "#i-" + (EV_ICON[E.cat] || "sicurezza"), x: -5, y: -18.6, width: 10, height: 10, style: "color:#fff4dc" }));
+    b.appendChild(svgEl("use", { href: EV_GLYPH[q.id] ? "#g-" + EV_GLYPH[q.id] : "#i-" + (EV_ICON[E.cat] || "sicurezza"), x: -5, y: -18.6, width: 10, height: 10, style: "color:#fff4dc" }));
     if (left <= 0) { const t = svgEl("text", { x: 0, y: -26 }); t.textContent = "Decidi"; b.appendChild(t); }
-    b.addEventListener("click", (e) => { e.stopPropagation(); if (pending) return; st.queue = st.queue.filter((x) => x !== q); showEvent(q); });
+    b.addEventListener("click", (e) => { e.stopPropagation(); if (pending) return; st.queue = st.queue.filter((x) => x !== q); zoomMap(null); showEvent(q); });
     g.appendChild(b);
   }
 }
@@ -3173,6 +3365,7 @@ function showEvent(ev) {
 
 /* ---------- fine partita ---------- */
 function endGame() {
+  zoomMap(null);
   closeScreensQuiet();
   phase = "over"; speed = 0;
   const E = ENDINGS[st.over], win = st.over === "vittoria";
@@ -3239,6 +3432,7 @@ function loop(now) {
     }
     if (changed && phase === "play") refresh();
   }
+  if (phase === "play" && st && !pending && expiredEv()) onExpire();
   if (globeOn && !dragging && (phase === "play" || phase === "over")) {
     const spin = phase === "play" && speed > 0 && !pending && !openScreen && !moonMode;
     if (spin) { gRot += dtms * 0.006; drawGlobe(); }
