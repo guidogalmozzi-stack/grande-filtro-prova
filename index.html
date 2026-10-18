@@ -863,18 +863,31 @@ const INTERVENTIONS = [
   { id: "efficiency", cat: "energia", name: "Efficienza energetica", desc: "Incentivi per isolare gli edifici e sostituire motori ed elettrodomestici con modelli che consumano meno.", scope: "region", cost: 10, T: 3, spread: true,
     pro: "Serve meno energia e le bollette scendono", con: "Una parte del risparmio si perde perché si consuma di più",
     fx: (m, s) => { m.eff -= 0.1 * s; m.energyCost -= 3 * s; } },
-  { id: "nuclear", cat: "nucleare", name: "Centrali nucleari", desc: "Un programma di nuove centrali nucleari, che richiede molti anni di cantiere.", scope: "region", cost: 38, T: 12, stack: 3,
+  { id: "nuclear", cat: "nucleare", name: "Centrali nucleari pubbliche", desc: "Lo Stato costruisce e paga nuove centrali nucleari, con molti anni di cantiere.", scope: "region", cost: 25, T: 12, stack: 3,
     pro: "Energia stabile e senza emissioni", con: "Parte della popolazione si oppone e il malcontento cresce, soprattutto dove l'opposizione è forte; cantieri lunghi, più lenti se l'opposizione è alta; piccolo rischio di incidenti",
     fx: (m, s, r) => { m.energyCost -= 2 * s; m.unrestT += r.resist * 0.05 * s; },
     once: (r) => { shiftClean(r, 8, "nuclear"); r.resist = clamp(r.resist + 5, 0, 100); } },
   { id: "nucInfo", cat: "nucleare", name: "Informazione sul nucleare", desc: "Campagne pubbliche e visite alle centrali che spiegano rischi e vantaggi dell'energia nucleare.", scope: "region", cost: 3, upkeep: 1, T: 2,
     pro: "Meno opposizione al nucleare", con: "Un po' più di polarizzazione; funziona finché la campagna continua",
     fx: (m) => { m.resistT -= 25; m.polarT += 2; } },
+  /* Nucleare privato (decisione del 18 ottobre 2026): costo iniziale basso, ma l'Autorità garantisce ai privati un prezzo
+     minimo dell'energia per trent'anni; cantieri più rapidi, con un piccolo rischio che l'impresa fallisca a metà. */
+  { id: "nucAgency", cat: "nucleare", name: "Agenzia per la sicurezza nucleare", desc: "Un'autorità indipendente che autorizza e controlla le centrali con regole uguali in tutto il mondo.", scope: "region", cost: 4, upkeep: 0.5, T: 2,
+    pro: "Cantieri nucleari un quarto più rapidi, incidenti molto più rari, un po' meno opposizione", con: "Costa ogni anno",
+    eff: { resist: -8 } },
+  { id: "nucPrivate", cat: "nucleare", name: "Nucleare privato a prezzo garantito", desc: "Imprese private costruiscono le centrali con prestiti agevolati; l'Autorità garantisce loro un prezzo minimo dell'energia per trent'anni.", scope: "region", cost: 6, upkeep: 2.5, upkeepYears: 30, perUnit: true, T: 9, stack: 3,
+    pro: "Costa poco subito e i cantieri sono più rapidi", con: "Si paga ogni anno per trent'anni per ogni programma; un'impresa può fallire a metà cantiere; stessa opposizione del nucleare pubblico",
+    fx: (m, s, r) => { m.energyCost -= 2 * s; m.unrestT += r.resist * 0.05 * s; },
+    once: (r) => { shiftClean(r, 8, "nuclear"); r.resist = clamp(r.resist + 5, 0, 100); } },
+  /* Fusione: prima la ricerca (anni di laboratori e reattori sperimentali, pagati ogni anno), poi le centrali */
+  { id: "fusionResearch", cat: "nucleare", name: "Ricerca sulla fusione", desc: "Reattori sperimentali e laboratori di tutto il mondo lavorano insieme per far funzionare la fusione.", scope: "global", cost: 10, buildUpkeep: 3, T: 15, from: 2030,
+    pro: "Apre la strada alle centrali a fusione; più rapida con la ricerca scientifica e i laboratori lunari", con: "Costa 3 fondi l'anno per tutti gli anni di ricerca, senza ritorni immediati" },
   { id: "smr", cat: "nucleare", name: "Reattori modulari", desc: "Piccoli reattori costruiti in serie in fabbrica e montati sul posto.", scope: "region", cost: 25, T: 5, from: 2035,
     pro: "Nucleare più rapido da costruire", con: "Stessi rischi del nucleare, in scala minore",
     once: (r) => { shiftClean(r, 6, "nuclear"); } },
-  { id: "fusion", cat: "nucleare", name: "Centrale a fusione", desc: "Il primo impianto che produce elettricità unendo nuclei di idrogeno, come avviene nel Sole.", scope: "region", cost: 75, T: 15, from: 2045,
-    pro: "Molta energia pulita, senza scorie di lunga durata", con: "Costo altissimo e tempi lunghi",
+  { id: "fusion", cat: "nucleare", name: "Centrali a fusione", desc: "Centrali che producono elettricità unendo nuclei di idrogeno, come avviene nel Sole.", scope: "region", cost: 40, T: 7, stack: 2,
+    pro: "Moltissima energia pulita ed economica, senza scorie di lunga durata e quasi senza opposizione", con: "Costo alto; servono prima molti anni di ricerca",
+    fx: (m, s) => { m.energyCost -= 4 * s; },
     once: (r) => { shiftClean(r, 25, "nuclear"); } },
   // Economia
   { id: "centralBank", cat: "economia", name: "Banca centrale mondiale", bank: true, desc: "Decide il tasso di interesse a breve termine della moneta unica mondiale.", scope: "global", cost: 0, T: 0,
@@ -1151,7 +1164,7 @@ const TAB_OF = { energia: "energia", nucleare: "energia", economia: "economia", 
 for (const d of INTERVENTIONS) { d.fam = d.cat; d.cat = TAB_OF[d.cat]; }
 /* livello di complessità: 1 facile, 2 medio, 3 difficile e super difficile */
 const TIER2 = ["centralBank", "university", "research", "cutStaff", "cutSubsidies", "cutDefense", "cutServices", "robots", "fossilSub", "ubi", "taxRaise", "taxEvasion", "unempBenefit", "housing", "pensionFunds", "socialHousing", "wealthTax", "minWage", "publicJobs", "tariffs", "priceCap", "evCars", "parentalLeave", "ivf", "pensionTax", "birthDowry", "healthcare", "civicService", "cyber", "foodReserve", "forestProtect", "efficiency", "nucInfo", "smr", "automation", "retrain", "family", "natality", "integration", "healthyAging", "surveil", "vaccines", "amr", "dac", "aiCap", "orbital", "pdef", "lunarIce", "lunarMining", "police", "disinfo"];
-const TIER3 = ["fusion", "geoeng", "massRobots"]; // reddito di base e sussidi fossili ora già dal livello 2
+const TIER3 = ["fusionResearch", "fusion", "geoeng", "massRobots"]; // reddito di base e sussidi fossili ora già dal livello 2
 for (const d of INTERVENTIONS) d.tier = TIER3.includes(d.id) ? 3 : TIER2.includes(d.id) ? 2 : 1;
 const IBY = Object.fromEntries(INTERVENTIONS.map((d) => [d.id, d]));
 function available(st, d) {
@@ -1165,7 +1178,7 @@ function available(st, d) {
 /* ---------- alberi degli interventi: nodo padre di ogni intervento ----------
    Un intervento si sblocca quando il padre è completato. La disposizione grafica è calcolata dall'interfaccia. */
 const TREE = {
-  fossilSub: null, carbonTax: null, renew: null, grid: "renew", efficiency: "carbonTax", nuclear: null, nucInfo: "nuclear", smr: "nuclear", fusion: "smr",
+  fossilSub: null, carbonTax: null, renew: null, grid: "renew", efficiency: "carbonTax", nuclear: null, nucInfo: "nuclear", smr: "nuclear", nucAgency: null, nucPrivate: "nucAgency", fusionResearch: null, fusion: "fusionResearch",
   invest: null, automation: "invest", retrain: "automation", ubi: "unempBenefit", develop: "invest", austerity: null, debtRestr: "austerity",
   taxRaise: null, wealthTax: "taxRaise", taxEvasion: "taxRaise", unempBenefit: null, minWage: "unempBenefit", publicJobs: "unempBenefit", tariffs: null,
   priceCap: "fossilSub", evCars: "renew", cutStaff: "austerity", cutSubsidies: "austerity", cutDefense: "austerity", cutServices: "austerity", robots: "automation", massRobots: "robots",
@@ -1197,10 +1210,13 @@ function upkeepOf(st, d) {
   if (d.id === "moon" && st.acts.lunarIce && st.acts.lunarIce.n > 0) return 0;
   const k = st.G && st.G.cheapUp && st.G.cheapUp[d.id];
   // i programmi nelle regioni si pagano solo dove l'Autorità governa ancora (in proporzione agli abitanti)
-  return (d.upkeep || 0) * (k || 1) * (d.wasRegion && d.upkeep > 0 ? ctrlShare(st) : 1);
+  const a = st.acts[d.id];
+  if (d.upkeepYears && a && st.year - a.y0 >= d.upkeepYears) return 0; // contratto scaduto
+  return (d.upkeep || 0) * (k || 1) * (d.wasRegion && d.upkeep > 0 ? ctrlShare(st) : 1) * (d.perUnit && a ? Math.max(1, a.n) : 1);
 }
 function ctrlShare(st) { let a = 0, t = 0; for (const id in st.regions) { const r = st.regions[id]; t += r.pop; if (r.controlled) a += r.pop; } return t ? a / t : 1; }
-const FRONTIER = ["fusion", "smr", "dac", "launch", "orbital", "pdef", "moon", "lunarIce", "lunarCity", "lunarMining"];
+const NUC_BUILD = ["nuclear", "nucPrivate", "smr", "fusion"];
+const FRONTIER = ["fusionResearch", "fusion", "smr", "dac", "launch", "orbital", "pdef", "moon", "lunarIce", "lunarCity", "lunarMining"];
 function shiftClean(r, pts, kind) {
   const p = Math.min(pts, r.fossil - 3);
   if (p <= 0) return;
@@ -1468,7 +1484,7 @@ function startIntervention(st, id) {
   return null;
 }
 function complete(st, d) {
-  const a = st.acts[d.id] || (st.acts[d.id] = { n: 0, y: st.year });
+  const a = st.acts[d.id] || (st.acts[d.id] = { n: 0, y: st.year, y0: st.year });
   a.n += 1; a.y = st.year;
   if (d.once) { if (d.wasRegion) ctrlRegions(st).forEach((r) => d.once(r, st)); else d.once(null, st); }
   logNews(st, d.name + ": operativo in tutto il mondo.", "done");
@@ -1501,14 +1517,14 @@ const EVENTS = [
     ] },
   { id: "energyShock", scope: "global", cat: "Energia", title: "Crisi del petrolio e del gas",
     p: (st) => 0.05 * avgOf(st, "fossil") / 80 * (st.g.tension > 55 ? 1.5 : 1),
-    onFire: (st) => { st.g.piShock += 2.5 * avgOf(st, "fossil") / 80; },
+    onFire: (st) => { st.g.piShock += 2.5 * avgOf(st, "fossil") / 80; st.g.oil = (st.g.oil || 0) + 1; },
     text: () => pick([
       "Un blocco delle forniture fa esplodere il prezzo di petrolio e gas. Le regioni più dipendenti dai fossili pagano di più e i prezzi salgono ovunque.",
       "Una guerra nel cuore delle regioni petrolifere chiude gli oleodotti. Il prezzo del petrolio triplica e l'inflazione sale.",
     ]),
     choices: [
       { label: "Sussidi alle bollette", cost: 8, out: "Contraccolpo contenuto", fx: (st) => ctrlRegions(st).forEach((r) => (r.shockU += 2)) },
-      { label: "Razionamento e accelerazione delle rinnovabili", cost: 4, out: "Malcontento, ma meno fossili", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockU += 6; shiftClean(r, 3, "renew"); }) },
+      { label: "Razionamento e accelerazione delle rinnovabili", cost: 4, out: "Malcontento dove si usano più fossili, ma meno fossili", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockU += 6 * r.fossil / 80; shiftClean(r, 3, "renew"); }) },
       { label: "Non fare nulla", cost: 0, out: "Crescita giù, malcontento", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockG -= 1 * r.fossil / 80; r.shockU += 8 * r.fossil / 80; }) },
     ] },
   { id: "recession", scope: "global", cat: "Economia", title: "Recessione globale",
@@ -2023,6 +2039,7 @@ function tick(st) {
     const ecW = ws.reduce((a, r) => a + r.energyCost * r.gdp, 0) / gdp;
     G.rate += clamp(G.rateT - G.rate, -0.5, 0.5);
     G.piShock *= 1 - 0.6 * dt;
+    G.oil = (G.oil || 0) * (1 - 0.5 * dt); // il prezzo del petrolio torna normale in qualche anno
     if (G.gW0 == null) { G.gW0 = uW; G.ec0 = ecW; }
     // le attese restano ancorate al 3%: la disoccupazione molto bassa (economia surriscaldata), l'energia cara e gli shock la spostano;
     // la crescita dovuta alla produttività non fa salire i prezzi
@@ -2043,7 +2060,7 @@ function tick(st) {
   for (const id in st.regions) {
     const r = st.regions[id];
     const m = r.m;
-    r.energyCost = fEnergyCost(r) + m.energyCost;
+    r.energyCost = fEnergyCost(r) + m.energyCost + G.oil * 25 * r.fossil / 100;
     // popolazione: nascite, ingresso nel lavoro dei nati di 18 anni fa, pensionamenti, morti, immigrazione
     const births = r.tfr * r.wrk * r.bF;
     r.bCur += births * dt;
@@ -2125,10 +2142,13 @@ function tick(st) {
   const speed = (1 + st.axis / 400) * (st.G.build || 1);
   for (const p of st.prog) {
     let k = speed;
-    if (p.id === "nuclear" && avgOf(st, "resist") > 60) k *= 0.6;
+    if ((p.id === "nuclear" || p.id === "nucPrivate") && avgOf(st, "resist") > 60) k *= 0.6;
+    if (NUC_BUILD.includes(p.id) && built(st, "nucAgency")) k *= 1.25;
+    if (p.id === "nucPrivate" && !st.sim && rand() < 0.012 * dt) { p.failed = true; logNews(st, "Nucleare privato: un'impresa è fallita a metà cantiere. Il programma si ferma.", "bad"); }
     if (FRONTIER.includes(p.id)) k *= 1 + gm.frontier;
     p.t += dt * k;
   }
+  st.prog = st.prog.filter((p) => !p.failed);
   const done = st.prog.filter((p) => p.t >= p.T);
   st.prog = st.prog.filter((p) => p.t < p.T);
   for (const p of done) complete(st, IBY[p.id]);
@@ -2185,6 +2205,7 @@ const EV_SYS = {
 function evMult(st, id) {
   let k = (st.G.ev && st.G.ev[id]) || 1;
   if ((id === "protests" || id === "antiAuth") && built(st, "massSurveil")) k *= 0.3;
+  if (id === "nucAccident" && built(st, "nucAgency")) k *= 0.35;
   return k;
 }
 /* Ritmo degli eventi: dopo una crisi passano almeno 8 mesi prima della successiva (3 per gli eventi climatici,
@@ -2446,13 +2467,16 @@ const GLYPH = {
   drop: `<path d="M5 1.2C3.6 3.4 2.4 4.8 2.4 6.2a2.6 2.6 0 0 0 5.2 0C7.6 4.8 6.4 3.4 5 1.2z"/>`,
   dome: `<path d="M1 8.2h8M1.8 8.2a3.2 3.2 0 0 1 6.4 0M3.4 8.2a1.6 1.6 0 0 1 3.2 0"/>`,
   pick: `<path d="M1.4 3.4c2.2-1.8 5-1.8 7.2 0M5 2.2l-2.8 7.2"/>`,
+  shieldAtom: `<path d="M5 .8 8.5 2.2v2.7c0 2.2-1.6 3.6-3.5 4.2C3.1 8.5 1.5 7.1 1.5 4.9V2.2z"/><ellipse cx="5" cy="5" rx="2" ry=".9"/><ellipse cx="5" cy="5" rx="2" ry=".9" transform="rotate(60 5 5)"/><ellipse cx="5" cy="5" rx="2" ry=".9" transform="rotate(-60 5 5)"/>`,
+  contract: `<path d="M2.2 1h4l1.6 1.6V9H2.2zM3.4 3.4h3M3.4 5h3M3.4 7.2c.6-.8 1-.8 1.4 0s.8.8 1.4 0"/>`,
+  torus: `<ellipse cx="5" cy="5.4" rx="4.2" ry="2.2"/><ellipse cx="5" cy="5.4" rx="1.8" ry=".8"/><path d="M5 .8v1.6M3.6 1.6l.6 1M6.4 1.6l-.6 1"/>`,
   rateCoin: `<circle cx="5" cy="5" r="3.8"/><path d="M3.4 6.6 6.6 3.4"/><circle cx="3.6" cy="3.6" r=".6" ${F}/><circle cx="6.4" cy="6.4" r=".6" ${F}/>`,
   school: `<path d="M1.4 9V4.6L5 2.2l3.6 2.4V9zM4 9V6.6h2V9M5 2.2V.8l1.4.5L5 1.6"/>`,
   microscope: `<path d="M3.6 1.2l2.2 1.3-1.6 2.8-2.2-1.3zM4.9 4.8 6 7M2 9.2h6M6.6 9.2a3 3 0 0 0-1-4.6"/>`,
   dollarCut: `<path d="M6.6 2.6C6.2 2 5.6 1.8 5 1.8c-1 0-1.8.6-1.8 1.4 0 1.8 3.6 1.2 3.6 3.2 0 .8-.8 1.4-1.8 1.4-.7 0-1.3-.3-1.7-.9M5 .8v1M5 7.8v1.2"/>`,
 };
 const ICON_OF = {
-  fossilSub: "fuel", carbonTax: "smoke", renew: "sun", grid: "battery", efficiency: "bulb", nuclear: "i-nucleare", nucInfo: "megaphone", smr: "tower", fusion: "fusion", priceCap: "plug", evCars: "car",
+  fossilSub: "fuel", carbonTax: "smoke", renew: "sun", grid: "battery", efficiency: "bulb", nuclear: "i-nucleare", nucInfo: "megaphone", smr: "tower", nucAgency: "shieldAtom", nucPrivate: "contract", fusionResearch: "torus", fusion: "fusion", priceCap: "plug", evCars: "car",
   centralBank: "rateCoin", university: "cap", research: "microscope", invest: "bridge", austerity: "scissors", cutStaff: "personMinus", cutSubsidies: "factoryDown", cutDefense: "shieldMinus", cutServices: "hospital", automation: "gear", robots: "robot", retrain: "wrench", ubi: "coins", debtRestr: "handshake", develop: "sprout",
   taxRaise: "percent", wealthTax: "diamond", taxEvasion: "magnifier", unempBenefit: "umbrella", minWage: "wallet", publicJobs: "hardhat", tariffs: "crate", privat: "tag",
   retire: "clock", contrib: "piggy", natality: "baby", family: "family", migration: "plane", integration: "puzzle", healthyAging: "heart", housing: "house", parentalLeave: "stroller", ivf: "dna", pensionFunds: "vault", pensionTax: "chartUp", birthDowry: "gift", healthcare: "i-salute",
@@ -2471,7 +2495,7 @@ const iconHref = (id) => { const k = ICON_OF[id] || "hexdot"; return k.startsWit
 
 const SHORT = {
   fossilSub: "Sussidi fossili", carbonTax: "Tassa carbonio", efficiency: "Efficienza", renew: "Solare ed eolico", grid: "Reti e accumuli",
-  nuclear: "Centrali nucleari", smr: "Reattori modulari", fusion: "Fusione", nucInfo: "Informazione",
+  smr: "Reattori modulari", fusion: "Fusione", nucInfo: "Informazione",
   invest: "Investimenti", automation: "Automazione", retrain: "Formazione", ubi: "Reddito di base", austerity: "Tagli alla spesa", debtRestr: "Taglio del debito",
   retire: "Età pensionabile", healthyAging: "Invecchiamento sano", contrib: "Contributi", family: "Servizi famiglia", natality: "Bonus figli", migration: "Immigrazione regolata", integration: "Integrazione",
   transparency: "Trasparenza", anticorr: "Anticorruzione", assemblies: "Assemblee", disinfo: "Disinformazione", police: "Ordine pubblico", develop: "Aiuti allo sviluppo",
@@ -2480,7 +2504,7 @@ const SHORT = {
   mediation: "Mediazione", fissile: "Materiale fissile", arms: "Riduzione arsenali",
   aiCap: "Capacità AI", aiReg: "Regole AI", align: "Allineamento",
   launch: "Lanciatori", orbital: "Economia orbitale", pdef: "Difesa planetaria", moon: "Base lunare", lunarMining: "Miniere lunari",
-  lunarSci: "Scienza lunare", centralBank: "Banca centrale", university: "Università", research: "Ricerca", education: "Scuola", lunarIce: "Ghiaccio lunare", lunarCity: "Insediamento lunare",
+  nucAgency: "Agenzia nucleare", nucPrivate: "Nucleare privato", fusionResearch: "Ricerca fusione", nuclear: "Nucleare pubblico", lunarSci: "Scienza lunare", centralBank: "Banca centrale", university: "Università", research: "Ricerca", education: "Scuola", lunarIce: "Ghiaccio lunare", lunarCity: "Insediamento lunare",
   taxRaise: "Più tasse", wealthTax: "Tassa patrimoni", taxEvasion: "Lotta all'evasione", unempBenefit: "Sussidio lavoro", minWage: "Salario minimo",
   publicJobs: "Assunzioni pubbliche", tariffs: "Dazi", priceCap: "Bollette bloccate", evCars: "Auto elettriche", housing: "Case giovani",
   parentalLeave: "Congedi parentali", ivf: "Fecondazione", pensionFunds: "Pensioni integrative", pensionTax: "Fondi pensione", birthDowry: "Dote alla nascita",
