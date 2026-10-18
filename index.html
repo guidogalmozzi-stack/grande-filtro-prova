@@ -144,29 +144,49 @@ button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); o
 .acts { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, 32%); }
 .treebox { position: relative; min-width: 0; min-height: 0; background: radial-gradient(ellipse at 40% 45%, #1a3445 0%, var(--sea) 78%); }
 .treebox { display: flex; flex-direction: column; padding-left: env(safe-area-inset-left, 0px); }
-.treewrap { position: relative; flex: 1; min-height: 0; overflow-x: auto; overflow-y: hidden; }
-#tree { position: absolute; top: 6px; left: 6px; height: calc(100% - 12px); }
+.treewrap { position: relative; flex: 1; min-height: 0; overflow: hidden; }
+#tree { position: absolute; inset: 8px; width: calc(100% - 16px); height: calc(100% - 16px); }
 .foot .delta { font-style: normal; font-family: var(--font-m); font-size: 14px; color: #f0a597; }
 .foot .delta.up { color: #9fd6c2; }
 /* barre grafiche in cima al pannello: quanto è stato fatto nel settore e come sta l'indicatore che conta */
 .imeters { display: grid; gap: 7px; margin-bottom: 2px; }
-.mt { display: grid; grid-template-columns: 18px 1fr; gap: 8px; align-items: center; }
+.mt { display: grid; grid-template-columns: 18px 1fr; gap: 2px 8px; align-items: center; }
 .mt svg { width: 16px; height: 16px; }
 .mbar { position: relative; height: 10px; border-radius: 5px; background: var(--panel-3); overflow: hidden; }
 .mbar i { position: absolute; top: 0; bottom: 0; left: 0; border-radius: 5px; }
-.mbar i.ghost { background: repeating-linear-gradient(45deg, rgba(233,180,76,.9) 0 3px, rgba(233,180,76,.45) 3px 6px); border-radius: 0 5px 5px 0; }
-.mbar i.ghost.down { background: repeating-linear-gradient(45deg, rgba(214,91,74,.9) 0 3px, rgba(214,91,74,.45) 3px 6px); }
+.mbar i.ghost { border-radius: 0; }
+.mbar i.ghost.up, .sw.up { background: repeating-linear-gradient(45deg, #7fe0a8 0 3px, rgba(127,224,168,.45) 3px 6px); }
+.mbar i.ghost.down, .sw.down { background: repeating-linear-gradient(45deg, #ff6b5a 0 3px, rgba(255,107,90,.5) 3px 6px); }
+.mt small { grid-column: 2; font-size: 11px; color: var(--muted); margin-top: -3px; }
+.sw { display: inline-block; width: 22px; height: 9px; border-radius: 3px; vertical-align: -1px; margin-right: 6px; }
+.dhead { display: flex; align-items: center; gap: 10px; }
+.dhead svg { width: 44px; height: 44px; flex: none; }
+.dhead polygon { fill: var(--c); stroke: color-mix(in srgb, var(--c) 60%, #fff); stroke-width: 1.5; }
+.dhead use { color: #0f1d29; }
+/* sfondo: la cartina sfocata dietro, tinta secondo la situazione nella panoramica */
+.treebox { background: radial-gradient(ellipse at 40% 45%, #1d3a4e 0%, #0e1c27 80%); }
+.treebox.sum { background: radial-gradient(ellipse at 30% 20%, color-mix(in srgb, var(--tint) 30%, #142a39) 0%, #0e1c27 85%); }
+.sumlist { flex: 1; min-height: 0; overflow-y: auto; padding: 10px 12px; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; align-content: start; }
+.sumrow { text-align: left; background: rgba(21,38,52,.82); border: 1px solid var(--line); border-left: 4px solid var(--c); border-radius: 10px; padding: 7px 10px; display: grid; gap: 5px; }
+.sumrow:hover { border-color: var(--c); }
+.sumrow .st { display: flex; align-items: center; gap: 6px; font-family: var(--font-d); font-weight: 600; font-size: 17px; letter-spacing: .03em; }
+.sumrow .st svg { width: 15px; height: 15px; color: var(--c); }
+.sumrow .mt { display: grid; grid-template-columns: 18px 1fr; gap: 1px 8px; align-items: center; }
+.legend2 { display: grid; gap: 8px; font-size: 12.5px; color: #cbd6df; line-height: 1.4; }
+.legend2 svg { width: 14px; height: 14px; vertical-align: -2px; margin-right: 6px; }
+/* esagoni come in Rebel Inc: colore pieno del settore se attivo, scuro con bordo colorato se disponibile */
 .node { cursor: pointer; }
-.node .hex { fill: #1f394b; stroke: #3b5a72; stroke-width: 2; }
-.node.avail .hex { fill: #27485f; stroke: #5a83a3; }
-.node.active .hex { fill: #2f7a5f; stroke: #8fe0bf; }
-.node.locked .hex { fill: #172b39; stroke: #2b4356; }
-.node.locked .nl, .node.locked use { opacity: .45; }
-.node.sel .hex { stroke: var(--accent); stroke-width: 3.5; }
-.node .nl { font-family: var(--font-d); font-weight: 600; font-size: 13px; fill: var(--fg); text-anchor: middle; pointer-events: none; letter-spacing: .02em; }
-.node .cnt { font-family: var(--font-m); font-size: 11px; fill: var(--accent); font-weight: 500; text-anchor: middle; }
-.edge { stroke: #2f4b61; stroke-width: 7; stroke-linecap: round; fill: none; }
-.edge.on { stroke: #3f9a78; }
+.node .hex { fill: color-mix(in srgb, var(--c) 22%, #13222e); stroke: var(--c); stroke-width: 1.6; transition: fill .2s; }
+.node .ico { color: var(--c); }
+.node.active .hex { fill: var(--c); stroke: color-mix(in srgb, var(--c) 60%, #fff); }
+.node.active .ico { color: #0f1d29; }
+.node.building .hex { fill: color-mix(in srgb, var(--c) 40%, #13222e); }
+.node.sel .hex { stroke: #fff; stroke-width: 3; }
+.node .ring0 { fill: none; stroke: #0c1822; stroke-width: 2.4; }
+.node .ring { fill: none; stroke: #6fb0d8; stroke-width: 2.4; }
+.node .cnt { font-family: var(--font-m); font-size: 8px; fill: var(--accent); font-weight: 600; text-anchor: middle; paint-order: stroke; stroke: #0c1822; stroke-width: 2px; }
+.edge { stroke: color-mix(in srgb, var(--c) 35%, #1c3142); stroke-width: 4; stroke-linecap: round; fill: none; }
+.edge.on { stroke: var(--c); }
 .detail { border-left: 1px solid var(--line); background: var(--panel); display: flex; flex-direction: column; min-height: 0; padding-right: env(safe-area-inset-right, 0px); }
 .money { font-size: 12px; color: var(--muted); background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; padding: 5px 8px; line-height: 1.5; }
 .money b { font-family: var(--font-m); font-weight: 500; color: var(--fg); }
@@ -410,13 +430,14 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
 .compact .toasts { bottom: 86px; }
 /* segnali delle crisi in arrivo, come le bolle degli altri giochi: si toccano per decidere */
 #bubbles .bub { cursor: pointer; }
-#bubbles .bub .halo { fill: var(--bad); opacity: .25; animation: bub 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+#bubbles .bub .halo { fill: var(--bad); opacity: .3; animation: bub 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
 #bubbles .bub.good .halo { fill: var(--good); }
-#bubbles .bub .core { stroke: #fff4dc; stroke-width: .9; }
-#bubbles .bub text { font-family: var(--font-m); font-size: 4.6px; fill: var(--fg); text-anchor: middle; paint-order: stroke; stroke: rgba(8,16,22,.9); stroke-width: 1.6px; }
+#bubbles .bub .core { stroke: #fff4dc; stroke-width: .9; filter: drop-shadow(0 1px 1.5px rgba(0,0,0,.6)); }
+#bubbles .bub .shadow { fill: rgba(0,0,0,.45); }
+#bubbles .bub .count { fill: none; stroke: #ffd27a; stroke-width: 1.3; stroke-linecap: round; }
+#bubbles .bub text { font-family: var(--font-d); font-weight: 700; font-size: 5.5px; fill: #ffd27a; text-anchor: middle; paint-order: stroke; stroke: rgba(8,16,22,.9); stroke-width: 1.6px; letter-spacing: .04em; text-transform: uppercase; }
 @keyframes bub { 50% { transform: scale(1.35); opacity: .08; } }
-#bubbles .bub.due .halo { fill: #ffd27a; opacity: .45; animation-duration: .7s; }
-#bubbles .bub.due text { fill: #ffd27a; font-weight: 700; }
+#bubbles .bub.due .halo { fill: #ffd27a; opacity: .5; animation-duration: .7s; }
 @media (prefers-reduced-motion: reduce) { #bubbles .bub .halo { animation: none; } }
 .ping { fill: none; stroke: var(--accent); stroke-width: 1.4; animation: ping 1.4s ease-out infinite; transform-box: fill-box; transform-origin: center; pointer-events: none; }
 @keyframes ping { from { transform: scale(.4); opacity: 1; } to { transform: scale(2.2); opacity: 0; } }
@@ -445,6 +466,22 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
 .tipfoot .buy { margin: 0; padding: 8px 18px; }
 .linkbtn { background: none; border: 0; color: var(--muted); font-size: 12px; text-decoration: underline; padding: 4px; }
 
+/* statistiche */
+.stats { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(150px, 30%) 1fr; gap: 12px; padding: 10px var(--gr) 10px var(--gl); }
+.slist { display: flex; flex-direction: column; gap: 4px; overflow-y: auto; min-height: 0; }
+.slist button { text-align: left; background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; font-size: 13px; }
+.slist button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.sview { min-width: 0; min-height: 0; overflow-y: auto; }
+.sbar { margin-bottom: 6px; } .sbar select { max-width: 260px; }
+.shead { display: flex; justify-content: space-between; align-items: baseline; font-family: var(--font-d); font-size: 19px; }
+.shead span { font-family: var(--font-m); font-size: 16px; color: var(--accent); }
+.schart { width: 100%; height: auto; display: block; touch-action: none; }
+.schart .grid { stroke: #23394b; stroke-width: 1; } .schart .goal { stroke: #8ea3b4; stroke-dasharray: 4 4; }
+.schart .line { fill: none; stroke: var(--accent); stroke-width: 2.4; stroke-linejoin: round; }
+.schart .ax { font-family: var(--font-m); font-size: 10px; fill: var(--muted); }
+.schart .xh { stroke: #e6edf2; } .schart .dot { fill: var(--accent); stroke: #0f1d29; stroke-width: 1.5; }
+.stip { font-family: var(--font-m); font-size: 12px; color: var(--fg); min-height: 16px; }
+.card .stats { padding: 6px 0; height: min(62vh, 340px); }
 /* grafici dell'andamento */
 .charts { display: grid; gap: 10px; }
 .chart { position: relative; }
@@ -584,13 +621,15 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
       <h3>Sconfitta</h3>
       <p>Perdi se la stabilità mondiale scende a zero o resta sotto 15 per 5 anni di fila, oppure se l'Autorità fa bancarotta. Una regione in anarchia vale zero e spinge verso il caos le regioni vicine. Una catastrofe globale, come una guerra nucleare, un'intelligenza artificiale fuori controllo o una pandemia ingegnerizzata, azzera tutto di colpo: per questo i rischi vanno tenuti bassi.</p>
       <h3>Interventi</h3>
-      <p>Con i fondi avvii interventi che valgono per tutto il mondo; ogni regione ne risente in base alle sue condizioni. Sono organizzati ad albero: alcuni si sbloccano solo dopo averne completato un altro. Molti richiedono anni per entrare in funzione. Le leggi e le opere si pagano una volta; i programmi che vanno avanti nel tempo, come corsi, servizi o campagne, costano ogni anno e si fermano se smetti di finanziarli. Alcuni interventi sono temporanei: aiutano subito ma col tempo vanno smantellati. Prima di avviare un intervento vedi, in fondo allo schermo, quanto costa e come cambia il saldo annuo, e nelle barre in alto quanto hai fatto nel settore e come cambierebbe l'indicatore principale.</p>
+      <p>Con i fondi avvii interventi che valgono per tutto il mondo; ogni regione ne risente in base alle sue condizioni. La schermata degli interventi si apre sulla <b>Panoramica</b>: una riga per settore, con quanti interventi hai avviato e come va il mondo in quel campo (barra piena è buono, vuota è grave). Ogni settore ha un albero di esagoni: quelli nuovi compaiono man mano che li sblocchi. Toccando un esagono vedi a destra che cos'è e, nelle barre, in verde a righe quello che migliorerebbe e in rosso a righe quello che peggiorerebbe; in basso vedi quanto costa subito e come cambia il saldo annuo. Leggi e opere si pagano una volta; i programmi continui costano ogni anno e si fermano se smetti di finanziarli. Alcune scelte si possono rovesciare quando vuoi: tasse su e giù, assunzioni e licenziamenti, dazi, tagli alla spesa.</p>
       <h3>Difficoltà</h3>
       <p>Le crisi sono le stesse a ogni livello. Cambia quanto in fretta la popolazione accetta le riforme e quanto reagisce male ai sacrifici: a livello facile gli interventi entrano a regime prima e fanno meno malcontento.</p>
       <h3>Fondi e debito</h3>
       <p>Ogni regione versa all'Autorità una parte della sua ricchezza: le entrate crescono se l'economia cresce e calano se una regione cade nell'anarchia, che smette di versare (ma smetti anche di pagare i programmi in quella regione). Se i fondi non bastano puoi indebitarti, anche per rispondere a una crisi, ma si pagano interessi del 12% l'anno. A −${DEBT_LIMIT} fondi l'Autorità fa bancarotta e la partita è persa.</p>
       <h3>Eventi</h3>
-      <p>Crisi ed emergenze compaiono sulla mappa come un segnale sulla regione colpita, con il conto alla rovescia; possono essercene più di uno insieme. Toccalo per scegliere tra intervento pieno, una via di mezzo o non fare nulla. Hai fino a un anno per le crisi lente, come il debito o le pensioni, e circa quattro mesi per le emergenze, come ondate di calore, uragani ed epidemie: puoi usare quel tempo per raccogliere i fondi. Allo scadere il tempo si ferma finché non tocchi il segnale. Il tempo si ferma anche quando apri un menu.</p>
+      <p>Crisi ed emergenze compaiono sulla mappa come un segnaposto sulla regione colpita; possono essercene più di uno insieme. Hai un anno di tempo per toccarlo: intanto puoi raccogliere i fondi. Più aspetti, più il segnaposto si gonfia; dopo un anno il tempo si ferma finché non lo tocchi. Toccandolo scegli tra intervento pieno, una via di mezzo o non fare nulla. Il tempo si ferma anche quando apri un menu.</p>
+      <h3>Economia e popolazione</h3>
+      <p>La ricchezza prodotta da una regione è il numero di lavoratori occupati per quanto produce ciascuno. Tecnologia, istruzione, automazione e robot fanno crescere la produttività; ma se nascono meno bambini, fra 18 anni ci saranno meno lavoratori e l'economia rallenta. Chi aiuta le famiglie oggi vede più crescita una generazione dopo. Nella schermata Mondo, alla voce Statistiche, trovi l'andamento nel tempo di popolazione, lavoratori, produttività, debito e molto altro, per il mondo intero o per una regione; a fine partita lo stesso resoconto.</p>
       <p>Ogni tanto arrivano anche opportunità: scoperte, svolte tecnologiche, riprese economiche.</p>
       <h3>La Luna</h3>
       <p>Il programma lunare, nella scheda Tecnologia, non serve per vincere ma cambia la partita: una base costruita insieme dalle potenze riduce la tensione tra loro e la polarizzazione, gli osservatori portano scoperte e tecnologie, un insediamento permanente custodisce un archivio dell'umanità e apre la strada alla fase successiva. Il pulsante "Terra e Luna" mostra il globo e la Luna con lo stato del programma.</p>
@@ -661,7 +700,7 @@ const P = {
   stableYears: 10, winWorld: 80, // traguardo predefinito (ogni scenario ha il suo)
   adoptYears: 2,         // anni perché la popolazione accetti un intervento a livello medio (si divide per D.adopt)
   evGap: 8, evGapClimate: 3, evCdRegion: 8, evCdGlobal: 6, // ritmo degli eventi, in mesi e anni
-  warnSlow: 12, warnFast: 4, // mesi di tempo per decidere: crisi lente e crisi improvvise
+  warnSlow: 12, // mesi di tempo per decidere su una crisi, prima che il tempo si fermi
 };
 
 /* ---------- difficoltà ---------- */
@@ -672,7 +711,7 @@ const DIFF = {
   facile:    { name: "Facile",          inc: 1.1,  ev: 1, funds: 25, risk: 0.8,  adopt: 1.6, backlash: 0.6 },
   medio:     { name: "Medio",           inc: 1.0,  ev: 1, funds: 20, risk: 1.0,  adopt: 1.0, backlash: 1.0 },
   difficile: { name: "Difficile",       inc: 0.95, ev: 1, funds: 18, risk: 1.15, adopt: 0.8, backlash: 1.15 },
-  super:     { name: "Super difficile", inc: 0.9,  ev: 1, funds: 16, risk: 1.3,  adopt: 0.65, backlash: 1.3 },
+  super:     { name: "Super difficile", inc: 0.85, ev: 1, funds: 16, risk: 1.3,  adopt: 0.55, backlash: 1.45 },
 };
 
 /* ---------- scenari ----------
@@ -709,7 +748,7 @@ const GOVS = [
   { id: "social", name: "Stato sociale", icon: "social", short: "Protezione per tutti, a caro prezzo",
     pro: ["Malcontento più basso ovunque", "Reddito di base sempre disponibile, con spese di gestione più basse"],
     con: ["Il debito cresce più in fretta", "Crescita più bassa", "Niente tagli alla spesa pubblica"],
-    m: { unrestT: -4, debtF: 0.7, g: -0.2 }, ban: ["austerity"], grant: ["ubi"], cheapUp: { ubi: 0.6 } },
+    m: { unrestT: -4, debtF: 0.7, g: -0.2 }, ban: ["austerity", "cutServices", "cutStaff"], grant: ["ubi"], cheapUp: { ubi: 0.6 } },
   { id: "market", name: "Libero mercato", icon: "market", short: "Crescita prima di tutto",
     pro: ["Crescita più alta", "Debito più basso", "Esclusivo: privatizzazioni per fare cassa"],
     con: ["Più disoccupazione", "Più disuguaglianza: polarizzazione più alta", "Niente reddito di base"],
@@ -726,33 +765,34 @@ const GOVS = [
 const GBY = Object.fromEntries(GOVS.map((g) => [g.id, g]));
 
 /* ---------- regioni: valori iniziali approssimati (medie di regione, 2026) ----------
-   pop milioni · tfr figli per donna · age età mediana · wealth indice 0-100 · debt % PIL
+   pop milioni · yng quota sotto i 18 anni · oldS quota sopra i 65 · cbr nati ogni mille abitanti · oldG crescita annua
+   degli anziani in % (dati ONU 2024, arrotondati [Probabile]) · tfr figli per donna · age età mediana · wealth indice 0-100 · debt % PIL
    pension peso del welfare 0-100 · unrest/polar 0-100 · unemp % · fossil/nuclear/renew % energia
    climate esposizione 0-100 · resist opposizione al nucleare 0-100 · links collegamenti 0-100
    I contorni geografici delle regioni stanno in geo.js (dati reali, preparati da tools/geo-build.js). */
 const REGIONS = [
   { id: "na", name: "Nord America", short: "Nord America", links: 95, nb: ["latam", "ru"], label: [-98, 40],
-    init: { pop: 380, tfr: 1.6, age: 38, wealth: 90, debt: 115, pension: 55, unrest: 35, polar: 70, unemp: 4.5, fossil: 78, nuclear: 9, renew: 13, climate: 40, resist: 45, urban: 83, rural: 15, remote: 2 } },
+    init: { yng: 0.21, oldS: 0.18, cbr: 11, oldG: 2.8, pop: 380, tfr: 1.6, age: 38, wealth: 90, debt: 115, pension: 55, unrest: 35, polar: 70, unemp: 4.5, fossil: 78, nuclear: 9, renew: 13, climate: 40, resist: 45, urban: 83, rural: 15, remote: 2 } },
   { id: "latam", name: "America Latina", short: "America Latina", links: 55, nb: ["na"], label: [-60, -12],
-    init: { pop: 660, tfr: 1.8, age: 31, wealth: 45, debt: 70, pension: 35, unrest: 45, polar: 55, unemp: 7, fossil: 66, nuclear: 1, renew: 33, climate: 55, resist: 50, urban: 81, rural: 17, remote: 2 } },
+    init: { yng: 0.25, oldS: 0.1, cbr: 14, oldG: 3.8, pop: 660, tfr: 1.8, age: 31, wealth: 45, debt: 70, pension: 35, unrest: 45, polar: 55, unemp: 7, fossil: 66, nuclear: 1, renew: 33, climate: 55, resist: 50, urban: 81, rural: 17, remote: 2 } },
   { id: "eu", name: "Europa", short: "Europa", links: 95, nb: ["ru", "mena"], label: [16, 50],
-    init: { pop: 600, tfr: 1.45, age: 43, wealth: 80, debt: 90, pension: 70, unrest: 40, polar: 55, unemp: 6.5, fossil: 68, nuclear: 11, renew: 21, climate: 35, resist: 55, urban: 75, rural: 23, remote: 2 } },
+    init: { yng: 0.18, oldS: 0.22, cbr: 9, oldG: 1.5, pop: 600, tfr: 1.45, age: 43, wealth: 80, debt: 90, pension: 70, unrest: 40, polar: 55, unemp: 6.5, fossil: 68, nuclear: 11, renew: 21, climate: 35, resist: 55, urban: 75, rural: 23, remote: 2 } },
   { id: "ru", name: "Russia e Asia centrale", short: "Russia e Asia c.", links: 45, nb: ["eu", "mena", "sa", "ea", "na"], label: [90, 60],
-    init: { pop: 225, tfr: 1.6, age: 38, wealth: 45, debt: 25, pension: 45, unrest: 40, polar: 40, unemp: 5, fossil: 88, nuclear: 7, renew: 5, climate: 30, resist: 30, urban: 68, rural: 28, remote: 4 } },
+    init: { yng: 0.25, oldS: 0.13, cbr: 13, oldG: 2.5, pop: 225, tfr: 1.6, age: 38, wealth: 45, debt: 25, pension: 45, unrest: 40, polar: 40, unemp: 5, fossil: 88, nuclear: 7, renew: 5, climate: 30, resist: 30, urban: 68, rural: 28, remote: 4 } },
   { id: "mena", name: "Medio Oriente e Nord Africa", short: "Medio Oriente e N. Africa", links: 60, nb: ["eu", "ru", "wca", "esa", "sa"], label: [28, 25],
-    init: { pop: 600, tfr: 2.6, age: 27, wealth: 45, debt: 55, pension: 25, unrest: 55, polar: 50, unemp: 11, fossil: 96, nuclear: 1, renew: 3, climate: 75, resist: 40, urban: 66, rural: 30, remote: 4 } },
+    init: { yng: 0.33, oldS: 0.06, cbr: 22, oldG: 4.0, pop: 600, tfr: 2.6, age: 27, wealth: 45, debt: 55, pension: 25, unrest: 55, polar: 50, unemp: 11, fossil: 96, nuclear: 1, renew: 3, climate: 75, resist: 40, urban: 66, rural: 30, remote: 4 } },
   { id: "wca", name: "Africa occidentale e centrale", short: "Africa occ. e centr.", links: 25, nb: ["mena", "esa"], label: [12, 4],
-    init: { pop: 650, tfr: 4.6, age: 18, wealth: 12, debt: 55, pension: 8, unrest: 55, polar: 35, unemp: 10, fossil: 55, nuclear: 0, renew: 45, climate: 80, resist: 35, urban: 48, rural: 45, remote: 7 } },
+    init: { yng: 0.48, oldS: 0.03, cbr: 36, oldG: 3.5, pop: 650, tfr: 4.6, age: 18, wealth: 12, debt: 55, pension: 8, unrest: 55, polar: 35, unemp: 10, fossil: 55, nuclear: 0, renew: 45, climate: 80, resist: 35, urban: 48, rural: 45, remote: 7 } },
   { id: "esa", name: "Africa orientale e australe", short: "Africa or. e australe", links: 30, nb: ["mena", "wca"], label: [31, -14],
-    init: { pop: 700, tfr: 4.0, age: 19, wealth: 15, debt: 60, pension: 10, unrest: 50, polar: 35, unemp: 12, fossil: 55, nuclear: 1, renew: 44, climate: 75, resist: 35, urban: 38, rural: 55, remote: 7 } },
+    init: { yng: 0.46, oldS: 0.03, cbr: 32, oldG: 3.5, pop: 700, tfr: 4.0, age: 19, wealth: 15, debt: 60, pension: 10, unrest: 50, polar: 35, unemp: 12, fossil: 55, nuclear: 1, renew: 44, climate: 75, resist: 35, urban: 38, rural: 55, remote: 7 } },
   { id: "sa", name: "Asia meridionale", short: "Asia meridionale", links: 50, nb: ["mena", "ru", "ea", "sea"], label: [76, 21],
-    init: { pop: 2050, tfr: 2.1, age: 28, wealth: 25, debt: 80, pension: 15, unrest: 50, polar: 55, unemp: 7, fossil: 88, nuclear: 2, renew: 10, climate: 85, resist: 35, urban: 36, rural: 60, remote: 4 } },
+    init: { yng: 0.31, oldS: 0.07, cbr: 17, oldG: 3.8, pop: 2050, tfr: 2.1, age: 28, wealth: 25, debt: 80, pension: 15, unrest: 50, polar: 55, unemp: 7, fossil: 88, nuclear: 2, renew: 10, climate: 85, resist: 35, urban: 36, rural: 60, remote: 4 } },
   { id: "ea", name: "Asia orientale", short: "Asia orientale", links: 85, nb: ["ru", "sa", "sea"], label: [107, 35],
-    init: { pop: 1650, tfr: 1.0, age: 40, wealth: 65, debt: 90, pension: 50, unrest: 30, polar: 30, unemp: 5, fossil: 82, nuclear: 5, renew: 13, climate: 50, resist: 30, urban: 66, rural: 32, remote: 2 } },
+    init: { yng: 0.17, oldS: 0.15, cbr: 7.5, oldG: 3.2, pop: 1650, tfr: 1.0, age: 40, wealth: 65, debt: 90, pension: 50, unrest: 30, polar: 30, unemp: 5, fossil: 82, nuclear: 5, renew: 13, climate: 50, resist: 30, urban: 66, rural: 32, remote: 2 } },
   { id: "sea", name: "Sud-est asiatico", short: "Sud-est asiatico", links: 70, nb: ["sa", "ea", "oce"], label: [112, 6],
-    init: { pop: 700, tfr: 2.0, age: 30, wealth: 40, debt: 50, pension: 25, unrest: 40, polar: 45, unemp: 3, fossil: 83, nuclear: 0, renew: 17, climate: 80, resist: 40, urban: 52, rural: 44, remote: 4 } },
+    init: { yng: 0.27, oldS: 0.08, cbr: 15, oldG: 4.0, pop: 700, tfr: 2.0, age: 30, wealth: 40, debt: 50, pension: 25, unrest: 40, polar: 45, unemp: 3, fossil: 83, nuclear: 0, renew: 17, climate: 80, resist: 40, urban: 52, rural: 44, remote: 4 } },
   { id: "oce", name: "Oceania", short: "Oceania", links: 60, nb: ["sea"], label: [134, -25],
-    init: { pop: 45, tfr: 1.6, age: 36, wealth: 85, debt: 50, pension: 40, unrest: 30, polar: 45, unemp: 4, fossil: 85, nuclear: 0, renew: 15, climate: 60, resist: 60, urban: 86, rural: 12, remote: 2 } },
+    init: { yng: 0.22, oldS: 0.17, cbr: 12, oldG: 2.8, pop: 45, tfr: 1.6, age: 36, wealth: 85, debt: 50, pension: 40, unrest: 30, polar: 45, unemp: 4, fossil: 85, nuclear: 0, renew: 15, climate: 60, resist: 60, urban: 86, rural: 12, remote: 2 } },
 ];
 const RBY = Object.fromEntries(REGIONS.map((R) => [R.id, R]));
 const NUCLEAR_POWERS = ["na", "ru", "ea", "sa", "eu"];
@@ -762,11 +802,20 @@ const NUCLEAR_POWERS = ["na", "ru", "ea", "sa", "eu"];
 const climUnrest = (r, temp) => Math.pow(Math.max(0, temp - 1.3), 1.6) * r.climate / 100 * 7;
 const fUnrest = (r, t, temp) =>
   r.unemp * 1.5 + Math.max(0, r.debt - 110) * 0.12 + r.polar * 0.2 + Math.max(0, r.energyCost - 55) * 0.5 +
-  Math.max(0, r.pension - 60) * 0.15 - (r.growth - (0.5 + 3.5 * (1 - r.wealth / 100))) * 2 - r.wealth * 0.15 +
+  Math.max(0, r.pension - 60) * 0.15 - (r.gpc - basePg(r)) * 2 - r.wealth * 0.15 +
   climUnrest(r, temp);
 const fTfr = (r, year) => 1.35 + 4 * Math.pow(1 - r.wealth / 100, 2.5) - 0.012 * Math.min(30, year - 2026);
-// età mediana di equilibrio per un dato tasso di fecondità (approssimazione)
-const fAgeEq = (tfr) => clamp(62 - 10 * tfr, 18, 54);
+// età mediana stimata dalle tre fasce d'età (adattata sui dati delle regioni)
+const fAge = (r) => clamp(37.4 - 44.35 * r.yng / r.pop + 61.6 * r.old / r.pop, 15, 60);
+/* Economia: il prodotto di una regione è lavoratori occupati × produttività di ciascuno (× robot, se ci sono).
+   Meno giovani oggi significa meno lavoratori fra 18 anni: con la produttività ferma il prodotto scende. */
+// crescita naturale della produttività: più rapida nei paesi a reddito medio che rincorrono, più lenta nei più poveri e nei più ricchi
+const basePg = (r) => { const d = r.wealth / 100; return 0.8 + 2.4 * (1 - d) * Math.min(1, d * 3); };
+const laborOf = (r, m) => r.wrk * (1 + (m ? m.labor : 0)) * (1 + (m ? m.robot : 0)) * (1 - r.unemp / 100);
+// mortalità annua per fascia: dipende dallo sviluppo
+const mortY = (r) => 0.002 + 0.008 * Math.pow(1 - r.wealth / 100, 2);
+const mortW = (r) => 0.002 + 0.004 * (1 - r.wealth / 100);
+const lifeOld = (r, m) => 12 + 10 * r.wealth / 100 + (m ? m.life : 0); // anni di vita attesi dopo i 65
 const fEnergyCost = (r) => 40 + 0.15 * r.fossil;
 
 /* ---------- interventi ----------
@@ -816,12 +865,27 @@ const INTERVENTIONS = [
   { id: "invest", cat: "economia", name: "Investimenti pubblici", desc: "Lo Stato finanzia strade, ferrovie, ospedali e reti digitali.", scope: "region", cost: 6, upkeep: 3, T: 2,
     pro: "Più crescita economica, meno disoccupazione", con: "Costa ogni anno e fa salire il debito",
     fx: (m) => { m.g += 0.8; m.unempT -= 1.5; m.debtF += 1.2; } },
-  { id: "austerity", cat: "economia", name: "Tagli alla spesa pubblica", desc: "Meno spesa per servizi, sussidi e dipendenti pubblici.", scope: "region", cost: 0, upkeep: -10, T: 0,
-    pro: "Il debito scende e l'Autorità risparmia fondi ogni anno", con: "Molto malcontento, crescita più bassa",
-    fx: (m) => { m.debtF -= 2.5; m.unrestT += 12; m.g -= 0.6; } },
+  { id: "austerity", cat: "economia", name: "Revisione della spesa", desc: "Una revisione generale dei bilanci pubblici: si eliminano sprechi, doppioni e spese inutili.", scope: "region", cost: 2, upkeep: -1.5, T: 1,
+    pro: "Un piccolo risparmio ogni anno e un deficit un po' più basso, con poco malcontento", con: "Effetto modesto: i tagli veri vanno scelti uno per uno",
+    eff: { debt: -0.3, unrest: 1 } },
+  { id: "cutStaff", cat: "economia", name: "Meno dipendenti pubblici", desc: "Non si sostituisce chi va in pensione e si riducono gli uffici pubblici.", scope: "region", cost: 0, upkeep: -3, T: 1, revocable: true, toggle: "Riassumi",
+    pro: "Risparmio annuo e deficit più basso", con: "Più disoccupazione e servizi più lenti: malcontento",
+    eff: { debt: -0.8, unemp: 1, unrest: 4, g: -0.05 } },
+  { id: "cutSubsidies", cat: "economia", name: "Meno sussidi alle imprese", desc: "Si tolgono aiuti e agevolazioni alle aziende, a cominciare da quelle in perdita.", scope: "region", cost: 0, upkeep: -2.5, T: 1, revocable: true, toggle: "Ripristina",
+    pro: "Risparmio annuo e deficit più basso", con: "Alcune aziende chiudono: disoccupazione e un po' meno crescita",
+    eff: { debt: -0.6, unemp: 0.6, g: -0.15, unrest: 2 } },
+  { id: "cutDefense", cat: "economia", name: "Meno spese militari", desc: "Eserciti più piccoli e meno acquisti di armi.", scope: "region", cost: 0, upkeep: -3, T: 2, revocable: true, toggle: "Riarma",
+    pro: "Risparmio annuo e deficit più basso", con: "Le potenze si sentono meno sicure: la tensione sale un po'",
+    eff: { debt: -0.6, unrest: 1 }, geff: { tension: 4 } },
+  { id: "cutServices", cat: "economia", name: "Tagli a sanità e servizi", desc: "Meno ospedali, scuole e trasporti pubblici, ticket più alti.", scope: "region", cost: 0, upkeep: -4, T: 1, revocable: true, toggle: "Ripristina",
+    pro: "Il risparmio più grande", con: "Molto malcontento, salute peggiore: si vive un po' meno e si lavora meno",
+    eff: { debt: -1, unrest: 7, labor: -0.01, life: -1 } },
   { id: "automation", cat: "economia", name: "Automazione dell'industria", desc: "Incentivi alle imprese per robot e programmi che svolgono i lavori ripetitivi.", scope: "region", cost: 15, T: 3, spread: true,
-    pro: "Molta crescita economica; compensa il calo dei lavoratori", con: "Più disoccupazione e disuguaglianza",
-    fx: (m, s) => { m.g += 1.0 * s; m.unempT += 2.5 * s; m.polarT += 4 * s; } },
+    pro: "La produttività di ogni lavoratore cresce più in fretta", con: "Più disoccupazione e disuguaglianza",
+    fx: (m, s) => { m.g += 0.6 * s; m.unempT += 2.5 * s; m.polarT += 4 * s; } },
+  { id: "robots", cat: "economia", name: "Robot umanoidi", desc: "Robot dalla forma umana che lavorano in fabbriche, magazzini, cantieri e nell'assistenza agli anziani.", scope: "region", cost: 20, T: 4, ramp: 15, from: 2035,
+    pro: "Fanno il lavoro che mancherà quando i lavoratori diminuiscono: il prodotto cresce anche con meno persone", con: "Molta disoccupazione tra chi fa lavori manuali e più disuguaglianza",
+    eff: { robot: 0.25, unemp: 2.5, polar: 4 } },
   { id: "retrain", cat: "economia", name: "Riqualificazione dei lavoratori", desc: "Corsi pagati dallo Stato per insegnare un nuovo mestiere a chi perde il lavoro.", scope: "region", cost: 4, upkeep: 1.5, T: 2,
     pro: "Meno disoccupazione", con: "Costa ogni anno; funziona finché i corsi continuano",
     fx: (m) => { m.unempT -= 2.2; } },
@@ -834,7 +898,7 @@ const INTERVENTIONS = [
   // Previdenza e demografia
   { id: "retire", cat: "demografia", name: "Età pensionabile più alta", desc: "Si va in pensione qualche anno più tardi.", scope: "region", cost: 3, T: 2,
     pro: "La spesa per le pensioni scende molto", con: "Molto malcontento, soprattutto tra chi è vicino alla pensione",
-    fx: (m) => { m.pensT -= 15; m.unrestT += 5; }, once: (r) => { r.shockU += 12; } },
+    fx: (m) => { m.pensT -= 15; m.unrestT += 5; m.labor += 0.05; }, once: (r) => { r.shockU += 12; } },
   { id: "contrib", cat: "demografia", name: "Aumento dei contributi", desc: "Lavoratori e imprese versano una quota più alta dello stipendio per pagare le pensioni.", scope: "region", cost: 0, T: 1,
     pro: "Le pensioni pesano meno sui conti pubblici", con: "Meno crescita, malcontento tra i giovani",
     fx: (m) => { m.pensT -= 6; m.g -= 0.3; m.unrestT += 3; } },
@@ -843,16 +907,16 @@ const INTERVENTIONS = [
     fx: (m, s) => { m.fert += 0.16 * s; m.debtF += 0.3; } },
   { id: "family", cat: "demografia", name: "Servizi per la famiglia", desc: "Asili nido, congedi per i genitori e orari di lavoro flessibili.", scope: "region", cost: 4, upkeep: 2, T: 3, spread: true,
     pro: "Un po' più di figli e più donne al lavoro", con: "Costa ogni anno",
-    fx: (m, s) => { m.fert += 0.08 * s; m.g += 0.2 * s; } },
-  { id: "migration", cat: "demografia", name: "Immigrazione regolata", desc: "Ingressi legali e programmati di lavoratori stranieri verso le regioni ricche che invecchiano.", scope: "region", cost: 3, upkeep: 0.5, T: 2, req: (r) => r.age >= 35 ? null : "Serve una regione anziana",
+    fx: (m, s) => { m.fert += 0.08 * s; m.labor += 0.03 * s; } },
+  { id: "migration", cat: "demografia", name: "Immigrazione regolata", desc: "Ingressi legali e programmati di lavoratori stranieri verso le regioni ricche che invecchiano.", scope: "region", cost: 3, upkeep: 0.5, T: 2, 
     pro: "Più lavoratori e pensioni più sostenibili nelle regioni anziane; meno pressione in quelle giovani", con: "Più polarizzazione nelle regioni che accolgono",
-    fx: (m, s, r) => { if (r.age >= 35) { m.pensT -= 6; m.g += 0.3; m.polarT += 8; m.unempT += 0.3; } else { m.unrestT -= 2; } } },
+    fx: (m, s, r) => { if (r.age >= 35) { m.mig += 0.003; m.pensT -= 3; m.polarT += 8; m.unempT += 0.3; } else { m.mig -= 0.001; m.unrestT -= 2; } } },
   { id: "integration", cat: "demografia", name: "Integrazione degli immigrati", desc: "Corsi di lingua, formazione e aiuto nella ricerca di casa e lavoro per chi arriva.", scope: "region", cost: 3, upkeep: 1.5, T: 2, ramp: 8,
     pro: "Meno polarizzazione", con: "Costa ogni anno; l'effetto cresce lentamente",
     fx: (m, s) => { m.polarT -= 7 * s; } },
   { id: "healthyAging", cat: "demografia", name: "Invecchiamento in salute", desc: "Prevenzione, controlli e cure per restare in salute e lavorare più a lungo.", scope: "region", cost: 6, upkeep: 1.5, T: 3, ramp: 10, spread: true,
     pro: "Più anni di vita attiva, pensioni più sostenibili", con: "Costa ogni anno; l'effetto pieno arriva dopo una decina d'anni",
-    fx: (m, s) => { m.pensT -= 8 * s; } },
+    fx: (m, s) => { m.pensT -= 8 * s; m.labor += 0.02 * s; } },
   // Società
   { id: "transparency", cat: "societa", name: "Trasparenza", desc: "Spese pubbliche, appalti e patrimoni dei politici diventano consultabili da tutti online.", scope: "region", cost: 4, upkeep: 0.5, T: 2, ramp: 5, axis: -6,
     pro: "Più fiducia nelle istituzioni, meno polarizzazione", con: "Da sola non punisce chi ruba",
@@ -933,8 +997,8 @@ const INTERVENTIONS = [
      dell'energia, resist opposizione al nucleare. Chiavi di geff: income entrate dell'Autorità (+0,1 = +10%),
      tension tensione tra le potenze, co2 CO₂ tolta, safeRate sicurezza AI, bioRate biosicurezza, polarAll, gAll. */
   // Fisco
-  { id: "taxRaise", cat: "economia", name: "Aumento delle tasse", desc: "Imposte un po' più alte su redditi e consumi in tutte le regioni.", scope: "region", cost: 0, T: 1, revocable: true,
-    pro: "Le entrate dell'Autorità crescono di un quarto", con: "Malcontento e crescita più bassa; si può tornare indietro",
+  { id: "taxRaise", cat: "economia", name: "Aumento delle tasse", desc: "Imposte un po' più alte su redditi e consumi in tutte le regioni.", scope: "region", cost: 0, T: 1, revocable: true, toggle: "Abbassa le tasse",
+    pro: "Le entrate dell'Autorità crescono di un quarto", con: "Malcontento e crescita più bassa",
     eff: { unrest: 5, g: -0.25 }, geff: { income: 0.25 } },
   { id: "wealthTax", cat: "economia", name: "Tassa sui grandi patrimoni", desc: "Un'imposta annuale sulle ricchezze più alte.", scope: "region", cost: 2, T: 2, revocable: true,
     pro: "Più entrate e meno disuguaglianza", con: "Un po' meno investimenti e crescita",
@@ -946,18 +1010,18 @@ const INTERVENTIONS = [
   { id: "unempBenefit", cat: "economia", name: "Sussidio di disoccupazione", desc: "Un assegno mensile per chi perde il lavoro, finché non ne trova un altro.", scope: "region", cost: 2, upkeep: 2.5, T: 1,
     pro: "Molto meno malcontento dove la disoccupazione è alta", con: "Costa ogni anno",
     fx: (m, s, r) => { m.unrestT -= Math.min(8, r.unemp * 0.7) * s; } },
-  { id: "minWage", cat: "economia", name: "Salario minimo", desc: "Una paga oraria minima uguale per tutti i lavoratori.", scope: "region", cost: 1, T: 1, revocable: true,
+  { id: "minWage", cat: "economia", name: "Salario minimo", desc: "Una paga oraria minima uguale per tutti i lavoratori.", scope: "region", cost: 1, T: 1, revocable: true, toggle: "Abolisci",
     pro: "Meno malcontento e disuguaglianza", con: "Un po' più di disoccupazione",
     eff: { unrest: -3, polar: -2, unemp: 0.6 } },
-  { id: "publicJobs", cat: "economia", name: "Assunzioni pubbliche straordinarie", desc: "Lo Stato assume disoccupati per lavori di pubblica utilità.", scope: "region", cost: 3, upkeep: 3, T: 1, temp: true,
-    pro: "Disoccupazione e malcontento giù subito", con: "Costa ogni anno e fa salire il debito: utile nelle crisi, da smantellare dopo",
+  { id: "publicJobs", cat: "economia", name: "Assunzioni pubbliche straordinarie", desc: "Lo Stato assume disoccupati per lavori di pubblica utilità.", scope: "region", cost: 3, upkeep: 3, T: 1, revocable: true, toggle: "Licenzia",
+    pro: "Disoccupazione e malcontento giù subito", con: "Costa ogni anno e fa salire il debito",
     eff: { unemp: -2.5, unrest: -3, debt: 0.6 } },
-  { id: "tariffs", cat: "economia", name: "Dazi protettivi", desc: "Tasse sulle merci importate per proteggere le industrie locali.", scope: "region", cost: 1, T: 1, temp: true,
-    pro: "Salvano subito posti di lavoro", con: "Anno dopo anno frenano sempre di più la crescita: vanno tolti al momento giusto",
+  { id: "tariffs", cat: "economia", name: "Dazi protettivi", desc: "Tasse sulle merci importate per proteggere le industrie locali.", scope: "region", cost: 1, T: 1, revocable: true, toggle: "Togli i dazi",
+    pro: "Salvano subito posti di lavoro", con: "Frenano la crescita",
     fx: (m, s, r, st, gm, a) => { m.unempT -= 1.5 * s; m.g -= Math.min(1.2, 0.1 + 0.06 * (st.year - a.y)) * s; } },
   // Energia
-  { id: "priceCap", cat: "energia", name: "Bollette bloccate", desc: "Lo Stato fissa un tetto al prezzo dell'energia e paga la differenza ai produttori.", scope: "region", cost: 0, upkeep: 4, T: 0, temp: true,
-    pro: "Energia meno cara e meno malcontento, subito", con: "Costa molto ogni anno e rallenta il passaggio alle rinnovabili: misura d'emergenza; toglierla fa arrabbiare",
+  { id: "priceCap", cat: "energia", name: "Bollette bloccate", desc: "Lo Stato fissa un tetto al prezzo dell'energia e paga la differenza ai produttori.", scope: "region", cost: 0, upkeep: 4, T: 0, revocable: true, toggle: "Sblocca le bollette",
+    pro: "Energia meno cara e meno malcontento, subito", con: "Costa molto ogni anno e rallenta il passaggio alle rinnovabili",
     eff: { unrest: -5, energy: -10, fossil: -0.4 } },
   { id: "evCars", cat: "energia", name: "Auto e trasporti elettrici", desc: "Incentivi per auto elettriche, autobus elettrici e colonnine di ricarica.", scope: "region", cost: 12, T: 4,
     pro: "Meno petrolio e meno emissioni", con: "Serve molta elettricità pulita per avere pieno effetto",
@@ -968,7 +1032,7 @@ const INTERVENTIONS = [
     eff: { fert: 0.08, unrest: -2 } },
   { id: "parentalLeave", cat: "demografia", name: "Congedi parentali lunghi", desc: "Un anno di congedo pagato, da dividere tra i due genitori.", scope: "region", cost: 2, upkeep: 2, T: 1,
     pro: "Un po' più di figli, famiglie più serene", con: "Costa ogni anno; un po' meno ore lavorate",
-    eff: { fert: 0.07, unrest: -1, g: -0.05 } },
+    eff: { fert: 0.07, unrest: -1, labor: -0.005 } },
   { id: "ivf", cat: "demografia", name: "Fecondazione assistita gratuita", desc: "Le cure per la fertilità sono pagate dal servizio sanitario.", scope: "region", cost: 3, upkeep: 1, T: 2,
     pro: "Più figli per chi li desidera ma non riesce ad averli", con: "Effetto piccolo",
     eff: { fert: 0.05 } },
@@ -983,7 +1047,7 @@ const INTERVENTIONS = [
     eff: { pension: -14, fert: 0.03 } },
   { id: "healthcare", cat: "demografia", name: "Sanità universale", desc: "Cure mediche gratuite per tutti, pagate con le tasse.", scope: "region", cost: 6, upkeep: 4, T: 3,
     pro: "Molto meno malcontento, persone più sane e produttive", con: "Costa molto ogni anno; si vive più a lungo e le pensioni pesano un po' di più",
-    eff: { unrest: -5, g: 0.15, pension: 2 } },
+    eff: { unrest: -5, labor: 0.01, life: 1.5 } },
   // Società
   { id: "socialHousing", cat: "societa", name: "Edilizia popolare", desc: "Case a basso affitto costruite dallo Stato nelle città.", scope: "region", cost: 12, T: 4,
     pro: "Meno malcontento e meno divisioni nelle città", con: "Costo alto",
@@ -1055,7 +1119,7 @@ for (const d of INTERVENTIONS) {
 const TAB_OF = { energia: "energia", nucleare: "energia", economia: "economia", demografia: "welfare", societa: "societa", clima: "clima", salute: "sicurezza", sicurezza: "sicurezza", ai: "tecnologia", spazio: "tecnologia" };
 for (const d of INTERVENTIONS) { d.fam = d.cat; d.cat = TAB_OF[d.cat]; }
 /* livello di complessità: 1 facile, 2 medio, 3 difficile e super difficile */
-const TIER2 = ["fossilSub", "ubi", "taxRaise", "taxEvasion", "unempBenefit", "housing", "pensionFunds", "socialHousing", "wealthTax", "minWage", "publicJobs", "tariffs", "priceCap", "evCars", "parentalLeave", "ivf", "pensionTax", "birthDowry", "healthcare", "civicService", "cyber", "foodReserve", "forestProtect", "efficiency", "nucInfo", "smr", "automation", "retrain", "family", "natality", "integration", "healthyAging", "surveil", "vaccines", "amr", "dac", "aiCap", "orbital", "pdef", "lunarIce", "lunarMining", "police", "disinfo"];
+const TIER2 = ["cutStaff", "cutSubsidies", "cutDefense", "cutServices", "robots", "fossilSub", "ubi", "taxRaise", "taxEvasion", "unempBenefit", "housing", "pensionFunds", "socialHousing", "wealthTax", "minWage", "publicJobs", "tariffs", "priceCap", "evCars", "parentalLeave", "ivf", "pensionTax", "birthDowry", "healthcare", "civicService", "cyber", "foodReserve", "forestProtect", "efficiency", "nucInfo", "smr", "automation", "retrain", "family", "natality", "integration", "healthyAging", "surveil", "vaccines", "amr", "dac", "aiCap", "orbital", "pdef", "lunarIce", "lunarMining", "police", "disinfo"];
 const TIER3 = ["fusion", "geoeng"]; // reddito di base e sussidi fossili ora già dal livello 2
 for (const d of INTERVENTIONS) d.tier = TIER3.includes(d.id) ? 3 : TIER2.includes(d.id) ? 2 : 1;
 const IBY = Object.fromEntries(INTERVENTIONS.map((d) => [d.id, d]));
@@ -1072,7 +1136,7 @@ const TREE = {
   fossilSub: null, carbonTax: null, renew: null, grid: "renew", efficiency: "carbonTax", nuclear: null, nucInfo: "nuclear", smr: "nuclear", fusion: "smr",
   invest: null, automation: "invest", retrain: "automation", ubi: "unempBenefit", develop: "invest", austerity: null, debtRestr: "austerity",
   taxRaise: null, wealthTax: "taxRaise", taxEvasion: "taxRaise", unempBenefit: null, minWage: "unempBenefit", publicJobs: "unempBenefit", tariffs: null,
-  priceCap: "fossilSub", evCars: "renew",
+  priceCap: "fossilSub", evCars: "renew", cutStaff: "austerity", cutSubsidies: "austerity", cutDefense: "austerity", cutServices: "austerity", robots: "automation",
   housing: null, parentalLeave: "family", ivf: "housing", pensionFunds: "contrib", pensionTax: "pensionFunds", birthDowry: "pensionFunds", healthcare: null,
   socialHousing: null, civicService: "assemblies", cyber: "surveil", foodReserve: "agri", forestProtect: "reforest",
   contrib: null, retire: "contrib", healthyAging: "retire", family: null, natality: "family", migration: null, integration: "migration",
@@ -1113,12 +1177,13 @@ function shiftClean(r, pts, kind) {
 }
 // quota dell'effetto raggiunta: cresce dall'avvio fino al pieno in "ramp" anni (o nel tempo di accettazione),
 // più in fretta se la popolazione è aperta ai cambiamenti (D.adopt)
+const comply = (r) => 1 - clamp((r.unrest - 60) / 75, 0, 0.4);
 function rampK(d, a, st) {
   const years = (d.ramp || P.adoptYears) / ((st.D && st.D.adopt) || 1);
   return clamp((st.year + st.month / 12 - a.y) / years, 0.05, 1);
 }
 // tabelle di effetti → modificatori del mese
-const EFF_KEY = { unrest: "unrestT", polar: "polarT", g: "g", unemp: "unempT", fert: "fert", pension: "pensT", debt: "debtF", fossil: "fossilShift", energy: "energyCost", resist: "resistT", dmg: "dmg", famine: "famine", eff: "eff" };
+const EFF_KEY = { unrest: "unrestT", polar: "polarT", g: "g", unemp: "unempT", fert: "fert", pension: "pensT", debt: "debtF", fossil: "fossilShift", energy: "energyCost", resist: "resistT", dmg: "dmg", famine: "famine", eff: "eff", labor: "labor", robot: "robot", life: "life", mig: "mig" };
 const GEFF_KEY = { income: "income", tension: "tensionT", co2: "co2Rem", safeRate: "safeRate", bioRate: "bioRate", aiRate: "aiRate", polarAll: "polarAll", gAll: "gAll", frontier: "frontier", geo: "geo" };
 function applyEff(eff, keys, target, s) { for (const k in eff) target[keys[k]] += eff[k] * s; }
 function lvl(r, id) {
@@ -1128,7 +1193,7 @@ function lvl(r, id) {
 }
 
 /* ---------- stato ---------- */
-const M0 = () => ({ g: 0, unrestT: 0, polarT: 0, unempT: 0, fert: 0, pensT: 0, debtF: 0, fossilShift: 0, resistT: 0, energyCost: 0, eff: 0, dmg: 0, famine: 0 });
+const M0 = () => ({ g: 0, unrestT: 0, polarT: 0, unempT: 0, fert: 0, pensT: 0, debtF: 0, fossilShift: 0, resistT: 0, energyCost: 0, eff: 0, dmg: 0, famine: 0, labor: 0, robot: 0, life: 0, mig: 0 });
 const G0 = () => ({ aiRate: 0, safeRate: 0, bioRate: 0, biotechRate: 0, co2Rem: 0, geo: 0, tensionT: 0, gAll: 0, unempAll: 0, pmit: 0, epi: 0, polarAll: 0, frontier: 0, income: 0 });
 
 function emissions(st) {
@@ -1144,7 +1209,7 @@ function econMass(st, controlledOnly) {
   for (const id in st.regions) {
     const r = st.regions[id];
     if (controlledOnly && !r.controlled) continue;
-    s += r.pop * r.wealth * (r.autonomy ? 0.9 : 1);
+    s += r.gdp * (r.autonomy ? 0.9 : 1);
   }
   return s;
 }
@@ -1157,7 +1222,18 @@ function newGame(diffId, seed, levelId = "l4", govId = "base") {
   for (const R of REGIONS) {
     const r = { id: R.id, name: R.name, ...R.init, controlled: true, anarchy: 0, shockU: 0, shockG: 0, acts: {}, m: M0(), autonomy: false };
     r.energyCost = fEnergyCost(r);
-    r.growth = 0;
+    r.growth = 0; r.gpc = 0; r.lg = 0; r.popG = 0;
+    // tre fasce d'età e nascite degli ultimi 18 anni (ricostruite con una crescita costante che dà i giovani di oggi)
+    r.yng = r.pop * r.yng; r.old = r.pop * r.oldS; r.wrk = r.pop - r.yng - r.old;
+    r.bF = r.cbr / 1000 * r.pop / (r.tfr * r.wrk);
+    const B0 = r.tfr * r.wrk * r.bF, sy = 1 - mortY(r);
+    let lo = -0.08, hi = 0.12;
+    for (let i = 0; i < 40; i++) { const gb = (lo + hi) / 2; let y = 0; for (let k = 1; k <= 18; k++) y += B0 * Math.pow(1 + gb, -k) * Math.pow(sy, k); if (y > r.yng) lo = gb; else hi = gb; }
+    r.bh = []; for (let k = 18; k >= 1; k--) r.bh.push(B0 * Math.pow(1 + lo, -k)); r.bCur = 0;
+    r.rr0 = r.old * (r.oldG / 100 + 1 / lifeOld(r)) / r.wrk; // ritmo dei pensionamenti di oggi
+    r.age = fAge(r);
+    r.prod = r.pop * r.wealth / laborOf(r); r.gdp = r.pop * r.wealth; r.L = laborOf(r);
+    r.gdp0 = r.gdp; r.pop0 = r.pop; r.prod0 = r.prod;
     regions[R.id] = r;
   }
   const st = {
@@ -1171,13 +1247,16 @@ function newGame(diffId, seed, levelId = "l4", govId = "base") {
   // calcola la crescita iniziale e fissa le basi di equilibrio
   for (const id in regions) {
     const r = regions[id];
-    r.growth = growthOf(r, st, M0(), G0());
+    r.growth = prodGrowth(r, st, M0(), G0()); r.gpc = r.growth; // primo mese: poi si aggiunge l'andamento dei lavoratori
   }
   for (const id in regions) {
     const r = regions[id];
     r.uBase = r.unrest - fUnrest(r, st, st.g.temp);
     r.pBase = r.polar - r.unrest * 0.3;
-    r.pensBase = r.pension - (r.age - 22) * 2.8;
+    r.pensBase = r.pension - r.old / r.wrk * PENS_K;
+    r.pens0 = r.pension;
+    // deficit di partenza: il debito di ogni regione all'inizio sale di circa mezzo punto l'anno
+    r.defBase = 0.5 - (Math.max(0, r.debt - 100) * 0.01 - r.growth * r.debt / 100);
     r.tfrBase = r.tfr - fTfr(r, st.year);
     r.unempBase = r.unemp - 5;
     r.resistBase = r.resist;
@@ -1189,6 +1268,7 @@ function newGame(diffId, seed, levelId = "l4", govId = "base") {
   st.pop0 = worldPop(st);
   st.income = BASE_INCOME * D.inc * (st.L.inc || 1); st.upkeep = 0;
   logNews(st, "L'Autorità si insedia. Le nazioni hanno accettato di eseguire i suoi ordini.", "info");
+  st.hist.push(histRow(st));
   return st;
 }
 
@@ -1204,10 +1284,10 @@ function logNews(st, text, kind, quiet) {
   if (st.log.length > 60) st.log.pop();
 }
 
-function growthOf(r, st, m, gm) {
-  const dev = r.wealth / 100;
-  let g = 0.5 + 3.5 * (1 - dev);
-  g -= Math.max(0, r.age - 38) * 0.05;
+const PENS_K = 140; // peso del welfare per ogni anziano rispetto ai lavoratori
+// crescita della produttività per lavoratore (% l'anno)
+function prodGrowth(r, st, m, gm) {
+  let g = basePg(r);
   g -= Math.max(0, r.debt - 100) * 0.01;
   g -= Math.max(0, r.unrest - 50) * 0.03;
   g -= (r.energyCost - 50) * 0.03;
@@ -1279,14 +1359,13 @@ function worldStab(st) {
 // da dove viene il malcontento: le voci della formula fUnrest, in punti
 function unrestCauses(r, st) {
   const temp = st.g.temp + st.g.geoOff;
-  const pot = 0.5 + 3.5 * (1 - r.wealth / 100);
   return [
     { name: "Disoccupazione", v: r.unemp * 1.5 },
     { name: "Polarizzazione e sfiducia", v: r.polar * 0.2 },
     { name: "Debito troppo alto", v: Math.max(0, r.debt - 110) * 0.12 },
     { name: "Energia cara", v: Math.max(0, r.energyCost - 55) * 0.5 },
     { name: "Welfare in difficoltà", v: Math.max(0, r.pension - 60) * 0.15 },
-    { name: "Economia sotto le attese", v: Math.max(0, -(r.growth - pot) * 2) },
+    { name: "Economia sotto le attese", v: Math.max(0, -(r.gpc - basePg(r)) * 2) },
     { name: "Effetti del clima", v: climUnrest(r, temp) * (1 - (r.m ? r.m.dmg : 0)) },
     { name: "Anarchia nelle regioni vicine", v: anarchyNear(st, r) * ANARCHY_SPREAD },
     { name: "Crisi recenti", v: Math.max(0, r.shockU) },
@@ -1712,7 +1791,8 @@ function tick(st) {
     const r = st.regions[id];
     const m = M0();
     if (r.controlled) for (const aid in st.acts) {
-      const d = IBY[aid]; const s = lvl(r, aid) * rampK(d, st.acts[aid], st);
+      // dove il malcontento è alto la gente segue meno le riforme: entrano a regime più piano
+      const d = IBY[aid]; const s = lvl(r, aid) * rampK(d, st.acts[aid], st) * comply(r);
       if (!d.wasRegion || s <= 0) continue;
       const u0 = m.unrestT, p0 = m.polarT;
       if (d.eff) applyEff(d.eff, EFF_KEY, m, s);
@@ -1742,19 +1822,45 @@ function tick(st) {
 
   // regioni
   const temp = G.temp + G.geoOff;
+  // migrazioni: chi arriva nelle regioni ricche parte da quelle a basso reddito, in proporzione ai loro lavoratori
+  let migIn = 0, sendW = 0;
+  for (const id in st.regions) { const r = st.regions[id]; if (r.wealth > 75) migIn += 0.004 * r.pop + r.m.mig * r.pop; else if (r.wealth < 50) sendW += r.wrk; }
+  st.migOut = sendW ? migIn / sendW : 0;
   for (const id in st.regions) {
     const r = st.regions[id];
     const m = r.m;
     r.energyCost = fEnergyCost(r) + m.energyCost;
-    r.growth = growthOf(r, st, m, gm);
-    r.wealth = clamp(r.wealth + r.growth * 0.3 * dt, 1, 100);
+    // popolazione: nascite, ingresso nel lavoro dei nati di 18 anni fa, pensionamenti, morti, immigrazione
+    const births = r.tfr * r.wrk * r.bF;
+    r.bCur += births * dt;
+    const entr = r.bh[0] * Math.pow(1 - mortY(r), 18);
+    const yrs = Math.min(1, (st.year - 2026) / 47);
+    const rr = (r.rr0 + (0.0205 - r.rr0) * yrs) * (1 - m.labor * 0.5);
+    const mig = r.wealth > 75 ? 0.004 * r.pop + m.mig * r.pop : r.wealth < 50 ? -st.migOut * r.wrk : m.mig * r.pop;
+    const pop0 = r.pop;
+    r.yng = Math.max(0, r.yng + (births - entr - r.yng * mortY(r)) * dt);
+    r.wrk = Math.max(1, r.wrk + (entr - r.wrk * rr - r.wrk * mortW(r) + mig) * dt);
+    r.old = Math.max(0, r.old + (r.wrk * rr - r.old / lifeOld(r, m)) * dt);
+    r.pop = r.yng + r.wrk + r.old;
+    r.age = fAge(r);
+    r.popG += ((r.pop / pop0 - 1) / dt * 100 - r.popG) * 0.2;
+    // prodotto = lavoratori occupati × produttività
+    const pg = prodGrowth(r, st, m, gm);
+    r.prod *= 1 + pg / 100 * dt;
+    const L = laborOf(r, m);
+    r.lg += ((L / r.L - 1) / dt * 100 - r.lg) * 0.15; r.L = L;
+    r.gdp = L * r.prod;
+    r.growth = pg + r.lg;
+    r.gpc = r.growth - r.popG;
+    r.wealth = clamp(r.wealth + r.gpc * 0.3 * dt, 1, 100);
     r.shockU *= 1 - 0.5 * dt;
     r.shockG *= 1 - 0.4 * dt;
 
-    const pensT = clamp(r.pensBase + (r.age - 22) * 2.8 + m.pensT, 0, 100);
+    const pensT = clamp(r.pensBase + r.old / r.wrk * PENS_K + m.pensT, 0, 100);
     r.pension += (pensT - r.pension) * 0.15 * dt;
 
-    r.debt += dt * ((r.pension - 40) * 0.05 + m.debtF - r.growth * 0.4 + Math.max(0, r.debt - 100) * 0.01);
+    /* debito in % del prodotto: sale con il deficit (welfare che cresce, spese in più), scende se il prodotto cresce */
+    r.debt += dt * (r.defBase + (r.pension - r.pens0) * 0.08 + m.debtF + Math.max(0, r.debt - 100) * 0.01 - r.growth * r.debt / 100);
     r.debt = clamp(r.debt, 0, 400);
 
     const uT = clamp(r.unempBase + 5 + m.unempT + gm.unempAll + Math.max(0, -r.growth) * 1.5, 1, 40);
@@ -1773,11 +1879,6 @@ function tick(st) {
 
     const fT = Math.max(1.1, fTfr(r, st.year) + r.tfrBase + m.fert);
     r.tfr += (fT - r.tfr) * 0.06 * dt;
-    r.age += (fAgeEq(r.tfr) - r.age) * 0.04 * dt;
-    /* popolazione: figli per donna, slancio delle popolazioni giovani (che crescono ancora per decenni anche quando
-       la fecondità scende) e immigrazione verso le regioni ricche. Tarata sulle proiezioni medie dell'ONU (2024):
-       circa 9,5 miliardi nel 2050, picco poco sopra 10 verso il 2080, poi un lento calo [Probabile] */
-    r.pop *= 1 + dt * ((r.tfr - 2.1) * 0.008 + 0.0025 + Math.max(0, 33 - r.age) * 0.0008 + (r.wealth > 75 ? 0.004 : 0));
 
     // transizione energetica: una deriva naturale lenta più gli interventi
     const fs = (0.4 + m.fossilShift) * dt;
@@ -1852,13 +1953,8 @@ function tick(st) {
   return rollEvent(st);
 }
 
-/* Preavviso in mesi: le crisi che maturano lentamente compaiono prima sulla mappa come un segnale con il conto
-   alla rovescia, così il giocatore può raccogliere i fondi; le catastrofi improvvise (uragani, epidemie, incidenti)
-   non hanno preavviso e si aprono subito. */
-// crisi lente: un anno di tempo; tutte le altre (catastrofi improvvise): P.warnFast mesi
-// mesi che il segnale di una crisi resta sulla mappa prima che il tempo si fermi: le emergenze naturali e militari sono rapide
-const EV_URGENT = ["pandemic", "labLeak", "epidemic", "nucCrisis", "conflict", "nucAccident", "aiIncident", "moonAccident"];
-const EV_WARN = Object.fromEntries(EVENTS.map((e) => [e.id, e.cat === "Clima" || e.cat === "Natura" || EV_URGENT.includes(e.id) ? P.warnFast : P.warnSlow]));
+// mesi che il segnale di una crisi resta sulla mappa prima che il tempo si fermi: un anno per tutte (decisione del 18 ottobre 2026)
+const EV_WARN = Object.fromEntries(EVENTS.map((e) => [e.id, P.warnSlow]));
 // problema a cui appartiene ogni evento: compare solo negli scenari dove quel problema è in gioco
 const EV_SYS = {
   energyShock: "energia", batteries: "energia", nucAccident: "energia",
@@ -1905,7 +2001,9 @@ function rollEvent(st) {
 }
 
 function yearly(st) {
-  (st.hist || (st.hist = [])).push({ y: st.year, ws: Math.round(worldStab(st) * 10) / 10, t: Math.round((st.g.temp + st.g.geoOff) * 100) / 100, e: Math.round(emissions(st) / st.E0 * 100), n: ctrlRegions(st).length });
+  // i nati dell'anno entrano nella storia: lavoreranno fra 18 anni
+  for (const id in st.regions) { const r = st.regions[id]; r.bh.shift(); r.bh.push(r.bCur); r.bCur = 0; }
+  (st.hist || (st.hist = [])).push(histRow(st));
   // diffusione delle innovazioni
   for (const d of INTERVENTIONS) {
     if (!d.spread) continue;
@@ -1940,6 +2038,24 @@ function yearly(st) {
     st.stable = 0;
     logNews(st, "La stabilità si è interrotta: il conteggio riparte.", "bad");
   }
+}
+
+/* Statistiche di un anno, per il mondo (w) e per ogni regione: servono ai grafici e al resoconto finale */
+const r1 = (v, d = 1) => Math.round(v * Math.pow(10, d)) / Math.pow(10, d);
+function statsOf(rs) {
+  const pop = rs.reduce((a, r) => a + r.pop, 0) || 1, wrk = rs.reduce((a, r) => a + r.wrk, 0) || 1;
+  const gdp = rs.reduce((a, r) => a + r.gdp, 0), gdp0 = rs.reduce((a, r) => a + r.gdp0, 0) || 1, pop0 = rs.reduce((a, r) => a + r.pop0, 0) || 1;
+  const L = rs.reduce((a, r) => a + r.L, 0) || 1;
+  const wp = (k) => rs.reduce((a, r) => a + r[k] * r.pop, 0) / pop, wg = (k) => rs.reduce((a, r) => a + r[k] * r.gdp, 0) / (gdp || 1);
+  return { pop: r1(pop / 1000, 3), wrk: r1(wrk / 1000, 3), old: r1(rs.reduce((a, r) => a + r.old, 0) / wrk * 100, 0), gdp: r1(gdp / gdp0 * 100, 0), gpc: r1(gdp / pop / (gdp0 / pop0) * 100, 0),
+    prod: r1(gdp / L / (gdp0 / rs.reduce((a, r) => a + r.gdp0 / r.prod0, 0)) * 100, 0), g: r1(wg("growth")), tfr: r1(wp("tfr"), 2), debt: r1(wg("debt"), 0), unemp: r1(wp("unemp")), pens: r1(wp("pension"), 0), unrest: r1(wp("unrest"), 0), stab: r1(wp("stab"), 0) };
+}
+function histRow(st) {
+  const rs = Object.values(st.regions);
+  const row = { y: st.year, ws: r1(worldStab(st)), t: r1(st.g.temp + st.g.geoOff, 2), e: Math.round(emissions(st) / st.E0 * 100), n: ctrlRegions(st).length, f: r1(st.funds), inc: r1(st.income),
+    w: statsOf(rs), r: {} };
+  for (const r of rs) row.r[r.id] = statsOf([r]);
+  return row;
 }
 
 /* ---------- consigli: quale intervento aiuterebbe di più una regione ----------
@@ -1980,10 +2096,10 @@ function advise(st, rid, months = 96) {
 
 /* ---------- salvataggio ----------
    Lo stato è un oggetto semplice; al caricamento si ricollegano i riferimenti condivisi. */
-function saveState(st, pending) { return JSON.stringify({ v: 1, seed: _seed, pending: pending || null, st: { ...st, D: undefined, L: undefined, G: undefined, gm: undefined } }); }
+function saveState(st, pending) { return JSON.stringify({ v: 2, seed: _seed, pending: pending || null, st: { ...st, D: undefined, L: undefined, G: undefined, gm: undefined } }); }
 function loadState(txt) {
   const o = JSON.parse(txt);
-  if (!o || o.v !== 1 || !DIFF[o.st.diffId]) return null;
+  if (!o || o.v !== 2 || !DIFF[o.st.diffId]) return null; // le partite salvate prima del nuovo modello economico non si riprendono
   const st = o.st;
   st.D = DIFF[st.diffId];
   st.levelId = LBY[st.levelId] ? st.levelId : "l4"; st.govId = GBY[st.govId] ? st.govId : "base";
@@ -2022,6 +2138,105 @@ const fmt = (v, d = 1) => v.toLocaleString("it-IT", { minimumFractionDigits: d, 
 const MONTHS = ["gen", "feb", "mar", "apr", "mag", "giu", "lug", "ago", "set", "ott", "nov", "dic"];
 const CAT_COLOR = { welfare: "#c98fd6", tecnologia: "#8fa8ff", energia: "#e9b44c", nucleare: "#d4d86a", economia: "#9fc36b", demografia: "#c98fd6", societa: "#6fb0d8", clima: "#4fae8e", salute: "#e57d8c", sicurezza: "#d68a4a", ai: "#8fa8ff", spazio: "#cfd8df" };
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+/* icone degli interventi: una per ciascuno, disegnate su una griglia 10×10 (tratto = colore corrente) */
+const F = 'fill="currentColor" stroke="none"';
+const GLYPH = {
+  fuel: `<rect x="2" y="1.5" width="4.2" height="7.5" rx=".5"/><rect x="2.8" y="2.5" width="2.6" height="2" ${F}/><path d="M6.2 4h1l1.2 1.2v3.1a.7.7 0 0 1-1.4 0V6.8M1.2 9h6"/>`,
+  smoke: `<path d="M1.5 9V5.4l2 1.1V5.4l2 1.1V3h1.6v6z" ${F}/><path d="M6.3 2.2c.4-.7 1.3-.7 1.7 0s1.3.7 1.7 0"/>`,
+  sun: `<circle cx="5" cy="5" r="2" ${F}/><path d="M5 .8v1.4M5 7.8v1.4M.8 5h1.4M7.8 5h1.4M2 2l1 1M7 7l1 1M8 2 7 3M3 7 2 8"/>`,
+  battery: `<rect x="1.3" y="3" width="6.7" height="4" rx=".6"/><path d="M8 4.3h.8v1.4H8M4.9 3.6 3.8 5.2h1.6l-1.1 1.6"/>`,
+  bulb: `<path d="M3.2 6.2A2.8 2.8 0 1 1 6.8 6.2V7.3H3.2z"/><path d="M3.6 8.4h2.8M4.2 9.4h1.6"/>`,
+  tower: `<path d="M2.5 9 3.4 5.5 2.8 2h4.4l-.6 3.5L7.5 9z"/><path d="M4 1.3c.3-.6 1-.6 1.3 0"/>`,
+  megaphone: `<path d="M1.5 4h1.6L7 2v6L3.1 6H1.5z"/><path d="M3.3 6l.6 2.4M8.3 4.2c.6.4.6 1.2 0 1.6"/>`,
+  fusion: `<circle cx="5" cy="5" r="1.3" ${F}/><ellipse cx="5" cy="5" rx="4" ry="1.6"/><ellipse cx="5" cy="5" rx="1.6" ry="4"/>`,
+  plug: `<path d="M3.5 1.2v2.3M6.5 1.2v2.3M2.5 3.5h5v1.5a2.5 2.5 0 0 1-5 0zM5 7.5v2"/>`,
+  car: `<path d="M1.5 7V5.5l1.2-2.2h4.6l1.2 2.2V7zM2.6 5.4h4.8"/><circle cx="3.2" cy="7.4" r=".9" ${F}/><circle cx="6.8" cy="7.4" r=".9" ${F}/>`,
+  bridge: `<path d="M.8 6.5h8.4M1.5 6.5v2.5M8.5 6.5v2.5M1.5 6.5C3 3 7 3 8.5 6.5M3.5 4.6v1.9M5 4.1v2.4M6.5 4.6v1.9"/>`,
+  scissors: `<circle cx="2.6" cy="7.4" r="1.3"/><circle cx="2.6" cy="2.6" r="1.3"/><path d="M3.7 3.3 9 7.6M3.7 6.7 9 2.4"/>`,
+  personMinus: `<circle cx="4" cy="3" r="1.6" ${F}/><path d="M1.2 9c0-2.4 1.2-3.6 2.8-3.6S6.8 6.6 6.8 9z" ${F}/><path d="M7 3.4h2.4"/>`,
+  factoryDown: `<path d="M1 9V5l2.2 1.3V5l2.2 1.3V3.4h1.6V9z" ${F}/><path d="M8.6 1v3.2M7.6 3.2l1 1 1-1"/>`,
+  shieldMinus: `<path d="M5 .8 8.5 2.2v2.7c0 2.2-1.6 3.6-3.5 4.2C3.1 8.5 1.5 7.1 1.5 4.9V2.2z"/><path d="M3.4 5h3.2"/>`,
+  hospital: `<rect x="1.5" y="1.5" width="7" height="7" rx="1"/><path d="M5 3v4M3 5h4"/>`,
+  gear: `<circle cx="5" cy="5" r="1.3"/><circle cx="5" cy="5" r="2.8"/><path d="M5 .9v1.3M5 7.8v1.3M.9 5h1.3M7.8 5h1.3M2.1 2.1l.9.9M7 7l.9.9M7.9 2.1 7 3M3 7l-.9.9"/>`,
+  robot: `<rect x="2.5" y="3" width="5" height="4" rx=".8"/><circle cx="4" cy="5" r=".55" ${F}/><circle cx="6" cy="5" r=".55" ${F}/><path d="M5 3V1.5M3.5 9V7M6.5 9V7M1.3 4.4v1.6M8.7 4.4v1.6"/>`,
+  wrench: `<path d="M7.8 1.6a2 2 0 0 0-2.6 2.6L1.6 7.8a.9.9 0 0 0 1.3 1.3l3.6-3.6a2 2 0 0 0 2.6-2.6L7.8 4 6.6 3.4 6 2.2z"/>`,
+  coins: `<ellipse cx="5" cy="7" rx="3" ry="1.2"/><path d="M2 7V5.3M8 7V5.3M2 5.3V3.6M8 5.3V3.6"/><ellipse cx="5" cy="5.3" rx="3" ry="1.2"/><ellipse cx="5" cy="3.6" rx="3" ry="1.2"/>`,
+  handshake: `<path d="M1 4.5 3 3l2 1 2-1 2 1.5M1 4.5l3 3.2c.4.4 1 .4 1.3 0L9 4.5M3.5 6.2l1-1M5 7.4 6 6.4"/>`,
+  sprout: `<path d="M5 9.2V5M5 5C5 3 3.5 2 1.8 2c0 2 1.3 3 3.2 3zM5 6.2c0-1.8 1.4-2.8 3.2-2.8 0 1.8-1.4 2.8-3.2 2.8z"/>`,
+  percent: `<path d="M2 8 8 2"/><circle cx="2.8" cy="2.8" r="1.2"/><circle cx="7.2" cy="7.2" r="1.2"/>`,
+  diamond: `<path d="M2.6 1.8h4.8L9 4 5 8.8 1 4zM1 4h8M3.6 4 5 8.8 6.4 4"/>`,
+  magnifier: `<circle cx="4.2" cy="4.2" r="2.7"/><path d="m6.2 6.2 2.8 2.8"/>`,
+  umbrella: `<path d="M1 5.2a4 4 0 0 1 8 0zM5 5.2v3a1 1 0 0 1-2 0M5 1.2V.6"/>`,
+  wallet: `<rect x="1.2" y="2.6" width="7.6" height="5.6" rx=".8"/><path d="M8.8 4.4H6.6a1 1 0 0 0 0 2h2.2M2 2.6 6.5 1.2l.6 1.4"/>`,
+  hardhat: `<path d="M1.2 7.2h7.6M2 7.2a3 3 0 0 1 6 0M4.4 4.3V3h1.2v1.3"/>`,
+  crate: `<rect x="1.5" y="2.5" width="7" height="6" rx=".4"/><path d="M1.5 4.5h7M4 2.5v2M6 2.5v2"/>`,
+  tag: `<path d="M1.5 1.5h3.8l3.2 3.2-3.8 3.8-3.2-3.2z"/><circle cx="3.4" cy="3.4" r=".6" ${F}/>`,
+  clock: `<circle cx="5" cy="5" r="3.8"/><path d="M5 2.6V5l1.8 1.2"/>`,
+  piggy: `<path d="M2 5.2c0-1.8 1.6-2.8 3.4-2.8 2 0 3.4 1.2 3.4 2.8 0 1-.5 1.7-1.2 2.2v1.2H6.4V8H4.2v.6H3V7.3C2.4 6.9 2 6.1 2 5.2zM4.4 2.6c.3-.8 1.6-.8 1.8 0M1.1 4.5l.9.5"/>`,
+  baby: `<circle cx="5" cy="3" r="1.8"/><path d="M2.4 9c0-2.2 1.2-3.4 2.6-3.4S7.6 6.8 7.6 9"/>`,
+  family: `<circle cx="3" cy="2.6" r="1.2" ${F}/><circle cx="7" cy="2.6" r="1.2" ${F}/><circle cx="5" cy="5.6" r=".9" ${F}/><path d="M1.4 8.6c0-2 .7-3.6 1.6-3.6M8.6 8.6c0-2-.7-3.6-1.6-3.6M3.8 9c0-1.2.5-2 1.2-2s1.2.8 1.2 2"/>`,
+  plane: `<path d="M1 5.6 9 2.4 7.4 8.2 5.2 6.2 4 8 3.8 5.6zM3.8 5.6 9 2.4"/>`,
+  puzzle: `<path d="M1.6 3h2a1 1 0 1 1 2 0h2v2a1 1 0 1 0 0 2v2h-2a1 1 0 1 0-2 0h-2V7a1 1 0 1 1 0-2z"/>`,
+  heart: `<path d="M5 8.6 1.6 5.2a2 2 0 0 1 3.4-2.4 2 2 0 0 1 3.4 2.4z"/>`,
+  house: `<path d="M1.2 5 5 1.6 8.8 5M2.4 4v4.8h5.2V4M4.2 8.8V6.4h1.6v2.4"/>`,
+  stroller: `<path d="M1.4 2.2h1.3l1.1 3.8h4.6a3 3 0 0 0-3-3h-1M3.8 6h4.6"/><circle cx="4" cy="8" r=".9"/><circle cx="7.2" cy="8" r=".9"/>`,
+  dna: `<path d="M3 1c0 3 4 5 4 8M7 1c0 3-4 5-4 8M3.6 2.6h2.8M3.4 7.4h3.2"/>`,
+  vault: `<rect x="1.5" y="1.5" width="7" height="7" rx=".8"/><circle cx="5" cy="5" r="1.8"/><path d="M5 3.2v.6M5 6.2v.6M3.2 5h.6M6.2 5h.6"/>`,
+  chartUp: `<path d="M1.2 8.2 4 5.4l1.8 1.6 3-3.4M6.8 3.6h2v2"/>`,
+  gift: `<rect x="1.6" y="4.2" width="6.8" height="4.6" rx=".4"/><path d="M1.2 4.2h7.6M5 4.2v4.6M5 4.2C4 2 2.4 2.2 2.6 3.2S5 4.2 5 4.2s2.2-.2 2.4-1S6 2 5 4.2"/>`,
+  eye: `<path d="M.8 5S2.6 2 5 2s4.2 3 4.2 3S7.4 8 5 8 .8 5 .8 5z"/><circle cx="5" cy="5" r="1.3" ${F}/>`,
+  gavel: `<path d="m4.2 1.6 3.4 3.4M2.8 3l3.4 3.4M3.5 2.3l3.4 3.4M4.6 5.6 1.4 8.8M5.4 9h3.8"/>`,
+  people: `<circle cx="2.6" cy="3.2" r="1.1"/><circle cx="5" cy="2.6" r="1.1"/><circle cx="7.4" cy="3.2" r="1.1"/><path d="M1 8c0-1.6.7-2.8 1.6-2.8M9 8c0-1.6-.7-2.8-1.6-2.8M3.2 8.6c0-2 .8-3.4 1.8-3.4s1.8 1.4 1.8 3.4"/>`,
+  newspaper: `<rect x="1.2" y="2" width="7.6" height="6.4" rx=".6"/><path d="M2.6 3.6h2.4v2H2.6zM6 3.6h1.6M6 5h1.6M2.6 6.8h5"/>`,
+  badge: `<path d="M5 1 6.2 2.6 8.2 2.4 7.8 4.4 9 5.8l-1.8.8-.2 2-2-.6-2 .6-.2-2L1 5.8l1.2-1.4-.4-2 2 .2z"/><circle cx="5" cy="5" r="1.1" ${F}/>`,
+  cap: `<path d="M.8 4 5 2l4.2 2L5 6zM2.6 5v2.2c1.4 1 3.4 1 4.8 0V5M8.6 4.3v2.4"/>`,
+  buildings: `<path d="M1.4 9V3.4h3V9M4.4 9V1.6h4.2V9M.8 9h8.4M2.4 4.6h1M2.4 6.2h1M5.6 3h1.8M5.6 4.6h1.8M5.6 6.2h1.8"/>`,
+  hands: `<path d="M1 8.6V5.8l2-2.2 1.4 1-1 1.8M9 8.6V5.8l-2-2.2-1.4 1 1 1.8M3.4 6.4 5 8l1.6-1.6"/>`,
+  waves: `<path d="M1 6.4c1-.8 1.6-.8 2.6 0s1.6.8 2.6 0 1.6-.8 2.6 0M1 8.4c1-.8 1.6-.8 2.6 0s1.6.8 2.6 0 1.6-.8 2.6 0M2 4.4V2h6v2.4"/>`,
+  wheat: `<path d="M5 9.2V2.4M5 2.6c-.8-.4-1-1.2-.8-2 .8.4 1 1.2.8 2zM5 4.8c-1-.1-1.7-.8-1.8-1.8 1 .1 1.7.8 1.8 1.8zm0 0c1-.1 1.7-.8 1.8-1.8-1 .1-1.7.8-1.8 1.8zM5 7c-1-.1-1.7-.8-1.8-1.8 1 .1 1.7.8 1.8 1.8zm0 0c1-.1 1.7-.8 1.8-1.8-1 .1-1.7.8-1.8 1.8z"/>`,
+  tree: `<circle cx="5" cy="4" r="2.8" ${F}/><path d="M5 9.2V6.4M3.6 9.2h2.8"/>`,
+  fan: `<circle cx="5" cy="5" r="3.9"/><path d="M5 5c-.6-1.8.2-2.8 1.4-2.6M5 5c1.8-.4 2.8.4 2.4 1.6M5 5c.4 1.8-.6 2.6-1.8 2.2M5 5C3.2 5.4 2.2 4.6 2.6 3.4"/>`,
+  cloud: `<path d="M2.8 7.2h4.6a1.8 1.8 0 0 0 0-3.6 2.4 2.4 0 0 0-4.6-.4 1.9 1.9 0 0 0 0 4zM3 9.2h.1M5 9.2h.1M7 9.2h.1"/>`,
+  silo: `<path d="M2.2 9V3.6a2.8 2.4 0 0 1 5.6 0V9zM2.2 5h5.6M2.2 7h5.6M1.2 9h7.6"/>`,
+  pine: `<path d="M5 1 2 5.2h1.8L1.8 8h6.4L6.2 5.2H8z" ${F}/><path d="M5 8v1.4"/>`,
+  virus: `<circle cx="5" cy="5" r="2.2"/><path d="M5 .9v1.9M5 7.2v1.9M.9 5h1.9M7.2 5h1.9M2.1 2.1l1.3 1.3M6.6 6.6l1.3 1.3M7.9 2.1 6.6 3.4M3.4 6.6 2.1 7.9"/>`,
+  syringe: `<path d="m6.8 1.2 2 2M7.8 2.2 6.4 3.6M7 4.2 3 8.2H1.8V7l4-4zM4.4 4.4l1.2 1.2M3.4 5.4l1.2 1.2"/>`,
+  flask: `<path d="M3.8 1.2h2.4M4.2 1.2v2.6L1.6 8.2a.6.6 0 0 0 .5.9h5.8a.6.6 0 0 0 .5-.9L5.8 3.8V1.2M2.8 6.6h4.4"/>`,
+  pill: `<rect x="1" y="3.4" width="8" height="3.2" rx="1.6" transform="rotate(-35 5 5)"/><path d="m4.1 3.7 1.8 2.6"/>`,
+  missile: `<path d="M2.2 7.8 6.6 3.4M6.6 3.4l2-2M6.6 3.4 5.8 1.8M6.6 3.4l1.6.8M2.2 7.8 1.4 9.4 3 8.6M1.2 1.2l7.6 7.6"/>`,
+  radiation: `<circle cx="5" cy="5" r=".9" ${F}/><path d="M5 5 3.2 1.9a3.6 3.6 0 0 1 3.6 0zM5 5h3.6a3.6 3.6 0 0 1-1.8 3.1zM5 5 3.2 8.1A3.6 3.6 0 0 1 1.4 5z" ${F}/>`,
+  dove: `<path d="M1.2 6.2c1.4.4 2.8.2 3.8-.8L8.8 2.2 6.4 6.4c-.8 1.4-2.4 2.2-4 1.8L1 9M5 5.4 3.6 3.2 5.6 4"/>`,
+  chipShield: `<path d="M5 .8 8.5 2.2v2.7c0 2.2-1.6 3.6-3.5 4.2C3.1 8.5 1.5 7.1 1.5 4.9V2.2z"/><rect x="3.6" y="3.6" width="2.8" height="2.8" rx=".3" ${F}/>`,
+  cctv: `<path d="M1.2 3.2 7 1.6l.8 2.6-5.8 1.6zM4.4 4.6 5 6.6h2.6M7.6 5.4v2.4M1.6 4.6 1 2"/>`,
+  target: `<circle cx="5" cy="5" r="3.8"/><circle cx="5" cy="5" r="2"/><circle cx="5" cy="5" r=".6" ${F}/>`,
+  scale: `<path d="M5 1.4v7.4M3 8.8h4M1.6 3h6.8M1.6 3 .6 5.6a1 1 0 0 0 2 0zM8.4 3l-1 2.6a1 1 0 0 0 2 0z"/>`,
+  satellite: `<rect x="4" y="4" width="2" height="2" ${F}/><rect x=".8" y="3.6" width="2.4" height="2.8"/><rect x="6.8" y="3.6" width="2.4" height="2.8"/><path d="M3.2 5H4M6 5h.8M5 4V2.4"/>`,
+  comet: `<circle cx="7" cy="3" r="1.6" ${F}/><path d="M5.8 4.2 1.2 8.8M5.6 3.2 2.6 5.2M6.8 4.4 4.8 7.4"/>`,
+  moon: `<path d="M6.8 1.4a3.8 3.8 0 1 0 1.8 6.6A3.2 3.2 0 0 1 6.8 1.4z" ${F}/>`,
+  telescope: `<path d="M1.2 5.8 7.6 2.4l.8 1.6L2 7.4zM4.6 5.6l-1.4 3.6M5 5.4l1.4 3.8"/>`,
+  drop: `<path d="M5 1.2C3.6 3.4 2.4 4.8 2.4 6.2a2.6 2.6 0 0 0 5.2 0C7.6 4.8 6.4 3.4 5 1.2z"/>`,
+  dome: `<path d="M1 8.2h8M1.8 8.2a3.2 3.2 0 0 1 6.4 0M3.4 8.2a1.6 1.6 0 0 1 3.2 0"/>`,
+  pick: `<path d="M1.4 3.4c2.2-1.8 5-1.8 7.2 0M5 2.2l-2.8 7.2"/>`,
+  dollarCut: `<path d="M6.6 2.6C6.2 2 5.6 1.8 5 1.8c-1 0-1.8.6-1.8 1.4 0 1.8 3.6 1.2 3.6 3.2 0 .8-.8 1.4-1.8 1.4-.7 0-1.3-.3-1.7-.9M5 .8v1M5 7.8v1.2"/>`,
+};
+const ICON_OF = {
+  fossilSub: "fuel", carbonTax: "smoke", renew: "sun", grid: "battery", efficiency: "bulb", nuclear: "i-nucleare", nucInfo: "megaphone", smr: "tower", fusion: "fusion", priceCap: "plug", evCars: "car",
+  invest: "bridge", austerity: "scissors", cutStaff: "personMinus", cutSubsidies: "factoryDown", cutDefense: "shieldMinus", cutServices: "hospital", automation: "gear", robots: "robot", retrain: "wrench", ubi: "coins", debtRestr: "handshake", develop: "sprout",
+  taxRaise: "percent", wealthTax: "diamond", taxEvasion: "magnifier", unempBenefit: "umbrella", minWage: "wallet", publicJobs: "hardhat", tariffs: "crate", privat: "tag",
+  retire: "clock", contrib: "piggy", natality: "baby", family: "family", migration: "plane", integration: "puzzle", healthyAging: "heart", housing: "house", parentalLeave: "stroller", ivf: "dna", pensionFunds: "vault", pensionTax: "chartUp", birthDowry: "gift", healthcare: "i-salute",
+  transparency: "eye", anticorr: "gavel", assemblies: "people", disinfo: "newspaper", police: "badge", education: "cap", socialHousing: "buildings", civicService: "hands",
+  adapt: "waves", agri: "wheat", reforest: "tree", dac: "fan", geoeng: "cloud", foodReserve: "silo", forestProtect: "pine",
+  surveil: "virus", vaccines: "syringe", labRules: "flask", amr: "pill", arms: "missile", fissile: "radiation", mediation: "dove", cyber: "chipShield", massSurveil: "cctv",
+  aiCap: "i-ai", align: "target", aiReg: "scale", launch: "i-spazio", orbital: "satellite", pdef: "comet", moon: "moon", lunarSci: "telescope", lunarIce: "drop", lunarCity: "dome", lunarMining: "pick",
+};
+const iconHref = (id) => { const k = ICON_OF[id] || "hexdot"; return k.startsWith("i-") ? "#" + k : "#g-" + k; };
+(function buildGlyphs() {
+  const box = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  box.setAttribute("width", "0"); box.setAttribute("height", "0"); box.setAttribute("aria-hidden", "true"); box.style.position = "absolute";
+  box.innerHTML = "<defs>" + Object.entries(GLYPH).map(([k, v]) => `<symbol id="g-${k}" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width=".9" stroke-linecap="round" stroke-linejoin="round">${v}</symbol>`).join("") + "</defs>";
+  document.body.appendChild(box);
+})();
+
 const SHORT = {
   fossilSub: "Sussidi fossili", carbonTax: "Tassa carbonio", efficiency: "Efficienza", renew: "Solare ed eolico", grid: "Reti e accumuli",
   nuclear: "Centrali nucleari", smr: "Reattori modulari", fusion: "Fusione", nucInfo: "Informazione",
@@ -2430,57 +2645,15 @@ function wireClose(root) { for (const b of root.querySelectorAll("[data-close]")
 
 /* ---------- albero degli interventi ---------- */
 // esagoni a punta piatta; le radici a sinistra, i rami si aprono verso destra
-const HR = 40, HX = 104, HY = 84;
+const TAB_ICON = { tecnologia: "ai", welfare: "demografia" };
 function nodeState(d) {
   const a = st.acts[d.id];
   const prog = st.prog.filter((p) => p.id === d.id);
   const why = canStart(st, d.id);
   const locked = (d.from && st.year < d.from) || !parentOk(st, d);
   let cls = "avail";
-  if (a && a.n > 0) cls = "active"; else if (locked) cls = "locked";
+  if (a && a.n > 0) cls = "active"; else if (prog.length) cls = "building"; else if (locked) cls = "locked";
   return { a, prog, why, cls };
-}
-const TAB_ICON = { tecnologia: "ai", welfare: "demografia" };
-const GAP = 0.3; // spazio tra un albero e l'altro, in colonne
-function layoutTree(list) {
-  // ogni albero: una foglia per riga, ogni padre al centro dei suoi figli.
-  // Gli alberi si impilano in colonne alte al massimo 3 righe, come in Rebel Inc.
-  const kids = {}; list.forEach((d) => (kids[d.id] = []));
-  list.forEach((d) => { if (d.parent && kids[d.parent]) kids[d.parent].push(d.id); });
-  const roots = list.filter((d) => !d.parent || !kids[d.parent]).map((d) => d.id);
-  const trees = roots.map((rid) => {
-    const p = {}; let row = 0, depth = 0;
-    (function place(id, dep) {
-      depth = Math.max(depth, dep);
-      if (!kids[id].length) { p[id] = [dep, row++]; return p[id][1]; }
-      const rows = kids[id].map((k) => place(k, dep + 1));
-      p[id] = [dep, (rows[0] + rows[rows.length - 1]) / 2];
-      return p[id][1];
-    })(rid, 0);
-    return { p, w: depth + 1, h: row };
-  });
-  const rows = Math.max(3, ...trees.map((t) => t.h));
-  const pos = {}; let x = 0, y = 0, colW = 0, cols = 0;
-  for (const tr of trees) {
-    if (y > 0 && y + tr.h > rows) { x += colW + GAP; y = 0; colW = 0; }
-    for (const id in tr.p) pos[id] = [x + tr.p[id][0], y + tr.p[id][1]];
-    y += tr.h; colW = Math.max(colW, tr.w); cols = Math.max(cols, x + colW);
-  }
-  return { pos, cols, rows };
-}
-function renderActs() {
-  const root = $("scrActs");
-  const cats = CATS.filter((c) => INTERVENTIONS.some((d) => d.cat === c.id && available(st, d)));
-  if (!cats.some((c) => c.id === actTab)) actTab = cats[0].id;
-  const tabs = `<div class="tabs" role="group" aria-label="Categorie">${cats.map((c) => `<button type="button" data-c="${c.id}" aria-pressed="${c.id === actTab}"><svg style="color:${CAT_COLOR[c.id]}"><use href="#i-${TAB_ICON[c.id] || c.id}"/></svg>${c.name}</button>`).join("")}</div>`;
-  root.innerHTML = `<div class="head"><button type="button" class="back" data-close aria-label="Torna alla mappa">‹</button>${tabs}${tut ? `<div id="coachHead"></div>` : ""}</div>
-    <div class="acts"><div class="treebox"><div class="treewrap" id="treewrap"><svg id="tree" preserveAspectRatio="xMidYMid meet"></svg></div></div><div class="detail" id="detail"></div></div>
-    <div class="foot"><span>Fondi <b style="${st.funds < 0 ? "color:#f0a597" : ""}">${fmt(st.funds, 1)}</b> <em class="delta" id="dFunds"></em></span><span>Saldo <b style="${netYear() < 0 ? "color:#f0a597" : ""}">${sign(netYear())}/anno</b> <em class="delta" id="dNet"></em></span>
-      <span class="lg"><span><i style="background:#27485f;border:1px solid #5a83a3"></i>Disponibile</span><span><i style="background:#2f7a5f;border:1px solid #8fe0bf"></i>Attivo</span><span><i style="background:#172b39;border:1px solid #2b4356"></i>Bloccato</span></span></div>`;
-  wireClose(root);
-  for (const b of root.querySelectorAll("[data-c]")) b.onclick = () => { actTab = b.dataset.c; actNode = null; renderActs(); };
-  drawTree();
-  renderDetail();
 }
 // saldo annuo dell'Autorità: entrate meno costi annui e interessi sul debito
 const netYear = () => st.income - (st.upkeep || 0) - (st.interest || 0);
@@ -2488,74 +2661,154 @@ const sign = (v, d = 1) => (v >= 0 ? "+" : "−") + fmt(Math.abs(v), d);
 const avgW = (k) => { const rs = ctrlRegions(st), t = rs.reduce((a, r) => a + r.pop, 0) || 1; return rs.reduce((a, r) => a + r[k] * r.pop, 0) / t; };
 const RISK_COL = ["#4fae8e", "#e3a33f", "#d6774a", "#d65b4a"];
 function hexPts(r) { return [0, 1, 2, 3, 4, 5].map((i) => { const a = Math.PI / 3 * i; return (r * Math.cos(a)).toFixed(1) + "," + (r * Math.sin(a)).toFixed(1); }).join(" "); }
-function splitLabel(s) {
-  const w = s.split(" ");
-  if (w.length === 1 || s.length <= 11) return [s];
-  let best = [s], bestD = 1e9;
-  for (let i = 1; i < w.length; i++) { const a = w.slice(0, i).join(" "), b = w.slice(i).join(" "), d = Math.max(a.length, b.length); if (d < bestD) { bestD = d; best = [a, b]; } }
-  return best;
+
+/* ---------- indicatori: ognuno va da 0 (pessimo) a 1 (ottimo); x è il mondo, vero o simulato ---------- */
+const avgOfW = (x, k) => { const rs = Object.values(x.regions).filter((r) => r.controlled), t = rs.reduce((a, r) => a + r.pop, 0) || 1; return rs.reduce((a, r) => a + r[k] * r.pop, 0) / t; };
+const lvOf = (x, id) => { const r = riskBoard(x).find((q) => q.id === id); return r ? r.lv : 0; };
+const IND = [
+  { id: "energy", tab: "energia", icon: "#g-sun", name: "Energia pulita", what: "Quanta energia viene da fonti senza emissioni", v: (x) => 1 - avgOfW(x, "fossil") / 100 },
+  { id: "debt", tab: "economia", icon: "#g-vault", name: "Conti pubblici", what: "Più il debito degli stati è basso, più la barra è piena", v: (x) => 1 - clamp((avgOfW(x, "debt") - 40) / 160, 0, 1) },
+  { id: "wealth", tab: "economia", icon: "#g-chartUp", name: "Benessere", what: "Il reddito medio per abitante", v: (x) => avgOfW(x, "wealth") / 100 },
+  { id: "jobs", tab: "economia", icon: "#g-hardhat", name: "Lavoro", what: "Più la disoccupazione è bassa, più la barra è piena", v: (x) => 1 - clamp((avgOfW(x, "unemp") - 3) / 12, 0, 1) },
+  { id: "pens", tab: "welfare", icon: "#g-piggy", name: "Pensioni sostenibili", what: "Quanto pesano pensioni e welfare sui conti", v: (x) => 1 - clamp((avgOfW(x, "pension") - 10) / 80, 0, 1) },
+  { id: "births", tab: "welfare", icon: "#g-baby", name: "Ricambio delle generazioni", what: "Piena quando nascono circa 2,1 figli per donna", v: (x) => 1 - clamp(Math.abs(avgOfW(x, "tfr") - 2.1) / 1.6, 0, 1) },
+  { id: "peace", tab: "societa", icon: "#i-societa", name: "Pace sociale", what: "Più il malcontento è basso, più la barra è piena", v: (x) => 1 - avgOfW(x, "unrest") / 100 },
+  { id: "cohesion", tab: "societa", icon: "#g-people", name: "Coesione", what: "Meno polarizzazione e sfiducia", v: (x) => 1 - avgOfW(x, "polar") / 100 },
+  { id: "climate", tab: "clima", icon: "#g-sun", name: "Clima", what: "Più la temperatura resta bassa, più la barra è piena", v: (x) => 1 - clamp((x.g.temp + x.g.geoOff - 1.1) / 2.2, 0, 1) },
+  { id: "security", tab: "sicurezza", icon: "#i-sicurezza", name: "Sicurezza", what: "Rischio di guerra nucleare e di pandemia", v: (x) => 1 - (lvOf(x, "war") + lvOf(x, "bio")) / 6 },
+  { id: "ai", tab: "tecnologia", icon: "#i-ai", name: "Sicurezza dell'AI", what: "Quanto la sicurezza tiene il passo con la potenza dell'AI", v: (x) => 1 - lvOf(x, "ai") / 3 },
+];
+IND.find((i) => i.id === "climate").icon = "#i-temp";
+const indsOn = () => IND.filter((i) => (i.tab === "sicurezza" ? sysOn(st, "war") || sysOn(st, "bio") : i.tab === "tecnologia" ? sysOn(st, "ai") : i.tab === "clima" ? sysOn(st, "climate") : true));
+const indCol = (v) => heat(1 - v);
+// barra di un indicatore; il pezzo a righe mostra di quanto cambierebbe: verde se migliora, rosso se peggiora
+function barHTML(v, dv, col) {
+  const w = (x) => (clamp(x, 0, 1) * 100).toFixed(1);
+  let ghost = "";
+  if (dv > 0.004) ghost = `<i class="ghost up" style="left:${w(v)}%;width:${w(Math.min(dv, 1 - v))}%"></i>`;
+  if (dv < -0.004) ghost = `<i class="ghost down" style="left:${w(v + dv)}%;width:${w(Math.min(-dv, v))}%"></i>`;
+  return `<span class="mbar"><i style="width:${w(v)}%;background:${col}"></i>${ghost}</span>`;
 }
-function drawTree() {
-  const list = INTERVENTIONS.filter((d) => d.cat === actTab && available(st, d));
-  if (!actNode || !list.some((d) => d.id === actNode)) actNode = list[0].id;
-  const { pos, cols, rows } = layoutTree(list);
-  // area minima di 5 colonne per 3 righe: le caselle hanno la stessa grandezza nelle varie schede
-  const W = Math.max(cols, 5) * HX, H = rows * HY;
-  const ox = (W - cols * HX) / 2, oy = (H - rows * HY) / 2;
-  const svg = $("tree");
-  svg.setAttribute("viewBox", `${-HX / 2} ${-HY / 2} ${W} ${H}`);
-  // esagoni sempre della stessa grandezza: se l'albero è largo si scorre di lato con il dito
-  const wrap = $("treewrap"), hpx = Math.max(60, wrap.clientHeight - 12), scale = Math.min(hpx / H, (wrap.clientWidth - 12) / (5 * HX));
-  svg.style.width = Math.max(wrap.clientWidth - 12, W * scale) + "px";
-  svg.innerHTML = "";
-  const P = (id) => [ox + pos[id][0] * HX, oy + pos[id][1] * HY];
-  for (const d of list) if (d.parent && pos[d.parent]) {
-    const [x1, y1] = P(d.parent), [x2, y2] = P(d.id);
-    const on = st.acts[d.parent] && st.acts[d.parent].n > 0;
-    svg.appendChild(svgEl("path", { d: `M${x1} ${y1} L${x2} ${y2}`, class: "edge" + (on ? " on" : "") }));
-  }
-  for (const d of list) {
-    const [x, y] = P(d.id);
-    const s = nodeState(d);
-    const g = svgEl("g", { class: `node ${s.cls}${d.id === actNode ? " sel" : ""}`, transform: `translate(${x} ${y})`, role: "button", tabindex: "0", "aria-label": d.name });
-    g.appendChild(svgEl("polygon", { points: hexPts(HR), class: "hex" }));
-    const lines = splitLabel(SHORT[d.id] || d.name);
-    const icon = s.cls === "locked" ? "lock" : d.fam;
-    const top = lines.length === 2 ? -28 : -22;
-    g.appendChild(svgEl("use", { href: "#i-" + icon, x: -8, y: top, width: 16, height: 16, style: "color:" + (s.cls === "active" ? "#e6edf2" : CAT_COLOR[d.fam]) }));
-    lines.forEach((ln, i) => { const t = svgEl("text", { class: "nl", y: (lines.length === 2 ? 2 : 8) + i * 14 }); t.textContent = ln; g.appendChild(t); });
-    for (const p of s.prog) {
-      g.appendChild(svgEl("rect", { x: -24, y: 25, width: 48, height: 5, rx: 2.5, fill: "#14283a" }));
-      g.appendChild(svgEl("rect", { x: -24, y: 25, width: (48 * Math.min(1, p.t / p.T)).toFixed(1), height: 5, rx: 2.5, fill: "#6fb0d8" }));
+const sectorList = (tab) => INTERVENTIONS.filter((x) => x.cat === tab && available(st, x));
+const sectorDone = (tab) => { const l = sectorList(tab); return { n: l.length || 1, did: l.filter((x) => built(st, x.id) || building(st, x.id)).length }; };
+
+/* ---------- albero: esagoni piccoli con un'icona, come in Rebel Inc; gli alberi si aprono in più direzioni ----------
+   Le posizioni si calcolano su una griglia esagonale con tutti gli interventi, così non cambiano quando se ne sbloccano altri;
+   si disegnano solo quelli già sbloccati. */
+const HR = 20, HEXD = [[1, 0], [1, -1], [0, -1], [-1, 0], [-1, 1], [0, 1]];
+const hexXY = (q, r) => [HR * 1.5 * q, HR * Math.sqrt(3) * (r + q / 2)];
+const layoutCache = {};
+function layoutTree(list) {
+  const key = list.map((d) => d.id).join();
+  if (layoutCache[key]) return layoutCache[key];
+  const kids = {}; list.forEach((d) => (kids[d.id] = []));
+  list.forEach((d) => { if (d.parent && kids[d.parent]) kids[d.parent].push(d.id); });
+  const roots = list.filter((d) => !d.parent || !kids[d.parent]).map((d) => d.id);
+  // ogni albero: la radice al centro, i figli nelle caselle libere vicine, proseguendo verso l'esterno
+  const clusters = roots.map((rid) => {
+    const cell = { [rid]: [0, 0] }, used = new Set(["0,0"]);
+    const queue = [[rid, -1]];
+    while (queue.length) {
+      const [id, dir] = queue.shift(), [q, r] = cell[id];
+      const order = dir < 0 ? [0, 5, 1, 4, 2, 3] : [dir, (dir + 5) % 6, (dir + 1) % 6, (dir + 4) % 6, (dir + 2) % 6];
+      let k = 0;
+      for (const kid of kids[id]) {
+        while (k < order.length && used.has((q + HEXD[order[k]][0]) + "," + (r + HEXD[order[k]][1]))) k++;
+        const o = order[Math.min(k, order.length - 1)];
+        let nq = q + HEXD[o][0], nr = r + HEXD[o][1];
+        while (used.has(nq + "," + nr)) { nq += HEXD[o][0]; nr += HEXD[o][1]; }
+        cell[kid] = [nq, nr]; used.add(nq + "," + nr); queue.push([kid, o]); k++;
+      }
     }
-    if (s.a && s.a.n > 1) { const t = svgEl("text", { y: -27, x: 24, class: "cnt" }); t.textContent = "×" + s.a.n; g.appendChild(t); }
+    const pts = Object.entries(cell).map(([id, [q, r]]) => [id, ...hexXY(q, r)]);
+    const xs = pts.map((p) => p[1]), ys = pts.map((p) => p[2]);
+    return { pts, x0: Math.min(...xs), y0: Math.min(...ys), w: Math.max(...xs) - Math.min(...xs), h: Math.max(...ys) - Math.min(...ys) };
+  });
+  // alberi disposti a scaffale: righe di larghezza simile, per riempire un pannello più largo che alto
+  const GAPC = 2.2 * HR, area = clusters.reduce((a, c) => a + (c.w + GAPC) * (c.h + GAPC), 0), rowW = Math.max(...clusters.map((c) => c.w + GAPC), Math.sqrt(area * 1.8));
+  const pos = {}; let x = 0, y = 0, rowH = 0, W = 0;
+  for (const c of clusters) {
+    if (x > 0 && x + c.w > rowW) { x = 0; y += rowH + GAPC; rowH = 0; }
+    for (const [id, px, py] of c.pts) pos[id] = [x + px - c.x0, y + py - c.y0];
+    x += c.w + GAPC; rowH = Math.max(rowH, c.h); W = Math.max(W, x - GAPC);
+  }
+  return (layoutCache[key] = { pos, W, H: y + rowH });
+}
+const nodeVisible = (d, s) => s.cls !== "locked";
+function drawTree() {
+  const list = sectorList(actTab);
+  const states = Object.fromEntries(list.map((d) => [d.id, nodeState(d)]));
+  const vis = list.filter((d) => nodeVisible(d, states[d.id]));
+  if (!actNode || !vis.some((d) => d.id === actNode)) actNode = vis[0].id;
+  const { pos, W, H } = layoutTree(list);
+  const svg = $("tree"), pad = HR * 1.6;
+  svg.setAttribute("viewBox", `${-pad} ${-pad} ${W + 2 * pad} ${H + 2 * pad}`);
+  svg.innerHTML = "";
+  for (const d of vis) if (d.parent && pos[d.parent] && vis.some((v) => v.id === d.parent)) {
+    const [x1, y1] = pos[d.parent], [x2, y2] = pos[d.id];
+    svg.appendChild(svgEl("path", { d: `M${x1} ${y1} L${x2} ${y2}`, class: "edge" + (built(st, d.parent) ? " on" : ""), style: "--c:" + CAT_COLOR[d.fam] }));
+  }
+  for (const d of vis) {
+    const [x, y] = pos[d.id], s = states[d.id], col = CAT_COLOR[d.fam];
+    const g = svgEl("g", { class: `node ${s.cls}${d.id === actNode ? " sel" : ""}`, transform: `translate(${x.toFixed(1)} ${y.toFixed(1)})`, role: "button", tabindex: "0", "aria-label": d.name, style: "--c:" + col });
+    g.appendChild(svgEl("polygon", { points: hexPts(HR - 1.6), class: "hex" }));
+    g.appendChild(svgEl("use", { href: iconHref(d.id), x: -9, y: -9, width: 18, height: 18, class: "ico" }));
+    for (const p of s.prog) {
+      const f = Math.min(1, p.t / p.T), a = f * 2 * Math.PI, R0 = HR + 1.2;
+      g.appendChild(svgEl("circle", { r: R0, class: "ring0" }));
+      g.appendChild(svgEl("path", { d: `M0 ${-R0}A${R0} ${R0} 0 ${a > Math.PI ? 1 : 0} 1 ${(R0 * Math.sin(a)).toFixed(2)} ${(-R0 * Math.cos(a)).toFixed(2)}`, class: "ring" }));
+    }
+    if (s.a && s.a.n > 1) { const t = svgEl("text", { y: -HR + 4, x: HR - 2, class: "cnt" }); t.textContent = "×" + s.a.n; g.appendChild(t); }
+    if (s.a && s.a.n > 0 && d.toggle) { const t = svgEl("text", { y: HR - 2, x: HR - 4, class: "cnt" }); t.textContent = "⇄"; g.appendChild(t); }
     const pick = () => { actNode = d.id; drawTree(); renderDetail(); };
     g.addEventListener("click", pick);
     g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
     svg.appendChild(g);
   }
 }
-// indicatore principale di ogni scheda, da 0 (pessimo) a 1 (ottimo); x è lo stato del mondo (vero o simulato)
-const avgOfW = (x, k) => { const rs = Object.values(x.regions).filter((r) => r.controlled), t = rs.reduce((a, r) => a + r.pop, 0) || 1; return rs.reduce((a, r) => a + r[k] * r.pop, 0) / t; };
-const lvOf = (x, id) => { const r = riskBoard(x).find((q) => q.id === id); return r ? r.lv : 0; };
-const TAB_IND = {
-  energia: { icon: "clima", name: "Energia pulita", v: (x) => 1 - avgOfW(x, "fossil") / 100 },
-  economia: { icon: "economia", name: "Conti pubblici", v: (x) => 1 - clamp((avgOfW(x, "debt") - 40) / 160, 0, 1) },
-  welfare: { icon: "economia", name: "Pensioni sostenibili", v: (x) => 1 - clamp((avgOfW(x, "pension") - 10) / 80, 0, 1) },
-  societa: { icon: "societa", name: "Pace sociale", v: (x) => 1 - avgOfW(x, "unrest") / 100 },
-  clima: { icon: "temp", name: "Clima", v: (x) => 1 - clamp((x.g.temp + x.g.geoOff - 1.1) / 2.2, 0, 1) },
-  sicurezza: { icon: "sicurezza", name: "Sicurezza", v: (x) => 1 - (lvOf(x, "war") + lvOf(x, "bio")) / 6 },
-  tecnologia: { icon: "ai", name: "Sicurezza dell'AI", v: (x) => 1 - lvOf(x, "ai") / 3 },
-};
-function metersHTML(d, done) {
-  const list = INTERVENTIONS.filter((x) => x.cat === actTab && available(st, x)), n = list.length || 1;
-  const did = list.filter((x) => built(st, x.id) || building(st, x.id)).length;
-  const share = !done && !built(st, d.id) && !building(st, d.id) ? 1 / n : 0;
-  const I = TAB_IND[actTab], v = I.v(st), col = heat(1 - v);
-  return `<div class="imeters">
-    <div class="mt" title="Interventi avviati in questo settore"><svg style="color:${CAT_COLOR[actTab]}"><use href="#i-hex"/></svg><span class="mbar"><i style="width:${(did / n * 100).toFixed(0)}%;background:${CAT_COLOR[actTab]}"></i>${share ? `<i class="ghost" style="left:${(did / n * 100).toFixed(1)}%;width:${(share * 100).toFixed(1)}%"></i>` : ""}</span></div>
-    <div class="mt" title="${I.name}"><svg style="color:${col}"><use href="#i-${I.icon}"/></svg><span class="mbar" id="indBar"><i style="width:${(v * 100).toFixed(0)}%;background:${col}"></i></span></div>
-  </div>`;
+
+/* ---------- schermata degli interventi: prima la panoramica, poi una scheda per settore ---------- */
+function renderActs() {
+  const root = $("scrActs");
+  const cats = CATS.filter((c) => INTERVENTIONS.some((d) => d.cat === c.id && available(st, d)));
+  if (actTab !== "sintesi" && !cats.some((c) => c.id === actTab)) actTab = "sintesi";
+  const tabs = `<div class="tabs" role="group" aria-label="Categorie"><button type="button" data-c="sintesi" aria-pressed="${actTab === "sintesi"}"><svg style="color:var(--accent)"><use href="#g-target"/></svg>Panoramica</button>${cats.map((c) => `<button type="button" data-c="${c.id}" aria-pressed="${c.id === actTab}"><svg style="color:${CAT_COLOR[c.id]}"><use href="#i-${TAB_ICON[c.id] || c.id}"/></svg>${c.name}</button>`).join("")}</div>`;
+  const ws = worldStab(st), tint = heat(clamp((80 - ws) / 60, 0, 1));
+  root.innerHTML = `<div class="head"><button type="button" class="back" data-close aria-label="Torna alla mappa">‹</button>${tabs}${tut ? `<div id="coachHead"></div>` : ""}</div>
+    <div class="acts"><div class="treebox${actTab === "sintesi" ? " sum" : ""}" style="--tint:${tint}">${actTab === "sintesi" ? `<div class="sumlist" id="sumList"></div>` : `<div class="treewrap" id="treewrap"><svg id="tree" preserveAspectRatio="xMidYMid meet"></svg></div>`}</div><div class="detail" id="detail"></div></div>
+    <div class="foot"><span>Fondi <b style="${st.funds < 0 ? "color:#f0a597" : ""}">${fmt(st.funds, 1)}</b> <em class="delta" id="dFunds"></em></span><span>Saldo <b style="${netYear() < 0 ? "color:#f0a597" : ""}">${sign(netYear())}/anno</b> <em class="delta" id="dNet"></em></span></div>`;
+  wireClose(root);
+  for (const b of root.querySelectorAll("[data-c]")) b.onclick = () => { actTab = b.dataset.c; actNode = null; renderActs(); };
+  if (actTab === "sintesi") { renderSummary(); return; }
+  drawTree();
+  renderDetail();
+}
+const levelWord = (v) => (v >= 0.75 ? "buono" : v >= 0.5 ? "discreto" : v >= 0.3 ? "difficile" : "critico");
+function renderSummary() {
+  const cats = CATS.filter((c) => INTERVENTIONS.some((d) => d.cat === c.id && available(st, d)));
+  const inds = indsOn();
+  $("sumList").innerHTML = cats.map((c) => {
+    const sd = sectorDone(c.id), rows = inds.filter((i) => i.tab === c.id);
+    return `<button type="button" class="sumrow" data-go-tab="${c.id}" style="--c:${CAT_COLOR[c.id]}">
+      <span class="st"><svg><use href="#i-${TAB_ICON[c.id] || c.id}"/></svg>${c.name}</span>
+      <span class="mt" title="Interventi avviati nel settore"><svg style="color:${CAT_COLOR[c.id]}"><use href="#i-hex"/></svg>${barHTML(sd.did / sd.n, 0, CAT_COLOR[c.id])}<small>${sd.did} di ${sd.n} avviati</small></span>
+      ${rows.map((i) => { const v = i.v(st); return `<span class="mt"><svg style="color:${indCol(v)}"><use href="${i.icon}"/></svg>${barHTML(v, 0, indCol(v))}<small>${i.name}: ${levelWord(v)}</small></span>`; }).join("")}
+    </button>`;
+  }).join("");
+  for (const b of $("sumList").querySelectorAll("[data-go-tab]")) b.onclick = () => { actTab = b.dataset.goTab; actNode = null; renderActs(); };
+  const ws = worldStab(st);
+  $("detail").innerHTML = `<div class="scroll">
+      <h3>Situazione del mondo</h3>
+      <p class="desc">Stabilità mondiale <b style="color:${stabColor(ws)}">${Math.round(ws)}</b> su un obiettivo di ${st.L.win}.</p>
+      <p class="desc">Ogni riga è un settore. Tocca una riga per vedere i suoi interventi.</p>
+      <div class="legend2">
+        <span><svg style="color:var(--accent)"><use href="#i-hex"/></svg><b>Esagono</b>: quanti interventi del settore hai avviato.</span>
+        <span><svg style="color:#9fd6c2"><use href="#g-chartUp"/></svg><b>Le altre barre</b>: come va il mondo in quel campo. Piena è buono, vuota è grave.</span>
+        <span><i class="sw up"></i>Toccando un intervento, il pezzo <b>verde a righe</b> è quanto quella barra migliorerebbe.</span>
+        <span><i class="sw down"></i>Il pezzo <b>rosso a righe</b> è quanto peggiorerebbe.</span>
+      </div>
+    </div>`;
+  $("dFunds").textContent = ""; $("dNet").textContent = "";
 }
 function renderDetail() {
   const d = IBY[actNode];
@@ -2570,8 +2823,6 @@ function renderDetail() {
     state += (state ? " · " : "") + (d.id === "lunarMining" && !on ? "Guadagno incerto" : `Guadagno fino a +${fmt(max, 1)} l'anno`) + (on ? ` (ora +${fmt(now, 1)})` : "");
     if (d.id === "moon" && st.moonHalt > st.year) state += " · Base ferma dopo l'incidente fino al " + st.moonHalt;
   }
-  const prereq = d.parent && !parentOk(st, d) ? `<p class="why">Si sblocca dopo: ${esc(IBY[d.parent].name)}.</p>` : "";
-  const fromTxt = d.from && st.year < d.from ? `<p class="why">Tecnologia disponibile dal ${d.from}.</p>` : "";
   const done = s.a && s.a.n > 0 && !d.stack && !d.repeat;
   const active = s.a && s.a.n > 0;
   // nel piede: quanto costa subito e quanto cambia il saldo annuo
@@ -2582,26 +2833,31 @@ function renderDetail() {
   const buyLabel = done ? "Già attivo" : (active && d.stack) ? "Costruisci ancora" : s.prog.length && !d.stack ? "In corso" : st.funds - c0 < 0 ? "Avvia a debito" : "Avvia";
   const priceTxt = c0 && !done ? ` – ${c0}` : "";
   const showWhy = s.why && !done && s.why !== "In corso" && !s.why.startsWith("Richiede") && !s.why.startsWith("Disponibile");
-  const canStop = active && (d.upkeep || d.temp || d.revocable);
+  const canStop = active && (d.upkeep || d.revocable);
+  const sd = sectorDone(actTab), share = !done && !active && !s.prog.length ? 1 / sd.n : 0;
+  const I = indsOn().filter((i) => i.tab === actTab);
   $("detail").innerHTML = `<div class="scroll">
-      ${metersHTML(d, done)}
-      <h3>${esc(d.name)}</h3>
+      <div class="dhead" style="--c:${CAT_COLOR[d.fam]}"><svg viewBox="-20 -20 40 40"><polygon points="${hexPts(18)}"/><use href="${iconHref(d.id)}" x="-10" y="-10" width="20" height="20"/></svg><h3>${esc(d.name)}</h3></div>
       ${d.desc ? `<p class="desc">${esc(d.desc)}${slow}</p>` : ""}
       ${state ? `<span class="state">${state}</span>` : ""}
+      <div class="imeters" id="indRows">
+        <span class="mt"><svg style="color:${CAT_COLOR[actTab]}"><use href="#i-hex"/></svg>${barHTML(sd.did / sd.n, share, CAT_COLOR[actTab])}<small>Interventi del settore</small></span>
+        ${I.map((i) => { const v = i.v(st); return `<span class="mt" data-ind="${i.id}"><svg style="color:${indCol(v)}"><use href="${i.icon}"/></svg>${barHTML(v, 0, indCol(v))}<small>${i.name}</small></span>`; }).join("")}
+      </div>
       <p class="pro"><b>Pro.</b> ${esc(d.pro)}</p>
       <p class="con"><b>Contro.</b> ${esc(d.con)}</p>
       ${!done && available(st, d) ? `<div class="prev" id="prevBox"><small>Calcolo dell'effetto…</small></div>` : ""}
-      ${prereq}${fromTxt}
       ${showWhy ? `<p class="why">${esc(s.why)}</p>` : ""}
     </div>
     <button type="button" class="buy" id="dBuy" ${s.why ? "disabled" : ""}>${buyLabel}${priceTxt}</button>
-    ${canStop ? `<button type="button" class="buy alt" id="dRev">${d.temp ? "Smantella" : d.upkeep > 0 ? "Smetti di finanziare" : d.upkeep < 0 ? "Annulla" : "Revoca"}</button>` : ""}`;
+    ${canStop ? `<button type="button" class="buy alt" id="dRev">${d.toggle || (d.upkeep > 0 ? "Smetti di finanziare" : "Revoca")}</button>` : ""}`;
   $("dBuy").onclick = () => { if (!startIntervention(st, d.id)) { renderActs(); hud(); paint(); save(); } };
   if ($("prevBox")) setTimeout(() => showPreview(d), 0);
   if ($("dRev")) $("dRev").onclick = () => { revoke(st, d.id); renderActs(); hud(); paint(); };
 }
 
-/* stima dell'effetto: si simula il mondo per qualche anno con e senza l'intervento (senza eventi né catastrofi) */
+/* stima dell'effetto: si simula il mondo per qualche anno con e senza l'intervento (senza eventi né catastrofi).
+   Le barre mostrano tutti gli indicatori che cambiano, in verde dove migliora e in rosso dove peggiora. */
 let prevCache = { key: "", p: null };
 function showPreview(d) {
   const box = $("prevBox"); if (!box || actNode !== d.id) return;
@@ -2609,15 +2865,17 @@ function showPreview(d) {
   const key = d.id + st.year + "-" + st.month + "-" + Object.keys(st.acts).length + "-" + st.prog.length;
   if (prevCache.key !== key) prevCache = { key, p: preview(st, d.id, months) };
   const p = prevCache.p, top = p.regions.filter((r) => Math.abs(r.d) >= 0.5).slice(0, 3), mx = Math.max(1, ...top.map((r) => Math.abs(r.d)));
-  const I = TAB_IND[actTab], bar = $("indBar");
-  if (bar && p.a && p.b) {
-    const va = I.v(p.a), vb = I.v(p.b), v0 = I.v(st), dv = vb - va;
-    if (Math.abs(dv) > 0.005) bar.insertAdjacentHTML("beforeend", `<i class="ghost${dv < 0 ? " down" : ""}" style="left:${(Math.min(v0, v0 + dv) * 100).toFixed(1)}%;width:${(Math.abs(dv) * 100).toFixed(1)}%"></i>`);
+  const rows = $("indRows");
+  if (rows && p.a && p.b) {
+    const ch = indsOn().map((i) => ({ i, v: i.v(st), dv: i.v(p.b) - i.v(p.a) })).filter((c) => c.i.tab === actTab || Math.abs(c.dv) > 0.006);
+    ch.sort((a, b) => (b.i.tab === actTab) - (a.i.tab === actTab) || Math.abs(b.dv) - Math.abs(a.dv));
+    for (const el of rows.querySelectorAll("[data-ind]")) el.remove();
+    rows.insertAdjacentHTML("beforeend", ch.map((c) => `<span class="mt" data-ind="${c.i.id}"><svg style="color:${indCol(c.v)}"><use href="${c.i.icon}"/></svg>${barHTML(c.v, c.dv, indCol(c.v))}<small>${c.i.name}</small></span>`).join(""));
   }
   const cls = (v) => (v >= 0 ? "pos" : "negv");
   box.innerHTML = `<small>Tra ${p.years} anni</small>
     <div class="pw">Stabilità mondiale <b class="${cls(p.world)}">${sign(p.world)}</b>${Math.abs(p.temp) >= 0.01 ? ` · Temperatura <b class="${cls(-p.temp)}">${sign(p.temp, 2)} °C</b>` : ""}</div>
-    ${top.length ? `<div class="bars">${top.map((r) => `<span>${esc(RBY[r.id].short)}</span><i class="${r.d < 0 ? "n" : ""}" style="width:${(Math.abs(r.d) / mx * 100).toFixed(0)}%"></i><span class="v">${sign(r.d, 0)}</span>`).join("")}</div>` : `<small style="margin:3px 0 0">Serve soprattutto a ridurre i rischi o a sbloccare altro.</small>`}`;
+    ${top.length ? `<div class="bars">${top.map((r) => `<span>${esc(RBY[r.id].short)}</span><i class="${r.d < 0 ? "n" : ""}" style="width:${(Math.abs(r.d) / mx * 100).toFixed(0)}%"></i><span class="v">${sign(r.d, 0)}</span>`).join("")}</div>` : ""}`;
 }
 
 /* ---------- scheda regione ---------- */
@@ -2676,13 +2934,20 @@ function renderRegion() {
 }
 
 /* ---------- scheda mondo ---------- */
+let worldTab = "sum";
 function renderWorld() {
   const root = $("scrWorld");
+  const wtabs = `<div class="tabs" role="group" aria-label="Sezioni"><button type="button" data-wt="sum" aria-pressed="${worldTab === "sum"}">Riepilogo</button><button type="button" data-wt="stats" aria-pressed="${worldTab === "stats"}">Statistiche</button></div>`;
+  if (worldTab === "stats") {
+    root.innerHTML = headHTML("Mondo", wtabs) + statsHTML(st.hist);
+    wireClose(root); wireWorldTabs(root); wireStats(root, st.hist);
+    return;
+  }
   const checks = stability(st);
   const rb = riskBoard(st);
   const E = emissions(st) / st.E0 * 100;
   const lvColors = ["#4fae8e", "#e3a33f", "#d6774a", "#d65b4a"];
-  root.innerHTML = headHTML("Mondo") + `<div class="cols">
+  root.innerHTML = headHTML("Mondo", wtabs) + `<div class="cols">
     <section class="sec"><h3>Terra stabilizzata</h3>
       <div class="years" aria-label="Anni di stabilità">${Array.from({ length: st.L.years }, (_, i) => `<i class="${i < st.stable ? "on" : ""}"></i>`).join("")}</div>
       <p class="note" style="margin:0 0 4px">${st.stable} anni consecutivi su ${st.L.years} con la stabilità mondiale almeno a ${st.L.win}.</p>
@@ -2705,9 +2970,10 @@ function renderWorld() {
     <section class="sec"><h3>Stabilità delle regioni</h3><ul class="rank">${Object.values(st.regions).sort((a, b) => a.stab - b.stab).map((r) => `<li><span>${esc(r.name)}${r.controlled ? "" : " (anarchia)"}</span><b style="background:${stabColor(r.stab)}">${Math.round(r.stab)}</b></li>`).join("")}</ul></section>
     <section class="sec"><h3>Notizie</h3><ul class="log">${st.log.slice(0, 30).map((n) => `<li><time>${MONTHS[n.mo]} ${n.y}</time><span class="${n.kind}">${esc(n.text)}</span></li>`).join("")}</ul></section>
   </div>`;
-  wireClose(root);
+  wireClose(root); wireWorldTabs(root);
   wireCharts(root);
 }
+function wireWorldTabs(root) { for (const b of root.querySelectorAll("[data-wt]")) b.onclick = () => { worldTab = b.dataset.wt; renderWorld(); }; }
 function lunarStatus() {
   if (st.lunarCity) return "insediamento permanente";
   if (st.moon) return st.moonHalt > st.year ? "base ferma" : "base operativa";
@@ -2761,6 +3027,77 @@ function wireCharts(root, h) {
   }
 }
 
+/* ---------- statistiche nel tempo, come in Rebel Inc: una voce a sinistra, il grafico a destra, mondo o singola regione ----------
+   Ogni anno il motore salva una riga (st.hist). Il prodotto è lavoratori occupati × produttività: qui si vede come
+   l'andamento delle nascite, dopo 18 anni, si riflette sui lavoratori e quindi sull'economia. */
+const STATS = [
+  { k: "ws", world: true, name: "Stabilità mondiale", f: (v) => fmt(v, 0), goal: () => st.L.win },
+  { k: "stab", name: "Stabilità", f: (v) => fmt(v, 0) },
+  { k: "pop", name: "Popolazione", f: (v) => fmt(v, 2) + " mld", d: "Miliardi di persone" },
+  { k: "wrk", name: "Persone in età da lavoro", f: (v) => fmt(v, 2) + " mld", d: "Tra 18 e 64 anni. Chi nasce oggi entra nel lavoro fra 18 anni" },
+  { k: "old", name: "Anziani ogni 100 lavoratori", f: (v) => fmt(v, 0), d: "Sopra i 65 anni, ogni 100 persone tra 18 e 64" },
+  { k: "tfr", name: "Figli per donna", f: (v) => fmt(v, 2), goal: () => 2.1, d: "Con 2,1 figli per donna la popolazione resta stabile" },
+  { k: "gdp", name: "Prodotto totale", f: (v) => fmt(v, 0), d: "Ricchezza prodotta in un anno, 2026 = 100. Lavoratori occupati × produttività" },
+  { k: "prod", name: "Produttività per lavoratore", f: (v) => fmt(v, 0), d: "Quanto produce in media ogni lavoratore, 2026 = 100. Cresce con tecnologia, istruzione, automazione e robot" },
+  { k: "gpc", name: "Prodotto per abitante", f: (v) => fmt(v, 0), d: "Ricchezza prodotta divisa per tutti gli abitanti, 2026 = 100" },
+  { k: "g", name: "Crescita economica", f: (v) => sign(v) + "%", d: "Variazione del prodotto in un anno" },
+  { k: "unemp", name: "Disoccupazione", f: (v) => fmt(v, 1) + "%" },
+  { k: "debt", name: "Debito pubblico", f: (v) => fmt(v, 0) + "%", d: "Debito degli stati in percentuale del prodotto" },
+  { k: "pens", name: "Peso del welfare", f: (v) => fmt(v, 0), d: "Quanto pesano pensioni e welfare sui conti, da 0 a 100" },
+  { k: "unrest", name: "Malcontento", f: (v) => fmt(v, 0) },
+  { k: "t", world: true, name: "Temperatura", f: (v) => "+" + fmt(v, 2) + " °C", sys: "climate" },
+  { k: "e", world: true, name: "Emissioni", f: (v) => Math.round(v) + "%", d: "Rispetto al 2026", sys: "climate" },
+  { k: "f", world: true, name: "Fondi dell'Autorità", f: (v) => fmt(v, 1) },
+  { k: "inc", world: true, name: "Entrate dell'Autorità", f: (v) => fmt(v, 1) + "/anno" },
+];
+let statK = "gdp", statR = "w";
+const statVal = (row, S) => (S.world ? row[S.k] : statR === "w" ? row.w && row.w[S.k] : row.r && row.r[statR] && row.r[statR][S.k]);
+function statsHTML(h) {
+  const list = STATS.filter((S) => !S.sys || sysOn(st, S.sys));
+  if (!list.some((S) => S.k === statK)) statK = "gdp";
+  return `<div class="stats">
+    <div class="slist">${list.map((S) => `<button type="button" data-sk="${S.k}" aria-pressed="${S.k === statK}">${S.name}</button>`).join("")}</div>
+    <div class="sview"><div class="sbar"><select id="statR" aria-label="Regione"><option value="w">Tutto il mondo</option>${REGIONS.map((R) => `<option value="${R.id}" ${statR === R.id ? "selected" : ""}>${esc(R.name)}</option>`).join("")}</select></div><div id="statChart"></div></div>
+  </div>`;
+}
+function drawStat(root, h) {
+  const S = STATS.find((x) => x.k === statK), box = root.querySelector("#statChart");
+  root.querySelector("#statR").disabled = !!S.world;
+  const pts = h.map((row) => [row.y, statVal(row, S)]).filter((p) => p[1] != null);
+  if (pts.length < 2) { box.innerHTML = `<p class="note">Il grafico compare dopo il primo anno di governo.</p>`; return; }
+  const W = 520, H = 210, L = 66, B = 22;
+  const goal = S.goal ? S.goal() : null;
+  let lo = Math.min(...pts.map((p) => p[1]), goal ?? Infinity), hi = Math.max(...pts.map((p) => p[1]), goal ?? -Infinity);
+  if (hi - lo < 1e-6) { hi += 1; lo -= 1; }
+  const padv = (hi - lo) * 0.08; lo -= padv; hi += padv;
+  const X = (i) => L + (i / (pts.length - 1)) * (W - L - 6), Y = (v) => 6 + (1 - (v - lo) / (hi - lo)) * (H - B - 6);
+  const d = pts.map((p, i) => (i ? "L" : "M") + X(i).toFixed(1) + " " + Y(p[1]).toFixed(1)).join("");
+  const ticks = [lo + padv, (lo + hi) / 2, hi - padv];
+  const yrs = [pts[0][0], pts[Math.floor((pts.length - 1) / 2)][0], pts[pts.length - 1][0]];
+  const last = pts[pts.length - 1][1];
+  box.innerHTML = `<div class="shead"><b>${S.name}</b><span>${S.f(last)}</span></div>${S.d ? `<p class="note" style="margin:0 0 4px">${S.d}</p>` : ""}
+    <svg viewBox="0 0 ${W} ${H}" class="schart" role="img" aria-label="${S.name}: da ${S.f(pts[0][1])} nel ${pts[0][0]} a ${S.f(last)} nel ${pts[pts.length - 1][0]}">
+      ${ticks.map((v) => `<line x1="${L}" x2="${W - 6}" y1="${Y(v)}" y2="${Y(v)}" class="grid"/><text x="${L - 6}" y="${Y(v) + 3}" class="ax" text-anchor="end">${S.f(v)}</text>`).join("")}
+      ${yrs.map((y, j) => `<text x="${X(j === 0 ? 0 : j === 1 ? Math.floor((pts.length - 1) / 2) : pts.length - 1)}" y="${H - 6}" class="ax" text-anchor="${j === 0 ? "start" : j === 2 ? "end" : "middle"}">${y}</text>`).join("")}
+      ${goal != null ? `<line x1="${L}" x2="${W - 6}" y1="${Y(goal)}" y2="${Y(goal)}" class="goal"/>` : ""}
+      <path d="${d}" class="line"/>
+      <line class="xh" x1="0" x2="0" y1="6" y2="${H - B}" visibility="hidden"/><circle class="dot" r="3.5" visibility="hidden"/>
+    </svg><div class="stip" id="statTip"></div>`;
+  const svg = box.querySelector("svg"), xh = svg.querySelector(".xh"), dot = svg.querySelector(".dot"), tip = box.querySelector("#statTip");
+  const show = (e) => {
+    const b = svg.getBoundingClientRect(), t = clamp(((e.clientX - b.left) / b.width * W - L) / (W - L - 6), 0, 1), i = Math.round(t * (pts.length - 1));
+    xh.setAttribute("x1", X(i)); xh.setAttribute("x2", X(i)); xh.setAttribute("visibility", "visible");
+    dot.setAttribute("cx", X(i)); dot.setAttribute("cy", Y(pts[i][1])); dot.setAttribute("visibility", "visible");
+    tip.textContent = pts[i][0] + " · " + S.f(pts[i][1]);
+  };
+  svg.addEventListener("pointermove", show); svg.addEventListener("pointerdown", show);
+}
+function wireStats(root, h) {
+  for (const b of root.querySelectorAll("[data-sk]")) b.onclick = () => { statK = b.dataset.sk; for (const x of root.querySelectorAll("[data-sk]")) x.setAttribute("aria-pressed", String(x === b)); drawStat(root, h); };
+  root.querySelector("#statR").onchange = (e) => { statR = e.target.value; drawStat(root, h); };
+  drawStat(root, h);
+}
+
 /* ---------- eventi ---------- */
 /* ---------- crisi in arrivo ---------- */
 const absMonth = () => st.year * 12 + st.month;
@@ -2770,7 +3107,6 @@ const GLOBAL_SPOTS = [[-150, 8], [-32, 0], [72, -18], [-150, -28], [-32, -28], [
 function queueEvent(ev) {
   const E = EBY[ev.id], n = EV_WARN[ev.id] || 12;
   (st.queue || (st.queue = [])).push({ id: ev.id, r: ev.r, due: absMonth() + n, start: absMonth() });
-  toast(`${E.good ? "Opportunità" : "Crisi"}: ${E.title}${ev.r ? " in " + st.regions[ev.r].name : ""}. Tocca il segnale sulla mappa entro ${n} mesi.`, E.good ? "" : "bad");
   // i segnali stanno sul planisfero: dal globo si torna alla cartina
   if (globeOn) { globeOn = false; moonMode = false; showGlobe(); }
   if (ev.r) pingRegion(ev.r);
@@ -2783,9 +3119,11 @@ function onExpire() {
   if (!q || q.warned) return;
   q.warned = true;
   if (globeOn) { globeOn = false; showGlobe(); }
-  toast(`Tempo scaduto: decidi su «${EBY[q.id].title}». Il tempo resta fermo finché non tocchi il segnale.`, "bad");
   drawBubbles();
 }
+/* Segnaposto delle crisi, come le bolle degli altri giochi: la punta indica il luogo, la testa porta l'icona.
+   Più il tempo passa più il segnaposto si gonfia; dopo un anno il tempo si ferma finché non lo si tocca. */
+const PIN_D = "M0 0C-2.6-4.4-8-8.2-8-13.6a8 8 0 1 1 16 0C8-8.2 2.6-4.4 0 0z";
 function drawBubbles() {
   const g = $("bubbles"); g.innerHTML = "";
   if (!st || phase !== "play") return;
@@ -2793,17 +3131,19 @@ function drawBubbles() {
   for (const q of st.queue || []) {
     const E = EBY[q.id];
     let x, y;
-    if (q.r) { const R = RBY[q.r], k = perRegion[q.r] = (perRegion[q.r] || 0) + 1; [x, y] = ee(R.label[0], R.label[1]); y -= 19; x += (k - 1) * 30; }
+    if (q.r) { const R = RBY[q.r], k = perRegion[q.r] = (perRegion[q.r] || 0) + 1; [x, y] = ee(R.label[0], R.label[1]); y -= 9; x += (k - 1) * 20; }
     else { [x, y] = ee(...GLOBAL_SPOTS[gi++ % GLOBAL_SPOTS.length]); }
     const left = Math.max(0, q.due - absMonth()), frac = Math.min(1, (absMonth() - q.start) / Math.max(1, q.due - q.start));
-    const b = svgEl("g", { class: "bub" + (E.good ? " good" : "") + (left <= 0 ? " due" : ""), transform: `translate(${x.toFixed(1)} ${y.toFixed(1)})`, role: "button", "aria-label": E.title });
-    b.appendChild(svgEl("circle", { r: 10.5, class: "halo" }));
-    b.appendChild(svgEl("circle", { r: 7, class: "core", fill: E.good ? "#2f7a5f" : "#9a3a2e" }));
-    // conto alla rovescia: l'anello si chiude man mano che la scadenza si avvicina
-    const a = frac * 2 * Math.PI, R0 = 9;
-    if (frac > 0.01) b.appendChild(svgEl("path", { d: `M0 ${-R0}A${R0} ${R0} 0 ${a > Math.PI ? 1 : 0} 1 ${(R0 * Math.sin(a)).toFixed(2)} ${(-R0 * Math.cos(a)).toFixed(2)}`, fill: "none", stroke: "#ffd27a", "stroke-width": 1.1 }));
-    b.appendChild(svgEl("use", { href: "#i-" + (EV_ICON[E.cat] || "sicurezza"), x: -4, y: -4, width: 8, height: 8, style: "color:#fff4dc" }));
-    const t = svgEl("text", { x: 11.5, y: 1.7, "text-anchor": "start" }); t.textContent = left <= 0 ? "Decidi" : left === 1 ? "1 mese" : left + " mesi"; b.appendChild(t);
+    const sc = left <= 0 ? 1.55 : 1 + 0.45 * frac;
+    const b = svgEl("g", { class: "bub" + (E.good ? " good" : "") + (left <= 0 ? " due" : ""), transform: `translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${sc.toFixed(2)})`, role: "button", "aria-label": E.title });
+    b.appendChild(svgEl("ellipse", { cx: 0, cy: 0, rx: 3.2, ry: 1.2, class: "shadow" }));
+    b.appendChild(svgEl("circle", { cx: 0, cy: -13.6, r: 11, class: "halo" }));
+    b.appendChild(svgEl("path", { d: PIN_D, class: "core", fill: E.good ? "#2f8a68" : "#b8402f" }));
+    // conto alla rovescia: l'anello intorno alla testa si chiude man mano che passa il tempo
+    const a = frac * 2 * Math.PI, R0 = 9.6;
+    if (frac > 0.01 && left > 0) b.appendChild(svgEl("path", { d: `M0 ${-13.6 - R0}A${R0} ${R0} 0 ${a > Math.PI ? 1 : 0} 1 ${(R0 * Math.sin(a)).toFixed(2)} ${(-13.6 - R0 * Math.cos(a)).toFixed(2)}`, class: "count" }));
+    b.appendChild(svgEl("use", { href: "#i-" + (EV_ICON[E.cat] || "sicurezza"), x: -5, y: -18.6, width: 10, height: 10, style: "color:#fff4dc" }));
+    if (left <= 0) { const t = svgEl("text", { x: 0, y: -26 }); t.textContent = "Decidi"; b.appendChild(t); }
     b.addEventListener("click", (e) => { e.stopPropagation(); if (pending) return; st.queue = st.queue.filter((x) => x !== q); showEvent(q); });
     g.appendChild(b);
   }
@@ -2856,13 +3196,24 @@ function endGame() {
       ${st.levelId === "l4" ? `<div class="nextph"><b>Fase 2 · Il sistema solare</b> — sbloccata a livello ${DIFF[st.diffId].name.toLowerCase()}. È in preparazione: ${st.lunarCity ? "la comunità lunare sarà il tuo punto di partenza." : "con un insediamento lunare partirai avvantaggiato."}</div>` : ""}` : ""}
     <div class="endgrid"><div class="kv"><span>Anni di governo</span><span>${st.year - 2026}</span><span>Temperatura</span><span>+${fmt(st.g.temp + st.g.geoOff, 2)} °C</span><span>Popolazione</span><span>${fmt(worldPop(st) / 1000, 2)} mld</span><span>Regioni sotto controllo</span><span>${Object.values(st.regions).filter((r) => r.controlled).length} su 11</span><span>Programma lunare</span><span>${lunarStatus()}</span></div>
       <div>${chartsHTML()}</div></div>
-    <div class="choices">${win && next ? `<button type="button" class="buy" id="bNext" style="margin:0">Scenario successivo</button>` : ""}<button type="button" class="buy ${win && next ? "alt" : ""}" id="bAgain" style="margin:0">${win ? "Scegli lo scenario" : "Riprova"}</button><button type="button" class="buy alt" id="bLook" style="margin:0">Guarda la mappa</button></div>`;
+    <div class="choices">${win && next ? `<button type="button" class="buy" id="bNext" style="margin:0">Scenario successivo</button>` : ""}<button type="button" class="buy ${win && next ? "alt" : ""}" id="bAgain" style="margin:0">${win ? "Scegli lo scenario" : "Riprova"}</button><button type="button" class="buy alt" id="bStats" style="margin:0">Statistiche</button><button type="button" class="buy alt" id="bLook" style="margin:0">Guarda la mappa</button></div>`;
   $("modal").hidden = false;
-  const toMenu = (lid) => { $("modal").hidden = true; st = null; sel = null; globeOn = false; showGlobe(); if (lid) introLevel = lid; showPhase("levels"); };
-  $("bAgain").onclick = () => toMenu(win ? null : st.levelId);
-  if ($("bNext")) $("bNext").onclick = () => toMenu(next.id);
-  $("bLook").onclick = () => { $("modal").hidden = true; };
-  wireCharts(c);
+  const endHTML = c.innerHTML;
+  // resoconto: le statistiche di tutta la partita, poi si torna al riepilogo
+  const showStats = () => {
+    c.innerHTML = `<div class="eyebrow">Resoconto della partita · ${2026}–${st.year}</div>${statsHTML(st.hist)}<div class="choices" style="margin-top:8px"><button type="button" class="buy alt" id="bBack" style="margin:0">Indietro</button></div>`;
+    wireStats(c, st.hist);
+    $("bBack").onclick = () => { c.innerHTML = endHTML; wireEnd(); };
+  };
+  const wireEnd = () => {
+    $("bAgain").onclick = () => toMenu(win ? null : st.levelId);
+    if ($("bNext")) $("bNext").onclick = () => toMenu(next.id);
+    $("bLook").onclick = () => { $("modal").hidden = true; };
+    $("bStats").onclick = showStats;
+    wireCharts(c);
+  };
+  function toMenu(lid) { $("modal").hidden = true; st = null; sel = null; globeOn = false; showGlobe(); if (lid) introLevel = lid; showPhase("levels"); }
+  wireEnd();
   refresh();
 }
 function closeScreensQuiet() { $("scrActs").hidden = $("scrReg").hidden = $("scrWorld").hidden = true; openScreen = null; }
@@ -2901,7 +3252,7 @@ const SAVE_KEY = "gf-save-1";
 function save() { if (!st || st.over) return; try { localStorage.setItem(SAVE_KEY, saveState(st, pending && pending.id ? pending : null)); } catch (e) {} }
 function clearSave() { try { localStorage.removeItem(SAVE_KEY); } catch (e) {} }
 function loadSave() { try { const t = localStorage.getItem(SAVE_KEY); return t ? loadState(t) : null; } catch (e) { return null; } }
-function peekSave() { try { const t = localStorage.getItem(SAVE_KEY); if (!t) return null; const o = JSON.parse(t); return o && o.st && DIFF[o.st.diffId] ? { year: o.st.year, diffId: o.st.diffId } : null; } catch (e) { return null; } }
+function peekSave() { try { const t = localStorage.getItem(SAVE_KEY); if (!t) return null; const o = JSON.parse(t); return o && o.v === 2 && o.st && DIFF[o.st.diffId] ? { year: o.st.year, diffId: o.st.diffId } : null; } catch (e) { return null; } }
 /* progressi: per ogni scenario, record per difficoltà e governi con cui è stato vinto */
 function getProg() { try { return JSON.parse(localStorage.getItem("gf-prog-1") || "{}") || {}; } catch (e) { return {}; } }
 function setProg(p) { try { localStorage.setItem("gf-prog-1", JSON.stringify(p)); } catch (e) {} }
@@ -2932,8 +3283,8 @@ function toast(text, kind) {
   const box = $("toasts");
   const t = document.createElement("div"); t.className = "toast " + (kind || ""); t.textContent = text;
   box.appendChild(t);
-  while (box.children.length > 3) box.firstChild.remove();
-  setTimeout(() => { t.classList.add("out"); setTimeout(() => t.remove(), 500); }, 4200);
+  while (box.children.length > 2) box.firstChild.remove();
+  setTimeout(() => { t.classList.add("out"); setTimeout(() => t.remove(), 500); }, 3200);
 }
 function newsToasts() {
   if (!st) return;
@@ -3226,7 +3577,7 @@ for (const b of document.querySelectorAll(".speed button")) b.onclick = () => {
 
   hud();
 };
-$("bActs").onclick = () => open("acts");
+$("bActs").onclick = () => { actTab = "sintesi"; actNode = null; open("acts"); };
 $("bWorld").onclick = () => open("world");
 $("regStrip").onclick = () => { if (sel) open("reg"); };
 document.addEventListener("keydown", (e) => {
