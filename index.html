@@ -95,7 +95,7 @@ button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); o
 .chip .k { font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
 .chip .v { font-family: var(--font-m); font-variant-numeric: tabular-nums; font-size: 13px; white-space: nowrap; }
 .chip .v small { font-size: 10px; color: var(--muted); }
-.tl { top: max(8px, env(safe-area-inset-top, 0px)); left: var(--gl); flex-wrap: wrap; max-width: 46%; }
+.tl { top: max(8px, env(safe-area-inset-top, 0px)); left: var(--gl); flex-wrap: wrap; max-width: 58%; }
 .tr { top: max(8px, env(safe-area-inset-top, 0px)); right: var(--gr); }
 .datebox { background: rgba(21,38,52,.93); border: 1px solid var(--line); border-radius: 8px; padding: 4px 6px 4px 12px; display: flex; align-items: center; gap: 8px; }
 .datebox .d { font-family: var(--font-d); font-weight: 600; font-size: 21px; letter-spacing: .04em; min-width: 82px; }
@@ -573,6 +573,7 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
 
   <div id="hud" hidden>
     <div class="hud tl">
+      <button type="button" class="sound" id="bPause" aria-label="Menu della partita"><svg viewBox="0 0 16 16"><path d="M3 4h10M3 8h10M3 12h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
       <button type="button" class="sound" data-sound aria-label="Musica" aria-pressed="true"></button>
       <div class="chip"><span class="k">Stabilità mondiale</span><span class="v" id="sWorld">45 <small>obiettivo 52</small></span></div>
       <div class="chip"><span class="k">Anni stabili</span><span class="v" id="sStable">0 / 10</span></div>
@@ -3869,6 +3870,26 @@ function showGlobe() {
 }
 $("globeBtn").onclick = () => { globeOn = !globeOn; moonMode = false; showGlobe(); };
 function placeGlobeBtn() { $("globeBtn").style.left = ($("viewBtn").offsetLeft + $("viewBtn").offsetWidth + 6) + "px"; }
+
+/* ---------- menu della partita: riprendere oppure salvare e tornare al menu principale ---------- */
+$("bPause").onclick = () => {
+  if (phase !== "play" || pending) return;
+  savedSpeed = speed || savedSpeed || 1; speed = 0; pending = { pause: true }; hud();
+  const c = $("modalCard");
+  c.innerHTML = `<div class="eyebrow">Partita in pausa · ${MONTHS[st.month]} ${st.year}</div><h2>Menu</h2>
+    <p>La partita si salva da sola. Dal menu principale puoi riprenderla con «Continua».</p>
+    <div class="choices"><button type="button" class="buy" id="pResume" style="margin:0">Riprendi</button><button type="button" class="buy alt" id="pExit" style="margin:0">Salva ed esci al menu</button></div>`;
+  $("modal").hidden = false;
+  $("pResume").onclick = () => { pending = null; $("modal").hidden = true; speed = savedSpeed || 1; refresh(); };
+  $("pExit").onclick = () => {
+    pending = null; save();
+    $("modal").hidden = true; closeScreensQuiet(); zoomMap(null);
+    globeOn = false; moonMode = false; showGlobe();
+    st = null; sel = null; tut = null; renderCoach(); $("bubbles").innerHTML = "";
+    showPhase("title");
+  };
+  $("pResume").focus();
+};
 
 /* ---------- comandi ---------- */
 for (const b of document.querySelectorAll(".speed button")) b.onclick = () => {
