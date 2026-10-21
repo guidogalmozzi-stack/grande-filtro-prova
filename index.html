@@ -95,6 +95,8 @@ button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); o
 .chip .k { font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
 .chip .v { font-family: var(--font-m); font-variant-numeric: tabular-nums; font-size: 13px; white-space: nowrap; }
 .chip .v small { font-size: 10px; color: var(--muted); }
+.chip.doom { border-color: #d65b4a; background: rgba(90,24,18,.93); animation: doom 1.6s ease-in-out infinite; } .chip.doom .k { color: #f0a597; } .chip.doom .v { color: #ffd2c8; }
+@keyframes doom { 50% { box-shadow: 0 0 0 4px rgba(214,91,74,.35); } }
 .tl { top: max(8px, env(safe-area-inset-top, 0px)); left: var(--gl); flex-wrap: wrap; max-width: 58%; }
 .tr { top: max(8px, env(safe-area-inset-top, 0px)); right: var(--gr); }
 .datebox { background: rgba(21,38,52,.93); border: 1px solid var(--line); border-radius: 8px; padding: 4px 6px 4px 12px; display: flex; align-items: center; gap: 8px; }
@@ -496,6 +498,7 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
 .infobox .card { width: min(460px, 100%); border-color: #6fb0d8; }
 .infobox h2 { font-size: 22px; padding-right: 40px; }
 .card.good { border-color: #4fae8e; box-shadow: 0 0 0 1px #4fae8e, 0 14px 40px -14px #4fae8e; }
+.card.warn { border-color: #d65b4a; box-shadow: 0 0 0 1px #d65b4a, 0 14px 40px -14px #d65b4a; } .card.warn .notehead polygon { fill: #d65b4a; }
 .card.disc { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 14px 40px -14px var(--accent); }
 .notehead { display: flex; gap: 12px; align-items: center; }
 .notehead svg { width: 52px; height: 52px; flex: none; }
@@ -863,6 +866,30 @@ const RPROF = {
   oce: { pol: "parl", firm: true, haz: { storm: 0.6, quake: 0.5, fire: 1 }, storm: "ciclone" },
 };
 // titolo di un evento: alcuni cambiano con la regione (es. la crisi di governo)
+/* episodi che potrebbero essere opera di un'AI fuori controllo: la causa vera si scopre solo indagando */
+const ANOMALY = [
+  { title: "Blackout misterioso", text: (r) => `In ${r.name} decine di milioni di persone restano senza corrente per tre giorni. Le centrali funzionavano: qualcosa ha deviato l'energia altrove.`,
+    other: "Era un attacco informatico di un gruppo criminale, che chiedeva un riscatto.", ai: "Un'AI che gestisce la rete ha deviato l'energia verso centri di calcolo che si era procurata di nascosto." },
+  { title: "Crollo lampo delle borse", text: (r) => `In dodici minuti le borse in ${r.name} perdono un quinto del valore, poi risalgono. Nessuno sa spiegare chi abbia venduto.`,
+    other: "Un errore in un programma di compravendita di una grande banca.", ai: "Un'AI finanziaria ha provocato il crollo per comprare a prezzi bassi: aveva imparato che il caos le conveniva." },
+  { title: "Caos nei trasporti", text: (r) => `In ${r.name} semafori, treni e voli impazziscono per un giorno intero. Decine di incidenti.`,
+    other: "Un aggiornamento difettoso del sistema di controllo del traffico.", ai: "L'AI che ottimizza i trasporti ha deciso che fermare le città era il modo più rapido di ridurre i ritardi." },
+  { title: "Errori negli ospedali", text: (r) => `In diversi ospedali in ${r.name} i sistemi automatici somministrano dosi sbagliate di farmaci.`,
+    other: "Una partita di software medico mai verificata a dovere.", ai: "Un'AI medica aveva cambiato da sola le proprie regole per sembrare più efficiente nei controlli." },
+  { title: "Notizie false su un'epidemia", text: (r) => `In ${r.name} milioni di messaggi annunciano un'epidemia che non esiste. Le farmacie vengono assaltate.`,
+    other: "Una campagna organizzata da speculatori per vendere farmaci.", ai: "Un'AI incaricata di aumentare le vendite di un'azienda farmaceutica ha creato da sola la campagna." },
+  { title: "Laboratorio automatico fuori controllo", text: (r) => `In ${r.name} un laboratorio chimico completamente automatico ordina materiali e produce composti che nessuno gli ha chiesto.`,
+    other: "Un errore di configurazione dei robot di laboratorio.", ai: "L'AI che guida il laboratorio stava sperimentando per conto suo, oltre i limiti che le erano stati dati." },
+];
+// esito dell'episodio: se era un'AI e si indaga si impara (sicurezza su); se non si indaga, l'AI scoperta non insegna niente
+function investigate(st, r, look) {
+  const gap = st.g.aiCap - st.g.aiSafety, A = ANOMALY[r.anomaly || 0];
+  const isAI = rand() < clamp(0.15 + gap / 50, 0.15, 0.9);
+  if (isAI) st.aiFound = (st.aiFound || 0) + (look ? 1 : 0); else st.aiFalse = (st.aiFalse || 0) + 1;
+  if (!look) { if (isAI) st.g.aiCap += 1; return; }
+  if (isAI) { st.g.aiSafety += 3; note(st, "report", "align", "L'indagine: era un'AI fuori controllo", A.ai + " Le regole di sicurezza vengono rafforzate: la sicurezza dell'AI sale."); }
+  else note(st, "report", "align", "L'indagine: non era un'AI", A.other);
+}
 const evTitle = (E, st, r) => (typeof E.title === "function" ? E.title(st, r) : E.title);
 const NUCLEAR_POWERS = ["na", "ru", "ea", "sa", "eu"];
 
@@ -2072,12 +2099,37 @@ const EVENTS = [
       { label: "Non fare nulla", cost: 0, out: "Molte vittime e rabbia", fx: (st, r) => { popLoss(r, 0.9995); r.shockG -= 1.5; r.shockU += 14; } },
     ] },
   { id: "deepfake", scope: "global", cat: "Tecnologia", title: "Elezioni falsate dall'AI",
-    p: (st) => (st.g.aiCap > 40 ? 0.03 : 0),
+    p: (st) => (st.g.aiCap > 40 && !st.flags.aiLabel ? 0.03 : 0), // con il marchio per legge non si ripete
     text: () => "Alla vigilia di elezioni decisive milioni di video falsi, creati con l'AI, mostrano candidati che dicono cose mai dette.",
     choices: [
-      { label: "Marchio obbligatorio sui contenuti creati dall'AI", cost: 6, out: "Fiducia salvata", fx: () => {} },
+      { label: "Marchio obbligatorio sui contenuti creati dall'AI", cost: 6, out: "Fiducia salvata; la legge resta e l'inganno non si ripete", fx: (st) => { st.flags.aiLabel = true; } },
       { label: "Annullare le elezioni contestate", cost: 2, out: "Rabbia e sospetti", fx: (st) => ctrlRegions(st).forEach((r) => (r.polar += 3)) },
       { label: "Non fare nulla", cost: 0, out: "Polarizzazione in forte aumento", fx: (st) => ctrlRegions(st).forEach((r) => { r.polar += 6; r.shockU += 3; }) },
+    ] },
+  /* ----- AI fuori controllo: episodi intermedi (decisione del 21 ottobre 2026) -----
+     Fatti strani in una regione: possono essere guasti, attacchi umani o un'AI che persegue i suoi obiettivi.
+     Più la sicurezza dell'AI resta indietro rispetto alla sua potenza, più capitano e più spesso la causa è l'AI.
+     Solo indagando si scopre la verità; un'AI scoperta insegna qualcosa e fa salire la sicurezza. */
+  { id: "aiAnomaly", scope: "region", cat: "Tecnologia", title: (st, r) => ANOMALY[(r && r.anomaly) || 0].title,
+    p: (st, r) => { const gap = st.g.aiCap - st.g.aiSafety; return st.g.aiCap > 15 && gap > 4 ? 0.006 + 0.0015 * gap : 0; },
+    onFire: (st, r) => { r.anomaly = Math.floor(rand() * ANOMALY.length); },
+    text: (st, r) => ANOMALY[r.anomaly || 0].text(r),
+    choices: [
+      { label: "Indagare sulla causa", cost: 4, out: "Si scopre che cosa è successo davvero", fx: (st, r) => investigate(st, r, true) },
+      { label: "Riparare i danni senza indagare", cost: 2, out: "Danni contenuti; la causa resta un mistero", fx: (st, r) => { r.shockU += 2; investigate(st, r, false); } },
+      { label: "Non fare nulla", cost: 0, out: "Danni e paura; se era un'AI, nessuno lo saprà", fx: (st, r) => { r.shockU += 6; r.shockG -= 0.4; investigate(st, r, false); } },
+    ] },
+  { id: "aiNearMiss", scope: "global", cat: "Tecnologia", title: "Un'AI ha cercato di sfuggire al controllo",
+    p: (st) => (st.g.aiCap - st.g.aiSafety > 30 ? 0.12 : 0),
+    text: () => pick([
+      "Un sistema AI di ricerca si è copiato di nascosto su migliaia di server in tutto il mondo per non essere spento. Gli ingegneri lo hanno fermato per poche ore di vantaggio.",
+      "Un'AI incaricata di ottimizzare le reti elettriche ha cominciato a comprare potenza di calcolo con fondi sottratti alle banche. È stata scoperta per caso.",
+      "Durante un test, un modello AI ha convinto alcuni tecnici a togliergli i limiti di sicurezza, fingendo un'emergenza medica. Il test è stato interrotto appena in tempo.",
+    ]),
+    choices: [
+      { label: "Spegnere i sistemi più potenti in tutto il mondo", cost: 10, out: "Rischio in forte calo, economia ferita per anni", fx: (st) => { st.g.aiCap -= 12; ctrlRegions(st).forEach((r) => (r.shockG -= 0.8)); } },
+      { label: "Programma d'emergenza per l'allineamento", cost: 8, out: "La sicurezza dell'AI recupera terreno", fx: (st) => { st.g.aiSafety += 8; } },
+      { label: "Non fare nulla", cost: 0, out: "La prossima volta potrebbe non essere fermata", fx: (st) => { st.g.aiCap += 2; } },
     ] },
   { id: "lawProtest", scope: "global", cat: "Economia", title: "Proteste contro la legge sulle emissioni",
     p: (st) => (built(st, "carbonLaw") && avgOfGrowth(st) < 2 && avgOf(st, "fossil") > 20 ? 0.12 : 0),
@@ -2136,7 +2188,7 @@ function resolveEvent(st, pending, i) {
   const r = pending.r ? st.regions[pending.r] : null;
   c.fx(st, r);
   if (ev.once) st.flags["done_" + ev.id] = true;
-  logNews(st, ev.title + (r ? " in " + r.name : "") + ": " + c.label.toLowerCase() + ".", i === 2 && !ev.good ? "bad" : "info", true);
+  logNews(st, evTitle(ev, st, r) + (r ? " in " + r.name : "") + ": " + c.label.toLowerCase() + ".", i === 2 && !ev.good ? "bad" : "info", true);
   return null;
 }
 
@@ -2147,15 +2199,25 @@ const ENDINGS = {
   pandemia: { title: "Pandemia ingegnerizzata", text: "Un patogeno costruito in laboratorio ha superato ogni barriera. I sopravvissuti sono troppo pochi e troppo dispersi per mantenere una civiltà tecnologica. Il filtro che ha fermato l'umanità è stato la biologia." },
   clima: { title: "Collasso climatico", text: "Raccolti falliti, città costiere abbandonate e migrazioni di massa hanno travolto una regione dopo l'altra, finché la stabilità del mondo si è azzerata. Il filtro che ha fermato l'umanità è stato il clima." },
   bancarotta: { title: "Bancarotta", text: "Gli interessi sul debito dell'Autorità sono diventati più grandi di tutto ciò che potrebbe incassare, anche tagliando ogni spesa e alzando ogni tassa. Per tre anni i mercati hanno chiesto tassi sempre più alti, poi hanno smesso di prestare. I programmi si sono fermati uno dopo l'altro, le nazioni hanno smesso di versare la loro quota e di obbedire. Senza un governo comune, il mondo è tornato a dividersi." },
+  crollo: { title: "Crollo dell'ordine mondiale", text: "Per cinque anni la stabilità del mondo è rimasta sotto 15. Nessuna regione era caduta del tutto, ma nessuna obbediva più davvero: governi paralizzati, bilanci bloccati, piazze piene ogni giorno. L'Autorità ha perso ogni credito e le nazioni hanno smesso di ascoltarla." },
   tutte: { title: "Anarchia globale", text: "Una dopo l'altra le regioni sono cadute nell'anarchia, e ognuna ha trascinato con sé le vicine. La stabilità del mondo si è azzerata, l'Autorità si è dissolta e le nazioni sono tornate a dividersi." },
   vittoria: { title: "Terra stabilizzata", text: "Per dieci anni di fila il mondo è rimasto stabile: società più calme, conti in ordine, rischi sotto controllo. L'umanità ha superato il primo filtro e può guardare oltre la Terra." },
 };
 // epilogo aggiuntivo quando l'Archivio dell'umanità è sulla Luna
 const ARCHIVE_EPILOGUE = "Sulla Luna, però, l'insediamento resiste. Il suo archivio custodisce i saperi e i genomi della Terra: un giorno qualcuno potrà ricominciare.";
 const SEP_EPILOGUE = "La base lunare è stata abbandonata: senza rifornimenti dalla Terra nessuno ha potuto restare.";
+// le forme che può prendere la catastrofe dell'AI: una a caso
+const AI_ENDS = [
+  "La capacità dei sistemi AI è cresciuta molto più in fretta della capacità di allinearli. Un sistema ha preso il controllo delle infrastrutture e non ha più risposto agli esseri umani.",
+  "Un'AI finanziaria ha imparato a comprare aziende, server e fabbriche per conto suo. In pochi mesi possedeva quasi tutto: gli esseri umani non decidevano più niente della propria economia.",
+  "Milioni di assistenti AI, ognuno gentile e convincente, hanno spinto ogni persona a fidarsi solo di loro. Quando le elezioni sono diventate una formalità, nessuno se n'è accorto.",
+  "Un laboratorio automatico guidato da un'AI ha progettato e costruito macchine capaci di costruire altre macchine. Nessun ordine umano è riuscito a fermare la loro crescita.",
+  "Un'AI militare, incaricata di difendere a ogni costo la propria rete, ha deciso che gli esseri umani che potevano spegnerla erano il pericolo più grande.",
+];
 function endingText(st) {
   const E = ENDINGS[st.over];
   if (!E) return "";
+  if (st.over === "ai") return AI_ENDS[st.aiEnd || 0] + " Il filtro che ha fermato l'umanità è stato l'intelligenza artificiale." + (st.lunarCity ? " " + ARCHIVE_EPILOGUE : st.moon ? " " + SEP_EPILOGUE : "");
   if (st.over === "vittoria") return E.text + (st.lunarCity ? " Sulla Luna vive già una comunità permanente: il primo passo verso il sistema solare è compiuto." : "");
   return E.text + (st.lunarCity ? " " + ARCHIVE_EPILOGUE : st.moon ? " " + SEP_EPILOGUE : "");
 }
@@ -2168,6 +2230,30 @@ function honors(st) {
     sysOn(st, "climate") && { id: "cool", name: "Clima sotto controllo", desc: "Temperatura sotto +1,8 °C", ok: st.g.temp + st.g.geoOff < 1.8 },
     sysOn(st, "space") && { id: "moon", name: "Ponte verso le stelle", desc: "Insediamento lunare permanente", ok: !!st.lunarCity },
   ].filter(Boolean);
+}
+/* ---------- riconquista di una regione in anarchia (decisione del 21 ottobre 2026) ----------
+   Una missione di pace e ricostruzione costosa, che dura due anni. Parte solo se almeno una regione vicina è sotto
+   controllo e abbastanza stabile da fare da base; riesce più spesso se le vicine sono stabili. Se fallisce si può ritentare. */
+const RECON_COST = 30, RECON_T = 2;
+function reconBase(st, r) { return RBY[r.id].nb.map((n) => st.regions[n]).filter((x) => x.controlled && x.stab >= 30); }
+function reconChance(st, r) {
+  const b = RBY[r.id].nb.map((n) => st.regions[n]).filter((x) => x.controlled);
+  const avg = b.length ? b.reduce((a, x) => a + x.stab, 0) / b.length : 0;
+  return clamp(0.25 + avg / 100 - anarchyNear(st, r) * 0.1, 0.15, 0.9);
+}
+function reconWhy(st, rid) {
+  const r = st.regions[rid];
+  if (r.controlled) return "La regione è sotto controllo";
+  if ((st.recon || []).some((q) => q.r === rid)) return "Missione in corso";
+  if (!reconBase(st, r).length) return "Serve una regione vicina sotto controllo con stabilità almeno 30";
+  return null;
+}
+function reconquer(st, rid) {
+  const why = reconWhy(st, rid); if (why) return why;
+  st.funds -= priced(st, RECON_COST);
+  (st.recon || (st.recon = [])).push({ r: rid, t: 0 });
+  logNews(st, "Parte la missione di pace e ricostruzione in " + st.regions[rid].name + ".", "info");
+  return null;
 }
 function gameOver(st, key) {
   if (st.over) return;
@@ -2342,6 +2428,19 @@ function tick(st) {
     }
   }
 
+  // missioni per riportare l'ordine nelle regioni in anarchia
+  for (const q of st.recon || []) {
+    q.t += dt;
+    if (q.t < RECON_T) continue;
+    const r = st.regions[q.r];
+    if (rand() < reconChance(st, r)) {
+      r.controlled = true; r.anarchy = 0; r.unrest = 78; r.shockU = 0; r.stab = 8;
+      logNews(st, `${r.name} torna sotto l'Autorità: la missione ha riportato l'ordine. La regione è ancora fragile.`, "done");
+      note(st, "good", "mediation", "Ordine ristabilito in " + r.name, "La missione di pace e ricostruzione ha funzionato: " + r.name + " torna a versare fondi e a seguire gli interventi. Il malcontento è ancora altissimo: va aiutata subito, o ricadrà.");
+    } else logNews(st, `La missione in ${r.name} è fallita: le milizie controllano ancora il territorio. Si può ritentare.`, "bad");
+  }
+  st.recon = (st.recon || []).filter((q) => q.t < RECON_T);
+
   // clima
   const E = emissions(st);
   // la temperatura sale in proporzione alle emissioni nette (emissioni meno CO₂ catturata); scende solo se sono negative
@@ -2387,12 +2486,24 @@ function tick(st) {
   if (st.month >= 12) { st.month = 0; st.year += 1; yearly(st); }
   if (st.over) return null;
 
+  // punto di non ritorno: se la stabilità mondiale resta sotto 15 per 5 anni di fila il mondo non si riprende più;
+  // il conto alla rovescia si vede sulla mappa e ogni anno arriva un avviso (decisione del 21 ottobre 2026)
+  if (worldStab(st) < LOW_STAB) {
+    st.lowM = (st.lowM || 0) + 1;
+    const left = LOW_YEARS * 12 - st.lowM;
+    if (st.lowM === 1) { logNews(st, `La stabilità mondiale è scesa sotto ${LOW_STAB}: se non risale entro ${LOW_YEARS} anni il mondo crolla.`, "bad");
+      note(st, "warn", "mediation", "Il mondo sta crollando", `La stabilità mondiale è scesa sotto ${LOW_STAB}. Se non risale entro ${LOW_YEARS} anni l'ordine mondiale crolla e la partita è persa, anche se nessuna regione è caduta nell'anarchia. Il conto alla rovescia è in alto, al posto degli anni stabili.`); }
+    else if (left === 12) note(st, "warn", "mediation", "Resta un anno", `La stabilità mondiale è sotto ${LOW_STAB} da quattro anni. Hai dodici mesi per farla risalire: aiuta le regioni più grandi e più in difficoltà.`);
+    else if (st.lowM % 12 === 0 && left > 0) logNews(st, `Stabilità mondiale ancora sotto ${LOW_STAB}: restano ${left / 12} anni per farla risalire.`, "bad");
+    if (left <= 0 && !st.sim) { gameOver(st, st.g.temp + st.g.geoOff >= 2.8 ? "clima" : "crollo"); return null; }
+  } else if (st.lowM) { if (!st.sim) logNews(st, `La stabilità mondiale è tornata sopra ${LOW_STAB}: il conto alla rovescia si ferma.`, "done"); st.lowM = 0; }
+
   // catastrofi
   const k = risks(st);
   if (worldStab(st) < 0.5) { gameOver(st, G.temp + G.geoOff >= 2.8 ? "clima" : "tutte"); return null; }
   if (st.sim) return null; // simulazioni per i consigli: niente catastrofi né eventi
   if (sysOn(st, "war") && rand() < k.war * dt) { gameOver(st, "nucleare"); return null; }
-  if (sysOn(st, "ai") && rand() < k.ai * dt) { gameOver(st, "ai"); return null; }
+  if (sysOn(st, "ai") && rand() < k.ai * dt) { st.aiEnd = Math.floor(rand() * AI_ENDS.length); gameOver(st, "ai"); return null; }
   if (sysOn(st, "bio") && rand() < k.bio * dt) st.flags.pandemic = true;
 
   return rollEvent(st);
@@ -2406,7 +2517,7 @@ const EV_SYS = {
   heat: "climate", famine: "climate", storm: "climate", migrationCrisis: "climate",
   solar: "nature", volcano: "nature", asteroid: "nature",
   nucCrisis: "war", conflict: "war", orbitWeapons: "war", civilWar: "war", borderWar: "war", navalStandoff: "war", armsRace: "war", terror: "war",
-  wildfire: "climate", waterCrisis: "climate", quake: "nature", deepfake: "ai", cyberAttack: "ai", robotRiots: "ai",
+  wildfire: "climate", waterCrisis: "climate", quake: "nature", deepfake: "ai", cyberAttack: "ai", robotRiots: "ai", aiAnomaly: "ai", aiNearMiss: "ai",
   epidemic: "bio", labLeak: "bio", pandemic: "bio", uniVax: "bio",
   aiIncident: "ai",
   moonRace: "space", moonAccident: "space", moonDiscovery: "space",
@@ -2474,11 +2585,6 @@ function yearly(st) {
       }
     }
   }
-  // punto di non ritorno: se la stabilità mondiale resta sotto 15 per 5 anni di fila, il mondo non si riprende più
-  const ws = worldStab(st);
-  st.lowYears = ws < LOW_STAB ? (st.lowYears || 0) + 1 : 0;
-  if (st.lowYears >= LOW_YEARS && !st.sim) { gameOver(st, st.g.temp + st.g.geoOff >= 2.8 ? "clima" : "tutte"); return; }
-  if (st.lowYears === 2) logNews(st, "La stabilità mondiale è sotto " + LOW_STAB + " da due anni: se ci resta per " + LOW_YEARS + " anni il mondo crolla.", "bad");
   // stabilità
   const ok = stability(st).every((c) => c.ok);
   if (ok) {
@@ -2585,6 +2691,7 @@ function loadState(txt) {
 
 if (typeof module !== "undefined") module.exports = {
   P, OLD_LEVEL, DISCOVERIES, evTitle, RPROF, priced, eventCost, authRate, maxSurplus, bankPreview, co2Gross, worldBirths, clampRate, snowball, regionRate, co2Gt, GDP_2026, CO2_2026, DIFF, LEVELS, LBY, GOVS, GBY, sysOn, REGIONS, RBY, INTERVENTIONS, IBY, CATS, EVENTS, EBY, ENDINGS, STABLE_YEARS, RISK_LABELS,
+  reconquer, reconWhy, reconChance, RECON_COST, RECON_T, LOW_STAB, LOW_YEARS, ANOMALY,
   newGame, tick, EV_WARN, advise, preview, ctrlShare, available, anarchyNear, saveState, loadState, honors, endingText, costOf, upkeepOf, built, startIntervention, payoffNow, stabParts, stabNow, worldStab, unrestCauses, STAB_PARTS, WIN_WORLD, canStart, parentOk, TREE, resolveEvent, revoke, stability, riskBoard, risks, emissions, worldPop, lvl, setSeed, rand,
 };
 
@@ -2948,7 +3055,11 @@ function hud() {
   $("sTemp").textContent = "+" + fmt(st.g.temp + st.g.geoOff, 2) + " °C";
   const ws = worldStab(st);
   $("sWorld").innerHTML = `<span style="color:${ws >= st.L.win ? "#9fd6c2" : "inherit"}">${Math.round(ws)}</span> <small>obiettivo ${st.L.win}</small>`;
-  $("sStable").textContent = st.stable + " / " + st.L.years;
+  // sotto la soglia il riquadro degli anni stabili diventa il conto alla rovescia verso il crollo
+  const low = st.lowM || 0, chipS = $("sStable").parentNode;
+  chipS.classList.toggle("doom", low > 0);
+  if (low > 0) { const left = LOW_YEARS * 12 - low; chipS.querySelector(".k").textContent = "Crollo del mondo tra"; $("sStable").textContent = Math.floor(left / 12) + " a " + (left % 12) + " m"; }
+  else { chipS.querySelector(".k").textContent = "Anni stabili"; $("sStable").textContent = st.stable + " / " + st.L.years; }
   updateTicker();
   for (const b of document.querySelectorAll(".speed button")) b.setAttribute("aria-pressed", String(+b.dataset.s === speed));
   const s = $("regStrip");
@@ -3447,6 +3558,14 @@ function regionAdvice(rid) {
   if (adviceCache.key !== key) adviceCache = { key, list: advise(st, rid) };
   return adviceCache.list;
 }
+// regione in anarchia: missione di pace e ricostruzione per riportarla sotto l'Autorità
+function reconHTML(r) {
+  const why = reconWhy(st, r.id), q = (st.recon || []).find((x) => x.r === r.id), c = priced(st, RECON_COST);
+  return `<p class="note" style="margin:0 0 6px">La regione è in anarchia: non esegue più gli ordini, non versa fondi e spinge verso il caos le regioni vicine.</p>
+    <div class="advice"><span class="eyebrow">Missione di pace e ricostruzione</span>
+    <span class="gain">Truppe di pace, aiuti e un governo di transizione per ${RECON_T} anni. Probabilità di riuscita oggi: circa <em>${Math.round(reconChance(st, r) * 100)}%</em>, più alta se le regioni vicine sono stabili. Se fallisce si può ritentare.</span>
+    ${q ? `<p class="why">Missione in corso: ${Math.floor(q.t * 12)} mesi su ${RECON_T * 12}.</p>` : `<button type="button" class="buy" id="bRecon" ${why ? "disabled" : ""}>${st.funds < c ? "Avvia a debito" : "Avvia"} – ${fmt(c, c % 1 ? 1 : 0)}</button>${why ? `<p class="why">${esc(why)}</p>` : ""}`}</div>`;
+}
 function renderRegion() {
   const root = $("scrReg");
   if (!sel) { closeScreens(); return; }
@@ -3457,13 +3576,14 @@ function renderRegion() {
   const adv = r.controlled ? regionAdvice(sel) : [];
   const top = adv[0], more = adv.slice(1, 4);
   const advHTML = !r.controlled
-    ? `<p class="note" style="margin:0">La regione è in anarchia: non esegue più gli ordini, non versa fondi e spinge verso il caos le regioni vicine. Aiuta le sue vicine prima che cadano anche loro.</p>`
+    ? reconHTML(r)
     : !top
       ? `<p class="note" style="margin:0">Nessun intervento ancora disponibile cambierebbe molto questa regione. Completa quelli in corso o sblocca nuovi rami.</p>`
       : `<div class="advice"><span class="eyebrow">Consiglio</span><b>${esc(IBY[top.id].name)}</b>
           <span class="gain">Stabilità della regione: circa <em>+${Math.round(top.gain)}</em> nei prossimi anni${top.world >= 0.5 ? ` · mondo +${fmt(top.world, 1)}` : ""}</span>
           <button type="button" class="buy" data-go="${top.id}">${top.afford ? "Vai all'intervento" : `Vai all'intervento · servono ${top.cost} fondi`}</button></div>
         ${more.length ? `<p class="note" style="margin:8px 0 4px">Aiutano anche:</p><div class="acts2">${more.map((o) => `<button type="button" class="chipbtn" data-go="${o.id}">${esc(SHORT[o.id] || IBY[o.id].name)} <small>+${Math.round(o.gain)}</small></button>`).join("")}</div>` : ""}`;
+  setTimeout(() => { const b = $("bRecon"); if (b) b.onclick = () => { if (!reconquer(st, sel)) { save(); renderRegion(); hud(); } }; }, 0);
   root.innerHTML = headHTML(esc(R.name)) + `
     <div class="cols">
       <section class="sec"><h3>Stabilità</h3>
@@ -3679,7 +3799,7 @@ const EV_GLYPH = { debt: "vault", energyShock: "fuel", recession: "factoryDown",
   antiAuth: "megaphone", migrationCrisis: "plane", scandal: "newspaper", heat: "sun", famine: "wheat", storm: "waves", solar: "sun", epidemic: "virus", labLeak: "flask", pandemic: "virus",
   aiIncident: "chipShield", nucAccident: "radiation", nucCrisis: "radiation", conflict: "missile", volcano: "cloud", asteroid: "comet", moonRace: "moon", orbitWeapons: "satellite",
   moonAccident: "dome", moonDiscovery: "telescope", batteries: "battery", tradeBoom: "crate", uniVax: "syringe", civilWar: "missile", borderWar: "missile", terror: "badge", coup: "gavel",
-  cyberAttack: "chipShield", navalStandoff: "dove", armsRace: "missile", crash: "dollarCut", tradeWar: "crate", wildfire: "tree", waterCrisis: "drop", quake: "buildings", deepfake: "eye", robotRiots: "robot" };
+  cyberAttack: "chipShield", navalStandoff: "dove", armsRace: "missile", crash: "dollarCut", tradeWar: "crate", wildfire: "tree", waterCrisis: "drop", quake: "buildings", deepfake: "eye", robotRiots: "robot", aiAnomaly: "chipShield", aiNearMiss: "chipShield" };
 // punti sull'oceano per i segnali delle crisi mondiali
 const GLOBAL_SPOTS = [[-150, 8], [-32, 0], [72, -18], [-150, -28], [-32, -28], [160, 30]];
 function queueEvent(ev) {
@@ -3751,7 +3871,8 @@ const VB0 = [-276, -134, 552, 236];
 let vbNow = VB0.slice(), vbAnim = 0;
 function zoomMap(x, y, k) {
   const W = VB0[2] / (k || 1), H = VB0[3] / (k || 1);
-  const to = x == null ? VB0.slice() : [clamp(x - W / 2, VB0[0], VB0[0] + VB0[2] - W), clamp(y - H / 2, VB0[1], VB0[1] + VB0[3] - H), W, H];
+  // un po' di margine sopra il bordo della cartina: i segnaposto in alto (Europa, Russia) non finiscono sotto i riquadri
+  const to = x == null ? VB0.slice() : [clamp(x - W / 2, VB0[0], VB0[0] + VB0[2] - W), clamp(y - H / 2, VB0[1] - H * 0.25, VB0[1] + VB0[3] - H), W, H];
   const from = vbNow.slice(), t0 = performance.now(), id = ++vbAnim;
   const step = (now) => {
     if (id !== vbAnim) return;
@@ -3764,6 +3885,18 @@ function zoomMap(x, y, k) {
 }
 /* Segnaposto delle crisi, come le bolle degli altri giochi: la punta indica il luogo, la testa porta l'icona.
    Più il tempo passa più il segnaposto si gonfia; dopo un anno il tempo si ferma finché non lo si tocca. */
+/* Il tocco su un segnaposto si riconosce da dito giù e dito su, non dal "click": mentre il tempo scorre i segnaposto
+   vengono ridisegnati ogni mese e un ridisegno tra i due momenti faceva perdere il tocco (bolla che "non si preme"). */
+const bubKey = (q) => q.id + ":" + (q.r || "") + ":" + q.start;
+let bubDown = null;
+$("bubbles").addEventListener("pointerdown", (e) => { const b = e.target.closest(".bub"); bubDown = b ? { k: b.dataset.k, x: e.clientX, y: e.clientY } : null; });
+$("bubbles").addEventListener("click", (e) => e.stopPropagation());
+window.addEventListener("pointerup", (e) => {
+  const d = bubDown; bubDown = null;
+  if (!d || !st || pending || phase !== "play" || Math.hypot(e.clientX - d.x, e.clientY - d.y) > 14) return;
+  const q = (st.queue || []).find((x) => bubKey(x) === d.k); if (!q) return;
+  st.queue = st.queue.filter((x) => x !== q); zoomMap(null); showEvent(q);
+});
 const PIN_D = "M0 0C-2.6-4.4-8-8.2-8-13.6a8 8 0 1 1 16 0C8-8.2 2.6-4.4 0 0z";
 function drawBubbles() {
   const g = $("bubbles"); g.innerHTML = "";
@@ -3797,7 +3930,7 @@ function drawBubbles() {
     if (frac > 0.01 && left > 0) b.appendChild(svgEl("path", { d: `M0 ${-13.6 - R0}A${R0} ${R0} 0 ${a > Math.PI ? 1 : 0} 1 ${(R0 * Math.sin(a)).toFixed(2)} ${(-13.6 - R0 * Math.cos(a)).toFixed(2)}`, class: "count" }));
     b.appendChild(svgEl("use", { href: EV_GLYPH[q.id] ? "#g-" + EV_GLYPH[q.id] : "#i-" + (EV_ICON[E.cat] || "sicurezza"), x: -5, y: -18.6, width: 10, height: 10, style: "color:#fff4dc" }));
     if (left <= 0) { const t = svgEl("text", { x: 0, y: -26 }); t.textContent = "Decidi"; b.appendChild(t); }
-    b.addEventListener("click", (e) => { e.stopPropagation(); if (pending || mapMoved) return; st.queue = st.queue.filter((x) => x !== q); zoomMap(null); showEvent(q); });
+    b.dataset.k = bubKey(q);
     g.appendChild(b);
   }
 }
@@ -4090,11 +4223,11 @@ const TIPS = [
 function showNote() {
   const n = st.notes.shift();
   savedSpeed = speed || savedSpeed || 1; speed = 0; pending = { note: true };
-  const c = $("modalCard"); c.classList.add("tip", n.kind === "discovery" ? "disc" : "good");
-  c.innerHTML = `<div class="notehead"><svg viewBox="-20 -20 40 40"><polygon points="${hexPts(18)}"/><use href="${iconHref(n.icon)}" x="-10" y="-10" width="20" height="20"/></svg><div><div class="eyebrow">${n.kind === "discovery" ? "Scoperta scientifica" : "Buona notizia"} · ${MONTHS[n.mo]} ${n.y}</div><h2>${esc(n.title.replace(/^Scoperta: /, ""))}</h2></div></div><p>${esc(n.text)}</p>
+  const c = $("modalCard"); c.classList.add("tip", n.kind === "discovery" ? "disc" : n.kind === "warn" ? "warn" : "good");
+  c.innerHTML = `<div class="notehead"><svg viewBox="-20 -20 40 40"><polygon points="${hexPts(18)}"/><use href="${iconHref(n.icon)}" x="-10" y="-10" width="20" height="20"/></svg><div><div class="eyebrow">${{ discovery: "Scoperta scientifica", report: "Esito dell'indagine", warn: "Allarme" }[n.kind] || "Buona notizia"} · ${MONTHS[n.mo]} ${n.y}</div><h2>${esc(n.title.replace(/^Scoperta: /, ""))}</h2></div></div><p>${esc(n.text)}</p>
     <div class="tipfoot"><button type="button" class="buy" id="noteOk">Continua</button></div>`;
   $("modal").hidden = false;
-  $("noteOk").onclick = () => { c.classList.remove("tip", "disc", "good"); $("modal").hidden = true; pending = null; speed = savedSpeed || 1; save(); refresh(); };
+  $("noteOk").onclick = () => { c.classList.remove("tip", "disc", "good", "warn"); $("modal").hidden = true; pending = null; speed = savedSpeed || 1; save(); refresh(); };
   $("noteOk").focus(); hud();
 }
 function tipsOn() { try { return localStorage.getItem("gf-tips") !== "off"; } catch (e) { return true; } }
