@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Grande Filtro">
+<meta name="apple-mobile-web-app-title" content="Grande Filtro 1">
 <meta name="theme-color" content="#0c1822">
 <meta name="robots" content="noindex">
 <link rel="manifest" href="manifest.webmanifest">
@@ -16,7 +16,7 @@
 </head>
 <body>
 <meta charset="utf-8">
-<title>Grande Filtro</title>
+<title>Grande Filtro 1 · La Terra</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -302,9 +302,11 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
 .rank { list-style: none; margin: 0; padding: 0; font-size: 12.5px; }
 .rank li { display: grid; grid-template-columns: 1fr 34px; gap: 8px; padding: 4px 0; border-bottom: 1px solid var(--line); align-items: center; }
 .rank li b { font-family: var(--font-m); font-weight: 500; text-align: right; padding: 1px 4px; border-radius: 4px; color: #0c1822; }
-.brief { max-width: 72ch; margin: 0 auto; font-size: 13.5px; line-height: 1.55; color: #cbd6df; }
-.brief h3 { font-family: var(--font-d); font-size: 18px; letter-spacing: .04em; color: var(--accent); margin: 12px 0 4px; }
-.brief p { margin: 0 0 8px; }
+.brief { max-width: 78ch; margin: 0 auto; font-size: calc(13px * var(--k, 1)); line-height: 1.45; color: #cbd6df; }
+.brief h3 { font-family: var(--font-d); font-size: calc(17px * var(--k, 1)); letter-spacing: .04em; color: var(--accent); margin: calc(8px * var(--k, 1)) 0 3px; }
+.brief p { margin: 0 0 calc(6px * var(--k, 1)); }
+.brief .goals li { padding: calc(4px * var(--k, 1)) 10px; }
+.brief.two { max-width: none; column-count: 2; column-gap: 28px; } .brief.two h3 { break-after: avoid; } .brief.two .goals { break-inside: avoid; }
 .goals { list-style: none; padding: 0; margin: 4px 0 8px; display: grid; gap: 4px; }
 .goals li { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; display: grid; grid-template-columns: 1fr auto; gap: 8px; }
 .goals li span:last-child { font-family: var(--font-m); color: var(--muted); font-size: 12px; }
@@ -349,6 +351,7 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
 .menu { position: absolute; inset: 0; z-index: 8; display: flex; align-items: center; justify-content: center; background: linear-gradient(90deg, rgba(8,16,22,.92) 0%, rgba(8,16,22,.55) 55%, rgba(8,16,22,.2) 100%); padding-left: var(--gl); padding-right: var(--gr); }
 .menu .in { width: min(880px, 100%); max-height: 100%; display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, 300px); gap: 24px; align-items: center; padding-block: 12px; }
 .logo h1 { font-family: var(--font-d); font-weight: 700; font-size: clamp(34px, 11vmin, 64px); letter-spacing: .12em; text-transform: uppercase; margin: 0; color: var(--accent); line-height: .95; }
+.logo h1 .ch { display: inline-block; font-size: .62em; letter-spacing: 0; vertical-align: .32em; color: #fff; opacity: .9; } /* capitolo 1: la Terra */
 .logo .sub { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-top: 6px; }
 .menu .btns { display: flex; flex-direction: column; gap: 10px; }
 .mbtn { background: #e8dfcc; color: #2b2214; border: 0; border-radius: 4px; padding: 11px 16px; font-family: var(--font-d); font-weight: 600; font-size: 21px; letter-spacing: .04em; box-shadow: 0 3px 0 #9c8a66; }
@@ -505,6 +508,18 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
 .infobox { z-index: 60; background: rgba(5,10,14,.5); }
 .infobox .card { width: min(460px, 100%); border-color: #6fb0d8; }
 .infobox h2 { font-size: 22px; padding-right: 40px; }
+/* conti dell'Autorità: entrate e spese, dalla più grande alla più piccola (25 ottobre 2026) */
+.budgetbtn, .opbox .funds { cursor: pointer; }
+.budgetbtn b { text-decoration: underline dotted rgba(255,255,255,.35); text-underline-offset: 3px; }
+.infobox .card.budget { width: min(760px, 100%); max-height: 92vh; overflow: auto; }
+.budget .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; }
+.budget h4 { font-family: var(--font-d); letter-spacing: .05em; font-size: 15px; margin: 6px 0 4px; color: var(--muted); text-transform: uppercase; }
+.budget .row { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; padding: 4px 6px; border-bottom: 1px solid var(--line); font-size: 13px; border-radius: 6px; }
+.budget .row[data-go] { cursor: pointer; } .budget .row[data-go]:hover { background: var(--panel-2); }
+.budget .row b { font-family: var(--font-m); font-weight: 500; }
+.budget .row i { font-style: normal; color: var(--muted); font-size: 11px; margin-left: 4px; }
+.budget .tot { font-weight: 700; border-bottom: 0; }
+.budget p { font-size: 12.5px; color: var(--muted); margin: 8px 0 0; }
 .card.good { border-color: #4fae8e; box-shadow: 0 0 0 1px #4fae8e, 0 14px 40px -14px #4fae8e; }
 .card.warn { border-color: #d65b4a; box-shadow: 0 0 0 1px #d65b4a, 0 14px 40px -14px #d65b4a; } .card.warn .notehead polygon { fill: #d65b4a; }
 .card.disc { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 14px 40px -14px var(--accent); }
@@ -649,7 +664,7 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
     <button type="button" class="buy endback" id="bEnd" hidden>Partita finita · torna al riepilogo</button>
     <div class="bottom">
       <div class="opbox">
-        <div class="funds"><span class="k">Fondi</span><span class="v" id="sFunds">20</span><small id="sNet">+6,0/anno</small></div>
+        <div class="funds" role="button" tabindex="0" data-budget aria-label="Entrate e spese dell'Autorità"><span class="k">Fondi</span><span class="v" id="sFunds">20</span><small id="sNet">+6,0/anno</small></div>
         <button type="button" id="bActs">Interventi</button>
       </div>
       <button type="button" class="regstrip" id="regStrip"></button>
@@ -660,7 +675,7 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
   <div class="menu" id="menuTitle">
     <button type="button" class="sound" data-sound aria-label="Musica" aria-pressed="true"></button>
     <div class="in">
-      <div class="logo"><h1>Grande<br>Filtro</h1><div class="sub">La Terra</div><div class="crownall" id="crownAll" hidden>♛ Tutti gli scenari vinti a super difficile con tutti i governi</div></div>
+      <div class="logo"><h1>Grande<br>Filtro <span class="ch">1</span></h1><div class="sub">La Terra</div><div class="crownall" id="crownAll" hidden>♛ Tutti gli scenari vinti a super difficile con tutti i governi</div></div>
       <div class="btns">
         <button type="button" class="mbtn" id="mCont" hidden>Continua</button>
         <button type="button" class="mbtn" id="mPlay">Nuova partita</button>
@@ -680,17 +695,17 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
       <h3>Obiettivo</h3>
       <p>Vinci quando la stabilità mondiale resta almeno a 80 per 10 anni di fila. Clima, debito, rischi tecnologici e tensioni tra le potenze non sono obiettivi in sé: sono i problemi che ti impediscono di arrivarci.</p>
       <h3>Sconfitta</h3>
-      <p>Perdi se la stabilità mondiale scende a zero o resta sotto 15 per 5 anni di fila, oppure se l'Autorità fa bancarotta. Una regione in anarchia vale zero e spinge verso il caos le regioni vicine. Una catastrofe globale, come una guerra nucleare, un'intelligenza artificiale fuori controllo o una pandemia ingegnerizzata, azzera tutto di colpo: per questo i rischi vanno tenuti bassi.</p>
+      <p>Perdi se la stabilità mondiale scende a zero o resta sotto 15 per 5 anni di fila, oppure se l'Autorità fa bancarotta. Una regione in anarchia vale zero e spinge verso il caos le regioni vicine. Per riprenderla tocca la regione e avvia una missione di pace e ricostruzione: parte da una regione stabile (meglio se vicina), dura due anni e può fallire. Se riesce, per cinque anni i caschi blu tengono basso il malcontento: in quel tempo va risolto ciò che aveva fatto crollare la regione (lavoro, reddito, servizi), altrimenti ricade. Una catastrofe globale, come una guerra nucleare, un'intelligenza artificiale fuori controllo o una pandemia ingegnerizzata, azzera tutto di colpo: per questo i rischi vanno tenuti bassi.</p>
       <h3>Interventi</h3>
-      <p>Con i fondi avvii interventi che valgono per tutto il mondo; ogni regione ne risente in base alle sue condizioni. La schermata degli interventi si apre sulla <b>Panoramica</b>: una riga per settore, con quanti interventi hai avviato e come va il mondo in quel campo (barra piena è buono, vuota è grave). Ogni settore ha un albero di esagoni: quelli nuovi compaiono man mano che li sblocchi. Toccando un esagono vedi a destra che cos'è e, nelle barre, in verde a righe quello che migliorerebbe e in rosso a righe quello che peggiorerebbe; in basso vedi quanto costa subito e come cambia il saldo annuo. Leggi e opere si pagano una volta; i programmi continui costano ogni anno e si fermano se smetti di finanziarli. Alcune scelte si possono rovesciare quando vuoi: tasse su e giù, assunzioni e licenziamenti, dazi, tagli alla spesa.</p>
+      <p>Con i fondi avvii interventi che valgono per tutto il mondo; ogni regione ne risente in base alle sue condizioni. La schermata degli interventi si apre sulla <b>Panoramica</b>: una riga per settore, con quanti interventi hai avviato e come va il mondo in quel campo (barra piena è buono, vuota è grave). Ogni settore ha un albero di esagoni: quelli nuovi compaiono man mano che li sblocchi. Toccando un esagono vedi a destra che cos'è e, nelle barre, in verde a righe quello che migliorerebbe e in rosso a righe quello che peggiorerebbe; in basso vedi quanto costa subito e come cambia il saldo annuo. Leggi e opere si pagano una volta; i programmi continui costano ogni anno e si fermano se smetti di finanziarli. Leggi, riforme e programmi si possono annullare quando vuoi, per qualsiasi ragione; restano per sempre solo le opere costruite (centrali, impianti, foreste, basi spaziali) e le scelte irreversibili. Toccando il saldo, in basso, vedi entrate e spese dalla più grande alla più piccola: quando i conti vanno in rosso capisci subito dove tagliare.</p>
       <h3>Difficoltà</h3>
       <p>Le crisi sono le stesse a ogni livello. Cambia quanto in fretta la popolazione accetta le riforme e quanto reagisce male ai sacrifici: a livello facile gli interventi entrano a regime prima e fanno meno malcontento.</p>
       <h3>Fondi e debito</h3>
-      <p>Ogni regione versa all'Autorità una parte della sua ricchezza: le entrate crescono se l'economia cresce e calano se una regione cade nell'anarchia, che smette di versare (ma smetti anche di pagare i programmi in quella regione). Con l'inflazione ogni anno tutto costa un po' di più, e le entrate si adeguano con circa un anno di ritardo. Si parte senza fondi: le entrate arrivano mese dopo mese. Se i fondi non bastano puoi indebitarti, anche per rispondere a una crisi: paghi il tasso a lungo termine, più un punto ogni 50 fondi di debito. Perdi per bancarotta solo se per tre anni gli interessi superano tutto ciò che potresti incassare anche tagliando ogni spesa e alzando ogni tassa.</p>
+      <p>Ogni regione versa all'Autorità una piccola parte della sua ricchezza, circa lo 0,15% del PIL: all'inizio 17 fondi l'anno. Un fondo vale circa 10 miliardi di dollari del 2026. Per le grandi politiche (sanità, energia, reddito di base) l'Autorità paga la sua quota per lanciarle e coordinarle, il resto lo pagano gli stati e i privati: per questo alcune misure fanno salire anche il debito delle regioni. Le entrate: le entrate crescono se l'economia cresce e calano se una regione cade nell'anarchia, che smette di versare (ma smetti anche di pagare i programmi in quella regione). Con l'inflazione ogni anno tutto costa un po' di più, e le entrate si adeguano con circa un anno di ritardo. Si parte senza fondi: le entrate arrivano mese dopo mese. Se i fondi non bastano puoi indebitarti, anche per rispondere a una crisi: paghi il tasso a lungo termine, più un punto ogni 50 fondi di debito (ai prezzi del 2026). Perdi per bancarotta solo se per tre anni gli interessi superano tutto ciò che potresti incassare anche tagliando ogni spesa e alzando ogni tassa.</p>
       <h3>Eventi</h3>
       <p>Crisi ed emergenze compaiono sulla mappa come un segnaposto sulla regione colpita; possono essercene più di uno insieme. Hai un anno di tempo per toccarlo: intanto puoi raccogliere i fondi. Più aspetti, più il segnaposto si gonfia; dopo un anno il tempo si ferma finché non lo tocchi. Toccandolo leggi che cosa succede: puoi scegliere subito tra intervento pieno, una via di mezzo o non fare nulla, oppure rimandare la decisione. Il tempo si ferma anche quando apri un menu.</p>
       <h3>Economia e popolazione</h3>
-      <p>La ricchezza prodotta da una regione è il numero di lavoratori occupati per quanto produce ciascuno. Tecnologia, istruzione, automazione e robot fanno crescere la produttività; ma se nascono meno bambini, fra 18 anni ci saranno meno lavoratori e l'economia rallenta. Chi aiuta le famiglie oggi vede più crescita una generazione dopo. Il debito di uno stato cresce da solo quando gli interessi superano la crescita (l'effetto palla di neve). Nella scheda Economia la Banca centrale ti fa scegliere il tasso di interesse: alzarlo frena l'inflazione ma anche crescita e lavoro, abbassarlo fa il contrario. Nella schermata Mondo, alla voce Statistiche, trovi l'andamento nel tempo di popolazione, lavoratori, produttività, debito e molto altro, per il mondo intero o per una regione; a fine partita lo stesso resoconto.</p>
+      <p>La ricchezza prodotta da una regione è il numero di lavoratori occupati per quanto produce ciascuno. Tecnologia, istruzione, automazione e robot fanno crescere la produttività. Quando i robot fanno il lavoro delle persone la ricchezza non sparisce, ma passa dagli stipendi ai profitti di chi possiede i robot: le tasse sul lavoro calano e chi perde il posto resta senza reddito, a meno di una tassa sui robot, di un fondo sovrano e del reddito di base. Se nascono meno bambini, fra 18 anni ci saranno meno lavoratori e l'economia rallenta. Chi aiuta le famiglie oggi vede più crescita una generazione dopo. Il debito di uno stato cresce da solo quando gli interessi superano la crescita (l'effetto palla di neve). Nella scheda Economia la Banca centrale ti fa scegliere il tasso di interesse: alzarlo frena l'inflazione ma anche crescita e lavoro, abbassarlo fa il contrario. Nella schermata Mondo, alla voce Statistiche, trovi l'andamento nel tempo di popolazione, lavoratori, produttività, debito e molto altro, per il mondo intero o per una regione; a fine partita lo stesso resoconto.</p>
       <p>Ogni tanto arrivano anche opportunità: scoperte, svolte tecnologiche, riprese economiche.</p>
       <h3>La Luna</h3>
       <p>Il programma lunare, nella scheda Tecnologia, non serve per vincere ma cambia la partita: una base costruita insieme dalle potenze riduce la tensione tra loro e la polarizzazione, gli osservatori portano scoperte e tecnologie, un insediamento permanente custodisce un archivio dell'umanità e apre la strada alla fase successiva. Il pulsante "Terra e Luna" mostra il globo e la Luna con lo stato del programma.</p>
@@ -762,6 +777,10 @@ const P = {
   adoptYears: 2,         // anni perché la popolazione accetti un intervento a livello medio (si divide per D.adopt)
   evGap: 8, evGapClimate: 3, evCdRegion: 8, evCdGlobal: 6, // ritmo degli eventi, in mesi e anni
   warnSlow: 12, // mesi di tempo per decidere su una crisi, prima che il tempo si fermi
+  /* Tasse e contributi sul lavoro: circa metà delle entrate pubbliche (media OCSE 2023: contributi 25,5%, imposta sui redditi
+     23,7%) [Certo]. Quando i robot fanno il lavoro delle persone, questa parte delle entrate sparisce, a meno di tassare i robot
+     o di possedere una quota delle aziende che li usano (decisione del 25 ottobre 2026). */
+  laborTax: 0.5,
 };
 
 /* ---------- difficoltà ---------- */
@@ -772,7 +791,7 @@ const DIFF = {
   facile:    { name: "Facile",          inc: 1.1,  ev: 1, funds: 0, risk: 0.8,  adopt: 1.6, backlash: 0.6 },
   medio:     { name: "Medio",           inc: 1.0,  ev: 1, funds: 0, risk: 1.0,  adopt: 1.0, backlash: 1.0 },
   difficile: { name: "Difficile",       inc: 0.98, ev: 1, funds: 0, risk: 1.1,  adopt: 0.85, backlash: 1.08 },
-  super:     { name: "Super difficile", inc: 0.98, ev: 1, funds: 0, risk: 1.2,  adopt: 0.75, backlash: 1.15 },
+  super:     { name: "Super difficile", inc: 0.95, ev: 1, funds: 0, risk: 1.2,  adopt: 0.7,  backlash: 1.25 }, // il giocatore automatico vince circa 1 volta su 10 (26 ottobre 2026)
 };
 
 /* ---------- scenari ----------
@@ -792,11 +811,13 @@ const LEVELS = [
     intro: "Un pianeta che si scalda e una transizione energetica da guidare.", adds: "Clima e catastrofi naturali" },
   { id: "l4", name: "Equilibrio del terrore", cats: ["energia", "economia", "welfare", "societa", "clima", "sicurezza"], tier: 2, sys: ["energia", "climate", "nature", "war", "bio"], inc: 1.02, win: 79, years: 10, fast: 60,
     intro: "Potenze armate, epidemie e laboratori pericolosi: i primi grandi filtri.", adds: "Sicurezza, guerra nucleare, pandemie" },
-  { id: "l5", name: "Il Grande Filtro", cats: ALL_CATS, tier: 3, sys: ["energia", "climate", "nature", "war", "bio", "ai", "space"], inc: 1.05, win: 80, years: 10, fast: 70,
-    intro: "Tutto insieme: anche l'intelligenza artificiale e la corsa alla Luna.", adds: "Tecnologia, AI, programma lunare" },
-  /* Sesto scenario (decisione del 23 ottobre 2026): la scheda Genetica. Vedi il rapporto "Ingegneria genetica possibile". */
-  { id: "l6", name: "Il secolo della biologia", cats: [...ALL_CATS, "genetica"], tier: 3, sys: ["energia", "climate", "nature", "war", "bio", "ai", "space", "gen"], inc: 1.05, win: 80, years: 10, fast: 75,
-    intro: "Curare le malattie, sfamare un pianeta più caldo, forse vivere più a lungo: senza aprire la porta a una pandemia costruita in laboratorio.", adds: "Genetica" },
+  { id: "l5", name: "Il secolo decisivo", cats: ALL_CATS, tier: 3, sys: ["energia", "climate", "nature", "war", "bio", "ai", "space"], inc: 1.05, win: 80, years: 10, fast: 70,
+    intro: "Quasi tutto insieme: anche l'intelligenza artificiale e la corsa alla Luna.", adds: "Tecnologia, AI, programma lunare" },
+  /* Sesto scenario (decisione del 23 ottobre 2026): la scheda Genetica. Vedi il rapporto "Ingegneria genetica possibile".
+     Regola fissa (decisione del 25 ottobre 2026): l'ultimo scenario, il più completo, si chiama sempre "Il Grande Filtro",
+     anche quando se ne aggiungono altri. Gli id interni non cambiano, così i progressi salvati restano. */
+  { id: "l6", name: "Il Grande Filtro", cats: [...ALL_CATS, "genetica"], tier: 3, sys: ["energia", "climate", "nature", "war", "bio", "ai", "space", "gen"], inc: 1.05, win: 80, years: 10, fast: 75,
+    intro: "Tutto il gioco: crisi, AI, Luna e genetica. Curare le malattie, sfamare un pianeta più caldo, forse vivere più a lungo, senza aprire la porta a una pandemia costruita in laboratorio.", adds: "Genetica" },
 ];
 const LBY = Object.fromEntries(LEVELS.map((l) => [l.id, l]));
 const sysOn = (st, k) => st.L.sys.includes(k);
@@ -925,14 +946,27 @@ function investigate(st, r, look) {
   if (o.calm) { r.shockU -= o.calm; r.polar -= 1; }
   note(st, "report", "magnifier", o.t, o.x);
 }
-/* Povertà degli anziani con le pensioni adeguate a stipendi e lavoratori: se i lavoratori sono pochi per ogni pensionato
-   o i redditi sono bassi, la pensione scende sotto il minimo per vivere (da 0 a 40). Dimezzata per 5 anni se l'Autorità integra
-   le pensioni minime. */
-const pensPoverty = (r) => (r.acts.pensionIndex && r.acts.pensionIndex.n > 0 && !(r.off && r.off.pensionIndex) ? clamp((r.old / r.wrk - 0.3) * 150 + (55 - r.wealth) * 0.4, 0, 40) * (r.pensAid > (r.yearNow || 0) ? 0.5 : 1) : 0);
+/* Povertà degli anziani con le pensioni adeguate a stipendi e lavoratori (da 0 a 40). Correzione del 25 ottobre 2026: le pensioni
+   seguono quanto producono i lavoratori, non solo quanti sono. Con pochi lavoratori ma molto produttivi le pensioni crescono comunque
+   in valore reale: i pensionati ricevono una quota più piccola dello stipendio di chi lavora, ma non diventano poveri [Certo: Barr e
+   Diamond 2008; OCSE, Pensions at a Glance 2023]. Per questo gli anziani per lavoratore contano divisi per la radice della produttività
+   rispetto al 2026. Aiutano anche le pensioni private: i fondi pensione integrativi (in quindici anni) e la dote alla nascita, i cui
+   soldi investiti crescono con l'interesse composto e integrano la pensione di chi è nato dopo il suo avvio (dopo 60 anni).
+   Dimezzata per 5 anni se l'Autorità integra le pensioni minime. */
+const privatePens = (r) => {
+  const a = r.acts.pensionFunds, d = r.acts.birthDowry, y = r.yearNow || 2026;
+  return clamp((a && a.n > 0 ? 0.3 * clamp((y - (a.y0 || a.y)) / 15, 0, 1) : 0) + (d && d.n > 0 ? 0.4 * clamp((y - (d.y0 || d.y) - 60) / 10, 0, 1) : 0), 0, 0.6);
+};
+const pensPoverty = (r) => {
+  if (!(r.acts.pensionIndex && r.acts.pensionIndex.n > 0) || (r.off && r.off.pensionIndex)) return 0;
+  const dep = r.old / r.wrk / Math.sqrt(Math.max(1, r.prod / (r.prod0 || r.prod)));
+  return clamp((dep - 0.3) * 150 + (55 - r.wealth) * 0.4, 0, 40) * (1 - privatePens(r)) * (r.pensAid > (r.yearNow || 0) ? 0.5 : 1);
+};
 /* Promesse elettorali dei governi nazionali (decisione del 23 ottobre 2026): una misura popolare pagata a debito.
    La probabilità non dipende dal debito: solo da malcontento, condizioni della regione e misure già prese dall'Autorità.
    def: punti di debito sul PIL in più ogni anno; u: malcontento in meno finché la misura resta; fert/g: effetti secondari. */
 const TROPIC = ["wca", "esa", "sa", "sea", "latam"]; // dove la malaria pesa di più
+const MONSOON = ["sa", "sea", "wca", "esa"]; // dove gli aerosol nella stratosfera possono ridurre le piogge
 const FAMILY_ACTS = ["family", "parentalLeave", "housing", "birthDowry", "natality"];
 const PROMISES = {
   healthPub: { t: "Sanità pubblica gratuita", ok: (st, r) => r.wealth > 55 && !built(st, "healthcare"), def: 1.2, u: 5,
@@ -967,17 +1001,28 @@ const fAge = (r) => clamp(37.4 - 44.35 * r.yng / r.pop + 61.6 * r.old / r.pop, 1
    Meno giovani oggi significa meno lavoratori fra 18 anni: con la produttività ferma il prodotto scende. */
 // crescita naturale della produttività: più rapida nei paesi a reddito medio che rincorrono, più lenta nei più poveri e nei più ricchi
 const basePg = (r) => { const d = r.wealth / 100; return 1.1 + 2.6 * (1 - d) * Math.min(1, d * 3); };
-// con i robot pensanti (mass da 0 a 1) il lavoro umano viene sostituito da una forza lavoro di macchine pari a 1,3 volte il massimo raggiunto
+/* con i robot pensanti (mass da 0 a 1) il lavoro umano viene sostituito da una forza lavoro di macchine pari a 1,1 volte il massimo
+   raggiunto (prima 1,3: la crescita arrivava al 16-20% l'anno; ridotta il 25 ottobre 2026). robShare: quota del lavoro fatta da robot. */
 const laborOf = (r, m) => {
-  const human = r.wrk * (1 + (m ? m.labor : 0)) * (1 + (m ? m.robot : 0)) * (1 - r.unemp / 100), a = m ? Math.min(1, m.mass) : 0;
-  return a > 0 ? (1 - a) * human + a * 1.3 * (r.Lpeak || human) : human;
+  const rb = m ? m.robot : 0, base = r.wrk * (1 + (m ? m.labor : 0)) * (1 - r.unemp / 100), human = base * (1 + rb), a = m ? Math.min(1, m.mass) : 0;
+  const L = a > 0 ? (1 - a) * human + a * 1.1 * (r.Lpeak || human) : human;
+  if (m) r.robShare = L > 0 ? clamp(1 - (1 - a) * base / L, 0, 1) : 0;
+  return L;
 };
 // mortalità annua per fascia: dipende dallo sviluppo
 const mortY = (r) => 0.002 + 0.008 * Math.pow(1 - r.wealth / 100, 2);
 const mortW = (r) => 0.002 + 0.004 * (1 - r.wealth / 100);
 const lifeOld = (r, m) => 12 + 10 * r.wealth / 100 + (m ? m.life : 0); // anni di vita attesi dopo i 65
-// quanto pesa la disoccupazione su malcontento e stabilità: con il reddito di base chi resta senza lavoro non resta senza reddito
-const unempPain = (r) => (r.acts && r.acts.ubi && r.acts.ubi.n > 0 ? Math.min(r.unemp, 6) + Math.max(0, r.unemp - 6) * 0.02 : r.unemp);
+/* Sostegno al reddito di chi resta senza lavoro, da 0 a 0,97 (decisione del 25 ottobre 2026): il sussidio di disoccupazione aiuta
+   poco con la disoccupazione di lunga durata (dopo un po' finisce), i quattro gradini del reddito di base molto di più, il dividendo
+   del fondo sovrano un po'. Quanto pesa la disoccupazione su malcontento, stabilità e consumi dipende da questo sostegno:
+   chi resta senza lavoro ma non senza reddito si arrabbia molto meno [Probabile]. */
+const incomeSupport = (r) => {
+  if (!r.acts) return 0;
+  const on = (id) => (lvl(r, id) > 0 ? 1 : 0);
+  return Math.min(0.97, 0.25 * on("unempBenefit") + 0.45 * on("ubi") + 0.2 * on("ubiMid") + 0.25 * on("ubiPlus") + 0.15 * on("sovFund"));
+};
+const unempPain = (r) => Math.min(r.unemp, 6) + Math.max(0, r.unemp - 6) * (1 - incomeSupport(r));
 const fEnergyCost = (r) => 40 + 0.15 * r.fossil;
 
 /* ---------- interventi ----------
@@ -1005,6 +1050,14 @@ const INTERVENTIONS = [
   { id: "renew", cat: "energia", name: "Parchi solari ed eolici", desc: "Grandi impianti solari ed eolici che prendono il posto delle centrali a carbone e a gas.", scope: "region", cost: 15, T: 4, spread: true, stack: 3,
     pro: "Meno combustibili fossili, energia più economica nel lungo periodo", con: "Oltre il 45% di rinnovabili servono reti e accumuli",
     fx: (m, s, r) => { const cap = lvl(r, "grid") >= 1 ? 85 : 45; if (r.renew < cap) m.fossilShift += 1.1 * s; m.energyCost -= 1.5 * s; } },
+  /* Fotovoltaico sui tetti (decisione del 25 ottobre 2026): sul tetto di una casa l'energia costa 2,5-4 volte quella di un grande
+     impianto e gli incentivi costano 150-450 € per tonnellata di CO₂ evitata, contro 60-90 € del prezzo della CO₂ in Europa [Certo:
+     Lazard 2024, Fraunhofer ISE]. Molto popolare, crea lavoro locale, ma premia chi ha casa e reddito e scarica i costi della rete
+     su chi non ha i pannelli; quando gli incentivi finiscono il settore crolla (Germania 2012-2015, Italia 2013) [Certo].
+     Conviene di più dove le reti sono deboli e l'alternativa è il gasolio (regioni povere) [Certo]. */
+  { id: "rooftop", cat: "energia", name: "Incentivi al fotovoltaico sui tetti", desc: "Lo Stato paga una parte dei pannelli solari che famiglie e piccole imprese installano sui propri tetti.", scope: "region", cost: 6, upkeep: 2.5, T: 2,
+    pro: "Molto popolare, bollette più basse per chi installa, lavoro per gli installatori; nelle regioni povere con reti deboli sostituisce i generatori a gasolio", con: "Per la stessa energia pulita costa circa tre volte i grandi parchi solari; premia soprattutto chi ha una casa e un reddito alto (più divisioni); se smetti di finanziarlo il settore crolla e molti installatori perdono il lavoro",
+    fx: (m, s, r) => { m.fossilShift += (r.wealth < 40 ? 0.7 : 0.3) * s; if (r.wealth < 40) m.g += 0.1 * s; m.energyCost -= 0.5 * s; m.unrestT -= 1.5 * s; m.polarT += 1.5 * s; m.unempT -= 0.3 * s; } },
   { id: "grid", cat: "energia", name: "Reti e accumuli", desc: "Nuove linee elettriche e grandi batterie che conservano l'energia per quando mancano sole e vento.", scope: "region", cost: 20, T: 5, spread: true,
     pro: "Permette quote alte di rinnovabili, meno blackout", con: "Costa molto e da sola non produce energia",
     fx: (m) => { m.energyCost -= 2; } },
@@ -1029,7 +1082,7 @@ const INTERVENTIONS = [
     once: (r) => { shiftClean(r, 8, "nuclear"); r.resist = clamp(r.resist + 5, 0, 100); } },
   /* Fusione: prima la ricerca (anni di laboratori e reattori sperimentali, pagati ogni anno), poi le centrali */
   { id: "fusionResearch", cat: "nucleare", name: "Ricerca sulla fusione", desc: "Reattori sperimentali e laboratori di tutto il mondo lavorano insieme per far funzionare la fusione.", scope: "global", cost: 10, buildUpkeep: 3, T: 15, from: 2030,
-    pro: "Apre la strada alle centrali a fusione; più rapida con la ricerca scientifica e i laboratori lunari", con: "Costa 3 fondi l'anno per tutti gli anni di ricerca, senza ritorni immediati" },
+    pro: "Apre la strada alle centrali a fusione; più rapida con la ricerca scientifica e i laboratori lunari", con: "Costa ogni anno per tutti gli anni di ricerca, senza ritorni immediati" },
   { id: "smr", cat: "nucleare", name: "Reattori modulari", desc: "Piccoli reattori costruiti in serie in fabbrica e montati sul posto. Servono dove una grande centrale sarebbe sprecata: zone rurali e isolate, isole, miniere, città piccole con reti elettriche deboli.", scope: "region", cost: 25, T: 5, from: 2035,
     pro: "Portano il nucleare dove le grandi centrali non arrivano: molto utili nelle regioni con tanta popolazione rurale e reti elettriche piccole, meno in quelle ricche e urbane", con: "Ognuno costa meno di una grande centrale ma produce molto meno: per le grandi città e le regioni industriali conviene la centrale grande. Stessi rischi del nucleare, in scala minore",
     once: (r) => { shiftClean(r, 9 * clamp(1.3 - r.wealth / 100, 0.4, 1.1), "nuclear"); } }, // più energia pulita dove la popolazione è rurale e povera
@@ -1052,7 +1105,7 @@ const INTERVENTIONS = [
   { id: "carbonLaw", cat: "clima", name: "Legge sulle emissioni delle imprese", desc: "Le aziende pagano una tassa che cresce ogni anno per ogni tonnellata di CO₂ che emettono; possono ridurla pagando la cattura della CO₂ con alberi artificiali.", scope: "region", cost: 3, T: 1, revocable: true, toggle: "Sospendi la legge",
     pro: "In circa cinquant'anni porta le emissioni a zero e le imprese pagano la cattura della CO₂", con: "Finché la transizione non è fatta la crescita è più lenta e cresce il malcontento; la tassa non compensa le entrate perse",
     fx: (m, s, r, st, gm, a) => { const yrs = st.year - (a.y0 || a.y); m.fossilShift += 1.5 * s; m.g -= 0.6 * r.fossil / 100 * Math.min(1, yrs / 8) * s; m.unrestT += 3 * r.fossil / 100 * s; },
-    gfx: (st, gm, k) => { const a = st.acts.carbonLaw; if (a) gm.co2Rem += Math.min(4, 0.12 * (st.year - (a.y0 || a.y))); gm.income += 0.03; } },
+    gfx: (st, gm, k) => { const a = st.acts.carbonLaw; if (a) gm.co2Rem += Math.min(3, 0.1 * (st.year - (a.y0 || a.y))); gm.income += 0.03; } },
   { id: "cutStaff", cat: "economia", name: "Meno dipendenti pubblici", desc: "Non si sostituisce chi va in pensione e si riducono gli uffici pubblici.", scope: "region", cost: 0, upkeep: -3, T: 1, revocable: true, toggle: "Riassumi",
     pro: "Risparmio annuo e deficit più basso", con: "Più disoccupazione e servizi più lenti: malcontento",
     eff: { debt: -0.8, unemp: 1, unrest: 4, g: -0.05 } },
@@ -1076,17 +1129,43 @@ const INTERVENTIONS = [
      disfacimento della società; con il reddito di base è un'alternativa alla crescita della popolazione [Ipotesi]. */
   { id: "massRobots", cat: "economia", name: "Robot pensanti al posto dei lavoratori", desc: "Robot umanoidi guidati da un'AI generale sostituiscono gradualmente quasi tutti i lavori, nell'arco di dieci anni.", scope: "region", cost: 30, T: 3, ramp: 10, sys: "ai",
     need: (st) => (st.g.aiCap >= 70 ? null : "Richiede un'AI molto più potente di oggi"),
-    pro: "La ricchezza prodotta non dipende quasi più da quante persone lavorano", con: "Quasi tutti perdono il lavoro: senza un reddito per tutti la società si sfalda",
+    pro: "La ricchezza prodotta non dipende quasi più da quante persone lavorano", con: "Quasi tutti perdono il lavoro: senza un reddito per tutti (reddito di base intermedio o pieno) la società si sfalda. Senza tassa sui robot o fondo sovrano le tasse sul lavoro spariscono e l'Autorità incassa molto meno",
     eff: { mass: 1, unemp: 60, polar: 6 } },
+  /* Quando i robot sostituiscono le persone la ricchezza non sparisce: passa dagli stipendi ai profitti di chi possiede i robot.
+     Le tasse sul lavoro (circa metà delle entrate) calano; senza tassare i robot o possedere quote delle aziende che li usano
+     l'Autorità perde entrate e chi resta senza lavoro resta senza reddito (Acemoglu e Restrepo; Karabarbounis e Neiman 2013 sul
+     calo della quota del lavoro) [Probabile]. Nessun paese ha ancora una tassa diretta sui robot; la Norvegia e l'Alaska
+     distribuiscono ai cittadini i rendimenti di un fondo pubblico [Certo]. (Decisione del 25 ottobre 2026) */
+  { id: "robotTax", cat: "economia", name: "Tassa sui robot", desc: "Le aziende pagano per ogni robot e programma che lavora al posto di una persona, come se pagassero i contributi del lavoratore sostituito.", scope: "region", cost: 2, T: 2,
+    pro: "Le entrate non crollano quando il lavoro passa ai robot: l'Autorità recupera circa il 60% delle tasse sul lavoro perse; meno rabbia contro i robot", con: "L'automazione rallenta un po': crescita leggermente più bassa",
+    fx: (m, s, r) => { m.g -= 0.05 * s; if (r.robShare > 0.05) m.unrestT -= 2 * s; } },
+  { id: "sovFund", cat: "economia", name: "Fondo sovrano sull'automazione", desc: "L'Autorità compra quote delle aziende che usano robot e intelligenza artificiale e distribuisce ogni anno a tutti i cittadini un dividendo, come fa la Norvegia con il petrolio.", scope: "region", cost: 25, T: 3, ramp: 10,
+    pro: "Una parte della ricchezza prodotta dai robot torna a tutti: l'Autorità recupera circa il 40% delle tasse sul lavoro perse, chi resta senza lavoro ha un piccolo reddito, meno malcontento e divisioni", con: "Costa molto all'inizio; il dividendo cresce lentamente, in una decina d'anni",
+    fx: (m, s) => { m.unrestT -= 3 * s; m.polarT -= 2 * s; } },
   { id: "retrain", cat: "economia", name: "Riqualificazione dei lavoratori", desc: "Corsi pagati dallo Stato per insegnare un nuovo mestiere a chi perde il lavoro.", scope: "region", cost: 4, upkeep: 1.5, T: 2,
     pro: "Meno disoccupazione", con: "Costa ogni anno; funziona finché i corsi continuano",
     fx: (m) => { m.unempT -= 2.2; } },
-  { id: "ubi", cat: "economia", name: "Reddito di base", desc: "Ogni adulto riceve ogni mese una somma fissa, che lavori o no.", scope: "region", cost: 0, upkeep: 25, T: 2,
-    pro: "Malcontento e disuguaglianza crollano", con: "Costa moltissimo ogni anno e fa salire il debito",
-    fx: (m) => { m.unrestT -= 15; m.polarT -= 3; m.debtF += 1.5; }, geff: { infl: 0.6 } },
-  { id: "ubiPlus", cat: "economia", name: "Reddito di base pieno", desc: "Il reddito di base sale fino a garantire a tutti una vita agiata, che lavorino o no.", scope: "region", cost: 0, upkeep: 110, T: 3,
-    pro: "Malcontento e divisioni quasi spariscono, più figli", con: "Un costo enorme: lo regge solo un'economia ricchissima; fa salire l'inflazione",
-    fx: (m) => { m.unrestT -= 14; m.polarT -= 8; m.fert += 0.08; m.debtF += 2; }, geff: { infl: 0.8 } },
+  /* Reddito di base in quattro gradini (decisione del 25 ottobre 2026): sussidio di disoccupazione → reddito di base → reddito
+     intermedio → reddito pieno. Ogni gradino si somma al precedente (si paga solo la differenza). L'intermedio e il pieno vanno a
+     tutti, pensionati compresi: per loro prendono il posto di una parte delle pensioni (il pieno di tutte, contributi compresi), quindi
+     il peso delle pensioni sui conti degli stati scende. Le sperimentazioni (Finlandia, Kenya, Stockton, Alaska) non mostrano un
+     calo importante del lavoro [Probabile]. */
+  { id: "ubi", cat: "economia", name: "Reddito di base", desc: "Ogni adulto riceve ogni mese una somma fissa, che lavori o no: non basta per vivere agiati, ma nessuno resta senza niente.", scope: "region", cost: 0, upkeep: 20, T: 2,
+    pro: "Malcontento e disuguaglianza crollano; chi perde il lavoro non resta senza reddito", con: "Costa moltissimo ogni anno e fa salire il debito",
+    fx: (m) => { m.unrestT -= 12; m.polarT -= 3; m.debtF += 1.5; }, geff: { infl: 0.6 } },
+  { id: "ubiMid", cat: "economia", name: "Reddito di base intermedio", desc: "Il reddito di base sale a una cifra che permette di vivere in modo dignitoso. Va a tutti; per i pensionati prende il posto di una parte della pensione, quindi a loro non cambia niente. I contributi per quella parte di pensione passano all'Autorità.", scope: "region", cost: 0, upkeep: 18, T: 2,
+    pro: "La disoccupazione, anche quella causata dai robot, non fa quasi più paura; meno divisioni; il peso delle pensioni sugli stati scende di circa un terzo", con: "Costa molto ogni anno (in più rispetto al reddito di base) e fa salire un po' l'inflazione",
+    fx: (m, s) => { m.unrestT -= 6; m.polarT -= 4; m.fert += 0.03; m.debtF += 0.5; m.absorb += 0.35 * s; }, geff: { infl: 0.4, income: 0.1 } },
+  { id: "ubiPlus", cat: "economia", name: "Reddito di base pieno", desc: "Il reddito di base sale fino a garantire a tutti una vita agiata, che lavorino o no. Prende il posto di tutte le pensioni pubbliche: anche i contributi finiscono nel reddito per tutti.", scope: "region", cost: 0, upkeep: 30, T: 3,
+    pro: "Malcontento e divisioni quasi spariscono, un po' più di figli; le pensioni pubbliche non pesano quasi più sugli stati", con: "Un costo enorme che si somma ai gradini precedenti: lo regge solo un'economia ricchissima; fa salire l'inflazione",
+    fx: (m, s) => { m.unrestT -= 8; m.polarT -= 6; m.fert += 0.08; m.debtF += 0.5; m.absorb += 0.35 * s; }, geff: { infl: 0.6, income: 0.2 } },
+  /* Reddito per ogni figlio (decisione del 25 ottobre 2026): ogni bambino, anche neonato, riceve il suo reddito di base pieno.
+     Con un figlio la famiglia ha il doppio, con due il triplo. Gli assegni normali alzano poco le nascite (+0,05-0,15 figli per
+     donna per ogni punto di PIL [Probabile]); un assegno pari a un reddito pieno per figlio potrebbe portarle verso 2-2,4 [Ipotesi],
+     ma costerebbe il 15-25% del PIL e molti genitori lascerebbero il lavoro. */
+  { id: "childIncome", cat: "demografia", name: "Reddito di base per ogni figlio", desc: "Ogni bambino, anche appena nato, riceve il suo reddito di base pieno fino alla maggiore età: con un figlio la famiglia ha il doppio, con due il triplo.", scope: "region", cost: 0, upkeep: 45, T: 2, ramp: 8,
+    pro: "Le nascite risalgono davvero: i figli per donna si avvicinano a 2", con: "Costosissimo; molti genitori smettono di lavorare; un po' più di inflazione. Utile soprattutto a lungo termine, non per vincere",
+    fx: (m, s) => { m.fert += 0.8 * s; m.labor -= 0.03 * s; m.debtF += 0.3; }, geff: { infl: 0.3 } },
   { id: "debtRestr", cat: "economia", name: "Ristrutturazione del debito", desc: "Un accordo con i creditori per cancellare o rinviare una parte del debito.", scope: "region", cost: 5, T: 1, repeat: true,
     pro: "Il debito scende di colpo", con: "Per qualche anno meno crescita e più malcontento; i mercati si fidano meno",
     once: (r) => { r.debt -= 25; r.shockU += 6; r.shockG -= 1; } },
@@ -1148,6 +1227,13 @@ const INTERVENTIONS = [
   { id: "education", cat: "societa", name: "Scuola per tutti", desc: "Più insegnanti, scuole migliori e nessun bambino fuori dalla scuola, fino alle superiori.", scope: "region", cost: 5, upkeep: 2.5, T: 2, ramp: 18, spread: true,
     pro: "Produttività molto più alta quando gli studenti di oggi saranno al lavoro, meno disuguaglianza", con: "Costa ogni anno e l'effetto pieno arriva dopo quasi vent'anni; con più studio si fanno un po' meno figli",
     fx: (m, s) => { m.g += 0.9 * s; m.polarT -= 2 * s; m.fert -= 0.1 * s; } },
+  /* Valutazione degli insegnanti (decisione del 25 ottobre 2026): un insegnante migliore di una deviazione standard alza i redditi
+     futuri dei suoi studenti dell'1-1,3% (Chetty, Friedman e Rockoff 2014) [Certo]; i bonus ai migliori funzionano in alcuni casi
+     (Washington DC, India, Israele) e non in altri (Tennessee) [Probabile]; pubblicare le valutazioni ha portato proteste dei
+     sindacati (Los Angeles 2010, New York 2012) [Certo]. */
+  { id: "teacherEval", cat: "societa", name: "Valutazione degli insegnanti", desc: "Le capacità di insegnamento dei docenti vengono valutate ogni anno; i più bravi ricevono un bonus e i risultati sono pubblici.", scope: "region", cost: 3, upkeep: 1.5, T: 2, ramp: 16,
+    pro: "La produttività cresce ancora quando gli studenti di oggi diventano maggiorenni", con: "Costa ogni anno per i bonus; gli insegnanti protestano, soprattutto nei primi anni, e la società si divide di più",
+    fx: (m, s, r, st, gm, a) => { m.g += 0.35 * s; m.polarT += 2; m.unrestT += st.year - (a.y0 || a.y) < 5 ? 2 : 1; } },
   { id: "university", cat: "societa", name: "Università e formazione tecnica", desc: "Più posti all'università, borse di studio e scuole tecniche legate alle imprese.", scope: "region", cost: 6, upkeep: 2, T: 3, ramp: 12,
     pro: "Più lavoratori qualificati: la produttività cresce in una decina d'anni", con: "Costa ogni anno",
     fx: (m, s) => { m.g += 0.7 * s; m.unempT -= 0.5 * s; } },
@@ -1167,16 +1253,25 @@ const INTERVENTIONS = [
   { id: "reforest", cat: "clima", name: "Riforestazione", desc: "Piantare alberi su terreni abbandonati o degradati: crescendo assorbono CO₂.", scope: "region", cost: 10, T: 3, ramp: 20,
     pro: "Toglie CO₂ dall'atmosfera", con: "Gli alberi impiegano una ventina d'anni a crescere",
     gfx: (st, gm, k) => { gm.co2Rem += 2.5 * k; } },
-  { id: "dac", cat: "clima", name: "Cattura diretta della CO₂", desc: "Impianti che aspirano l'aria, ne estraggono la CO₂ e la chiudono sottoterra. Si possono costruire due programmi.", scope: "region", cost: 25, upkeep: 2, perUnit: true, stack: 2, T: 8, from: 2032,
-    pro: "Ogni programma toglie 4 miliardi di tonnellate di CO₂ l'anno: le emissioni nette scendono", con: "Costoso da costruire e da far funzionare; la temperatura scende solo quando le emissioni nette del mondo vanno sotto zero",
-    gfx: (st, gm) => { gm.co2Rem += 4 * ((st.acts.dac && st.acts.dac.n) || 1); } },
+  /* Cattura diretta [Probabile]: oggi costa 600-1000 $ per tonnellata, forse 100-300 $ nel 2050; realisticamente 1-5 miliardi di
+     tonnellate l'anno entro il 2050-2070, perché serve moltissima energia pulita (IEA; Young e altri 2023). Rivista il 25 ottobre
+     2026: prima ogni programma toglieva 4 miliardi di tonnellate a un costo molto più basso del reale. */
+  { id: "dac", cat: "clima", name: "Cattura diretta della CO₂", desc: "Impianti che aspirano l'aria, ne estraggono la CO₂ e la chiudono sottoterra. Si possono costruire due programmi.", scope: "region", cost: 30, upkeep: 8, perUnit: true, stack: 2, T: 8, from: 2032,
+    pro: "Ogni programma toglie 2 miliardi di tonnellate di CO₂ l'anno: le emissioni nette scendono", con: "Molto costoso da costruire e da far funzionare, perché consuma moltissima energia; la temperatura scende solo quando le emissioni nette del mondo vanno sotto zero",
+    gfx: (st, gm) => { gm.co2Rem += 2 * ((st.acts.dac && st.acts.dac.n) || 1); } },
   /* Aerosol riflettenti [Ipotesi sulla fattibilità su larga scala]: possono riportare la temperatura ai livelli preindustriali
      finché si continua; il costo annuo cresce con il riscaldamento che resta sotto; se si smette, il caldo torna in un paio d'anni. */
   /* Iniezione di aerosol nella stratosfera [Probabile]: il candidato più studiato è il biossido di zolfo, che a 20 km di quota
      forma goccioline di solfato che riflettono la luce del Sole, come dopo l'eruzione del Pinatubo (1991: circa 0,5 °C in meno
      per un anno) [Certo]. Il carbonato di calcio (calcare finissimo) è l'alternativa studiata perché danneggerebbe meno l'ozono. */
-  { id: "geoeng", cat: "clima", name: "Aerosol riflettenti nella stratosfera", desc: "Aerei ad alta quota iniettano ogni anno a circa 20 km di altezza biossido di zolfo, che forma minuscole goccioline di solfato capaci di riflettere una parte della luce del Sole, come accade dopo le grandi eruzioni vulcaniche. È l'idea più studiata dagli scienziati; in alternativa si studia la polvere finissima di carbonato di calcio, che danneggerebbe meno lo strato di ozono.", scope: "global", cost: 8, upkeepFn: (st) => 2 + 2.5 * Math.max(0, st.g.temp), T: 2, from: 2035, revocable: true, toggle: "Interrompi",
-    pro: "Riporta la temperatura ai livelli preindustriali in pochi anni, finché si continua", con: "Non toglie CO₂ e la CO₂ continua ad accumularsi: il costo annuo cresce sempre; se si smette il caldo torna in un paio d'anni; può indebolire lo strato di ozono e spostare le piogge monsoniche; aumenta le tensioni tra le potenze",
+  /* Rivisto il 25 ottobre 2026 con i dati reali [Probabile]: per −1 °C servono 8-16 milioni di tonnellate di SO₂ l'anno e 10-25
+     miliardi di dollari l'anno (Smith e Wagner 2018; NASEM 2021), ma prima vanno progettati aerei capaci di volare a 20 km (7-10 anni).
+     Il limite vero non sono i soldi ma i rischi: piogge monsoniche −5-15% in Asia meridionale e Sahel, ozono, tensioni tra le potenze.
+     Se si smette, gli aerosol cadono in 1-2 anni e la temperatura recupera il 70-80% del caldo nascosto in 10-15 anni. */
+  { id: "stratoPlanes", cat: "clima", name: "Aerei stratosferici", desc: "Progettazione e costruzione di una flotta di alcune centinaia di aerei speciali, capaci di portare carichi pesanti a 20 km di quota, dove gli aerei di oggi non arrivano.", scope: "global", cost: 3, T: 8, from: 2030,
+    pro: "Rendono possibili gli aerosol riflettenti nella stratosfera", con: "Servono circa otto anni di sviluppo; da soli non fanno niente" },
+  { id: "geoeng", cat: "clima", name: "Aerosol riflettenti nella stratosfera", desc: "Aerei ad alta quota iniettano ogni anno a circa 20 km di altezza biossido di zolfo, che forma minuscole goccioline di solfato capaci di riflettere una parte della luce del Sole, come accade dopo le grandi eruzioni vulcaniche. È l'idea più studiata dagli scienziati; in alternativa si studia la polvere finissima di carbonato di calcio, che danneggerebbe meno lo strato di ozono.", scope: "global", cost: 6, upkeepFn: (st) => 1 + 1.5 * Math.max(0, st.g.temp), T: 2, revocable: true, toggle: "Interrompi",
+    pro: "Riporta la temperatura ai livelli preindustriali in pochi anni, finché si continua; costa relativamente poco", con: "Non toglie CO₂ e la CO₂ continua ad accumularsi: il costo annuo cresce sempre e non si può più smettere senza pagarla. Se si interrompe, il caldo nascosto torna nel giro di 10-15 anni, molto più in fretta di quanto ecosistemi e città riescano ad adattarsi. Sposta le piogge monsoniche (più carestie e malcontento in Asia meridionale e in Africa), indebolisce lo strato di ozono, aumenta le tensioni tra le potenze",
     fx: (m, s, r, st, gm) => { gm.geo -= st.g.temp; gm.tensionT += 6; } },
   // Salute
   { id: "surveil", cat: "salute", name: "Sorveglianza epidemiologica", desc: "Una rete mondiale di laboratori e ospedali che segnala subito i nuovi virus.", scope: "global", cost: 4, upkeep: 0.5, T: 2, axis: 3,
@@ -1237,9 +1332,13 @@ const INTERVENTIONS = [
   { id: "taxRaise", cat: "economia", name: "Aumento delle tasse", desc: "Imposte un po' più alte su redditi e consumi in tutte le regioni.", scope: "region", cost: 0, T: 1, revocable: true, toggle: "Abbassa le tasse",
     pro: "Le entrate dell'Autorità crescono di un quarto", con: "Malcontento e crescita più bassa",
     eff: { unrest: 5, g: -0.25 }, geff: { income: 0.25, infl: -0.2 } },
-  { id: "wealthTax", cat: "economia", name: "Tassa sui grandi patrimoni", desc: "Un'imposta annuale sulle ricchezze più alte.", scope: "region", cost: 2, T: 2, revocable: true,
-    pro: "Più entrate e meno disuguaglianza", con: "Un po' meno investimenti e crescita",
-    eff: { polar: -3, g: -0.1 }, geff: { income: 0.12 } },
+  /* Patrimoniale (rivista il 25 ottobre 2026): in Europa ha incassato in genere lo 0,2-1% del PIL (Svizzera circa 1%, Francia
+     prima del 2017 circa 0,2%) [Probabile]; molti paesi l'hanno abolita perché i capitali scappavano. Con l'Autorità che impone
+     le stesse leggi in tutto il mondo la fuga non è possibile, tranne verso le regioni cadute nell'anarchia. Con i robot la
+     ricchezza si concentra nei patrimoni: la tassa rende di più (decisione del 25 ottobre 2026). */
+  { id: "wealthTax", cat: "economia", name: "Tassa sui grandi patrimoni", desc: "Un'imposta annuale sulle ricchezze più alte. Con un'autorità che impone le stesse leggi in tutto il mondo i capitali non possono scappare all'estero: possono solo rifugiarsi nelle regioni cadute nell'anarchia.", scope: "region", cost: 2, T: 2, revocable: true,
+    pro: "Entrate più alte di circa un sesto (di più quando i robot concentrano la ricchezza) e meno disuguaglianza", con: "Un po' meno investimenti e crescita; i grandi patrimoni si oppongono; i capitali scappano verso le regioni in anarchia, se ce ne sono",
+    eff: { polar: -3, g: -0.05 }, gfx: (st, gm, k) => { gm.income += k * (0.15 + 0.25 * (st.robShareW || 0)) * (1 - anarchyShare(st)); } },
   /* Lotta all'evasione: un piccolo albero (decisione del 22 ottobre 2026). Ogni intervento riduce l'economia sommersa
      della regione (punti di PIL che sfuggono al fisco); le entrate dell'Autorità crescono di conseguenza.
      Ordini di grandezza [Probabile]: fatturazione elettronica e incroci dei dati recuperano 1–3 punti di PIL di sommerso
@@ -1262,13 +1361,20 @@ const INTERVENTIONS = [
   { id: "taxHavens", cat: "economia", name: "Lotta ai paradisi fiscali", desc: "Scambio automatico di informazioni tra tutte le banche del mondo e una tassa minima globale sui profitti delle multinazionali.", scope: "region", cost: 5, upkeep: 0.5, T: 3, ramp: 5,
     pro: "Le grandi ricchezze nascoste all'estero tornano a pagare: sommerso giù di circa 1,5 punti ed entrate in più dalle multinazionali", con: "Un po' di capitali scappano: crescita leggermente più bassa",
     eff: { shadow: -1.5, g: -0.05 }, geff: { income: 0.04 } },
+  /* Condono (rivisto il 25 ottobre 2026): nella realtà incassa in un anno lo 0,1-1,2% del PIL, in media 0,3-0,5%, di più dove il
+     sommerso è grande (Italia 2003 circa 1,15%, Argentina 2016 1,65%) [Certo: FMI, Baer e Le Borgne 2008]. Il costo vero viene
+     dopo: chi paga regolarmente si aspetta il prossimo condono e l'adempimento cala del 3-7%, del 10-18% se i condoni si ripetono;
+     un secondo condono incassa il 35-45% in meno del primo [Probabile]. Due cittadini su tre lo giudicano ingiusto [Certo]. */
   { id: "amnesty", cat: "economia", name: "Condono fiscale", desc: "Chi ha evaso può mettersi in regola pagando solo una parte di quanto doveva.", scope: "region", cost: 0, T: 1, repeat: true,
-    pro: "Entrate subito: circa 6 fondi in una volta", con: "Chi paga onestamente si sente preso in giro e molti aspettano il prossimo condono: per anni l'economia sommersa sale di circa 3 punti",
-    once: (r, st) => { r.shadow += 3; }, gonce: (st) => { st.funds += priced(st, 6); } },
+    pro: "Entrate subito, tanto più grandi quanto più l'economia è grande e c'è sommerso: utile in un'emergenza", con: "Chi paga onestamente si sente preso in giro (un po' più di divisioni) e molti aspettano il prossimo condono: per anni l'economia sommersa sale di circa 3 punti, di più a ogni nuovo condono; ogni condono incassa meno del precedente",
+    once: (r, st) => { r.shadow += 3 + 1.5 * ((st.amnestyN || 1) - 1); r.polar += 1.5; }, gonce: (st) => { st.funds += amnestyYield(st); st.amnestyN = (st.amnestyN || 0) + 1; } },
   // Lavoro
+  /* Chi riceve il sussidio cerca lavoro con meno fretta: ogni settimana in più di sussidio allunga la disoccupazione di 0,16-0,20
+     settimane (Katz e Meyer 1990) e molti trovano lavoro quando il sussidio sta per finire (Card, Chetty e Weber) [Certo].
+     Gli obblighi di formazione lo attenuano: con la riqualificazione l'effetto si dimezza (decisione del 25 ottobre 2026). */
   { id: "unempBenefit", cat: "economia", name: "Sussidio di disoccupazione", desc: "Un assegno mensile per chi perde il lavoro, finché non ne trova un altro.", scope: "region", cost: 2, upkeep: 2.5, T: 1,
-    pro: "Molto meno malcontento dove la disoccupazione è alta", con: "Costa ogni anno",
-    fx: (m, s, r) => { m.unrestT -= Math.min(8, r.unemp * 0.7) * s; } },
+    pro: "Molto meno malcontento dove la disoccupazione è alta; chi perde il lavoro non resta subito senza reddito", con: "Costa ogni anno; chi lo riceve cerca lavoro con meno fretta, quindi la disoccupazione scende più lentamente (meno con la riqualificazione dei lavoratori, che obbliga a formarsi)",
+    fx: (m, s, r) => { m.unrestT -= Math.min(8, r.unemp * 0.7) * s; m.unempT += (lvl(r, "retrain") > 0 ? 0.3 : 0.6) * s; } },
   { id: "minWage", cat: "economia", name: "Salario minimo", desc: "Una paga oraria minima uguale per tutti i lavoratori.", scope: "region", cost: 1, T: 1, revocable: true, toggle: "Abolisci",
     pro: "Meno malcontento e disuguaglianza", con: "Un po' più di disoccupazione",
     eff: { unrest: -3, polar: -2, unemp: 0.6 } },
@@ -1332,8 +1438,8 @@ const INTERVENTIONS = [
     pro: "Telecamere, dati e informatori individuano le proteste prima che crescano: proteste e movimenti contro l'Autorità molto più rari, malcontento visibile più basso", con: "Sfiducia e polarizzazione in aumento. Esclusivo dello Stato centralizzato",
     fx: (m) => { m.unrestT -= 8; m.polarT += 4; } },
   { id: "privat", cat: "economia", name: "Privatizzazioni", desc: "Vendita a privati di aziende e servizi pubblici.", scope: "global", cost: 0, T: 1, gov: "market",
-    pro: "Vendita di aziende e servizi pubblici: 15 fondi subito", con: "Malcontento e polarizzazione in aumento ovunque. Esclusivo del Libero mercato",
-    once: (r, st) => { st.funds += 15; for (const id in st.regions) { st.regions[id].shockU += 6; st.regions[id].polar += 2; } } },
+    pro: "Vendita di aziende e servizi pubblici: molti fondi subito", con: "Malcontento e polarizzazione in aumento ovunque. Esclusivo del Libero mercato",
+    once: (r, st) => { st.funds += priced(st, 15); for (const id in st.regions) { st.regions[id].shockU += 6; st.regions[id].polar += 2; } } },
   /* ----- Genetica (scenario 6). Ogni passo accelera la ricerca biotecnologica e alza un po' il rischio di pandemia
      ingegnerizzata; il controllo del DNA sintetico e le regole per i laboratori lo bilanciano. Numeri da [Probabile] a [Ipotesi]. ----- */
   { id: "screening", cat: "genetica", name: "Screening alla nascita e diagnosi sugli embrioni", desc: "Sequenziamento del DNA dei neonati, analisi dei portatori e fecondazione con diagnosi gratuita per le coppie a rischio di malattie gravi.", scope: "region", cost: 3, upkeep: 0.5, T: 2, ramp: 4, axis: 2,
@@ -1354,7 +1460,7 @@ const INTERVENTIONS = [
   { id: "embryoEdit", cat: "genetica", name: "Correzione genetica degli embrioni", desc: "In centri controllati si autorizza la correzione delle malattie gravi negli embrioni: la modifica passa ai figli dei figli.", scope: "global", cost: 4, T: 2, revocable: true, toggle: "Vieta di nuovo",
     pro: "Alcune malattie ereditarie spariscono per sempre dalle famiglie che lo scelgono", con: "Una scelta che divide profondamente: più polarizzazione e malcontento ovunque; rischio di un mercato dei figli su misura",
     fx: (m, s, r, st, gm) => { gm.polarAll += 4; gm.biotechRate += 0.2; } },
-  { id: "geneDrive", cat: "genetica", name: "Zanzare modificate contro la malaria", desc: "Zanzare con un gene che si diffonde da sola nella specie e la fa crollare: niente più malaria. Una volta liberate non si possono richiamare.", scope: "global", cost: 4, T: 3,
+  { id: "geneDrive", cat: "genetica", name: "Zanzare modificate contro la malaria", desc: "Zanzare con un gene che si diffonde da sola nella specie e la fa crollare: niente più malaria. Una volta liberate non si possono richiamare.", scope: "global", cost: 1.5, T: 3,
     pro: "Le morti per malaria crollano nelle regioni tropicali, che crescono di più", con: "Non si può fermare né tornare indietro; le zanzare passano i confini anche dove non le volevano",
     fx: (m, s, r, st, gm) => { gm.malaria = 1; } },
   { id: "dnaControl", cat: "genetica", name: "Controllo del DNA sintetico", desc: "Ogni ordine di DNA sintetico e ogni macchina che lo produce vengono registrati e controllati.", scope: "global", cost: 2, upkeep: 0.3, T: 2,
@@ -1364,27 +1470,27 @@ const INTERVENTIONS = [
     need: (st) => (["aiCap", "aiOpen", "aiPublic"].every((k) => built(st, k)) || st.g.aiCap >= 80 ? null : "Richiede un'AI sviluppata al massimo"),
     pro: "La ricerca genetica corre come mai prima: col tempo arrivano cure per sempre più malattie", con: "Molto costosa; se la sicurezza dei laboratori non segue, il rischio di una pandemia costruita in laboratorio sale",
     fx: (m, s, r, st, gm) => { gm.biotechRate += 2; gm.bioRate -= 0.3; } },
-  { id: "launch", cat: "spazio", name: "Lanciatori riutilizzabili", desc: "Razzi che tornano a terra e si riutilizzano come un aereo, abbassando il costo dei lanci.", scope: "global", cost: 8, T: 5,
+  { id: "launch", cat: "spazio", name: "Lanciatori riutilizzabili", desc: "Razzi che tornano a terra e si riutilizzano come un aereo, abbassando il costo dei lanci.", scope: "global", cost: 4, T: 5,
     pro: "Aprono il programma spaziale", con: "Nessun ritorno diretto" },
   { id: "orbital", cat: "spazio", name: "Economia orbitale", desc: "Satelliti dell'Autorità per comunicazioni, osservazione della Terra e navigazione, affittati a imprese e governi.", scope: "global", cost: 10, T: 4,
     payoff: { amount: 1.5, after: 2, ramp: 4 },
-    pro: "Imprese e governi pagano per usare i satelliti: due anni dopo l'apertura l'Autorità comincia a incassare, fino a 1,5 fondi l'anno in più dopo altri quattro anni", con: "Investimento iniziale" },
-  { id: "pdef", cat: "spazio", name: "Difesa planetaria", desc: "Telescopi che cercano gli asteroidi pericolosi e sonde capaci di deviarli.", scope: "global", cost: 6, T: 6,
+    pro: "Imprese e governi pagano per usare i satelliti: due anni dopo l'apertura l'Autorità comincia a incassare, e le entrate crescono per altri quattro anni", con: "Investimento iniziale" },
+  { id: "pdef", cat: "spazio", name: "Difesa planetaria", desc: "Telescopi che cercano gli asteroidi pericolosi e sonde capaci di deviarli.", scope: "global", cost: 3, T: 6,
     pro: "Gli impatti di asteroidi diventano molto più rari", con: "Nessun ritorno economico" },
   /* Programma lunare: la Luna vale soprattutto per la cooperazione tra le potenze, la scienza e la sopravvivenza
      a lungo termine; il ritorno economico è piccolo e incerto, come nella realtà [Probabile]. */
   { id: "moon", cat: "spazio", name: "Base lunare internazionale", desc: "Le potenze costruiscono e gestiscono insieme un avamposto abitato sulla Luna.", scope: "global", cost: 10, T: 10, buildUpkeep: 3, upkeep: 2,
     payoff: { amount: 1.5, after: 8, ramp: 6 },
-    pro: "Meno tensione tra le potenze e meno polarizzazione ovunque; apre il programma lunare; qualche anno dopo l'apertura arrivano piccole entrate da contratti di ricerca e turismo, fino a 1,5 fondi l'anno", con: "Costa 3 fondi l'anno per 10 anni di costruzione e 2 l'anno di gestione. Una volta costruita non si può smontare", fixed: true,
+    pro: "Meno tensione tra le potenze e meno polarizzazione ovunque; apre il programma lunare; qualche anno dopo l'apertura arrivano piccole entrate da contratti di ricerca e turismo", con: "Costa ogni anno durante i 10 anni di costruzione e poi per la gestione. Una volta costruita non si può smontare", fixed: true,
     fx: (m, s, r, st, gm) => { gm.tensionT -= 4; gm.polarAll -= 2; },
     once: (r, st) => { st.moon = true; for (const id in st.regions) st.regions[id].shockU -= 4; } },
   { id: "lunarSci", cat: "spazio", name: "Osservatorio e laboratori lunari", desc: "Un radiotelescopio sul lato nascosto della Luna, dove la Terra non disturba, e laboratori nella base.", scope: "global", cost: 8, T: 4, upkeep: 1, fixed: true,
-    pro: "Le tecnologie inventate per vivere sulla Luna (materiali, energia, medicina) arrivano anche sulla Terra: un po' più di crescita ovunque. Dalla Luna gli asteroidi pericolosi si vedono prima. I laboratori fanno andare più veloci del 25% i cantieri delle tecnologie più avanzate: fusione nucleare, impianti di cattura della CO₂, reattori modulari e missioni spaziali", con: "1 fondo l'anno di gestione; una volta costruiti non si possono smontare",
+    pro: "Le tecnologie inventate per vivere sulla Luna (materiali, energia, medicina) arrivano anche sulla Terra: un po' più di crescita ovunque. Dalla Luna gli asteroidi pericolosi si vedono prima. I laboratori fanno andare più veloci del 25% i cantieri delle tecnologie più avanzate: fusione nucleare, impianti di cattura della CO₂, reattori modulari e missioni spaziali", con: "Un piccolo costo annuo di gestione; una volta costruiti non si possono smontare",
     fx: (m, s, r, st, gm) => { gm.gAll += 0.12; gm.frontier += 0.25; } },
-  { id: "lunarIce", cat: "spazio", name: "Ghiaccio e propellente lunare", desc: "Impianti che estraggono il ghiaccio dei crateri del polo sud e ne ricavano acqua, ossigeno e carburante.", scope: "global", cost: 16, T: 8, saves: ["moon"], fixed: true,
+  { id: "lunarIce", cat: "spazio", name: "Ghiaccio e propellente lunare", desc: "Impianti che estraggono il ghiaccio dei crateri del polo sud e ne ricavano acqua, ossigeno e carburante.", scope: "global", cost: 8, T: 8, saves: ["moon"], fixed: true,
     pro: "La base lunare diventa autonoma e non ha più bisogno di rifornimenti dalla Terra: il suo costo annuo di gestione sparisce. Rende possibili le miniere", con: "Costoso e lento; nessun beneficio diretto sulla Terra" },
   { id: "lunarCity", cat: "spazio", name: "Insediamento lunare", desc: "Una comunità che vive stabilmente sulla Luna, con un archivio dei saperi e dei genomi della Terra.", scope: "global", cost: 40, T: 20, buildUpkeep: 3, upkeep: 2, fixed: true,
-    pro: "Orgoglio comune: polarizzazione in calo ovunque. Se la Terra cade in un filtro, l'archivio sopravvive", con: "Il progetto più costoso e più lungo del programma: circa vent'anni di lavori (meno con robot e AI avanzati), 3 fondi l'anno durante la costruzione e 2 dopo",
+    pro: "Orgoglio comune: polarizzazione in calo ovunque. Se la Terra cade in un filtro, l'archivio sopravvive", con: "Il progetto più costoso e più lungo del programma: circa vent'anni di lavori (meno con robot e AI avanzati), con un costo annuo durante la costruzione e uno di gestione dopo",
     fx: (m, s, r, st, gm) => { gm.polarAll -= 3; },
     once: (r, st) => { st.lunarCity = true; for (const id in st.regions) st.regions[id].shockU -= 3; } },
   { id: "lunarMining", cat: "spazio", name: "Industria mineraria lunare", desc: "Miniere di metalli e terre rare sulla superficie lunare.", scope: "global", cost: 30, T: 12, upkeep: 1, fixed: true,
@@ -1411,10 +1517,16 @@ for (const d of INTERVENTIONS) {
 const TAB_OF = { genetica: "genetica", energia: "energia", nucleare: "energia", economia: "economia", demografia: "welfare", societa: "societa", clima: "clima", salute: "sicurezza", sicurezza: "sicurezza", ai: "tecnologia", spazio: "tecnologia" };
 for (const d of INTERVENTIONS) { d.fam = d.cat; d.cat = TAB_OF[d.cat]; }
 /* livello di complessità: 1 facile, 2 medio, 3 difficile e super difficile */
-const TIER2 = ["screening", "rareTherapy", "somaticEdit", "gmCrops", "dnaControl", "geneDrive", "eInvoice", "dataMatch", "receiptLottery", "taxHavens", "amnesty", "eProcure", "assetsPublic", "whistle", "fastCourts", "civilPay", "carbonLaw", "geoeng", "ubiPlus", "pensionIndex", "cashless", "centralBank", "university", "research", "cutStaff", "cutSubsidies", "cutDefense", "cutServices", "robots", "fossilSub", "ubi", "taxRaise", "taxEvasion", "unempBenefit", "housing", "pensionFunds", "socialHousing", "wealthTax", "minWage", "publicJobs", "tariffs", "priceCap", "evCars", "parentalLeave", "ivf", "pensionTax", "birthDowry", "healthcare", "civicService", "cyber", "foodReserve", "forestProtect", "efficiency", "nucInfo", "smr", "automation", "retrain", "family", "natality", "integration", "healthyAging", "surveil", "vaccines", "amr", "dac", "aiCap", "aiOpen", "aiPublic", "align2", "align3", "orbital", "pdef", "lunarIce", "lunarMining", "police", "disinfo"];
+const TIER2 = ["robotTax", "sovFund", "ubiMid", "childIncome", "teacherEval", "rooftop", "stratoPlanes", "screening", "rareTherapy", "somaticEdit", "gmCrops", "dnaControl", "geneDrive", "eInvoice", "dataMatch", "receiptLottery", "taxHavens", "amnesty", "eProcure", "assetsPublic", "whistle", "fastCourts", "civilPay", "carbonLaw", "geoeng", "ubiPlus", "pensionIndex", "cashless", "centralBank", "university", "research", "cutStaff", "cutSubsidies", "cutDefense", "cutServices", "robots", "fossilSub", "ubi", "taxRaise", "taxEvasion", "unempBenefit", "housing", "pensionFunds", "socialHousing", "wealthTax", "minWage", "publicJobs", "tariffs", "priceCap", "evCars", "parentalLeave", "ivf", "pensionTax", "birthDowry", "healthcare", "civicService", "cyber", "foodReserve", "forestProtect", "efficiency", "nucInfo", "smr", "automation", "retrain", "family", "natality", "integration", "healthyAging", "surveil", "vaccines", "amr", "dac", "aiCap", "aiOpen", "aiPublic", "align2", "align3", "orbital", "pdef", "lunarIce", "lunarMining", "police", "disinfo"];
 const TIER3 = ["fusionResearch", "fusion", "massRobots", "agingResearch", "embryoEdit", "aiBio"]; // particelle riflettenti e legge sulle emissioni ci sono da quando c'è il clima (19 ottobre 2026) // reddito di base e sussidi fossili ora già dal livello 2
 for (const d of INTERVENTIONS) d.tier = TIER3.includes(d.id) ? 3 : TIER2.includes(d.id) ? 2 : 1;
 const IBY = Object.fromEntries(INTERVENTIONS.map((d) => [d.id, d]));
+/* Si può annullare quasi tutto, per qualsiasi ragione (decisione del 25 ottobre 2026): leggi, riforme e programmi. Restano
+   per sempre solo le opere costruite (impianti, centrali, foreste, strutture spaziali), le zanzare liberate, i trattati già
+   eseguiti e le misure che agiscono una volta sola. */
+const PERMANENT = new Set(["renew", "grid", "efficiency", "nuclear", "nucPrivate", "smr", "fusion", "fusionResearch", "adapt", "agri", "reforest", "evCars", "socialHousing",
+  "automation", "robots", "massRobots", "geneDrive", "arms", "debtRestr", "amnesty", "privat", "launch", "orbital", "pdef", "stratoPlanes", "centralBank"]);
+for (const d of INTERVENTIONS) if (!d.fixed && !PERMANENT.has(d.id)) d.revocable = true;
 function available(st, d) {
   const G = st.G || GBY.base, L = st.L || LBY.l5;
   if (d.gov) return d.gov === G.id;
@@ -1427,14 +1539,14 @@ function available(st, d) {
    Un intervento si sblocca quando il padre è completato. La disposizione grafica è calcolata dall'interfaccia. */
 const TREE = {
   fossilSub: null, carbonTax: null, renew: null, grid: "renew", efficiency: "carbonTax", nuclear: null, nucInfo: "nuclear", smr: "nuclear", nucAgency: null, nucPrivate: "nucAgency", fusionResearch: null, fusion: "fusionResearch",
-  invest: null, automation: "invest", retrain: "automation", ubi: "unempBenefit", ubiPlus: "ubi", develop: "invest", austerity: null, debtRestr: "austerity",
+  invest: null, automation: "invest", retrain: "automation", ubi: "unempBenefit", ubiMid: "ubi", ubiPlus: "ubiMid", childIncome: "ubiPlus", robotTax: "robots", sovFund: "robotTax", develop: "invest", austerity: null, debtRestr: "austerity",
   taxRaise: null, wealthTax: "taxRaise", taxEvasion: null, unempBenefit: null, minWage: "unempBenefit", publicJobs: "unempBenefit", tariffs: null,
-  priceCap: "fossilSub", evCars: "renew", carbonLaw: "dac", cashless: "eInvoice", eInvoice: "taxEvasion", dataMatch: "taxEvasion", receiptLottery: "cashless", taxHavens: "dataMatch", amnesty: null, cutStaff: "austerity", cutSubsidies: "austerity", cutDefense: "austerity", cutServices: "austerity", robots: "automation", massRobots: "robots",
+  priceCap: "fossilSub", evCars: "renew", rooftop: "renew", carbonLaw: "dac", cashless: "eInvoice", eInvoice: "taxEvasion", dataMatch: "taxEvasion", receiptLottery: "cashless", taxHavens: "dataMatch", amnesty: null, cutStaff: "austerity", cutSubsidies: "austerity", cutDefense: "austerity", cutServices: "austerity", robots: "automation", massRobots: "robots",
   housing: null, parentalLeave: "family", ivf: "housing", pensionFunds: "contrib", pensionTax: "pensionFunds", birthDowry: "pensionFunds", healthcare: null,
   socialHousing: null, civicService: "assemblies", cyber: "surveil", foodReserve: "agri", forestProtect: "reforest",
   contrib: null, retire: "contrib", pensionIndex: "retire", healthyAging: "retire", family: "housing", natality: "family", migration: null, integration: "migration",
-  transparency: null, anticorr: "transparency", eProcure: "transparency", assetsPublic: "transparency", whistle: "anticorr", fastCourts: "anticorr", civilPay: "eProcure", assemblies: "transparency", disinfo: "transparency", education: null, university: "education", research: "university", police: null, centralBank: null,
-  adapt: null, agri: "adapt", reforest: null, dac: null, geoeng: null, // le particelle si trovano subito nella scheda Clima (dal 2035)
+  transparency: null, anticorr: "transparency", eProcure: "transparency", assetsPublic: "transparency", whistle: "anticorr", fastCourts: "anticorr", civilPay: "eProcure", assemblies: "transparency", disinfo: "transparency", education: null, teacherEval: "education", university: "education", research: "university", police: null, centralBank: null,
+  adapt: null, agri: "adapt", reforest: null, dac: null, stratoPlanes: null, geoeng: "stratoPlanes", // dal 25 ottobre 2026 gli aerosol richiedono gli aerei stratosferici
   surveil: null, vaccines: "surveil", labRules: null, amr: "labRules",
   mediation: null, fissile: null, arms: "fissile",
   aiCap: null, aiOpen: null, aiPublic: null, aiReg: null, align: "aiReg", align2: "align", align3: "align2",
@@ -1448,7 +1560,7 @@ function payoffNow(d, a, st) {
   if (d.id === "moon" && st.moonHalt > st.year) return 0; // base evacuata dopo un incidente
   const yrs = st.year + st.month / 12 - a.y - d.payoff.after;
   const amount = d.payoff.amount * (d.id === "lunarMining" ? st.mineYield || 1 : 1);
-  return yrs <= 0 ? 0 : amount * Math.min(1, yrs / d.payoff.ramp);
+  return yrs <= 0 ? 0 : amount * Math.min(1, yrs / d.payoff.ramp) * ((st.g && st.g.pl) || 1); // a prezzi correnti, come i costi
 }
 // costo e gestione effettivi: alcuni dipendono da scelte precedenti
 // prezzi correnti: i costi di partenza crescono con l'inflazione accumulata
@@ -1463,7 +1575,7 @@ function costOf(st, d) {
    cura il doppio dei pazienti. Costo annuo = costo di oggi × prezzi × (reddito reale per abitante rispetto al 2026)^0,6:
    gli studi trovano elasticità tra 0,6 e 1,2 a seconda del servizio; si usa 0,6 per non colpire due volte con il peso delle pensioni.
    Le opere e gli impianti crescono solo con i prezzi. (Decisione del 23 ottobre 2026) */
-const WAGE = new Set(["austerity", "cutStaff", "cutSubsidies", "cutDefense", "cutServices", "retrain", "ubi", "ubiPlus", "natality", "family", "integration", "healthyAging",
+const WAGE = new Set(["ubiMid", "childIncome", "teacherEval", "austerity", "cutStaff", "cutSubsidies", "cutDefense", "cutServices", "retrain", "ubi", "ubiPlus", "natality", "family", "integration", "healthyAging",
   "transparency", "anticorr", "eProcure", "whistle", "fastCourts", "civilPay", "assemblies", "police", "education", "university", "research", "develop", "align", "align2", "align3",
   "taxEvasion", "receiptLottery", "unempBenefit", "publicJobs", "housing", "parentalLeave", "ivf", "pensionTax", "birthDowry", "healthcare", "civicService", "mediation", "surveil", "massSurveil", "fissile"]);
 function wageIdx(st) {
@@ -1483,6 +1595,17 @@ function upkeepOf(st, d) {
   return base * (k || 1) * (d.wasRegion && base > 0 ? ctrlShare(st) : 1) * (d.perUnit && a ? Math.max(1, a.n) : 1) * ((st.g && st.g.pl) || 1) * (WAGE.has(d.id) ? Math.pow(wageIdx(st), 0.6) : 1);
 }
 function ctrlShare(st) { let a = 0, t = 0; for (const id in st.regions) { const r = st.regions[id]; t += r.pop; if (r.controlled) a += r.pop; } return t ? a / t : 1; }
+// quota del prodotto mondiale nelle regioni cadute nell'anarchia: lì scappano i capitali
+function anarchyShare(st) { let a = 0, t = 0; for (const id in st.regions) { const r = st.regions[id]; t += r.gdp; if (!r.controlled) a += r.gdp; } return t ? a / t : 0; }
+/* Incasso di un condono: in proporzione alle entrate di oggi e all'economia sommersa (6 fondi nel 2026, con il sommerso medio
+   di allora); ogni condono successivo incassa il 40% in meno del precedente, perché chi poteva mettersi in regola l'ha già fatto. */
+const amnestyYield = (st) => Math.round(st.income * 0.36 * (shadowW(st) / 20) * Math.pow(0.6, st.amnestyN || 0) * 10) / 10;
+/* Parte delle tasse sul lavoro perse per i robot che l'Autorità recupera: 60% con la tassa sui robot, 40% con il fondo sovrano,
+   10% con la patrimoniale, al massimo tutto (a regime) */
+function robotCapture(st) {
+  const k = (id) => (built(st, id) ? rampK(IBY[id], st.acts[id], st) : 0);
+  return Math.min(1, 0.6 * k("robotTax") + 0.4 * k("sovFund") + 0.1 * k("wealthTax"));
+}
 const NUC_BUILD = ["nuclear", "nucPrivate", "smr", "fusion"];
 const FRONTIER = ["fusionResearch", "fusion", "smr", "dac", "launch", "orbital", "pdef", "moon", "lunarIce", "lunarCity", "lunarMining"];
 function shiftClean(r, pts, kind) {
@@ -1504,6 +1627,14 @@ const shadowW = (st) => { const rs = ctrlRegions(st), t = rs.reduce((a, r) => a 
 const oldRatio = (st) => { const rs = Object.values(st.regions); return rs.reduce((a, r) => a + r.old, 0) / (rs.reduce((a, r) => a + r.wrk, 0) || 1); }; // anziani per lavoratore
 const worldBirths = (st) => Object.values(st.regions).reduce((a, r) => a + r.tfr * r.fer * r.bF, 0); // milioni di nati l'anno
 const popLoss = (r, k) => { r.yng *= k; r.wrk *= k; r.old *= k; r.pop = r.yng + r.wrk + r.old; };
+/* vittime che colpiscono di più gli anziani (decisione del 25 ottobre 2026): f quota della popolazione che muore, wOld quota delle
+   vittime con più di 65 anni. COVID-19: 85-92% delle vittime sopra i 65 anni nei paesi ricchi, 70-80% nel mondo; influenza del 1918
+   e patogeni costruiti in laboratorio: anche i giovani adulti, solo il 15-30% sopra i 65 anni [Certo/Probabile]. */
+const popLossAge = (r, f, wOld) => {
+  const D = f * r.pop, dOld = Math.min(r.old * 0.6, D * wOld), rest = D - dOld, yw = r.yng + r.wrk || 1;
+  r.old -= dOld; r.yng = Math.max(0, r.yng - rest * r.yng / yw); r.wrk = Math.max(1, r.wrk - rest * r.wrk / yw);
+  r.fer = Math.min(r.fer, r.wrk); r.pop = r.yng + r.wrk + r.old;
+};
 const comply = (r) => 1 - clamp((r.unrest - 60) / 75, 0, 0.4);
 function rampK(d, a, st) {
   const years = (d.ramp || P.adoptYears) / ((st.D && st.D.adopt) || 1);
@@ -1520,7 +1651,7 @@ function lvl(r, id) {
 }
 
 /* ---------- stato ---------- */
-const M0 = () => ({ g: 0, unrestT: 0, polarT: 0, unempT: 0, fert: 0, pensT: 0, debtF: 0, fossilShift: 0, resistT: 0, energyCost: 0, eff: 0, dmg: 0, famine: 0, labor: 0, robot: 0, life: 0, mig: 0, mass: 0, weak: 0, shadowT: 0 });
+const M0 = () => ({ g: 0, unrestT: 0, polarT: 0, unempT: 0, fert: 0, pensT: 0, debtF: 0, fossilShift: 0, resistT: 0, energyCost: 0, eff: 0, dmg: 0, famine: 0, labor: 0, robot: 0, life: 0, mig: 0, mass: 0, weak: 0, shadowT: 0, absorb: 0 });
 const G0 = () => ({ malaria: 0, aiRate: 0, safeRate: 0, bioRate: 0, biotechRate: 0, co2Rem: 0, geo: 0, tensionT: 0, gAll: 0, unempAll: 0, pmit: 0, epi: 0, polarAll: 0, frontier: 0, income: 0, infl: 0 });
 
 function emissions(st) {
@@ -1647,6 +1778,9 @@ function prodGrowth(r, st, m, gm) {
   const capR = 2.2 + 2.2 * (1 - clamp(r.wealth, 0, 100) / 100), pos = Math.max(0, m.g);
   g += capR * (1 - Math.exp(-pos / capR)) + Math.min(0, m.g) + gm.gAll + r.shockG;
   g -= anarchyNear(st, r) * 0.5; // commerci interrotti con le regioni in anarchia
+  // chi perde il lavoro e non ha un reddito smette di comprare: con tanta disoccupazione l'economia frena (crisi da mancanza
+  // di domanda) [Probabile] (decisione del 25 ottobre 2026)
+  g -= Math.max(0, r.unemp - 10) * 0.025 * (1 - incomeSupport(r));
   if (!r.controlled) g = Math.min(g, -0.5);
   return g;
 }
@@ -1658,7 +1792,7 @@ function risks(st) {
   const bioGap = G.biotech - G.bioSafety;
   const war = 0.0012 * (G.arsenal / 100) * Math.pow(Math.max(G.tension, 1) / 40, 2.5) * R;
   const ai = aiGap > 25 ? Math.pow((aiGap - 25) / 50, 2) * 0.03 * R : 0;
-  const bio = bioGap > 20 ? Math.pow((bioGap - 20) / 40, 2) * 0.03 * R : 0;
+  const bio = (bioGap > 20 ? Math.pow((bioGap - 20) / 40, 2) * 0.03 * R : 0) + (st.L && st.L.sys.includes("gen") && G.biotech > 50 ? 0.0015 * (1 - bioCover(st)) * R : 0); // il rischio zero non esiste
   const tempEff = G.temp + G.geoOff;
   const climate = clamp((tempEff - 1.3) / (3.5 - 1.3), 0, 1);
   return { aiGap, bioGap, war, ai, bio, climate, tempEff };
@@ -1714,7 +1848,7 @@ function worldStab(st) {
 function unrestCauses(r, st) {
   const temp = st.g.temp + st.g.geoOff;
   return [
-    { name: "Disoccupazione", v: unempPain(r) * 1.5 },
+    { name: incomeSupport(r) < 0.5 && r.unemp > 10 ? "Disoccupazione, senza un reddito" : "Disoccupazione", v: unempPain(r) * 1.5 },
     { name: "Inflazione", v: Math.max(0, st.g.infl - 4) * 1.5 + Math.max(0, -st.g.infl) * 2 },
     { name: "Polarizzazione e sfiducia", v: r.polar * 0.2 },
     { name: "Debito troppo alto", v: Math.max(0, r.debt - 110) * 0.12 },
@@ -1727,6 +1861,16 @@ function unrestCauses(r, st) {
   ].filter((c) => c.v >= 0.5).sort((a, b) => b.v - a.v);
 }
 
+// da dove viene la polarizzazione (coesione): il malcontento la fa salire, gli interventi la spostano su o giù
+function polarCauses(r, st) {
+  const m = r.m || M0(), gm = st.gm || G0();
+  return [
+    { name: "Malcontento alto", v: r.unrest * 0.3 },
+    { name: "Divisioni di fondo della regione", v: r.pBase },
+    { name: m.polarT >= 0 ? "Effetti degli interventi" : "Interventi che uniscono", v: m.polarT },
+    { name: gm.polarAll >= 0 ? "Scelte mondiali che dividono" : "Scelte mondiali che uniscono", v: gm.polarAll },
+  ].filter((c) => Math.abs(c.v) >= 0.5).sort((a, b) => b.v - a.v);
+}
 // traguardo predefinito (scenario completo); ogni scenario ha il suo in L.win e L.years
 const STABLE_YEARS = P.stableYears, WIN_WORLD = P.winWorld;
 const LOW_STAB = P.lowStab, LOW_YEARS = P.lowYears;
@@ -1832,7 +1976,7 @@ function maxSurplus(st) {
   let boost = 0, save = 0;
   for (const d of INTERVENTIONS) {
     if (!available(st, d) || built(st, d.id) || d.gov) continue;
-    if (d.geff && d.geff.income > 0) boost += d.geff.income;
+    if (d.geff && d.geff.income > 0 && !(d.upkeep > 0) && !d.upkeepFn) boost += d.geff.income; // tasse e misure che non costano ogni anno
     if (d.upkeep < 0) save -= d.upkeep;
   }
   return st.income * (1 + boost) + priced(st, save);
@@ -2018,7 +2162,7 @@ const EVENTS = [
     choices: [
       { label: "Piano di emergenza", cost: 4, out: "Vittime contenute", fx: () => {} },
       { label: "Allerta e centri di raffreddamento", cost: 2, out: "Produttività in calo", fx: (st, r) => { r.shockG -= 0.2; } },
-      { label: "Non fare nulla", cost: 0, out: "Vittime e malcontento", fx: (st, r) => { r.shockG -= 0.6; r.shockU += 6; popLoss(r, 0.9995); } },
+      { label: "Non fare nulla", cost: 0, out: "Vittime, soprattutto anziani, e malcontento", fx: (st, r) => { r.shockG -= 0.6; r.shockU += 6; popLossAge(r, 0.0005, 0.8); } },
     ] },
   { id: "famine", scope: "region", cat: "Clima", title: "Siccità e carestia",
     p: (st, r) => r.climate >= 60 && r.wealth < 60 ? 0.035 * Math.max(0, st.g.temp + st.g.geoOff - 1) * (1 - r.m.famine) : 0,
@@ -2057,7 +2201,7 @@ const EVENTS = [
     choices: [
       { label: "Quarantene e vaccino rapido", cost: 8, out: "Epidemia fermata", fx: () => {} },
       { label: "Solo quarantene", cost: 4, out: "Economia ferma per mesi", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockG -= 0.6; r.shockU += 4; }) },
-      { label: "Non fare nulla", cost: 0, out: "Vittime in tutte le regioni", fx: (st, r, gm) => { const k = 1 - gmPmit(st); ctrlRegions(st).forEach((r) => { popLoss(r, 1 - 0.005 * k); r.shockU += 8 * k; r.shockG -= 1 * k; }); } },
+      { label: "Non fare nulla", cost: 0, out: "Vittime in tutte le regioni, soprattutto tra gli anziani", fx: (st, r, gm) => { const k = 1 - gmPmit(st); ctrlRegions(st).forEach((r) => { popLossAge(r, 0.005 * k, 0.85); r.shockU += 8 * k; r.shockG -= 1 * k; }); } },
     ] },
   { id: "labLeak", scope: "global", cat: "Salute", title: "Fuga da un laboratorio",
     p: (st) => { const gap = st.g.biotech - st.g.bioSafety; return gap > 15 ? 0.08 * (gap - 15) / 20 : 0; },
@@ -2069,11 +2213,12 @@ const EVENTS = [
     ] },
   { id: "pandemic", scope: "global", cat: "Salute", title: "Pandemia ingegnerizzata",
     p: (st) => (st.flags.pandemic ? 100 : 0),
-    text: () => "Un patogeno costruito in laboratorio si diffonde in tutte le regioni. Letalità e contagiosità non hanno precedenti.",
+    // a differenza delle epidemie naturali colpisce anche i giovani adulti, come l'influenza del 1918: più danni all'economia
+    text: (st) => "Un patogeno costruito in laboratorio si diffonde in tutte le regioni. Letalità e contagiosità non hanno precedenti e, a differenza dei virus naturali, colpisce anche i giovani: solo una vittima su quattro ha più di 65 anni." + (gmPmit(st) + bioCover(st) > 0.8 ? " Vaccini rapidi e controlli sui laboratori riducono i danni." : ""),
     choices: [
-      { label: "Mobilitazione totale", cost: 12, out: "L'umanità sopravvive, con perdite", fx: (st) => { st.flags.pandemic = false; ctrlRegions(st).forEach((r) => { popLoss(r, 0.99); r.shockU += 8; }); } },
-      { label: "Risposta parziale", cost: 6, out: "Perdite gravi; rischio di estinzione", fx: (st) => { st.flags.pandemic = false; ctrlRegions(st).forEach((r) => { popLoss(r, 0.97); r.shockU += 15; r.shockG -= 2; }); if (rand() < 0.15 * (1 - gmPmit(st))) gameOver(st, "pandemia"); } },
-      { label: "Non fare nulla", cost: 0, out: "Probabile collasso della civiltà", fx: (st) => { st.flags.pandemic = false; ctrlRegions(st).forEach((r) => { popLoss(r, 0.92); r.shockU += 25; r.shockG -= 3; }); if (rand() < 0.4 * (1 - gmPmit(st))) gameOver(st, "pandemia"); } },
+      { label: "Mobilitazione totale", cost: 12, out: "L'umanità sopravvive, con perdite", fx: (st) => { st.flags.pandemic = false; const k = pandK(st); ctrlRegions(st).forEach((r) => { popLossAge(r, 0.01 * k, 0.25); r.shockU += 8 * k; }); } },
+      { label: "Risposta parziale", cost: 6, out: "Perdite gravi; rischio di estinzione", fx: (st) => { st.flags.pandemic = false; const k = pandK(st); ctrlRegions(st).forEach((r) => { popLossAge(r, 0.03 * k, 0.25); r.shockU += 15 * k; r.shockG -= 2 * k; }); if (rand() < 0.15 * (1 - gmPmit(st))) gameOver(st, "pandemia"); } },
+      { label: "Non fare nulla", cost: 0, out: "Probabile collasso della civiltà", fx: (st) => { st.flags.pandemic = false; const k = pandK(st); ctrlRegions(st).forEach((r) => { popLossAge(r, 0.08 * k, 0.25); r.shockU += 25 * k; r.shockG -= 3 * k; }); if (rand() < 0.4 * (1 - gmPmit(st))) gameOver(st, "pandemia"); } },
     ] },
   { id: "aiIncident", scope: "global", cat: "Tecnologia", title: "Incidente di un sistema AI",
     p: (st) => (st.g.aiCap - st.g.aiSafety > 22 ? 0.15 : 0),
@@ -2128,7 +2273,7 @@ const EVENTS = [
     p: (st) => st.year >= 2030 && !built(st, "moon") && !building(st, "moon") && !st.flags.moonPartners ? 0.035 * st.g.tension / 45 : 0,
     text: () => "Due potenze annunciano programmi lunari rivali e rivendicano entrambe il ghiaccio dei crateri del polo sud. Ognuna accusa l'altra di voler militarizzare la Luna.",
     choices: [
-      { label: "Proporre una base comune", cost: 3, out: "Tensione in calo; la base lunare costerà 4 fondi in meno", fx: (st) => { st.g.tShock -= 4; st.flags.moonPartners = true; } },
+      { label: "Proporre una base comune", cost: 3, out: "Tensione in calo; la base lunare costerà meno", fx: (st) => { st.g.tShock -= 4; st.flags.moonPartners = true; } },
       { label: "Regole per le risorse lunari", cost: 1, out: "Tensione in lieve calo", fx: (st) => { st.g.tShock -= 1.5; } },
       { label: "Non fare nulla", cost: 0, out: "La rivalità alimenta la tensione", fx: (st) => { st.g.tShock += 6; } },
     ] },
@@ -2158,7 +2303,7 @@ const EVENTS = [
     choices: [
       { label: "Dati aperti a tutta l'umanità", cost: 0, out: "Orgoglio comune: polarizzazione in calo ovunque", fx: (st) => ctrlRegions(st).forEach((r) => (r.polar -= 3)) },
       { label: "Programma di ricerca dedicato", cost: 4, out: "Tecnologie derivate: più crescita per qualche anno", fx: (st) => ctrlRegions(st).forEach((r) => (r.shockG += 0.5)) },
-      { label: "Brevetti dell'Autorità", cost: -5, out: "Recuperi 5 fondi", fx: () => {} },
+      { label: "Brevetti dell'Autorità", cost: -5, out: "Entrate per l'Autorità", fx: () => {} },
     ] },
   // Eventi favorevoli
   /* ----- Eventi aggiunti il 18 ottobre 2026: più varietà di crisi, guerre e tensioni ----- */
@@ -2184,15 +2329,23 @@ const EVENTS = [
       { label: "Sanzioni a entrambe le parti", cost: 3, out: "Combattimenti più brevi, economie colpite", fx: (st, r) => { r.shockG -= 1.2; for (const n of RBY[r.id].nb) st.regions[n].shockG -= 0.4; } },
       { label: "Non fare nulla", cost: 0, out: "Vittime, profughi, la tensione mondiale sale", fx: (st, r) => { r.shockU += 15; r.shockG -= 2; popLoss(r, 0.997); st.g.tShock += 8; for (const n of RBY[r.id].nb) st.regions[n].shockU += 6; } },
     ] },
+  /* L'AI rende più facile organizzare e pianificare un attentato (decisione del 25 ottobre 2026): ci sono casi documentati di gruppi
+     armati e singoli che hanno usato assistenti AI per pianificare attacchi o cercare istruzioni sugli esplosivi (Europol TE-SAT 2026,
+     rapporti ONU e dei laboratori di AI) [Probabile]; il rischio cresce con l'AI più potente, con i modelli aperti a tutti e quando la
+     sicurezza dell'AI resta indietro [Ipotesi sulla misura]. Regole, allineamento e difesa informatica lo riducono. */
   { id: "terror", scope: "region", cat: "Sicurezza", title: "Attentato terroristico",
-    p: (st, r) => (r.polar > 60 ? 0.03 + (r.polar - 60) * 0.002 : 0),
-    text: (st, r) => pick([
+    p: (st, r) => (r.polar > 60 ? 0.03 + (r.polar - 60) * 0.002 : 0) + aiTerror(st),
+    onFire: (st, r) => { r.aiPlot = rand() < aiTerror(st) / ((r.polar > 60 ? 0.03 + (r.polar - 60) * 0.002 : 0) + aiTerror(st) || 1); },
+    text: (st, r) => (r.aiPlot ? pick([
+      `Un piccolo gruppo colpisce la rete dei trasporti di una grande città di ${r.name} con un attacco coordinato. Gli investigatori scoprono che l'intera operazione era stata pianificata con l'aiuto di un assistente AI.`,
+      `In ${r.name} droni carichi di esplosivo colpiscono un grande evento pubblico. I terroristi avevano usato un'intelligenza artificiale per scegliere il bersaglio e organizzare l'attacco.`,
+    ]) : pick([
       `Una serie di esplosioni colpisce le stazioni di una grande città di ${r.name}. Centinaia di vittime.`,
       `Un gruppo armato prende in ostaggio un teatro in ${r.name}. La paura si diffonde in tutta la regione.`,
-    ]),
+    ])),
     choices: [
-      { label: "Cooperazione tra le polizie e aiuto alle vittime", cost: 5, out: "Paura contenuta", fx: (st, r) => { r.shockU += 2; } },
-      { label: "Leggi d'emergenza", cost: 1, out: "Più controlli e più divisioni", fx: (st, r) => { r.polar += 6; st.axis = clamp(st.axis + 5, -100, 100); } },
+      { label: "Cooperazione tra le polizie e aiuto alle vittime", cost: 5, out: "Paura contenuta", fx: (st, r) => { r.shockU += 3; if (r.aiPlot) st.g.aiSafety += 1; } },
+      { label: "Leggi d'emergenza", cost: 1, out: "Più controlli e più divisioni", fx: (st, r) => { r.shockU += 3; r.polar += 6; st.axis = clamp(st.axis + 5, -100, 100); } },
       { label: "Non fare nulla", cost: 0, out: "Paura, rabbia e divisioni", fx: (st, r) => { r.shockU += 10; r.polar += 8; } },
     ] },
   { id: "coup", scope: "region", cat: "Istituzioni", title: "Colpo di stato",
@@ -2390,7 +2543,7 @@ const EVENTS = [
     ] },
   { id: "pensionPoverty", scope: "region", cat: "Previdenza", title: "Pensionati in povertà",
     p: (st, r) => (pensPoverty(r) > 10 ? 0.2 : 0),
-    text: (st, r) => `In ${r.name} i lavoratori sono pochi per ogni pensionato: con l'adeguamento automatico le pensioni sono scese sotto il minimo per vivere. Ci sono ${Math.round(r.old / r.wrk * 100)} anziani ogni 100 lavoratori.`,
+    text: (st, r) => `In ${r.name} i lavoratori sono pochi per ogni pensionato e producono ancora troppo poco per mantenerli: con l'adeguamento automatico le pensioni sono scese sotto il minimo per vivere. Ci sono ${Math.round(r.old / r.wrk * 100)} anziani ogni 100 lavoratori.`,
     choices: [
       { label: "Integrare le pensioni minime", cost: 6, out: "La povertà degli anziani si dimezza per cinque anni", fx: (st, r) => { r.pensAid = st.year + 5; r.shockU -= 6; } },
       { label: "Sospendere l'adeguamento solo in questa regione", cost: 0, out: "Le pensioni risalgono; il peso delle pensioni e il debito della regione salgono", fx: (st, r) => { (r.off || (r.off = {})).pensionIndex = true; r.shockU -= 4; } },
@@ -2418,13 +2571,24 @@ const EVENTS = [
       { label: "Rinviare di due anni il prossimo aumento", cost: 0, out: "Un po' di respiro per le imprese, ma la transizione rallenta", fx: (st) => { const a = st.acts.carbonLaw; if (a) a.y0 = (a.y0 || a.y) + 2; ctrlRegions(st).forEach((r) => (r.shockG += 0.3)); } },
       { label: "Sospendere la legge", cost: 0, out: "La crescita riparte, ma le emissioni tornano a salire", fx: (st) => { revoke(st, "carbonLaw"); ctrlRegions(st).forEach((r) => (r.shockU -= 4)); } },
     ] },
+  // con un reddito per chi perde il lavoro le rivolte contro i robot diventano rare (decisione del 25 ottobre 2026)
   { id: "robotRiots", scope: "region", cat: "Società", title: "Rivolta contro i robot",
-    p: (st, r) => ((lvl(r, "robots") > 0 || lvl(r, "massRobots") > 0) && r.unemp > 12 ? 0.08 : 0),
-    text: (st, r) => `In ${r.name} folle di disoccupati assaltano magazzini e fabbriche automatiche e distruggono i robot.`,
+    p: (st, r) => ((lvl(r, "robots") > 0 || lvl(r, "massRobots") > 0) && r.unemp > 12 ? 0.08 * (1 - incomeSupport(r)) : 0),
+    text: (st, r) => `In ${r.name} folle di disoccupati assaltano magazzini e fabbriche automatiche e distruggono i robot.` + (incomeSupport(r) < 0.5 ? " Chi ha perso il lavoro non ha più un reddito." : ""),
     choices: [
       { label: "Fondo per chi ha perso il lavoro", cost: 10, out: "La rabbia si placa", fx: (st, r) => { r.shockU -= 6; } },
-      { label: "Tassa sui robot", cost: 0, out: "Meno rabbia, un po' meno crescita", fx: (st, r) => { r.shockU -= 3; r.shockG -= 0.8; } },
+      { label: "Tassa sui robot subito", cost: 0, out: "Meno rabbia e più entrate, un po' meno crescita", fx: (st, r) => { r.shockU -= 3; if (!built(st, "robotTax") && available(st, IBY.robotTax)) complete(st, IBY.robotTax); else r.shockG -= 0.3; } },
       { label: "Non fare nulla", cost: 0, out: "Disordini e polarizzazione", fx: (st, r) => { r.shockU += 15; r.polar += 6; } },
+    ] },
+  { id: "teacherStrike", scope: "region", cat: "Società", title: "Sciopero degli insegnanti",
+    p: (st, r) => { const a = st.acts.teacherEval; return a && a.n > 0 && lvl(r, "teacherEval") > 0 ? (st.year - (a.y0 || a.y) < 6 ? 0.06 : 0.015) : 0; },
+    text: (st, r) => pick([
+      `In ${r.name} gli insegnanti scioperano contro le valutazioni pubbliche: dicono che i punteggi sono ingiusti e mettono alla gogna chi lavora nelle scuole più difficili.`,
+      `I sindacati della scuola di ${r.name} bloccano gli scrutini: chiedono di abolire le classifiche degli insegnanti pubblicate online.`,
+    ]),
+    choices: [
+      { label: "Valutazioni riservate, bonus confermati", cost: 2, out: "Lo sciopero finisce; l'effetto sulla scuola resta quasi intero", fx: (st, r) => { r.shockU -= 3; r.polar -= 1; } },
+      { label: "Tenere duro", cost: 0, out: "Settimane di scuole chiuse: malcontento e divisioni", fx: (st, r) => { r.shockU += 6; r.polar += 3; } },
     ] },
   { id: "batteries", scope: "global", cat: "Energia", title: "Svolta nelle batterie", good: true, once: true,
     p: (st) => st.year >= 2030 && built(st, "renew") ? 0.05 : 0,
@@ -2439,7 +2603,7 @@ const EVENTS = [
     text: () => "Nuove rotte e accordi commerciali fanno crescere gli scambi oltre le attese. Le entrate fiscali delle regioni aumentano.",
     choices: [
       { label: "Reinvestire nei servizi", cost: 0, out: "Malcontento in calo ovunque", fx: (st) => ctrlRegions(st).forEach((r) => (r.shockU -= 4)) },
-      { label: "Rafforzare le casse dell'Autorità", cost: -6, out: "Recuperi 6 fondi", fx: () => {} },
+      { label: "Rafforzare le casse dell'Autorità", cost: -6, out: "Entrate per l'Autorità", fx: () => {} },
       { label: "Ridurre i debiti", cost: 0, out: "Debito in calo in tutte le regioni", fx: (st) => ctrlRegions(st).forEach((r) => (r.debt -= 5)) },
     ] },
   { id: "uniVax", scope: "global", cat: "Salute", title: "Vaccino universale", good: true, once: true,
@@ -2447,13 +2611,23 @@ const EVENTS = [
     text: () => "Le piattaforme per vaccini rapidi hanno prodotto un vaccino efficace contro tutti i ceppi dell'influenza. Resta da decidere come distribuirlo.",
     choices: [
       { label: "Distribuzione gratuita ovunque", cost: 6, out: "Pandemie meno letali; fiducia in aumento", fx: (st) => { st.flags.uniVax = true; ctrlRegions(st).forEach((r) => (r.polar -= 2)); } },
-      { label: "Distribuzione a pagamento", cost: -3, out: "Recuperi 3 fondi; malumore nelle regioni povere", fx: (st) => { st.flags.uniVax = true; ctrlRegions(st).forEach((r) => { if (r.wealth < 40) r.shockU += 5; }); } },
+      { label: "Distribuzione a pagamento", cost: -3, out: "Entrate per l'Autorità; malumore nelle regioni povere", fx: (st) => { st.flags.uniVax = true; ctrlRegions(st).forEach((r) => { if (r.wealth < 40) r.shockU += 5; }); } },
       { label: "Rimandare", cost: 0, out: "Nessun effetto", fx: () => {} },
     ] },
 ];
 const EBY = Object.fromEntries(EVENTS.map((e) => [e.id, e]));
 function avgOf(st, key) { const c = ctrlRegions(st); return c.reduce((s, r) => s + r[key], 0) / Math.max(1, c.length); }
 function richestNb(st, r) { return RBY[r.id].nb.map((n) => st.regions[n]).filter((n) => n.controlled).sort((a, b) => b.wealth - a.wealth).slice(0, 1); }
+// quanto le misure di biosicurezza seguono la ricerca: 0,95 con regole per i laboratori, controllo del DNA sintetico e sorveglianza
+function bioCover(st) { return 0.45 * (built(st, "labRules") ? 1 : 0) + 0.35 * (built(st, "dnaControl") ? 1 : 0) + 0.1 * (built(st, "surveil") ? 1 : 0) + 0.05 * (built(st, "research") ? 1 : 0); }
+// gravità di una pandemia ingegnerizzata: meno vittime con vaccini rapidi e con le misure di biosicurezza
+const pandK = (st) => 1 - 0.4 * gmPmit(st) - 0.3 * bioCover(st);
+// probabilità in più di un attentato per l'AI: cresce con la sua potenza, con i modelli aperti e con il distacco dalla sicurezza
+function aiTerror(st) {
+  if (!st.L || !st.L.sys.includes("ai")) return 0;
+  const G = st.g, gap = G.aiCap - G.aiSafety;
+  return 0.03 * clamp((G.aiCap - 35) / 40, 0, 1) * clamp((gap + 15) / 40, 0.1, 1) * (built(st, "aiOpen") ? 1.5 : 1) * (built(st, "cyber") ? 0.8 : 1);
+}
 function gmPmit(st) { return clamp((st.acts.vaccines ? 0.6 : 0) + (st.acts.amr ? 0.15 : 0) + (st.acts.surveil ? 0.1 : 0) + (st.flags.uniVax ? 0.1 : 0), 0, 0.9); }
 
 function eventCost(st, ev, i) { return priced(st, ev.choices[i].cost); }
@@ -2512,21 +2686,26 @@ function honors(st) {
     sysOn(st, "space") && { id: "moon", name: "Ponte verso le stelle", desc: "Insediamento lunare permanente", ok: !!st.lunarCity },
   ].filter(Boolean);
 }
-/* ---------- riconquista di una regione in anarchia (decisione del 21 ottobre 2026) ----------
-   Una missione di pace e ricostruzione costosa, che dura due anni. Parte solo se almeno una regione vicina è sotto
-   controllo e abbastanza stabile da fare da base; riesce più spesso se le vicine sono stabili. Se fallisce si può ritentare. */
+/* ---------- riconquista di una regione in anarchia (decisione del 21 ottobre 2026, rivista il 25 ottobre 2026) ----------
+   Una missione di pace e ricostruzione costosa, che dura due anni, come nella realtà: prima si fermano i combattimenti, poi si
+   ricostruiscono le istituzioni. Le missioni di pace robuste riducono il rischio di tornare in guerra del 50-75%, dare lavoro agli
+   ex combattenti è decisivo, le elezioni subito sono pericolose; senza aiuto circa il 40% dei paesi ricade entro dieci anni
+   [Certo: Banca Mondiale 2011; Fortna 2008; Collier]. La missione parte da una regione sotto controllo con stabilità almeno 30:
+   meglio se vicina, ma si può partire anche da lontano, con meno probabilità di riuscire. Se riesce seguono cinque anni di
+   transizione con i caschi blu, che tengono basso il malcontento; se la regione non viene aiutata può ricadere. */
 const RECON_COST = 30, RECON_T = 2;
 function reconBase(st, r) { return RBY[r.id].nb.map((n) => st.regions[n]).filter((x) => x.controlled && x.stab >= 30); }
+const reconFar = (st) => ctrlRegions(st).filter((x) => x.stab >= 30);
 function reconChance(st, r) {
   const b = RBY[r.id].nb.map((n) => st.regions[n]).filter((x) => x.controlled);
   const avg = b.length ? b.reduce((a, x) => a + x.stab, 0) / b.length : 0;
-  return clamp(0.25 + avg / 100 - anarchyNear(st, r) * 0.1, 0.15, 0.9);
+  return clamp(0.25 + avg / 100 - anarchyNear(st, r) * 0.1 - (reconBase(st, r).length ? 0 : 0.1), 0.15, 0.9);
 }
 function reconWhy(st, rid) {
   const r = st.regions[rid];
   if (r.controlled) return "La regione è sotto controllo";
   if ((st.recon || []).some((q) => q.r === rid)) return "Missione in corso";
-  if (!reconBase(st, r).length) return "Serve una regione vicina sotto controllo con stabilità almeno 30";
+  if (!reconBase(st, r).length && !reconFar(st).length) return "Serve almeno una regione sotto controllo con stabilità almeno 30 da cui far partire la missione";
   return null;
 }
 function reconquer(st, rid) {
@@ -2583,6 +2762,10 @@ function tick(st) {
       if (st.flags.agingBreak) { m.life += 3; m.labor += 0.02; m.pensT += 3; }
       const gen = (st.flags.gen1 ? 1 : 0) + (st.flags.gen2 ? 1 : 0) + (st.flags.gen3 ? 1 : 0);
       if (gen) { m.life += [0, 1, 2.5, 4.5][gen]; m.g += 0.1 * gen; m.pensT += 1.5 * gen; }
+      // aerosol riflettenti: piogge monsoniche più scarse nelle regioni tropicali, un po' meno ozono ovunque [Probabile]
+      if (built(st, "geoeng")) { m.life -= 0.2; if (MONSOON.includes(r.id)) { m.unrestT += 2; m.g -= 0.1; } }
+      // dopo una missione di pace: cinque anni di transizione con i caschi blu, che tengono basso il malcontento
+      if (r.peaceUntil > st.year) m.unrestT -= 15 * clamp((r.peaceUntil - st.year - st.month / 12) / 5, 0, 1);
     }
     // misure nazionali lasciate fare: meno malcontento, più deficit
     if (r.controlled && r.local) for (const k in r.local) { const L = r.local[k]; m.debtF += L.def; m.unrestT -= L.u; m.fert += L.fert || 0; m.g += L.g || 0; m.unempT += L.unemp || 0; m.pensT += L.pens || 0; }
@@ -2596,17 +2779,23 @@ function tick(st) {
   gm.gAll += D0.g || 0; gm.co2Rem += D0.co2 || 0; gm.pmit += D0.bio || 0;
   for (const id in st.regions) { const m = st.regions[id].m; m.energyCost -= D0.energy || 0; m.famine += D0.famine || 0; m.labor += D0.labor || 0; }
   st.gm = gm;
+  st.robCap = robotCapture(st);
 
   // tecnologie e sicurezza globali
   G.aiCap += (1.8 + gm.aiRate) * dt;
   G.aiSafety = Math.min(G.aiSafety + (0.6 + gm.safeRate) * dt, G.aiCap + 15);
-  G.biotech += Math.max(0.2, 1.2 + gm.biotechRate) * dt;
-  G.bioSafety = Math.min(G.bioSafety + (0.3 + gm.bioRate) * dt, G.biotech + 15);
+  /* Biosicurezza (decisione del 25 ottobre 2026): regole per i laboratori, controllo del DNA sintetico e sorveglianza non solo
+     alzano la sicurezza ogni anno, ma la fanno crescere insieme alla ricerca: con tutte le misure attive la sicurezza tiene il passo
+     anche della biologia guidata dall'AI e il rischio resta molto basso. Prevenire funziona. */
+  const bioGrow = Math.max(0.2, 1.2 + gm.biotechRate);
+  G.biotech += bioGrow * dt;
+  G.bioSafety = Math.min(G.bioSafety + (0.3 + gm.bioRate + bioCover(st) * bioGrow) * dt, G.biotech + 15);
   G.tShock *= 1 - 0.3 * dt;
   const tT = G.tBase + avgPolar(st) * 0.35 + gm.tensionT + G.tShock;
   G.tension += (tT - G.tension) * 0.3 * dt;
   G.tension = clamp(G.tension, 5, 100);
-  G.geoOff += (gm.geo - G.geoOff) * (gm.geo < 0 ? 0.6 : 1.2) * dt; // quando si smette il caldo torna in fretta
+  // quando si smette gli aerosol cadono in un paio d'anni e il caldo nascosto torna in 10-15 anni (shock da interruzione) [Probabile]
+  G.geoOff += (gm.geo - G.geoOff) * (gm.geo < G.geoOff ? 0.6 : 0.12) * dt;
   st.tMax = Math.max(st.tMax || 0, G.temp + G.geoOff); // la temperatura più alta raggiunta: conta per il riconoscimento finale
 
   // moneta: il tasso a breve va verso quello scelto, l'inflazione verso il suo livello di equilibrio
@@ -2681,11 +2870,15 @@ function tick(st) {
     r.shockU *= 1 - 0.5 * dt;
     r.shockG *= 1 - 0.4 * dt;
 
-    // il peso delle pensioni dipende da quanti anziani ci sono per ogni lavoratore; i robot aiutano a pagarle
+    // il peso delle pensioni dipende da quanti anziani ci sono per ogni lavoratore
     // le riforme riducono il peso delle pensioni in proporzione agli anziani, fino a circa il 60% insieme (decisione del 24 ottobre 2026):
     // se gli anziani per lavoratore raddoppiano, il peso sale comunque [Probabile]
-    const pRed = Math.max(0, -m.pensT), pUp = Math.max(0, m.pensT);
-    const pensT = clamp(r.pensBase + r.old / (r.wrk * (1 + m.robot) * (1 + 0.6 * Math.min(1, m.mass))) * PENS_K * (1 - 0.62 * (1 - Math.exp(-pRed / 30))) + pUp, 0, 100);
+    /* Robot e pensioni (decisione del 25 ottobre 2026): i robot aiutano a pagare le pensioni solo se l'Autorità recupera le tasse sul
+       lavoro che sostituiscono (tassa sui robot, fondo sovrano); altrimenti i contributi spariscono e il peso delle pensioni sale.
+       Il reddito di base intermedio e pieno prende il posto di una parte delle pensioni pubbliche (absorb). */
+    const pRed = Math.max(0, -m.pensT), pUp = Math.max(0, m.pensT), cap = st.robCap || 0;
+    const relief = (1 + m.robot * (0.4 + 0.6 * cap)) * (1 + 0.6 * Math.min(1, m.mass) * cap) / (1 + 0.4 * (r.robShare || 0) * (1 - cap));
+    const pensT = clamp((r.pensBase + r.old / (r.wrk * relief) * PENS_K * (1 - 0.62 * (1 - Math.exp(-pRed / 30)))) * (1 - Math.min(0.75, m.absorb)) + pUp, 0, 100);
     r.pension += (pensT - r.pension) * 0.15 * dt;
 
     /* debito in % del prodotto: sale con il deficit (welfare che cresce, spese in più), scende se il prodotto cresce */
@@ -2750,9 +2943,9 @@ function tick(st) {
     if (q.t < RECON_T) continue;
     const r = st.regions[q.r];
     if (rand() < reconChance(st, r)) {
-      r.controlled = true; r.anarchy = 0; r.unrest = 78; r.shockU = 0; r.stab = 8;
+      r.controlled = true; r.anarchy = 0; r.unrest = 78; r.shockU = 0; r.stab = 8; r.peaceUntil = st.year + 5;
       logNews(st, `${r.name} torna sotto l'Autorità: la missione ha riportato l'ordine. La regione è ancora fragile.`, "done");
-      note(st, "good", "mediation", "Ordine ristabilito in " + r.name, "La missione di pace e ricostruzione ha funzionato: " + r.name + " torna a versare fondi e a seguire gli interventi. Il malcontento è ancora altissimo: va aiutata subito, o ricadrà.");
+      note(st, "good", "mediation", "Ordine ristabilito in " + r.name, "La missione di pace e ricostruzione ha funzionato: " + r.name + " torna a versare fondi e a seguire gli interventi. Per cinque anni i caschi blu restano e tengono basso il malcontento, ma la regione va aiutata subito: lavoro per chi ha combattuto, servizi, un reddito per chi non ce l'ha. Se le cause della crisi restano, ricadrà.");
     } else logNews(st, `La missione in ${r.name} è fallita: le milizie controllano ancora il territorio. Si può ritentare.`, "bad");
   }
   st.recon = (st.recon || []).filter((q) => q.t < RECON_T);
@@ -2781,7 +2974,10 @@ function tick(st) {
   // entrate e spese correnti
   // le tasse si pagano sulla parte emersa dell'economia: meno sommerso, più entrate, in proporzione [Probabile]
   // (con fatturazione elettronica e pagamenti tracciabili il buco dell'IVA si è circa dimezzato in pochi anni in alcuni paesi europei)
-  st.income = BASE_INCOME * D.inc * (st.L.inc || 1) * econMass(st, true) / st.I0 * (taxBase(st) / (st.TB0 || taxBase(st))) * (1 + gm.income) * (G.plLag || 1);
+  // tasse sul lavoro perse per i robot: la parte non recuperata con la tassa sui robot o con il fondo sovrano (decisione del 25 ottobre 2026)
+  { const rs = ctrlRegions(st), t = rs.reduce((a, r) => a + r.gdp, 0) || 1; st.robShareW = rs.reduce((a, r) => a + (r.robShare || 0) * r.gdp, 0) / t; }
+  st.robLoss = P.laborTax * st.robShareW * (1 - (st.robCap || 0));
+  st.income = BASE_INCOME * D.inc * (st.L.inc || 1) * econMass(st, true) / st.I0 * (taxBase(st) / (st.TB0 || taxBase(st))) * (1 + gm.income) * (G.plLag || 1) * (1 - st.robLoss);
   st.payoff = 0;
   for (const aid in st.acts) { const d = IBY[aid]; if (d.payoff && st.acts[aid].n > 0) st.payoff += payoffNow(d, st.acts[aid], st); }
   st.income += st.payoff;
@@ -2882,15 +3078,30 @@ function yearly(st) {
   yearlyNews(st);
   checkBankruptcy(st);
   if (st.over) return;
-  // ricerca sull'invecchiamento: ogni anno una piccola probabilità di una svolta (2%)
-  if (built(st, "agingResearch") && !st.flags.agingBreak && !st.sim && rand() < 0.02) {
+  /* ricerca sull'invecchiamento: i primi farmaci contro le malattie dell'età sono plausibili in 7-10 anni di ricerca intensa
+     [Probabile: studi TAME, rapamicina, GLP-1]. Prima del settimo anno quasi impossibile, poi l'8% l'anno (prima 2% fisso). */
+  const ar = st.acts.agingResearch;
+  if (built(st, "agingResearch") && !st.flags.agingBreak && !st.sim && rand() < (st.year - (ar.y0 || ar.y) >= 7 ? 0.08 : 0.005)) {
     st.flags.agingBreak = true;
     note(st, "discovery", "agingResearch", "Scoperta: un farmaco che rallenta l'invecchiamento", "Dopo anni di studi un farmaco dimostra di rallentare davvero l'invecchiamento: in media tre anni di vita in salute in più. Più persone lavorano più a lungo, ma ci saranno anche più anziani da sostenere.");
   }
-  /* Easter egg: 40 anni dopo la biologia guidata dall'AI, e solo dopo le sue tre grandi scoperte, ogni anno una probabilità
-     rara (4%) della cura per la vecchiaia. Ci arriva solo chi, pur potendo vincere, tiene apposta il mondo sotto l'obiettivo. */
+  /* La cura per la vecchiaia (vittoria speciale). Corretto il 25 ottobre 2026: prima arrivava solo con il 4% l'anno, dopo 40 anni,
+     e quasi nessuno ci riusciva prima della vittoria normale. Ora servono: biologia guidata dall'AI attiva da almeno 40 anni, le sue
+     tre grandi scoperte e la ricerca sull'invecchiamento attiva; poi arriva entro pochi anni (25% l'anno). Allungare la vita sana di
+     decenni richiede 40-80 anni di ricerca intensa anche con l'AI [Ipotesi]. Un avviso dice quando manca poco. */
   const ab = st.acts.aiBio;
-  if (ab && ab.n > 0 && st.flags.gen3 && st.year - (ab.y0 || ab.y) >= 40 && !st.sim && rand() < 0.04) { gameOver(st, "immortale"); return; }
+  if (ab && ab.n > 0 && st.flags.gen3 && built(st, "agingResearch") && !st.sim) {
+    const yrs = st.year - (ab.y0 || ab.y);
+    if (yrs >= 35 && !st.flags.n_imm) { st.flags.n_imm = true; note(st, "discovery", "agingResearch", "La cura per la vecchiaia è vicina", "I laboratori guidati dall'AI riescono a ringiovanire tessuti e organi negli animali. Se la biologia guidata dall'AI e la ricerca sull'invecchiamento continuano, entro pochi anni potrebbe arrivare una terapia che ferma l'invecchiamento."); }
+    if (yrs >= 40 && rand() < 0.25) { gameOver(st, "immortale"); return; }
+  }
+  // disoccupazione di massa senza un reddito: un avviso chiaro prima che le regioni crollino (al massimo ogni dieci anni)
+  { const r = ctrlRegions(st).filter((x) => x.unemp > 18 && incomeSupport(x) < 0.6).sort((a, b) => b.unemp - a.unemp)[0];
+    if (r && st.year >= (st.flags.wUnemp || 0)) {
+      st.flags.wUnemp = st.year + 10;
+      note(st, "warn", "humanoid", "Disoccupazione di massa", `In ${r.name} la disoccupazione è al ${Math.round(r.unemp)}% e chi perde il lavoro resta senza reddito. Se continua a salire il malcontento farà crollare le regioni una dopo l'altra. Servono un reddito per chi resta senza lavoro (reddito di base, intermedio o pieno) e, se il lavoro lo fanno i robot, la tassa sui robot o il fondo sovrano per pagarlo.`);
+    }
+  }
   // i nati dell'anno entrano nella storia: lavoreranno fra 18 anni
   for (const id in st.regions) { const r = st.regions[id]; r.bh.shift(); r.bh.push(r.bCur); r.bCur = 0; }
   (st.hist || (st.hist = [])).push(histRow(st));
@@ -2957,6 +3168,43 @@ function histRow(st) {
   return row;
 }
 
+/* ---------- conti dell'Autorità (decisione del 25 ottobre 2026) ----------
+   Da dove vengono le entrate e dove vanno i soldi: serve al riquadro che si apre toccando il saldo, per capire dove tagliare. */
+function incomeParts(st) {
+  const gmI = st.gm ? st.gm.income : 0, loss = st.robLoss || 0, pay = st.payoff || 0;
+  const raw = (st.income - pay) / Math.max(0.05, 1 - loss) / (1 + gmI); // contributi degli stati, senza tasse in più né perdite
+  return { raw, gmI, loss, pay };
+}
+function budget(st) {
+  const { raw, loss, pay } = incomeParts(st), inc = [], out = [];
+  inc.push({ name: "Contributi degli stati", v: raw });
+  for (const id in st.acts) {
+    const d = IBY[id], a = st.acts[id]; if (!a || a.n <= 0) continue;
+    const t = G0(), k = rampK(d, a, st);
+    if (d.gfx) d.gfx(st, t, k);
+    if (d.geff) applyEff(d.geff, GEFF_KEY, t, k);
+    if (t.income > 0.0005) inc.push({ name: d.name, v: raw * t.income * (1 - loss), id });
+    const u = upkeepOf(st, d);
+    if (u > 0.005) out.push({ name: d.name, v: u, id }); else if (u < -0.005) inc.push({ name: "Risparmio: " + d.name, v: -u, id, save: true });
+  }
+  if (loss > 0.001) inc.push({ name: "Tasse sul lavoro perse per i robot", v: -raw * (1 + (st.gm ? st.gm.income : 0)) * loss, loss: true });
+  if (pay > 0.005) inc.push({ name: "Ritorni dei programmi spaziali", v: pay });
+  for (const p of st.prog) { const d = IBY[p.id]; if (d.buildUpkeep) out.push({ name: d.name + " (cantiere)", v: priced(st, d.buildUpkeep), id: d.id }); }
+  if ((st.interest || 0) > 0.005) out.push({ name: "Interessi sul debito dell'Autorità", v: st.interest });
+  out.sort((a, b) => b.v - a.v); inc.sort((a, b) => b.v - a.v);
+  return { inc, out };
+}
+// entrate in più all'anno a regime se si avvia un intervento che le aumenta (tasse, robot, contributi)
+function incomeGainOf(st, d) {
+  if (built(st, d.id)) return 0;
+  const { raw, loss } = incomeParts(st), t = G0();
+  if (d.gfx) d.gfx({ ...st, acts: { ...st.acts, [d.id]: { n: 1, y: st.year, y0: st.year } } }, t, 1);
+  if (d.geff) applyEff(d.geff, GEFF_KEY, t, 1);
+  let g = raw * Math.max(0, t.income) * (1 - loss);
+  if (d.id === "robotTax" || d.id === "sovFund") { const c0 = st.robCap || 0, c1 = Math.min(1, c0 + (d.id === "robotTax" ? 0.6 : 0.4)); g += raw * (1 + (st.gm ? st.gm.income : 0)) * P.laborTax * (st.robShareW || 0) * (c1 - c0); }
+  return g;
+}
+
 /* ---------- consigli: quale intervento aiuterebbe di più una regione ----------
    Per ogni intervento possibile si copia il mondo, lo si attiva subito e si simulano alcuni anni
    senza eventi né catastrofi (otto anni, così si vedono anche gli effetti che si esauriscono), confrontando la stabilità della regione con quella senza intervento. */
@@ -3019,7 +3267,7 @@ function loadState(txt) {
 }
 
 if (typeof module !== "undefined") module.exports = {
-  P, PROMISES, pensPoverty, WAGE, wageIdx, SHADOW0, taxBase, shadowW, OLD_LEVEL, DISCOVERIES, evTitle, RPROF, priced, eventCost, authRate, maxSurplus, bankPreview, co2Gross, worldBirths, clampRate, snowball, regionRate, co2Gt, GDP_2026, CO2_2026, DIFF, LEVELS, LBY, GOVS, GBY, sysOn, REGIONS, RBY, INTERVENTIONS, IBY, CATS, EVENTS, EBY, ENDINGS, STABLE_YEARS, RISK_LABELS,
+  P, PROMISES, pensPoverty, polarCauses, budget, incomeGainOf, amnestyYield, incomeSupport, robotCapture, popLossAge, bioCover, aiTerror, privatePens, WAGE, wageIdx, SHADOW0, taxBase, shadowW, OLD_LEVEL, DISCOVERIES, evTitle, RPROF, priced, eventCost, authRate, maxSurplus, bankPreview, co2Gross, worldBirths, clampRate, snowball, regionRate, co2Gt, GDP_2026, CO2_2026, DIFF, LEVELS, LBY, GOVS, GBY, sysOn, REGIONS, RBY, INTERVENTIONS, IBY, CATS, EVENTS, EBY, ENDINGS, STABLE_YEARS, RISK_LABELS,
   reconquer, reconWhy, reconChance, RECON_COST, RECON_T, LOW_STAB, LOW_YEARS, ANOMALY,
   newGame, tick, EV_WARN, advise, preview, ctrlShare, available, anarchyNear, saveState, loadState, honors, endingText, costOf, upkeepOf, built, startIntervention, payoffNow, stabParts, stabNow, worldStab, unrestCauses, STAB_PARTS, WIN_WORLD, canStart, parentOk, TREE, resolveEvent, revoke, stability, riskBoard, risks, emissions, worldPop, lvl, setSeed, rand,
 };
@@ -3139,6 +3387,14 @@ const GLYPH = {
   school: `<path d="M1.4 9V4.6L5 2.2l3.6 2.4V9zM4 9V6.6h2V9M5 2.2V.8l1.4.5L5 1.6"/>`,
   microscope: `<path d="M3.6 1.2l2.2 1.3-1.6 2.8-2.2-1.3zM4.9 4.8 6 7M2 9.2h6M6.6 9.2a3 3 0 0 0-1-4.6"/>`,
   dollarCut: `<path d="M6.6 2.6C6.2 2 5.6 1.8 5 1.8c-1 0-1.8.6-1.8 1.4 0 1.8 3.6 1.2 3.6 3.2 0 .8-.8 1.4-1.8 1.4-.7 0-1.3-.3-1.7-.9M5 .8v1M5 7.8v1.2"/>`,
+  // interventi aggiunti il 25 ottobre 2026
+  robotCoin: `<rect x="1.2" y="2.4" width="4.4" height="3.6" rx=".6"/><path d="M3.4 1v1.4M2.4 4h.1M4.4 4h.1M2 6v2.6M4.8 6v2.6"/><circle cx="7.6" cy="6.6" r="1.6"/><path d="M7.6 5.9v1.4"/>`,
+  pie: `<path d="M5 1.4a3.6 3.6 0 1 0 3.6 3.6H5z"/><path d="M6.2.6a3.6 3.6 0 0 1 3.2 3.2H6.2z" ${F}/>`,
+  coinHalf: `<circle cx="5" cy="5" r="3.6"/><path d="M5 1.4v7.2" /><path d="M5 1.4a3.6 3.6 0 0 1 0 7.2z" ${F}/>`,
+  babyCoin: `<circle cx="3.6" cy="3" r="1.4"/><path d="M1.6 8.6V7a2 2 0 0 1 4 0v1.6"/><circle cx="7.6" cy="6.4" r="1.6"/><path d="M7.6 5.7v1.4"/>`,
+  teacherStar: `<path d="M1.2 8.8h4.6M2 8.8V4.4h3V8.8"/><path d="M7.4 1l.6 1.3 1.4.2-1 1 .2 1.4-1.2-.7-1.2.7.2-1.4-1-1 1.4-.2z" ${F}/>`,
+  roofSun: `<path d="M1 6.4 5 3.2 9 6.4M2.2 5.5V9h5.6V5.5"/><path d="M3.4 6.4l3.2-1M3.4 7.6l3.2-1"/><circle cx="8.2" cy="1.8" r=".9"/>`,
+  jet: `<path d="M1 5.6h3l2.6-3.8h1L6.4 5.6h1.8l.9-1h.8l-.5 1.6.5 1.6h-.8l-.9-1H6.4l1.2 3.8h-1L4 6.8H1z"/>`,
 };
 const ICON_OF = {
   fossilSub: "fuel", carbonTax: "smoke", renew: "sun", grid: "battery", efficiency: "bulb", nuclear: "i-nucleare", nucInfo: "megaphone", carbonLaw: "treeTech", cashless: "card", pensionIndex: "seesaw", smr: "tower", nucAgency: "shieldAtom", nucPrivate: "contract", fusionResearch: "torus", fusion: "fusion", priceCap: "plug", evCars: "car",
@@ -3148,6 +3404,7 @@ const ICON_OF = {
   transparency: "eye", anticorr: "gavel", assemblies: "people", disinfo: "newspaper", police: "badge", education: "school", socialHousing: "buildings", civicService: "hands",
   adapt: "waves", agri: "wheat", reforest: "tree", dac: "fan", geoeng: "cloud", foodReserve: "silo", forestProtect: "pine",
   surveil: "virus", vaccines: "syringe", labRules: "flask", amr: "pill", arms: "missile", fissile: "radiation", mediation: "dove", cyber: "chipShield", massSurveil: "cctv",
+  robotTax: "robotCoin", sovFund: "pie", ubiMid: "coinHalf", childIncome: "babyCoin", teacherEval: "teacherStar", rooftop: "roofSun", stratoPlanes: "jet",
   massRobots: "humanoid", ubiPlus: "coinPlus", screening: "baby", rareTherapy: "syringe", somaticEdit: "dna", gmCrops: "wheat", agingResearch: "clock", embryoEdit: "stroller", geneDrive: "virus", dnaControl: "flask", aiBio: "chipShield", aiCap: "i-ai", aiOpen: "puzzle", aiPublic: "gear", align: "target", align2: "magnifier", align3: "cctv", aiReg: "scale", launch: "i-spazio", orbital: "satellite", pdef: "comet", moon: "moon", lunarSci: "telescope", lunarIce: "drop", lunarCity: "dome", lunarMining: "pick",
 };
 const iconHref = (id) => { const k = ICON_OF[id] || "hexdot"; return k.startsWith("i-") ? "#" + k : "#g-" + k; };
@@ -3161,6 +3418,7 @@ const iconHref = (id) => { const k = ICON_OF[id] || "hexdot"; return k.startsWit
 const SHORT = {
   fossilSub: "Sussidi fossili", carbonTax: "Tassa carbonio", efficiency: "Efficienza", renew: "Solare ed eolico", grid: "Reti e accumuli",
   smr: "Reattori modulari", fusion: "Fusione", nucInfo: "Informazione",
+  robotTax: "Tassa robot", sovFund: "Fondo sovrano", ubiMid: "Reddito intermedio", childIncome: "Reddito ai figli", teacherEval: "Valutare docenti", rooftop: "Pannelli sui tetti", stratoPlanes: "Aerei stratosferici",
   invest: "Investimenti", automation: "Automazione", retrain: "Formazione", ubi: "Reddito di base", austerity: "Tagli alla spesa", debtRestr: "Taglio del debito",
   retire: "Età pensionabile", healthyAging: "Invecchiamento sano", contrib: "Contributi", family: "Servizi famiglia", natality: "Bonus figli", migration: "Immigrazione regolata", integration: "Integrazione",
   transparency: "Trasparenza", anticorr: "Anticorruzione", assemblies: "Assemblee", disinfo: "Disinformazione", police: "Ordine pubblico", develop: "Aiuti allo sviluppo",
@@ -3529,7 +3787,23 @@ function startGame() {
     <ul class="goals"><li><span>La stabilità mondiale scende a zero, oppure resta sotto 15 per 5 anni di fila</span><span></span></li>
       <li><span>Gli interessi sul debito dell'Autorità superano per tre anni tutto ciò che potrebbe incassare: è la bancarotta</span><span></span></li></ul>`;
   showPhase("brief");
+  fitBrief();
 }
+/* la missione deve stare tutta in una pagina (richiesta del 25 ottobre 2026): si rimpicciolisce il testo e, se serve, si passa a
+   due colonne, finché non c'è più niente da scorrere */
+function fitBrief() {
+  const b = $("briefBody"), box = b && b.parentElement; if (!box || !box.clientHeight) return;
+  const over = () => box.scrollHeight > box.clientHeight + 1;
+  b.classList.remove("two");
+  for (const two of [false, true]) {
+    b.classList.toggle("two", two);
+    let k = 1; b.style.setProperty("--k", k);
+    while (k > 0.7 && over()) { k -= 0.04; b.style.setProperty("--k", k.toFixed(2)); }
+    if (!over()) return;
+  }
+  let k = 0.7; while (k > 0.5 && over()) { k -= 0.03; b.style.setProperty("--k", k.toFixed(2)); }
+}
+window.addEventListener("resize", () => { if (phase === "brief") fitBrief(); });
 function beginPlay() { zoomMap(null); showPhase("play"); refresh(); save(); rotateHint(); renderCoach(); }
 function rotateHint() {
   // il gioco girato dal codice funziona, ma solo con il telefono davvero in orizzontale spariscono ora e batteria
@@ -3607,11 +3881,31 @@ const GLOSS = {
   co2: { t: "Emissioni nette di CO₂", x: "Le tonnellate di CO₂ messe nell'aria in un anno, meno quelle catturate da alberi e impianti. Finché sono sopra zero la temperatura sale; comincia a scendere solo quando vanno sotto zero." },
   ecost: { t: "Costo dell'energia", x: "Il prezzo medio dell'energia per famiglie e imprese (2026 = 100). Scende con nucleare, rinnovabili e fonti diverse; sale con le crisi del petrolio. L'energia economica rende le imprese più produttive." },
   authDebt: { t: "Debito dell'Autorità", x: "Se spendi più dei fondi che hai, l'Autorità si indebita e paga interessi ogni anno. Ogni 50 fondi di debito il tasso sale di un punto. Perdi solo se per tre anni gli interessi superano tutto ciò che potresti incassare anche tagliando ogni spesa." },
-  saldo: { t: "Saldo annuo", x: "È quanto crescono i fondi dell'Autorità in un anno: le entrate, meno i costi annui dei programmi attivi, meno gli interessi se l'Autorità è in debito. Cambia nel tempo: le entrate seguono l'economia e i prezzi, i costi dei programmi seguono i prezzi e, per quelli fatti di lavoro umano, gli stipendi." },
+  saldo: { t: "Saldo annuo", x: "È quanto crescono i fondi dell'Autorità in un anno: le entrate, meno i costi annui dei programmi attivi, meno gli interessi se l'Autorità è in debito. Cambia nel tempo: le entrate seguono l'economia e i prezzi, i costi dei programmi seguono i prezzi e, per quelli fatti di lavoro umano, gli stipendi. Tocca il saldo per vedere entrate e spese una per una." },
+  funds: { t: "Fondi", x: "Un fondo vale circa 10 miliardi di dollari del 2026: all'inizio gli stati versano all'Autorità circa 17 fondi l'anno, lo 0,15% del PIL mondiale. Per le grandi politiche l'Autorità paga la sua quota, il resto lo pagano stati e privati. Con l'inflazione tutto costa un po' di più ogni anno, e anche le entrate crescono." },
   shadow: { t: "Economia sommersa", x: "È la parte dell'economia che sfugge al fisco: lavoro nero, vendite senza scontrino, redditi nascosti. Va dall'8% del PIL in Nord America a quasi il 40% in Africa. Le tasse si pagano solo sulla parte emersa: ridurre il sommerso fa salire le entrate senza alzare le tasse." },
   wellbeing: { t: "Benessere della popolazione", x: "Riassume malcontento, divisioni nella società e reddito. Se scende crescono proteste e scioperi, fino al rischio che una regione cada nell'anarchia." },
   temp: { t: "Temperatura", x: "Quanto il pianeta è più caldo rispetto a prima dell'industria. Più sale, più ondate di calore, siccità e alluvioni, soprattutto nelle regioni più esposte." },
 };
+/* Conti dell'Autorità: toccando il saldo (o i fondi sulla mappa) si vedono entrate e spese, dalla più grande alla più piccola;
+   toccando una spesa si apre l'intervento, per smettere di finanziarlo (richiesta del 25 ottobre 2026). */
+function showBudget() {
+  const b = budget(st), box = $("infoBox"), totIn = b.inc.reduce((a, x) => a + x.v, 0), totOut = b.out.reduce((a, x) => a + x.v, 0);
+  const pc = (v, t) => (t > 0 ? `<i>${Math.round(v / t * 100)}%</i>` : "");
+  const row = (x, t, neg) => `<div class="row"${x.id ? ` data-go="${x.id}"` : ""}><span>${esc(x.name)}${x.id ? " ›" : ""}</span><b style="${x.v < 0 ? "color:#f0a597" : ""}">${sign(neg ? -x.v : x.v)}${pc(Math.abs(x.v), t)}</b></div>`;
+  box.innerHTML = `<div class="card budget"><button type="button" class="x evx" aria-label="Chiudi" onclick="this.closest('#infoBox').hidden=true">×</button><h2>Entrate e spese dell'Autorità</h2>
+    <div class="cols"><div><h4>Entrate</h4>${b.inc.map((x) => row(x, totIn)).join("")}<div class="row tot"><span>Totale</span><b>${sign(totIn)}</b></div></div>
+    <div><h4>Spese</h4>${b.out.length ? b.out.map((x) => row(x, totOut, true)).join("") : `<div class="row"><span>Nessuna spesa annua</span><b></b></div>`}<div class="row tot"><span>Totale</span><b>${sign(-totOut)}</b></div></div></div>
+    <p>Saldo: <b style="color:${totIn - totOut < 0 ? "#f0a597" : "var(--accent)"}">${sign(totIn - totOut)}/anno</b>. Valori in fondi l'anno a prezzi di oggi (un fondo vale circa 10 miliardi di dollari del 2026). Tocca una spesa per aprire l'intervento e, se serve, smettere di finanziarlo.</p></div>`;
+  box.hidden = false;
+  for (const r of box.querySelectorAll("[data-go]")) r.onclick = () => { const d = IBY[r.dataset.go]; box.hidden = true; actTab = d.cat; actNode = d.id; if (openScreen === "acts") renderActs(); else open("acts"); };
+}
+document.addEventListener("click", (e) => {
+  const t = e.target.closest && e.target.closest("[data-budget]");
+  if (!t || e.target.closest("[data-info]") || !st) return;
+  e.stopPropagation(); showBudget();
+});
+document.addEventListener("keydown", (e) => { if ((e.key === "Enter" || e.key === " ") && e.target.closest && e.target.closest("[data-budget]") && st) { e.preventDefault(); showBudget(); } });
 const infoBtn = (k) => (GLOSS[k] ? `<span class="info" role="button" tabindex="0" data-info="${k}" aria-label="Che cos'è: ${GLOSS[k].t}">i</span>` : "");
 document.addEventListener("click", (e) => {
   const b = e.target.closest && e.target.closest("[data-info]");
@@ -3742,7 +4036,7 @@ function renderActs() {
   const ws = worldStab(st), tint = heat(clamp((80 - ws) / 60, 0, 1));
   root.innerHTML = `<div class="head"><button type="button" class="back" data-close aria-label="Torna alla mappa">‹</button>${tabs}${tut ? `<div id="coachHead"></div>` : ""}</div>
     <div class="acts${actTab === "sintesi" ? " wide" : ""}"><div class="treebox${actTab === "sintesi" ? " sum" : ""}" style="--tint:${tint}">${actTab === "sintesi" ? `<div class="sumlist" id="sumList"></div>` : `<div class="treewrap" id="treewrap"><svg id="tree" preserveAspectRatio="xMidYMid meet"></svg></div>`}</div><div class="detail" id="detail"></div></div>
-    <div class="foot"><span>Fondi <b style="${st.funds < 0 ? "color:#f0a597" : ""}">${fmt(st.funds, 1)}</b> <em class="delta" id="dFunds"></em></span><span>Saldo${infoBtn("saldo")} <b style="${netYear() < 0 ? "color:#f0a597" : ""}">${sign(netYear())}/anno</b> <em class="delta" id="dNet"></em></span></div>`;
+    <div class="foot"><span>Fondi${infoBtn("funds")} <b style="${st.funds < 0 ? "color:#f0a597" : ""}">${fmt(st.funds, 1)}</b> <em class="delta" id="dFunds"></em></span><span class="budgetbtn" role="button" tabindex="0" data-budget aria-label="Entrate e spese dell'Autorità">Saldo${infoBtn("saldo")} <b style="${netYear() < 0 ? "color:#f0a597" : ""}">${sign(netYear())}/anno</b> <em class="delta" id="dNet"></em></span></div>`;
   wireClose(root);
   for (const b of root.querySelectorAll("[data-c]")) b.onclick = () => { actTab = b.dataset.c; actNode = null; renderActs(); };
   if (actTab === "sintesi") { renderSummary(); return; }
@@ -3792,7 +4086,7 @@ function renderDetail() {
   const c0 = costOf(st, d), up = upkeepOf(st, d);
   if (d.payoff) {
     const on = s.a && s.a.n > 0, now = on ? payoffNow(d, s.a, st) : 0;
-    const max = d.payoff.amount * (d.id === "lunarMining" ? st.mineYield || 1 : 1);
+    const max = d.payoff.amount * (d.id === "lunarMining" ? st.mineYield || 1 : 1) * (st.g.pl || 1); // a prezzi di oggi
     state += (state ? " · " : "") + (d.id === "lunarMining" && !on ? "Entrate incerte" : `Entrate per l'Autorità fino a +${fmt(max, 1)} fondi l'anno`) + (on ? ` (ora +${fmt(now, 1)})` : "");
     if (d.id === "moon" && st.moonHalt > st.year) state += " · Base ferma dopo l'incidente fino al " + st.moonHalt;
   }
@@ -3803,9 +4097,13 @@ function renderDetail() {
   const saved = done ? 0 : (d.saves || []).filter((k) => built(st, k)).reduce((t, k) => t + upkeepOf(st, IBY[k]), 0);
   // interventi contro l'evasione: entrate in più a regime, stimate dal calo dell'economia sommersa
   const shadowPts = d.eff && d.eff.shadow < 0 ? -d.eff.shadow : 0, tb = taxBase(st);
-  const evGain = done || !shadowPts ? 0 : st.income * shadowPts / 100 / tb;
+  // tasse e misure che aumentano le entrate (patrimoniale, tassa sui robot, contributi del reddito di base…): entrate in più a regime
+  const evGain = done ? 0 : (shadowPts ? st.income * shadowPts / 100 / tb : 0) + incomeGainOf(st, d);
   const dF = done || (s.prog.length && !d.stack) ? 0 : c0, dN = done ? 0 : -(Math.max(0, up) + (d.buildUpkeep || 0)) + (up < 0 ? -up : 0) + saved + evGain;
-  $("dFunds").textContent = dF && !s.why ? "−" + fmt(dF, dF % 1 ? 1 : 0) : "";
+  // il condono incassa subito: quanto, con il sommerso e le entrate di oggi
+  const oneOff = d.id === "amnesty" ? amnestyYield(st) : 0;
+  $("dFunds").textContent = oneOff && !s.why ? "+" + fmt(oneOff, 1) + " subito" : dF && !s.why ? "−" + fmt(dF, dF % 1 ? 1 : 0) : "";
+  $("dFunds").classList.toggle("up", !!oneOff);
   $("dNet").textContent = dN && !s.why ? sign(dN) : ""; $("dNet").classList.toggle("up", dN > 0);
   const slow = d.ramp && d.ramp >= 5 ? (d.ramp >= 15 ? " L'effetto pieno arriva dopo molti anni." : " L'effetto pieno arriva in alcuni anni.") : "";
   const buyLabel = done ? "Già attivo" : st.paused && st.paused[d.id] ? "Riattiva" : (active && d.stack) ? "Costruisci ancora" : s.prog.length && !d.stack ? "In corso" : st.funds - c0 < 0 ? "Avvia a debito" : "Avvia";
@@ -3813,7 +4111,9 @@ function renderDetail() {
   const showWhy = s.why && !done && s.why !== "In corso" && !s.why.startsWith("Richiede") && !s.why.startsWith("Disponibile");
   const canStop = active && !d.fixed && (d.upkeep || d.upkeepFn || d.revocable); // le strutture lunari non si smontano
   // nel piede: quanto cambierebbe il saldo annuo fermandolo, senza doverlo fermare
+  const incNow = canStop ? budget(st).inc.find((x) => x.id === d.id && !x.save) : null; // tasse attive: quanto si perde fermandole
   if (canStop && Math.abs(up) >= 0.05) { $("dNet").textContent = sign(up) + "/anno se lo fermi"; $("dNet").classList.toggle("up", up > 0); }
+  else if (incNow && incNow.v >= 0.05) { $("dNet").textContent = sign(-incNow.v) + "/anno se lo fermi"; $("dNet").classList.toggle("up", false); }
   const I = indsOn().filter((i) => i.tab === actTab && !(d.fam === "spazio" && i.id === "ai")); // lo spazio non c'entra con la sicurezza dell'AI
   if (d.bank) { renderBank(d, I); return; }
   $("detail").innerHTML = `<div class="scroll">
@@ -3904,7 +4204,7 @@ function reconHTML(r) {
   const why = reconWhy(st, r.id), q = (st.recon || []).find((x) => x.r === r.id), c = priced(st, RECON_COST);
   return `<p class="note" style="margin:0 0 6px">La regione è in anarchia: non esegue più gli ordini, non versa fondi e spinge verso il caos le regioni vicine.</p>
     <div class="advice"><span class="eyebrow">Missione di pace e ricostruzione</span>
-    <span class="gain">Truppe di pace, aiuti e un governo di transizione per ${RECON_T} anni. Probabilità di riuscita oggi: circa <em>${Math.round(reconChance(st, r) * 100)}%</em>, più alta se le regioni vicine sono stabili. Se fallisce si può ritentare.</span>
+    <span class="gain">Truppe di pace, lavoro per chi ha combattuto e un governo di transizione per ${RECON_T} anni, partendo da una regione stabile (meglio se vicina). Probabilità di riuscita oggi: circa <em>${Math.round(reconChance(st, r) * 100)}%</em>, più alta se le regioni vicine sono stabili. Se fallisce si può ritentare. Se riesce, per cinque anni i caschi blu tengono basso il malcontento: è il momento di risolvere quello che aveva fatto crollare la regione, o ricadrà.</span>
     ${q ? `<p class="why">Missione in corso: ${Math.floor(q.t * 12)} mesi su ${RECON_T * 12}.</p>` : `<button type="button" class="buy" id="bRecon" ${why ? "disabled" : ""}>${st.funds < c ? "Avvia a debito" : "Avvia"} – ${fmt(c, c % 1 ? 1 : 0)}</button>${why ? `<p class="why">${esc(why)}</p>` : ""}`}</div>`;
 }
 // misure nazionali lasciate fare e interventi sospesi solo in questa regione
@@ -3940,6 +4240,9 @@ function renderRegion() {
         <div class="parts">${parts.map((p) => p.id === "peace"
           ? `<button type="button" class="k kbtn" id="whyBtn" aria-expanded="${causesOpen}">${p.name}<small>Malcontento ${Math.round(r.unrest)} · ${causesOpen ? "nascondi le cause ▴" : "tocca per le cause ▾"}</small></button><span class="meter"><i style="width:${p.val.toFixed(0)}%;background:${heat(1 - p.val / 100)}"></i></span><span class="v">${Math.round(p.val)}</span>
              ${causesOpen ? `<ul class="causes" style="grid-column:1/-1">${causes.map((c) => `<li><span>${c.name}</span><span>+${Math.round(c.v)}</span></li>`).join("") || "<li><span>Nessuna causa rilevante</span><span></span></li>"}</ul>` : ""}`
+          : p.id === "cohesion"
+          ? `<button type="button" class="k kbtn" id="whyBtn2" aria-expanded="${causesOpen}">${p.name}<small>Polarizzazione ${Math.round(r.polar)} · ${causesOpen ? "nascondi le cause ▴" : "tocca per le cause ▾"}</small></button><span class="meter"><i style="width:${p.val.toFixed(0)}%;background:${heat(1 - p.val / 100)}"></i></span><span class="v">${Math.round(p.val)}</span>
+             ${causesOpen ? `<ul class="causes" style="grid-column:1/-1">${polarCauses(r, st).map((c) => `<li><span>${c.name}</span><span>${c.v >= 0 ? "+" : "−"}${Math.round(Math.abs(c.v))}</span></li>`).join("")}</ul>` : ""}`
           : `<span class="k">${p.name}<small>${p.hint}</small></span><span class="meter"><i style="width:${p.val.toFixed(0)}%;background:${heat(1 - p.val / 100)}"></i></span><span class="v">${Math.round(p.val)}</span>`).join("")}</div></section>
       <section class="sec"><h3>Cosa fare</h3>${advHTML}</section>
       <section class="sec"><h3>Popolazione ed economia</h3><div class="kv">
@@ -3956,6 +4259,7 @@ function renderRegion() {
     </div>`;
   wireClose(root);
   if ($("whyBtn")) $("whyBtn").onclick = () => { causesOpen = !causesOpen; renderRegion(); };
+  if ($("whyBtn2")) $("whyBtn2").onclick = () => { causesOpen = !causesOpen; renderRegion(); };
   for (const b of root.querySelectorAll("[data-unoff]")) b.onclick = () => { delete r.off[b.dataset.unoff]; save(); renderRegion(); };
   for (const b of root.querySelectorAll("[data-go]")) b.onclick = () => { actTab = IBY[b.dataset.go].cat; actNode = b.dataset.go; open("acts"); };
 }
