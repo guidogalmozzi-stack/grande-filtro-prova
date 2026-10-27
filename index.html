@@ -857,10 +857,12 @@ const GOVS = [
     pro: ["Più fiducia: polarizzazione più bassa", "Più innovazione: un po' più di crescita", "Trasparenza e assemblee a metà prezzo"],
     con: ["Decisioni lente: cantieri il 15% più lenti", "Niente ordine pubblico rafforzato né contrasto alla disinformazione"],
     m: { polarT: -2.5, g: 0.1 }, build: 0.75, ban: ["police", "disinfo"], cheap: ["transparency", "assemblies"], ev: { antiAuth: 0.6 } },
+  /* Stato sociale (rivisto il 27 ottobre 2026): la sanità universale c'è già dall'inizio e non si può togliere; niente pensioni
+     legate a stipendi e lavoratori. Per reggere la sanità gli stati versano un po' di più all'Autorità. */
   { id: "social", name: "Stato sociale", icon: "social", short: "Protezione per tutti, a caro prezzo",
-    pro: ["Malcontento più basso ovunque", "Reddito di base sempre disponibile, con spese di gestione più basse"],
-    con: ["Il debito cresce più in fretta", "Crescita più bassa", "Niente tagli alla spesa pubblica"],
-    m: { unrestT: -4, debtF: 0.4, g: -0.1 }, ban: ["austerity", "cutServices", "cutStaff"], grant: ["ubi"], cheapUp: { ubi: 0.6 } },
+    pro: ["Malcontento più basso ovunque", "Sanità universale già attiva dal primo giorno", "Reddito di base sempre disponibile, con spese di gestione più basse", "Tasse più alte: entrate un po' più alte"],
+    con: ["Il debito cresce più in fretta", "Crescita più bassa", "La sanità universale non si può togliere", "Niente tagli alla spesa pubblica né pensioni legate a stipendi e lavoratori"],
+    m: { unrestT: -4, debtF: 0.4, g: -0.1 }, ban: ["austerity", "cutServices", "cutStaff", "pensionIndex"], grant: ["ubi"], cheapUp: { ubi: 0.6, healthcare: 0.6 }, pre: ["healthcare"], lock: ["healthcare"], inc: 1.25 },
   { id: "market", name: "Libero mercato", icon: "market", short: "Crescita prima di tutto",
     pro: ["Crescita più alta", "Debito più basso", "Esclusivo: privatizzazioni per fare cassa"],
     con: ["Più disoccupazione", "Più disuguaglianza: polarizzazione più alta", "Niente reddito di base"],
@@ -869,6 +871,12 @@ const GOVS = [
     pro: ["Cantieri il 30% più rapidi", "Esclusivo: sorveglianza capillare, che rende le proteste molto più rare"],
     con: ["Le persone sono di base più scontente e meno autonome", "Meno innovazione: crescita più bassa", "Se il malcontento sale, le regioni crollano più in fretta", "Niente assemblee di cittadini"],
     m: { unrestT: 0.5, g: -0.15 }, build: 1.3, anarchy: 1.5, ban: ["assemblies"], own: ["massSurveil"], ev: { protests: 0.7 } },
+  /* Lavoro umano (nuovo governo, proposta del 27 ottobre 2026): niente macchine al posto delle persone. Crescita più lenta, ma
+     nessuna disoccupazione da automazione, nessuna tassa sul lavoro persa e un'AI che cresce più piano. */
+  { id: "human", name: "Lavoro umano", icon: "human", short: "Gli esseri umani al centro, niente macchine al loro posto",
+    pro: ["Nessuna disoccupazione causata dalle macchine: lavoro per tutti", "Le tasse sul lavoro non si perdono mai", "Pensioni più solide: più persone lavorano e versano i contributi", "L'AI cresce più lentamente: meno rischi"],
+    con: ["Niente automazione, robot né AI negli uffici pubblici", "Crescita più lenta (circa un quinto in meno)"],
+    m: { g: -0.3, unempT: -1, pensT: -3 }, ban: ["automation", "robots", "massRobots", "robotTax", "sovFund", "aiPublic"], aiRate: -0.6 },
   { id: "techno", name: "Tecnocrazia", icon: "techno", short: "Decidono gli esperti",
     pro: ["Tecnologie di frontiera il 25% più rapide", "La sicurezza dell'AI e dei laboratori cresce più in fretta"],
     con: ["Distanza dal popolo: polarizzazione più alta", "Movimenti contro l'Autorità più frequenti"],
@@ -1190,9 +1198,13 @@ const INTERVENTIONS = [
   { id: "childIncome", cat: "demografia", name: "Reddito di base per ogni figlio", desc: "Ogni bambino, anche appena nato, riceve il suo reddito di base pieno fino alla maggiore età: con un figlio la famiglia ha il doppio, con due il triplo.", scope: "region", cost: 0, upkeep: 45, T: 2, ramp: 8,
     pro: "Le nascite risalgono davvero: i figli per donna si avvicinano a 2", con: "Costosissimo; molti genitori smettono di lavorare; un po' più di inflazione. Utile soprattutto a lungo termine, non per vincere",
     fx: (m, s) => { m.fert += 0.8 * s; m.labor -= 0.03 * s; m.debtF += 0.3; }, geff: { infl: 0.3 } },
-  { id: "debtRestr", cat: "economia", name: "Ristrutturazione del debito", desc: "Un accordo con i creditori per cancellare o rinviare una parte del debito.", scope: "region", cost: 5, T: 1, repeat: true,
-    pro: "Il debito scende di colpo", con: "Per qualche anno meno crescita e più malcontento; i mercati si fidano meno",
-    once: (r) => { r.debt -= 25; r.shockU += 6; r.shockG -= 1; } },
+  /* Ristrutturazione (rivista il 27 ottobre 2026): il debito pubblico è in mano a banche, fondi pensione e risparmiatori; tagliarlo
+     brucia pensioni e risparmi, porta crisi bancarie e recessione (−3/−5% di PIL), tassi molto più alti ed esclusione dai mercati per
+     anni [Certo: Cruces e Trebesch 2013; Reinhart e Rogoff]. Si può fare solo quando il debito è davvero insostenibile. */
+  { id: "debtRestr", cat: "economia", name: "Ristrutturazione del debito", desc: "Un accordo imposto ai creditori per cancellare una parte del debito degli stati. I titoli di Stato sono in mano a banche, fondi pensione e piccoli risparmiatori: sono loro a perdere.", scope: "region", cost: 5, T: 1, repeat: true,
+    pro: "Il debito di tutti gli stati scende di colpo di 25 punti", con: "Crisi bancaria, risparmi e pensioni bruciati: recessione e molto malcontento; per otto anni i tassi a lungo termine salgono (fino a +3,5 punti) e per cinque anni nessuno presta all'Autorità, che può avviare interventi solo con i fondi che ha",
+    once: (r) => { r.debt -= 25; r.shockU += 14; r.shockG -= 3; },
+    gonce: (st) => { st.restrY = st.year; st.forceEv = "bankCrisis"; } },
   // Previdenza e demografia
   { id: "retire", cat: "demografia", name: "Età della pensione legata alla vita media", desc: "L'età della pensione si adegua da sola all'aspettativa di vita: se si vive più a lungo, si va in pensione più tardi.", scope: "region", cost: 3, T: 2,
     pro: "La spesa per le pensioni scende molto", con: "Molto malcontento, soprattutto tra chi è vicino alla pensione",
@@ -1470,6 +1482,20 @@ const INTERVENTIONS = [
     once: (r, st) => { st.funds += priced(st, 15); for (const id in st.regions) { st.regions[id].shockU += 6; st.regions[id].polar += 2; } } },
   /* ----- Genetica (scenario 6). Ogni passo accelera la ricerca biotecnologica e alza un po' il rischio di pandemia
      ingegnerizzata; il controllo del DNA sintetico e le regole per i laboratori lo bilanciano. Numeri da [Probabile] a [Ipotesi]. ----- */
+  /* ----- Altre biotecnologie (proposta del 27 ottobre 2026) [Probabile] ----- */
+  { id: "phage", cat: "genetica", name: "Terapia con virus batteriofagi", desc: "Virus innocui per l'uomo, programmati per distruggere i batteri resistenti agli antibiotici.", scope: "global", cost: 3.5, upkeep: 1, T: 3,
+    pro: "Le infezioni resistenti si curano di nuovo: epidemie batteriche meno gravi e ospedali meno cari (un po' più di entrate)", con: "Costa ogni anno",
+    gfx: (st, gm, k) => { gm.pmit += 0.1 * k; gm.income += 0.01 * k; } },
+  { id: "cellAg", cat: "genetica", name: "Agricoltura cellulare e fermentazione di precisione", desc: "Carne e proteine prodotte da cellule e microrganismi in grandi impianti, senza allevamenti.", scope: "global", cost: 8, upkeep: 2.5, T: 4, ramp: 8,
+    pro: "Meno metano e meno deforestazione: le emissioni agricole calano di circa il 15%; i pascoli liberati rendono più utile la riforestazione", con: "Costa ogni anno; nei primi anni gli allevatori protestano, soprattutto nelle regioni rurali",
+    gfx: (st, gm, k) => { gm.co2Rem += 1.5 * k + (built(st, "reforest") ? 0.5 * k : 0); },
+    fx: (m, s, r, st, gm, a) => { if (st.year - (a.y0 || a.y) < 5) m.unrestT += r.rural > 30 ? 3 : 1; } },
+  { id: "plasticBugs", cat: "genetica", name: "Batteri mangia-plastica e chimica biologica", desc: "Enzimi e microrganismi sintetici che riciclano la plastica e producono sostanze chimiche senza petrolio.", scope: "global", cost: 9, T: 3, ramp: 5,
+    pro: "Dopo qualche anno nasce un'industria nuova: entrate più alte e un po' meno petrolio", con: "Costoso all'inizio; i benefici arrivano in circa cinque anni",
+    gfx: (st, gm, k) => { gm.income += 0.03 * k; }, fx: (m, s) => { m.fossilShift += 0.1 * s; } },
+  { id: "bioprint", cat: "genetica", name: "Organi stampati in 3D e trapianti per tutti", desc: "Organi costruiti con le cellule del paziente: niente più liste d'attesa né rigetto.", scope: "global", cost: 6.5, T: 4,
+    pro: "Le liste d'attesa per i trapianti spariscono, la sanità costa meno, si vive un po' di più; aiuta la ricerca sull'invecchiamento", con: "Più anziani da sostenere",
+    fx: (m) => { m.life += 0.5; }, gfx: (st, gm, k) => { gm.income += 0.01 * k; } },
   { id: "screening", cat: "genetica", name: "Screening alla nascita e diagnosi sugli embrioni", desc: "Sequenziamento del DNA dei neonati, analisi dei portatori e fecondazione con diagnosi gratuita per le coppie a rischio di malattie gravi.", scope: "region", cost: 3, upkeep: 0.5, T: 2, ramp: 4, axis: 2,
     pro: "Molte meno malattie genetiche gravi alla nascita, sanità un po' meno cara", con: "I dati genetici di tutti nelle mani dell'Autorità: un po' di sfiducia",
     fx: (m, s) => { m.life += 0.3 * s; m.polarT += 1 * s; }, geff: { biotech: 0.1 } },
@@ -1498,6 +1524,20 @@ const INTERVENTIONS = [
     need: (st) => (["aiCap", "aiOpen", "aiPublic"].every((k) => built(st, k)) || st.g.aiCap >= 80 ? null : "Richiede un'AI sviluppata al massimo"),
     pro: "La ricerca genetica corre come mai prima: col tempo arrivano cure per sempre più malattie", con: "Molto costosa; se la sicurezza dei laboratori non segue, il rischio di una pandemia costruita in laboratorio sale",
     fx: (m, s, r, st, gm) => { gm.biotechRate += 2; gm.bioRate -= 0.3; } },
+  /* ----- Computer quantistici (proposta del 27 ottobre 2026) [Probabile sui tempi; Ipotesi sugli effetti economici]: prima la
+     crittografia che resiste ai computer quantistici, poi le macchine. Se arrivano i grandi centri quantistici senza la nuova
+     crittografia, i vecchi codici di banche e reti si possono violare ("Q-Day"). ----- */
+  { id: "qCrypto", cat: "ai", name: "Crittografia post-quantistica", desc: "Banche, reti elettriche e sistemi militari passano a codici matematici che resistono anche ai futuri computer quantistici.", scope: "global", cost: 4, upkeep: 0.5, T: 3,
+    pro: "Il mondo è protetto dal giorno in cui un computer quantistico potrà violare i vecchi codici; attacchi informatici un po' più rari", con: "Costa ogni anno; da sola non porta crescita" },
+  { id: "qComp", cat: "ai", name: "Primi computer quantistici stabili", desc: "Processori quantistici che correggono i propri errori e simulano molecole e reazioni chimiche impossibili per i computer normali.", scope: "global", cost: 6, upkeep: 1.5, T: 5, from: 2030,
+    pro: "Nuove chimiche per batterie e catalizzatori: la cattura della CO₂ costa il 15% in meno e l'energia un po' meno", con: "Costa ogni anno; i benefici grandi arrivano con i centri industriali",
+    fx: (m) => { m.energyCost -= 1; } },
+  { id: "qIndustry", cat: "ai", name: "Grandi centri quantistici industriali", desc: "Calcolatori quantistici su larga scala progettano nuovi materiali, fertilizzanti a basso consumo e superconduttori.", scope: "global", cost: 10, upkeep: 3, T: 6, from: 2035,
+    pro: "Un boom chimico ed energetico: entrate più alte, la ricerca sulla fusione va più veloce", con: "Costoso; senza la crittografia post-quantistica, dopo circa un anno i vecchi codici di banche e reti vengono violati",
+    gfx: (st, gm, k) => { gm.income += 0.04 * k; gm.gAll += 0.1 * k; }, once: (r, st) => { if (!built(st, "qCrypto")) st.qDay = st.year + 1; } },
+  { id: "qAI", cat: "ai", name: "Calcolo quantistico e AI insieme", desc: "Intelligenza artificiale e calcolo quantistico insieme simulano la biologia delle cellule umane e proteggono le comunicazioni con chiavi impossibili da violare.", scope: "global", cost: 14, upkeep: 4, T: 6, from: 2040,
+    pro: "Ricerca genetica e sull'invecchiamento molto più rapida, più crescita ovunque", con: "Molto costoso; l'AI diventa più potente in fretta: senza l'allineamento di livello 2 o 3 la sua sicurezza resta indietro",
+    gfx: (st, gm, k) => { gm.gAll += 0.3 * k; gm.biotechRate += 0.5 * k; gm.aiRate += 1.5 * k; if (!built(st, "align2") && !built(st, "align3")) gm.safeRate -= 0.5 * k; } },
   { id: "launch", cat: "spazio", name: "Lanciatori riutilizzabili", desc: "Razzi che tornano a terra e si riutilizzano come un aereo, abbassando il costo dei lanci.", scope: "global", cost: 4, T: 5,
     pro: "Aprono il programma spaziale", con: "Nessun ritorno diretto" },
   { id: "orbital", cat: "spazio", name: "Economia orbitale", desc: "Satelliti dell'Autorità per comunicazioni, osservazione della Terra e navigazione, affittati a imprese e governi.", scope: "global", cost: 10, T: 4,
@@ -1545,8 +1585,8 @@ for (const d of INTERVENTIONS) {
 const TAB_OF = { genetica: "genetica", energia: "energia", nucleare: "energia", economia: "economia", demografia: "welfare", societa: "societa", clima: "clima", salute: "sicurezza", sicurezza: "sicurezza", ai: "tecnologia", spazio: "tecnologia" };
 for (const d of INTERVENTIONS) { d.fam = d.cat; d.cat = TAB_OF[d.cat]; }
 /* livello di complessità: 1 facile, 2 medio, 3 difficile e super difficile */
-const TIER2 = ["robotTax", "sovFund", "ubiMid", "childIncome", "teacherEval", "rooftop", "stratoPlanes", "screening", "rareTherapy", "somaticEdit", "gmCrops", "dnaControl", "geneDrive", "eInvoice", "dataMatch", "receiptLottery", "taxHavens", "amnesty", "eProcure", "assetsPublic", "whistle", "fastCourts", "civilPay", "carbonLaw", "geoeng", "ubiPlus", "pensionIndex", "cashless", "centralBank", "university", "research", "cutStaff", "cutSubsidies", "cutDefense", "cutServices", "robots", "fossilSub", "ubi", "taxRaise", "taxEvasion", "unempBenefit", "housing", "pensionFunds", "socialHousing", "wealthTax", "minWage", "publicJobs", "tariffs", "priceCap", "evCars", "parentalLeave", "ivf", "pensionTax", "birthDowry", "healthcare", "civicService", "cyber", "foodReserve", "forestProtect", "efficiency", "nucInfo", "smr", "automation", "retrain", "family", "natality", "integration", "healthyAging", "surveil", "vaccines", "amr", "dac", "aiCap", "aiOpen", "aiPublic", "align2", "align3", "orbital", "pdef", "lunarIce", "lunarMining", "police", "disinfo"];
-const TIER3 = ["fusionResearch", "fusion", "massRobots", "agingResearch", "embryoEdit", "aiBio"]; // particelle riflettenti e legge sulle emissioni ci sono da quando c'è il clima (19 ottobre 2026) // reddito di base e sussidi fossili ora già dal livello 2
+const TIER2 = ["qCrypto", "qComp", "qIndustry", "phage", "cellAg", "plasticBugs", "bioprint", "robotTax", "sovFund", "ubiMid", "childIncome", "teacherEval", "rooftop", "stratoPlanes", "screening", "rareTherapy", "somaticEdit", "gmCrops", "dnaControl", "geneDrive", "eInvoice", "dataMatch", "receiptLottery", "taxHavens", "amnesty", "eProcure", "assetsPublic", "whistle", "fastCourts", "civilPay", "carbonLaw", "geoeng", "ubiPlus", "pensionIndex", "cashless", "centralBank", "university", "research", "cutStaff", "cutSubsidies", "cutDefense", "cutServices", "robots", "fossilSub", "ubi", "taxRaise", "taxEvasion", "unempBenefit", "housing", "pensionFunds", "socialHousing", "wealthTax", "minWage", "publicJobs", "tariffs", "priceCap", "evCars", "parentalLeave", "ivf", "pensionTax", "birthDowry", "healthcare", "civicService", "cyber", "foodReserve", "forestProtect", "efficiency", "nucInfo", "smr", "automation", "retrain", "family", "natality", "integration", "healthyAging", "surveil", "vaccines", "amr", "dac", "aiCap", "aiOpen", "aiPublic", "align2", "align3", "orbital", "pdef", "lunarIce", "lunarMining", "police", "disinfo"];
+const TIER3 = ["qAI", "fusionResearch", "fusion", "massRobots", "agingResearch", "embryoEdit", "aiBio"]; // particelle riflettenti e legge sulle emissioni ci sono da quando c'è il clima (19 ottobre 2026) // reddito di base e sussidi fossili ora già dal livello 2
 for (const d of INTERVENTIONS) d.tier = TIER3.includes(d.id) ? 3 : TIER2.includes(d.id) ? 2 : 1;
 const IBY = Object.fromEntries(INTERVENTIONS.map((d) => [d.id, d]));
 /* Si può annullare quasi tutto, per qualsiasi ragione (decisione del 25 ottobre 2026): leggi, riforme e programmi. Restano
@@ -1577,6 +1617,7 @@ const TREE = {
   adapt: null, agri: "adapt", reforest: null, dac: null, stratoPlanes: null, geoeng: "stratoPlanes", // dal 25 ottobre 2026 gli aerosol richiedono gli aerei stratosferici
   surveil: null, vaccines: "surveil", labRules: null, amr: "labRules",
   mediation: null, fissile: null, arms: "fissile",
+  qCrypto: null, qComp: null, qIndustry: "qComp", qAI: "qIndustry", phage: null, cellAg: "gmCrops", plasticBugs: "gmCrops", bioprint: "rareTherapy",
   aiCap: null, aiOpen: null, aiPublic: null, aiReg: null, align: "aiReg", align2: "align", align3: "align2",
   screening: null, rareTherapy: "screening", somaticEdit: "rareTherapy", agingResearch: "somaticEdit", embryoEdit: "screening", gmCrops: null, geneDrive: null, dnaControl: null, aiBio: null,
   launch: null, orbital: "launch", pdef: "orbital", moon: "launch", lunarSci: "moon", lunarCity: "lunarSci", lunarIce: "moon", lunarMining: "lunarIce",
@@ -1621,8 +1662,15 @@ function upkeepOf(st, d) {
   let base = d.upkeepFn ? d.upkeepFn(st) : d.upkeep || 0;
   // stanchezza da austerità: dopo otto anni i tagli fanno risparmiare sempre meno (servizi degradati, ricorsi, assunzioni a termine)
   if (base < 0 && a) base *= 1 - 0.4 * clamp((st.year - (a.y0 || a.y) - 8) / 12, 0, 1);
+  if (d.id === "dac" && built(st, "qComp")) base *= 0.85;
+  if (d.id === "healthcare" && built(st, "bioprint")) base *= 0.92;
   return base * (k || 1) * (d.wasRegion && base > 0 ? ctrlShare(st) : 1) * (d.perUnit && a ? Math.max(1, a.n) : 1) * ((st.g && st.g.pl) || 1) * (WAGE.has(d.id) ? Math.pow(wageIdx(st), 0.6) : 1);
 }
+const worldDebt = (st) => { const rs = ctrlRegions(st), t = rs.reduce((a, r) => a + r.gdp, 0) || 1; return rs.reduce((a, r) => a + r.debt * r.gdp, 0) / t; };
+const worldSnow = (st) => { const rs = ctrlRegions(st), t = rs.reduce((a, r) => a + r.gdp, 0) || 1; return rs.reduce((a, r) => a + snowball(r, st) * r.gdp, 0) / t; };
+// dopo una ristrutturazione: tassi più alti per otto anni (da +3,5 punti a zero) e nessun prestito all'Autorità per cinque anni
+const restrPrem = (st) => (st.restrY != null && st.year - st.restrY < 8 ? 3.5 * (1 - (st.year + st.month / 12 - st.restrY) / 8) : 0);
+const noCredit = (st) => st.restrY != null && st.year + st.month / 12 - st.restrY < 5;
 function ctrlShare(st) { let a = 0, t = 0; for (const id in st.regions) { const r = st.regions[id]; t += r.pop; if (r.controlled) a += r.pop; } return t ? a / t : 1; }
 // quota del prodotto mondiale nelle regioni cadute nell'anarchia: lì scappano i capitali
 function anarchyShare(st) { let a = 0, t = 0; for (const id in st.regions) { const r = st.regions[id]; t += r.gdp; if (!r.controlled) a += r.gdp; } return t ? a / t : 0; }
@@ -1764,7 +1812,8 @@ function newGame(diffId, seed, levelId = "l5", govId = "base") {
   st.gdpW0 = Object.values(regions).reduce((a, r) => a + r.gdp, 0);
   st.ec0 = Object.values(regions).reduce((a, r) => a + r.energyCost * r.gdp, 0) / st.gdpW0;
   st.pop0 = worldPop(st);
-  st.income = BASE_INCOME * D.inc * (st.L.inc || 1); st.upkeep = 0;
+  st.income = BASE_INCOME * D.inc * (st.L.inc || 1) * (st.G.inc || 1); st.upkeep = 0;
+  for (const id of st.G.pre || []) if (available(st, IBY[id])) complete(st, IBY[id]); // per esempio la sanità universale dello Stato sociale
   logNews(st, "L'Autorità si insedia. Le nazioni hanno accettato di eseguire i suoi ordini.", "info");
   st.hist.push(histRow(st));
   return st;
@@ -1928,6 +1977,8 @@ function canStart(st, id) {
   if (!parentOk(st, d)) return "Richiede: " + IBY[d.parent].name;
   if (d.need) { const w = d.need(st); if (w) return w; }
   if (id === "unempBenefit" && built(st, "ubi")) return "Assorbito dal reddito di base";
+  if (id === "debtRestr" && !(worldDebt(st) > 120 || worldSnow(st) > 2)) return "Solo con un debito davvero insostenibile: debito medio oltre il 120% del PIL o palla di neve oltre +2 punti l'anno";
+  if (noCredit(st) && st.funds < costOf(st, d) && !(st.paused && st.paused[id])) return "Dopo la ristrutturazione del debito nessuno presta all'Autorità: servono i fondi in cassa";
   const a = st.acts[id];
   const inProg = st.prog.filter((p) => p.id === id).length;
   const own = (a ? a.n : 0) + inProg;
@@ -2059,6 +2110,7 @@ const fmt1 = (v) => (Math.round(v * 10) / 10).toString().replace(".", ",");
 function revoke(st, id) {
   const d = IBY[id];
   if (!st.acts[id] || st.acts[id].n === 0) return;
+  if (st.G && st.G.lock && st.G.lock.includes(id)) return; // pilastro del governo: non si toglie
   // il programma resta in sospeso: se si riattiva riparte dal punto in cui era (decisione del 22 ottobre 2026)
   (st.paused || (st.paused = {}))[id] = { a: st.acts[id], at: st.year + st.month / 12 };
   delete st.acts[id];
@@ -2073,6 +2125,13 @@ const ctrlRegions = (st) => Object.values(st.regions).filter((r) => r.controlled
 const built = (st, id) => !!(st.acts[id] && st.acts[id].n > 0);
 const building = (st, id) => st.prog.some((p) => p.id === id);
 /* good: evento favorevole (nessuna scelta è "non fare nulla") · once: avviene al massimo una volta per partita */
+// un evento della catena del potenziamento genetico: arriva circa "after" anni dopo l'apertura del mercato, in ordine
+const GEN_CHAIN = ["genPatents", "genScandal", "genSchools", "genInsurance", "genElite"];
+function genEv(id, after, title, text, choices) {
+  const i = GEN_CHAIN.indexOf(id);
+  return { id, scope: "global", cat: "Salute", title, once: true, text: () => text, choices,
+    p: (st) => (st.flags.genMkt != null && !st.flags.genBan && st.year - st.flags.genMkt >= after && (i === 0 || st.flags["done_" + GEN_CHAIN[i - 1]]) ? 0.5 : 0) };
+}
 const EVENTS = [
   { id: "debt", scope: "region", cat: "Economia", title: "Crisi del debito",
     p: (st, r) => r.debt > 140 ? Math.min(0.5, (r.debt - 140) * 0.012) : 0,
@@ -2525,8 +2584,33 @@ const EVENTS = [
     choices: [
       { label: "Chiudere la clinica e processare i responsabili", cost: 2, out: "Il divieto regge; un po' di polemiche", fx: (st, r) => { r.polar += 1; } },
       { label: "Regolare la correzione degli embrioni solo per le malattie", cost: 4, out: "Nasce una legge mondiale: più divisioni", fx: (st, r) => { ctrlRegions(st).forEach((x) => (x.polar += 2)); } },
-      { label: "Non fare nulla", cost: 0, out: "Nascono altre cliniche: disuguaglianze e rabbia crescono", fx: (st) => ctrlRegions(st).forEach((x) => { x.polar += 4; x.shockU += 3; }) },
+      { label: "Aprire il mercato del potenziamento genetico", cost: -4, out: "Nasce un ricchissimo settore biotech: entrate subito e ogni anno, ma più divisioni e malcontento. Da qui una lunga catena di conseguenze", fx: (st) => { st.flags.genMkt = st.year; st.genShare = (st.genShare || 0) + 0.03; ctrlRegions(st).forEach((x) => { x.polar += 8; x.shockU += 4; }); } },
     ] },
+  /* Catena del potenziamento genetico (proposta del 27 ottobre 2026): cinque eventi nei vent'anni dopo l'apertura del mercato.
+     Le entrate del settore sono una quota delle entrate dell'Autorità (genShare: 0,01 = 1%). [Ipotesi] */
+  genEv("genPatents", 2, "Il boom del turismo genetico e i brevetti sul DNA", "Le cliniche per bambini potenziati attirano capitali da tutto il mondo. Le grandi aziende biotech chiedono di brevettare i pacchetti di geni per l'intelligenza e la longevità.", [
+    { label: "Concedere i brevetti esclusivi", cost: 0, out: "Entrate più alte ogni anno, ma il potenziamento resta per i ricchi: malcontento e divisioni", fx: (st) => { st.genShare += 0.04; ctrlRegions(st).forEach((r) => { r.shockU += 8; r.polar += 8; }); } },
+    { label: "Licenze aperte a prezzi calmierati", cost: 0, out: "Entrate più piccole, meno rabbia sociale", fx: (st) => { st.genShare += 0.015; ctrlRegions(st).forEach((r) => { r.shockU += 2; }); } },
+    { label: "Vietare tutto e chiudere le cliniche", cost: 6, out: "Il settore crolla e nascono cliniche clandestine; la catena si ferma", fx: (st) => { st.genShare = 0; st.flags.genBan = true; ctrlRegions(st).forEach((r) => { r.polar += 3; }); } },
+  ]),
+  genEv("genScandal", 5, "Lo scandalo delle cliniche low cost", "Alcune cliniche non certificate hanno sbagliato le modifiche genetiche: sono nati bambini con gravi difetti immunitari mentre i genitori cercavano di potenziarne la memoria.", [
+    { label: "Un'agenzia mondiale di certificazione genetica", cost: 4.5, out: "La tecnologia diventa sicura e il settore rende di più", fx: (st) => { st.genShare += 0.02; st.g.bioSafety += 2; } },
+    { label: "Lasciar fare alle cause in tribunale", cost: 0, out: "Il settore non rallenta, ma esplodono le proteste contro le cliniche", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockU += 12; }) },
+  ]),
+  genEv("genSchools", 9, "Scuole e sport divisi: potenziati contro naturali", "La prima generazione di bambini modificati entra a scuola e nello sport: imparano in metà del tempo e vincono ogni gara. Le famiglie dei bambini naturali chiedono scuole separate o quote protette.", [
+    { label: "Accademie accelerate per i potenziati", cost: 0, out: "Più innovazione e produttività, ma la società si spacca", fx: (st) => { st.genShare += 0.035; st.genG = (st.genG || 0) + 0.1; ctrlRegions(st).forEach((r) => { r.polar += 12; r.shockU += 10; }); } },
+    { label: "Quote riservate ai naturali nelle università e nel lavoro", cost: 0, out: "Pace sociale protetta, ma meno vantaggio economico", fx: (st) => { st.genShare = Math.max(0, st.genShare - 0.015); ctrlRegions(st).forEach((r) => { r.shockU -= 5; }); } },
+    { label: "Potenziamento genetico gratuito per tutti i neonati", cost: 12, out: "La disuguaglianza biologica sparisce per le nuove generazioni; costa ogni anno", fx: (st) => { st.genShare = Math.max(0, st.genShare - 0.03); ctrlRegions(st).forEach((r) => { r.polar -= 5; }); } },
+  ]),
+  genEv("genInsurance", 14, "Banche e assicurazioni leggono il DNA", "I giovani potenziati non si ammalano di infarto né di diabete: assicurazioni e banche offrono loro mutui scontati e rifiutano i contratti ai cittadini naturali.", [
+    { label: "Permettere i contratti basati sul DNA", cost: 0, out: "Grande efficienza e risparmi sanitari, ma nasce un movimento radicale dei naturali", fx: (st) => { st.genShare += 0.045; ctrlRegions(st).forEach((r) => { r.shockU += 15; r.polar += 6; }); } },
+    { label: "Legge mondiale contro la discriminazione genetica", cost: 3, out: "I cittadini naturali sono tutelati e le divisioni calano", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockU -= 6; r.polar -= 3; }) },
+  ]),
+  genEv("genElite", 18, "La prima generazione adulta: una nuova élite", "I primi bambini su misura sono adulti: guidano laboratori, finanza e tecnologia, e tendono a sposarsi solo tra loro per conservare il proprio DNA potenziato.", [
+    { label: "Assecondare la nuova élite biotecnologica", cost: 0, out: "Un boom economico e scientifico straordinario, ma la società si divide in due caste", fx: (st) => { st.genShare += 0.08; st.genG = (st.genG || 0) + 0.2; ctrlRegions(st).forEach((r) => { r.polar += 20; r.shockU += 10; }); } },
+    { label: "Una tassa sul genoma per il welfare dei naturali", cost: 0, out: "Entrate un po' più alte e molta meno rabbia", fx: (st) => { st.genShare += 0.025; ctrlRegions(st).forEach((r) => { r.shockU -= 10; }); } },
+    { label: "Terapie geniche gratuite anche per gli adulti naturali", cost: 15, out: "Anche chi non è stato modificato riceve i geni che proteggono la salute: la frattura si ricuce", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockU -= 12; r.polar -= 8; }) },
+  ]),
   { id: "mosquitoBorder", scope: "region", cat: "Salute", title: "Zanzare oltre il confine",
     p: (st, r) => (built(st, "geneDrive") && !TROPIC.includes(r.id) && RBY[r.id].nb.some((n) => TROPIC.includes(n)) ? 0.03 : 0),
     text: (st, r) => `Le zanzare modificate contro la malaria sono arrivate in ${r.name}, che non aveva dato il suo consenso. Il governo parla di violazione della sovranità.`,
@@ -2636,6 +2720,20 @@ const EVENTS = [
       { label: "Produzione su larga scala", cost: 6, out: "Molti fossili sostituiti in tutte le regioni", fx: (st) => ctrlRegions(st).forEach((r) => shiftClean(r, 5, "renew")) },
       { label: "Licenze aperte", cost: 2, out: "Alcuni fossili sostituiti", fx: (st) => ctrlRegions(st).forEach((r) => shiftClean(r, 2.5, "renew")) },
       { label: "Lasciar fare al mercato", cost: 0, out: "Effetto lento e limitato", fx: (st) => ctrlRegions(st).forEach((r) => shiftClean(r, 1, "renew")) },
+    ] },
+  { id: "qDay", scope: "global", cat: "Tecnologia", title: "Q-Day: violati i codici delle banche",
+    p: () => 0, // arriva solo un anno dopo i centri quantistici, se manca la crittografia post-quantistica
+    text: () => "Un computer quantistico ha violato i vecchi codici che proteggevano banche, pagamenti e reti elettriche. Conti svuotati, transazioni false, sistemi da rifare in fretta.",
+    choices: [
+      { label: "Rifare tutti i sistemi con la crittografia post-quantistica", cost: 15, out: "Danni contenuti; il mondo ora è protetto", fx: (st) => { complete(st, IBY.qCrypto); ctrlRegions(st).forEach((r) => { r.shockU += 4; }); } },
+      { label: "Riparare solo i sistemi più importanti", cost: 5, out: "Mesi di caos finanziario: malcontento e crescita in calo", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockU += 12; r.shockG -= 1; }) },
+    ] },
+  { id: "bankCrisis", scope: "global", cat: "Economia", title: "Crisi bancaria da titoli di Stato",
+    p: () => 0, // arriva solo subito dopo una ristrutturazione del debito
+    text: () => "Con la ristrutturazione i titoli di Stato hanno perso un quarto del loro valore. Le banche che ne erano piene vacillano, i fondi pensione tagliano le prestazioni e milioni di piccoli risparmiatori scoprono di aver perso una parte dei loro risparmi.",
+    choices: [
+      { label: "Salvare le banche e i fondi pensione dei piccoli risparmiatori", cost: 12, out: "Il colpo su stabilità e crescita si dimezza", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockU -= 7; r.shockG += 1.5; }) },
+      { label: "Lasciar fallire le banche esposte", cost: 0, out: "Panico finanziario in tutto il mondo: recessione profonda e rabbia", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockU += 10; r.shockG -= 2; r.polar += 3; }) },
     ] },
   { id: "tradeBoom", scope: "global", cat: "Economia", title: "Ripresa dei commerci", good: true,
     p: (st) => avgOf(st, "unrest") < 55 ? 0.025 : 0,
@@ -2812,10 +2910,10 @@ function tick(st) {
     m.dmg = clamp(m.dmg, 0, 0.8); m.famine = clamp(m.famine, 0, 0.8);
     r.m = m;
   }
-  gm.frontier += st.G.frontier || 0; gm.safeRate += st.G.safeRate || 0; gm.bioRate += st.G.bioRate || 0;
+  gm.frontier += st.G.frontier || 0; gm.safeRate += st.G.safeRate || 0; gm.bioRate += st.G.bioRate || 0; gm.aiRate += st.G.aiRate || 0;
   // scoperte scientifiche già fatte: effetti permanenti
   const D0 = G.disc || {};
-  gm.gAll += D0.g || 0; gm.co2Rem += D0.co2 || 0; gm.pmit += D0.bio || 0;
+  gm.gAll += (D0.g || 0) + (st.genG || 0); gm.co2Rem += D0.co2 || 0; gm.pmit += D0.bio || 0;
   for (const id in st.regions) { const m = st.regions[id].m; m.energyCost -= D0.energy || 0; m.famine += D0.famine || 0; m.labor += D0.labor || 0; }
   st.gm = gm;
   st.robCap = robotCapture(st);
@@ -2863,7 +2961,7 @@ function tick(st) {
     const grW = ws.reduce((a, r) => a + r.growth * r.gdp, 0) / gdp, depW = ws.reduce((a, r) => a + r.old, 0) / (ws.reduce((a, r) => a + r.wrk, 0) || 1);
     if (G.gr0 == null) { G.gr0 = grW; G.dep0 = depW; }
     G.rstar = clamp(0.5 + 0.4 * (grW - G.gr0) - 6 * (depW - G.dep0), -1.5, 3);
-    G.prem = 0.5 + Math.max(0, dW - 90) * 0.01 + Math.max(0, G.tension - 50) * 0.02 + (st.funds < 0 ? 0.6 : 0);
+    G.prem = 0.5 + Math.max(0, dW - 90) * 0.01 + Math.max(0, G.tension - 50) * 0.02 + (st.funds < 0 ? 0.6 : 0) + restrPrem(st);
     const RT = 0.4 * G.rate + 0.6 * (G.anchor + G.rstar) + G.prem;
     G.longR += (RT - G.longR) * 0.5 * dt;
   }
@@ -2925,7 +3023,8 @@ function tick(st) {
     // l'invecchiamento fa salire anche la spesa sanitaria (decisione del 24 ottobre 2026) [Probabile]
     const cyc = r.controlled ? Math.max(0, basePg(r) - 1 - r.growth) * 0.5 : 0; // solo in una vera frenata
     const ageCost = r.dep0 != null ? Math.max(0, r.old / r.wrk - r.dep0) * 0.8 : 0;
-    r.debt += dt * (r.defBase + (r.pension - r.pens0) * 0.08 + m.debtF + snowball(r, st) + cyc + ageCost);
+    r.dSnow = snowball(r, st); r.dDef = r.defBase + (r.pension - r.pens0) * 0.08 + m.debtF + cyc + ageCost; // palla di neve e deficit
+    r.debt += dt * (r.dDef + r.dSnow);
     r.debt = clamp(r.debt, 0, 400);
 
     const uT = clamp(r.unempBase + 5 + m.unempT + gm.unempAll + Math.max(0, -r.growth) * 1.5 - monetaryPush(st) * 0.35, 1, 85);
@@ -3002,6 +3101,7 @@ function tick(st) {
     if (NUC_BUILD.includes(p.id) && built(st, "nucAgency")) k *= 1.25;
     if (p.id === "nucPrivate" && !st.sim && rand() < 0.012 * dt) { p.failed = true; logNews(st, "Nucleare privato: un'impresa è fallita a metà cantiere. Il programma si ferma.", "bad"); }
     if (FRONTIER.includes(p.id)) k *= 1 + gm.frontier;
+    if (p.id === "fusionResearch" && built(st, "qIndustry")) k *= 1.25; // circa tre anni prima
     if (IBY[p.id].fam === "spazio" && (built(st, "robots") || st.g.aiCap >= 60)) k *= 1.3; // robot e AI avanzati costruiscono più in fretta sulla Luna
     p.t += dt * k;
   }
@@ -3016,7 +3116,7 @@ function tick(st) {
   // tasse sul lavoro perse per i robot: la parte non recuperata con la tassa sui robot o con il fondo sovrano (decisione del 25 ottobre 2026)
   { const rs = ctrlRegions(st), t = rs.reduce((a, r) => a + r.gdp, 0) || 1; st.robShareW = rs.reduce((a, r) => a + (r.robShare || 0) * r.gdp, 0) / t; }
   st.robLoss = P.laborTax * st.robShareW * (1 - (st.robCap || 0));
-  st.income = BASE_INCOME * D.inc * (st.L.inc || 1) * econMass(st, true) / st.I0 * (taxBase(st) / (st.TB0 || taxBase(st))) * (1 + gm.income) * (G.plLag || 1) * (1 - st.robLoss);
+  st.income = BASE_INCOME * D.inc * (st.L.inc || 1) * (st.G.inc || 1) * econMass(st, true) / st.I0 * (taxBase(st) / (st.TB0 || taxBase(st))) * (1 + gm.income + (st.genShare || 0)) * (G.plLag || 1) * (1 - st.robLoss);
   st.payoff = 0;
   for (const aid in st.acts) { const d = IBY[aid]; if (d.payoff && st.acts[aid].n > 0) st.payoff += payoffNow(d, st.acts[aid], st); }
   st.income += st.payoff;
@@ -3071,7 +3171,7 @@ const EV_SYS = {
   heat: "climate", famine: "climate", storm: "climate", migrationCrisis: "climate",
   solar: "nature", volcano: "nature", asteroid: "nature",
   nucCrisis: "war", conflict: "war", orbitWeapons: "war", civilWar: "war", borderWar: "war", navalStandoff: "war", armsRace: "war", terror: "war",
-  wildfire: "climate", waterCrisis: "climate", quake: "nature", deepfake: "ai", cyberAttack: "ai", robotRiots: "ai", aiAnomaly: "ai", aiNearMiss: "ai", trialDeath: "gen", designerBaby: "gen", mosquitoBorder: "gen", stolenProtocol: "gen", aiBio1: "gen", aiBio2: "gen", aiBio3: "gen",
+  wildfire: "climate", waterCrisis: "climate", quake: "nature", deepfake: "ai", cyberAttack: "ai", robotRiots: "ai", aiAnomaly: "ai", aiNearMiss: "ai", trialDeath: "gen", designerBaby: "gen", mosquitoBorder: "gen", stolenProtocol: "gen", aiBio1: "gen", aiBio2: "gen", aiBio3: "gen", genPatents: "gen", genScandal: "gen", genSchools: "gen", genInsurance: "gen", genElite: "gen", qDay: "ai",
   epidemic: "bio", labLeak: "bio", pandemic: "bio", uniVax: "bio",
   aiIncident: "ai",
   moonRace: "space", moonAccident: "space", moonDiscovery: "space",
@@ -3080,6 +3180,7 @@ function evMult(st, id) {
   let k = (st.G.ev && st.G.ev[id]) || 1;
   if ((id === "protests" || id === "antiAuth") && built(st, "massSurveil")) k *= 0.3;
   if (id === "nucAccident" && built(st, "nucAgency")) k *= 0.35;
+  if (id === "cyberAttack" && built(st, "qCrypto")) k *= 0.7;
   return k;
 }
 /* Ritmo degli eventi: dopo una crisi passano almeno 8 mesi prima della successiva (3 per gli eventi climatici,
@@ -3092,6 +3193,8 @@ function rollEvent(st) {
   const now = st.year * 12 + st.month, since = now - (st.lastEv || -99);
   const order = EVENTS.slice().sort(() => rand() - 0.5);
   if (st.flags.pandemic) order.unshift(EBY.pandemic);
+  if (st.qDay && st.year >= st.qDay) { st.qDay = null; if (!built(st, "qCrypto")) st.forceEv = "qDay"; }
+  if (st.forceEv) { const id = st.forceEv; st.forceEv = null; st.lastEv = now; return { id, r: null }; }
   for (const ev of order) {
     if (ev.id !== "pandemic" && since < (CLIMATE_EV.includes(ev.id) ? EV_GAP_CLIMATE : EV_GAP)) continue;
     if (ev.once && st.flags["done_" + ev.id]) continue;
@@ -3120,7 +3223,7 @@ function yearly(st) {
   /* ricerca sull'invecchiamento: i primi farmaci contro le malattie dell'età sono plausibili in 7-10 anni di ricerca intensa
      [Probabile: studi TAME, rapamicina, GLP-1]. Prima del settimo anno quasi impossibile, poi l'8% l'anno (prima 2% fisso). */
   const ar = st.acts.agingResearch;
-  if (built(st, "agingResearch") && !st.flags.agingBreak && !st.sim && rand() < (st.year - (ar.y0 || ar.y) >= 7 ? 0.08 : 0.005)) {
+  if (built(st, "agingResearch") && !st.flags.agingBreak && !st.sim && rand() < (st.year - (ar.y0 || ar.y) >= (built(st, "qAI") ? 4 : 7) ? 0.08 * (built(st, "bioprint") ? 1.5 : 1) : 0.005)) {
     st.flags.agingBreak = true;
     note(st, "discovery", "agingResearch", "Scoperta: un farmaco che rallenta l'invecchiamento", "Dopo anni di studi un farmaco dimostra di rallentare davvero l'invecchiamento: in media tre anni di vita in salute in più. Più persone lavorano più a lungo, ma ci saranno anche più anziani da sostenere.");
   }
@@ -3210,7 +3313,7 @@ function histRow(st) {
 /* ---------- conti dell'Autorità (decisione del 25 ottobre 2026) ----------
    Da dove vengono le entrate e dove vanno i soldi: serve al riquadro che si apre toccando il saldo, per capire dove tagliare. */
 function incomeParts(st) {
-  const gmI = st.gm ? st.gm.income : 0, loss = st.robLoss || 0, pay = st.payoff || 0;
+  const gmI = (st.gm ? st.gm.income : 0) + (st.genShare || 0), loss = st.robLoss || 0, pay = st.payoff || 0;
   const raw = (st.income - pay) / Math.max(0.05, 1 - loss) / (1 + gmI); // contributi degli stati, senza tasse in più né perdite
   return { raw, gmI, loss, pay };
 }
@@ -3228,6 +3331,7 @@ function budget(st) {
   }
   if (loss > 0.001) inc.push({ name: "Tasse sul lavoro perse per i robot", v: -raw * (1 + (st.gm ? st.gm.income : 0)) * loss, loss: true });
   if (pay > 0.005) inc.push({ name: "Ritorni dei programmi spaziali", v: pay });
+  if (st.genShare > 0) inc.push({ name: "Settore del potenziamento genetico", v: raw * st.genShare * (1 - loss) });
   for (const p of st.prog) { const d = IBY[p.id]; if (d.buildUpkeep) out.push({ name: d.name + " (cantiere)", v: priced(st, d.buildUpkeep), id: d.id }); }
   if ((st.interest || 0) > 0.005) out.push({ name: "Interessi sul debito dell'Autorità", v: st.interest });
   out.sort((a, b) => b.v - a.v); inc.sort((a, b) => b.v - a.v);
@@ -3433,6 +3537,14 @@ const GLYPH = {
   babyCoin: `<circle cx="3.6" cy="3" r="1.4"/><path d="M1.6 8.6V7a2 2 0 0 1 4 0v1.6"/><circle cx="7.6" cy="6.4" r="1.6"/><path d="M7.6 5.7v1.4"/>`,
   teacherStar: `<path d="M1.2 8.8h4.6M2 8.8V4.4h3V8.8"/><path d="M7.4 1l.6 1.3 1.4.2-1 1 .2 1.4-1.2-.7-1.2.7.2-1.4-1-1 1.4-.2z" ${F}/>`,
   roofSun: `<path d="M1 6.4 5 3.2 9 6.4M2.2 5.5V9h5.6V5.5"/><path d="M3.4 6.4l3.2-1M3.4 7.6l3.2-1"/><circle cx="8.2" cy="1.8" r=".9"/>`,
+  lock: `<rect x="2" y="4.6" width="6" height="4.4" rx=".7"/><path d="M3.4 4.6V3.2a1.6 1.6 0 0 1 3.2 0v1.4M5 6.4v1"/>`,
+  qubit: `<circle cx="5" cy="5" r="1" ${F}/><ellipse cx="5" cy="5" rx="4" ry="1.6"/><ellipse cx="5" cy="5" rx="1.6" ry="4"/>`,
+  qfactory: `<path d="M1 9V5l2.2 1.3V5l2.2 1.3V3.4H7V9z"/><circle cx="8.2" cy="2.4" r="1.2"/><path d="M7 2.4h2.4"/>`,
+  qbrain: `<path d="M4.4 2.2a1.8 1.8 0 0 0-2.6 2 1.8 1.8 0 0 0 .4 3.2 1.6 1.6 0 0 0 2.2.8zM4.4 2.2v6"/><circle cx="7.4" cy="5" r=".8" ${F}/><ellipse cx="7.4" cy="5" rx="1.8" ry=".8"/>`,
+  phage: `<path d="M5 1.2 6.8 2.4v2L5 5.6 3.2 4.4v-2zM5 5.6v2M5 7.6 3.2 9M5 7.6 6.8 9M5 7.6V9"/>`,
+  cellMeat: `<circle cx="5" cy="5" r="3.6"/><circle cx="4" cy="4.4" r="1"/><circle cx="6.2" cy="6" r=".7"/>`,
+  recycle: `<path d="M3.4 2.6 5 1l1.6 1.6M5 1v3M8.6 6.2l-.4 2.2-2.2-.4M8.2 8.4 5.6 6.8M1.4 6.2l.4 2.2 2.2-.4M1.8 8.4l2.6-1.6"/>`,
+  organ: `<path d="M5 8.8S1.4 6.6 1.4 4a2 2 0 0 1 3.6-1.2A2 2 0 0 1 8.6 4C8.6 6.6 5 8.8 5 8.8z"/><path d="M3.6 4.6h2.8M5 3.2v2.8"/>`,
   jet: `<path d="M1 5.6h3l2.6-3.8h1L6.4 5.6h1.8l.9-1h.8l-.5 1.6.5 1.6h-.8l-.9-1H6.4l1.2 3.8h-1L4 6.8H1z"/>`,
 };
 const ICON_OF = {
@@ -3443,6 +3555,7 @@ const ICON_OF = {
   transparency: "eye", anticorr: "gavel", assemblies: "people", disinfo: "newspaper", police: "badge", education: "school", socialHousing: "buildings", civicService: "hands",
   adapt: "waves", agri: "wheat", reforest: "tree", dac: "fan", geoeng: "cloud", foodReserve: "silo", forestProtect: "pine",
   surveil: "virus", vaccines: "syringe", labRules: "flask", amr: "pill", arms: "missile", fissile: "radiation", mediation: "dove", cyber: "chipShield", massSurveil: "cctv",
+  qCrypto: "lock", qComp: "qubit", qIndustry: "qfactory", qAI: "qbrain", phage: "phage", cellAg: "cellMeat", plasticBugs: "recycle", bioprint: "organ",
   robotTax: "robotCoin", sovFund: "pie", ubiMid: "coinHalf", childIncome: "babyCoin", teacherEval: "teacherStar", rooftop: "roofSun", stratoPlanes: "jet",
   massRobots: "humanoid", ubiPlus: "coinPlus", screening: "baby", rareTherapy: "syringe", somaticEdit: "dna", gmCrops: "wheat", agingResearch: "clock", embryoEdit: "stroller", geneDrive: "virus", dnaControl: "flask", aiBio: "chipShield", aiCap: "i-ai", aiOpen: "puzzle", aiPublic: "gear", align: "target", align2: "magnifier", align3: "cctv", aiReg: "scale", launch: "i-spazio", orbital: "satellite", pdef: "comet", moon: "moon", lunarSci: "telescope", lunarIce: "drop", lunarCity: "dome", lunarMining: "pick",
 };
@@ -3457,6 +3570,7 @@ const iconHref = (id) => { const k = ICON_OF[id] || "hexdot"; return k.startsWit
 const SHORT = {
   fossilSub: "Sussidi fossili", carbonTax: "Tassa carbonio", efficiency: "Efficienza", renew: "Solare ed eolico", grid: "Reti e accumuli",
   smr: "Reattori modulari", fusion: "Fusione", nucInfo: "Informazione",
+  qCrypto: "Crittografia quantistica", qComp: "Computer quantistici", qIndustry: "Centri quantistici", qAI: "Quantistica e AI", phage: "Batteriofagi", cellAg: "Carne coltivata", plasticBugs: "Mangia-plastica", bioprint: "Organi stampati",
   robotTax: "Tassa robot", sovFund: "Fondo sovrano", ubiMid: "Reddito intermedio", childIncome: "Reddito ai figli", teacherEval: "Valutare docenti", rooftop: "Pannelli sui tetti", stratoPlanes: "Aerei stratosferici",
   invest: "Investimenti", automation: "Automazione", retrain: "Formazione", ubi: "Reddito di base", austerity: "Tagli alla spesa", debtRestr: "Taglio del debito",
   retire: "Età pensionabile", healthyAging: "Invecchiamento sano", contrib: "Contributi", family: "Servizi famiglia", natality: "Bonus figli", migration: "Immigrazione regolata", integration: "Integrazione",
@@ -3761,6 +3875,7 @@ function renderLevels() {
   $("mLevelNext").textContent = LBY[introLevel].tutorial ? "Inizia" : "Avanti";
 }
 const GOV_ICON = {
+  human: '<path d="M9.5 20v-4.5L7 13v-3.5l2-1.5M14.5 20v-4.5L17 13v-3.5l-2-1.5M9 8h6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="5" r="2.2" fill="none" stroke="currentColor" stroke-width="1.6"/>',
   base: '<circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 12h8" stroke="currentColor" stroke-width="1.6"/>',
   liberal: '<path d="M4 9 12 4l8 5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M6 10v8M10 10v8M14 10v8M18 10v8M4 20h16" stroke="currentColor" stroke-width="1.6"/>',
   social: '<path d="M12 20s-7-4.5-7-9.5A3.8 3.8 0 0 1 12 8a3.8 3.8 0 0 1 7 2.5C19 15.5 12 20 12 20z" fill="none" stroke="currentColor" stroke-width="1.6"/>',
@@ -3920,7 +4035,7 @@ function hexPts(r) { return [0, 1, 2, 3, 4, 5].map((i) => { const a = Math.PI / 
 /* ---------- glossario: le "i" accanto ai termini prendono il testo da qui ---------- */
 const GLOSS = {
   infl: { t: "Inflazione", x: "È di quanto salgono i prezzi in un anno. Nel gioco ogni intervento costa ogni anno l'inflazione in più, mentre le entrate si adeguano con un anno di ritardo; oltre il 4% la gente si arrabbia. La Banca centrale la frena alzando il tasso." },
-  snow: { t: "Effetto palla di neve", x: "Il debito di uno stato cresce da solo quando gli interessi che paga superano la crescita dell'economia, come una palla di neve che rotola. Se il valore è sotto zero, il debito si riduce anche senza tagli." },
+  snow: { t: "Effetto palla di neve", x: "Il debito di uno stato cresce da solo quando gli interessi che paga superano la crescita dell'economia, come una palla di neve che rotola. Se il valore è sotto zero, il debito tende a scendere da solo grazie alla crescita, a meno che lo stato non spenda più di quanto incassa (deficit): per questo il debito può salire anche con la palla di neve sotto zero. Nella scheda di ogni regione vedi le due parti." },
   rate: { t: "Tasso della Banca centrale", x: "È il costo del denaro per pochi mesi, deciso dalla Banca centrale mondiale. Alzarlo frena inflazione, crescita e lavoro; abbassarlo fa il contrario. Non decide direttamente il tasso a lungo termine." },
   longR: { t: "Tasso a lungo termine e spread", x: "È quanto pagano gli stati per prendere a prestito per molti anni. Somiglia alla media dei tassi a breve attesi (inflazione attesa più un tasso naturale, più alto se l'economia cresce, più basso se la popolazione invecchia e risparmia) più un premio per il rischio (debito mondiale, tensioni tra le potenze). Lo spread è il di più che paga chi ha tanto debito: nel gioco un punto in più ogni 100 punti di debito oltre il 100% del PIL." },
   debt: { t: "Debito pubblico", x: "È quanto gli stati devono ai creditori, misurato rispetto al PIL di un anno. Sale quando gli stati spendono più di quanto incassano; oltre il 150% i mercati possono smettere di prestare." },
@@ -4160,7 +4275,8 @@ function renderDetail() {
   const buyLabel = d.gain && !done ? `Avvia e incassa +${fmt(d.gain(st), 1)}` : done ? "Già attivo" : st.paused && st.paused[d.id] ? "Riattiva" : (active && d.stack) ? "Costruisci ancora" : s.prog.length && !d.stack ? "In corso" : st.funds - c0 < 0 ? "Avvia a debito" : "Avvia";
   const priceTxt = c0 && !done && !d.gain ? ` – ${fmt(c0, c0 % 1 ? 1 : 0)}` : "";
   const showWhy = s.why && !done && s.why !== "In corso" && !s.why.startsWith("Richiede") && !s.why.startsWith("Disponibile");
-  const canStop = active && !d.fixed && (d.upkeep || d.upkeepFn || d.revocable); // le strutture lunari non si smontano
+  const pillar = st.G && st.G.lock && st.G.lock.includes(d.id); // pilastro del governo scelto (la sanità dello Stato sociale)
+  const canStop = active && !d.fixed && !pillar && (d.upkeep || d.upkeepFn || d.revocable); // le strutture lunari non si smontano
   // nel piede: quanto cambierebbe il saldo annuo fermandolo, senza doverlo fermare
   const incNow = canStop ? budget(st).inc.find((x) => x.id === d.id && !x.save) : null; // tasse attive: quanto si perde fermandole
   if (canStop && Math.abs(up) >= 0.05) { $("dNet").textContent = sign(up) + "/anno se lo fermi"; $("dNet").classList.toggle("up", up > 0); }
@@ -4176,6 +4292,7 @@ function renderDetail() {
       <p class="con"><b>Contro.</b> ${esc(d.con)}</p>
       ${!done && available(st, d) ? `<div class="prev" id="prevBox"><small>Calcolo dell'effetto…</small></div>` : ""}
       ${showWhy ? `<p class="why">${esc(s.why)}</p>` : ""}
+      ${pillar && active ? `<p class="why">Pilastro non revocabile dello ${esc(st.G.name)}.</p>` : ""}
     </div>
     <button type="button" class="buy" id="dBuy" ${s.why ? "disabled" : ""}>${buyLabel}${priceTxt}</button>
     ${canStop ? `<button type="button" class="buy alt" id="dRev">${d.toggle || (d.upkeep > 0 ? "Smetti di finanziare" : "Revoca")}</button>` : ""}`;
@@ -4302,6 +4419,7 @@ function renderRegion() {
         <span>Figli per donna</span><span>${fmt(r.tfr, 2)}</span>
         <span>Crescita economica</span><span>${r.growth >= 0 ? "+" : ""}${fmt(r.growth, 1)}%</span>
         <span>Debito pubblico</span><span>${Math.round(r.debt)}%</span>
+        ${r.dSnow != null ? `<span>In un anno il debito cambia di</span><span>${sign(r.dSnow + r.dDef)} punti</span><span style="padding-left:10px">palla di neve${infoBtn("snow")}</span><span>${sign(r.dSnow)}</span><span style="padding-left:10px">deficit degli stati</span><span>${sign(r.dDef)}</span>` : ""}
         <span>Disoccupazione</span><span>${fmt(r.unemp, 1)}%</span>
         <span>Energia da fossili</span><span>${Math.round(r.fossil)}%</span>
         <span>Contrari al nucleare</span><span>${Math.round(r.resist)}</span>
@@ -4429,7 +4547,7 @@ const STATS = [
   { k: "g", name: "Crescita economica", f: (v) => sign(v) + "%", d: "Variazione del PIL in un anno" },
   { k: "debt", gloss: "debt", name: "Debito pubblico", f: (v) => fmt(v, 0) + "% del PIL" },
   { k: "shadow", gloss: "shadow", name: "Economia sommersa", f: (v) => fmt(v, 1) + "% del PIL", d: "Lavoro nero ed evasione: la parte dell'economia su cui non si pagano tasse" },
-  { k: "snow", gloss: "snow", name: "Palla di neve", f: (v) => sign(v, 2) + " punti l'anno", d: "Quanto il debito cresce da solo: tasso d'interesse reale meno crescita, per il debito. Sotto zero il debito si riduce" },
+  { k: "snow", gloss: "snow", name: "Palla di neve", f: (v) => sign(v, 2) + " punti l'anno", d: "Quanto il debito cresce da solo: tasso d'interesse reale meno crescita, per il debito. Sotto zero il debito tende a scendere grazie alla crescita, a meno che gli stati non facciano nuovo deficit" },
   { k: "infl", gloss: "infl", world: true, name: "Inflazione", f: (v) => fmt(v, 1) + "%" },
   { k: "rate", gloss: "rate", world: true, name: "Tasso della Banca centrale", f: (v) => fmt(v, 1) + "%" },
   { k: "R", gloss: "longR", world: true, name: "Tasso a lungo termine", f: (v) => fmt(v, 1) + "%", d: "Quello che pagano gli stati sui loro debiti" },
