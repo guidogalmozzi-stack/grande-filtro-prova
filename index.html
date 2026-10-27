@@ -115,7 +115,7 @@ button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); o
 .views button[aria-pressed="true"] { background: var(--panel-2); color: var(--accent); }
 .legend { position: absolute; z-index: 2; right: var(--gr); top: 52px; background: rgba(21,38,52,.93); border: 1px solid var(--line); border-radius: 8px; padding: 4px 8px; font-size: 10.5px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
 .legend .bar { width: 84px; height: 7px; border-radius: 4px; }
-.ticker { position: absolute; z-index: 2; left: 50%; transform: translateX(-50%); bottom: 66px; width: min(52%, 460px); background: rgba(21,38,52,.88); border: 1px solid var(--line); border-radius: 999px; padding: 3px 0; font-size: 11.5px; color: var(--muted); white-space: nowrap; overflow: hidden; }
+.ticker { position: absolute; z-index: 2; left: 50%; transform: translateX(-50%); bottom: 62px; width: min(44%, 400px); background: rgba(21,38,52,.55); border: 1px solid rgba(255,255,255,.08); border-radius: 999px; padding: 2px 0; font-size: 10.5px; color: var(--muted); white-space: nowrap; overflow: hidden; pointer-events: none; } /* più piccolo e trasparente: non copre i numeri delle regioni (27 ottobre 2026) */
 .ticker .run { display: inline-block; padding-left: 100%; animation: tick var(--dur, 40s) linear infinite; }
 .ticker .run span + span::before { content: "  ·  "; color: #4f6b80; }
 @keyframes tick { to { transform: translateX(-100%); } }
@@ -148,6 +148,8 @@ button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); o
 .tabs::-webkit-scrollbar { display: none; }
 .tabs button { flex: none; background: none; border: 1px solid transparent; border-radius: 8px; padding: 6px 10px; display: inline-flex; gap: 6px; align-items: center; color: var(--muted); font-family: var(--font-d); font-weight: 600; font-size: 16px; letter-spacing: .03em; }
 .tabs button svg { width: 15px; height: 15px; }
+/* le schede si rimpiccioliscono finché entrano tutte, anche "Tecnologia" e "Genetica" (27 ottobre 2026) */
+.tabs.fit button { font-size: calc(16px * var(--tk, 1)); padding: 6px calc(10px * var(--tk, 1)); gap: calc(6px * var(--tk, 1)); }
 .tabs button[aria-pressed="true"] { color: var(--fg); background: var(--panel-3); border-color: var(--line); }
 
 /* albero degli interventi: esagoni grandi con il nome dentro, come in Rebel Inc */
@@ -235,7 +237,9 @@ button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); o
 .prev .bars i { height: 6px; border-radius: 3px; background: #4fae8e; display: block; }
 .prev .bars i.n { background: #d65b4a; }
 .prev .bars span:last-child, .prev .bars .v { font-family: var(--font-m); text-align: right; }
-.detail .scroll { flex: 1; overflow-y: auto; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+.detail .scroll { flex: 1; overflow-y: auto; padding: 10px 12px 18px; display: flex; flex-direction: column; gap: 8px;
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 16px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 16px), transparent); }
+.detail > .buy { flex: none; } .compact .detail > .buy { padding-top: 7px; padding-bottom: 7px; margin-top: 4px; margin-bottom: 6px; }
 .detail h3 { margin: 0; font-family: var(--font-d); font-size: 21px; font-weight: 600; letter-spacing: .02em; line-height: 1.1; }
 .detail .meta { font-family: var(--font-m); font-size: 11px; color: var(--muted); line-height: 1.45; }
 .detail .desc { font-size: 13px; line-height: 1.4; color: #dbe4ea; }
@@ -359,6 +363,21 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
 .mbtn:disabled { opacity: .5; cursor: not-allowed; }
 .panelscreen { position: absolute; inset: 0; z-index: 9; background: rgba(8,16,22,.94); display: flex; flex-direction: column; }
 .panelscreen .body { flex: 1; min-height: 0; overflow-y: auto; padding: 12px; padding-left: var(--gl); padding-right: var(--gr); }
+/* scenari e governi: tutto in una pagina, senza scorrere (27 ottobre 2026); --k rimpicciolisce testi e spazi finché tutto entra */
+#menuLevels .body, #menuGov .body { padding-top: calc(10px * var(--k, 1)); padding-bottom: 6px; }
+#levels.levels { overflow: visible; width: 100%; gap: calc(8px * var(--k, 1)); }
+#levels .lvl { flex: 1 1 0; min-width: 0; padding: calc(9px * var(--k, 1)) calc(10px * var(--k, 1)); gap: calc(3px * var(--k, 1)); }
+#levels .lvl .num { font-size: calc(30px * var(--k, 1)); }
+#levels .lvl b { font-size: calc(17px * var(--k, 1)); }
+#levels .lvl .intro { font-size: calc(11px * var(--k, 1)); }
+#levels .lvl .adds, #levels .lvl .foot2, #levels .lvl .lockmsg { font-size: calc(10.5px * var(--k, 1)); }
+#govs.govs { gap: calc(8px * var(--k, 1)); }
+#govs .gov { padding: calc(7px * var(--k, 1)) calc(10px * var(--k, 1)); grid-template-columns: calc(30px * var(--k, 1)) 1fr; }
+#govs .gov svg.gi { width: calc(30px * var(--k, 1)); height: calc(30px * var(--k, 1)); }
+#govs .gov b { font-size: calc(17px * var(--k, 1)); }
+#govs .gov .sh, #govs .gov ul { font-size: calc(11px * var(--k, 1)); line-height: 1.3; }
+#govs .gov ul { margin-top: calc(3px * var(--k, 1)); }
+#govs .gov .won { font-size: calc(10.5px * var(--k, 1)); }
 .howto { max-width: 66ch; margin: 0 auto; font-size: 13.5px; line-height: 1.55; color: #cbd6df; }
 .howto h3 { font-family: var(--font-d); font-size: 17px; letter-spacing: .04em; color: var(--fg); margin: 14px 0 4px; }
 .howto p { margin: 0 0 8px; }
@@ -511,7 +530,10 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
 /* conti dell'Autorità: entrate e spese, dalla più grande alla più piccola (25 ottobre 2026) */
 .budgetbtn, .opbox .funds { cursor: pointer; }
 .budgetbtn b { text-decoration: underline dotted rgba(255,255,255,.35); text-underline-offset: 3px; }
-.infobox .card.budget { width: min(760px, 100%); max-height: 92vh; overflow: auto; }
+.infobox .card.budget { width: min(760px, 100%); max-height: 85vh; display: flex; flex-direction: column; overflow: hidden; }
+.budget .bhead { display: flex; align-items: center; gap: 10px; flex: none; } .budget .bhead h2 { flex: 1; margin: 0; padding: 0; }
+.budget .bhead .evx { position: static; flex: none; }
+.budget .bbody { overflow-y: auto; min-height: 0; flex: 1; }
 .budget .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; }
 .budget h4 { font-family: var(--font-d); letter-spacing: .05em; font-size: 15px; margin: 6px 0 4px; color: var(--muted); text-transform: uppercase; }
 .budget .row { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; padding: 4px 6px; border-bottom: 1px solid var(--line); font-size: 13px; border-radius: 6px; }
@@ -535,7 +557,9 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
 
 /* statistiche */
 .stats { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(150px, 30%) 1fr; gap: 12px; padding: 10px var(--gr) 10px var(--gl); }
-.slist { display: flex; flex-direction: column; gap: 4px; overflow-y: auto; min-height: 0; }
+.slist { display: flex; flex-direction: column; gap: 4px; overflow-y: auto; min-height: 0; padding-bottom: 14px; -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 14px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 14px), transparent); }
+/* fine partita: pulsante per tornare al menu sempre visibile in alto (27 ottobre 2026) */
+.endx { position: sticky; top: 0; float: right; z-index: 3; margin: -4px -4px 0 8px; font-size: 13px; padding: 6px 12px; }
 .slist button { text-align: left; background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; font-size: 13px; }
 .slist button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 .sview { position: relative; min-width: 0; min-height: 0; overflow: hidden; }
@@ -859,7 +883,7 @@ const GBY = Object.fromEntries(GOVS.map((g) => [g.id, g]));
    climate esposizione 0-100 · resist opposizione al nucleare 0-100 · links collegamenti 0-100
    I contorni geografici delle regioni stanno in geo.js (dati reali, preparati da tools/geo-build.js). */
 const REGIONS = [
-  { id: "na", name: "Nord America", short: "Nord America", links: 95, nb: ["latam", "ru"], label: [-98, 40],
+  { id: "na", name: "Nord America", short: "Nord America", links: 95, nb: ["latam", "ru"], label: [-97, 36], // più in basso: in alto a sinistra ci sono i pulsanti
     init: { yng: 0.21, oldS: 0.18, cbr: 11, oldG: 2.8, pop: 380, tfr: 1.6, age: 38, wealth: 90, debt: 115, pension: 55, unrest: 35, polar: 70, unemp: 4.5, fossil: 78, nuclear: 9, renew: 13, climate: 40, resist: 45, urban: 83, rural: 15, remote: 2 } },
   { id: "latam", name: "America Latina", short: "America Latina", links: 55, nb: ["na"], label: [-60, -12],
     init: { yng: 0.25, oldS: 0.1, cbr: 14, oldG: 3.8, pop: 660, tfr: 1.8, age: 31, wealth: 45, debt: 70, pension: 35, unrest: 45, polar: 55, unemp: 7, fossil: 66, nuclear: 1, renew: 33, climate: 55, resist: 50, urban: 81, rural: 17, remote: 2 } },
@@ -1020,7 +1044,7 @@ const lifeOld = (r, m) => 12 + 10 * r.wealth / 100 + (m ? m.life : 0); // anni d
 const incomeSupport = (r) => {
   if (!r.acts) return 0;
   const on = (id) => (lvl(r, id) > 0 ? 1 : 0);
-  return Math.min(0.97, 0.25 * on("unempBenefit") + 0.45 * on("ubi") + 0.2 * on("ubiMid") + 0.25 * on("ubiPlus") + 0.15 * on("sovFund"));
+  return Math.min(0.97, 0.25 * Math.max(on("unempBenefit"), on("ubi")) + 0.45 * on("ubi") + 0.2 * on("ubiMid") + 0.25 * on("ubiPlus") + 0.15 * on("sovFund"));
 };
 const unempPain = (r) => Math.min(r.unemp, 6) + Math.max(0, r.unemp - 6) * (1 - incomeSupport(r));
 const fEnergyCost = (r) => 40 + 0.15 * r.fossil;
@@ -1312,8 +1336,8 @@ const INTERVENTIONS = [
     pro: "La sicurezza dell'AI cresce più in fretta, un po' ogni anno", con: "Lo sviluppo dell'AI rallenta",
     fx: (m, s, r, st, gm) => { gm.safeRate += 1.5; gm.aiRate -= 1; } },
   { id: "align", cat: "ai", name: "Allineamento · livello 1: ricerca", desc: "Centri di ricerca che studiano come far fare alle intelligenze artificiali ciò che vogliamo davvero.", scope: "global", cost: 5, upkeep: 1, T: 3,
-    pro: "La sicurezza dell'AI cresce molto più in fretta, un po' ogni anno", con: "Costa ogni anno; nessun beneficio economico visibile",
-    fx: (m, s, r, st, gm) => { gm.safeRate += 3; } },
+    pro: "La sicurezza dell'AI sale subito un po' e poi cresce molto più in fretta, un po' ogni anno", con: "Costa ogni anno; nessun beneficio economico visibile",
+    fx: (m, s, r, st, gm) => { gm.safeRate += 3; }, once: (r, st) => { st.g.aiSafety += 3; } }, // i primi risultati della ricerca si vedono subito
   { id: "align2", cat: "ai", name: "Allineamento · livello 2: verifiche obbligatorie", desc: "Ogni nuovo modello potente viene messo alla prova da squadre indipendenti prima di essere usato.", scope: "global", cost: 10, upkeep: 2.5, T: 3,
     pro: "La sicurezza cresce ancora più in fretta", con: "Le aziende devono procedere con cautela: lo sviluppo dell'AI rallenta; costa ogni anno",
     fx: (m, s, r, st, gm) => { gm.safeRate += 3.5; gm.aiRate -= 1; } },
@@ -1367,6 +1391,7 @@ const INTERVENTIONS = [
      un secondo condono incassa il 35-45% in meno del primo [Probabile]. Due cittadini su tre lo giudicano ingiusto [Certo]. */
   { id: "amnesty", cat: "economia", name: "Condono fiscale", desc: "Chi ha evaso può mettersi in regola pagando solo una parte di quanto doveva.", scope: "region", cost: 0, T: 1, repeat: true,
     pro: "Entrate subito, tanto più grandi quanto più l'economia è grande e c'è sommerso: utile in un'emergenza", con: "Chi paga onestamente si sente preso in giro (un po' più di divisioni) e molti aspettano il prossimo condono: per anni l'economia sommersa sale di circa 3 punti, di più a ogni nuovo condono; ogni condono incassa meno del precedente",
+    gain: (st) => amnestyYield(st),
     once: (r, st) => { r.shadow += 3 + 1.5 * ((st.amnestyN || 1) - 1); r.polar += 1.5; }, gonce: (st) => { st.funds += amnestyYield(st); st.amnestyN = (st.amnestyN || 0) + 1; } },
   // Lavoro
   /* Chi riceve il sussidio cerca lavoro con meno fretta: ogni settimana in più di sussidio allunga la disoccupazione di 0,16-0,20
@@ -1437,8 +1462,11 @@ const INTERVENTIONS = [
   { id: "massSurveil", cat: "sicurezza", name: "Sorveglianza capillare", desc: "Telecamere, intercettazioni e informatori in tutte le città.", scope: "region", cost: 8, upkeep: 1, T: 2, axis: 15, gov: "central",
     pro: "Telecamere, dati e informatori individuano le proteste prima che crescano: proteste e movimenti contro l'Autorità molto più rari, malcontento visibile più basso", con: "Sfiducia e polarizzazione in aumento. Esclusivo dello Stato centralizzato",
     fx: (m) => { m.unrestT -= 8; m.polarT += 4; } },
-  { id: "privat", cat: "economia", name: "Privatizzazioni", desc: "Vendita a privati di aziende e servizi pubblici.", scope: "global", cost: 0, T: 1, gov: "market",
-    pro: "Vendita di aziende e servizi pubblici: molti fondi subito", con: "Malcontento e polarizzazione in aumento ovunque. Esclusivo del Libero mercato",
+  /* Privatizzazioni (riviste il 27 ottobre 2026): si incassa subito, ma si perdono per sempre i profitti delle aziende vendute
+     e le tariffe dei servizi salgono. */
+  { id: "privat", cat: "economia", name: "Privatizzazioni", desc: "Vendita a privati di aziende e servizi pubblici.", scope: "global", cost: 0, upkeep: 0.8, T: 1, gov: "market", fixed: true,
+    gain: (st) => priced(st, 15),
+    pro: "Un grande incasso subito; le aziende vendute diventano un po' più efficienti", con: "Si perdono per sempre i profitti delle aziende pubbliche (un piccolo costo ogni anno); tariffe più care: malcontento e polarizzazione in aumento ovunque. Esclusivo del Libero mercato",
     once: (r, st) => { st.funds += priced(st, 15); for (const id in st.regions) { st.regions[id].shockU += 6; st.regions[id].polar += 2; } } },
   /* ----- Genetica (scenario 6). Ogni passo accelera la ricerca biotecnologica e alza un po' il rischio di pandemia
      ingegnerizzata; il controllo del DNA sintetico e le regole per i laboratori lo bilanciano. Numeri da [Probabile] a [Ipotesi]. ----- */
@@ -1554,7 +1582,8 @@ const TREE = {
   launch: null, orbital: "launch", pdef: "orbital", moon: "launch", lunarSci: "moon", lunarCity: "lunarSci", lunarIce: "moon", lunarMining: "lunarIce",
 };
 for (const id in TREE) { IBY[id].parent = TREE[id] || undefined; delete IBY[id].needs; }
-function parentOk(st, d) { return !d.parent || !!(st.acts[d.parent] && st.acts[d.parent].n > 0); }
+// il sussidio di disoccupazione assorbito dal reddito di base conta come attivo per i rami che ne dipendono
+function parentOk(st, d) { return !d.parent || !!(st.acts[d.parent] && st.acts[d.parent].n > 0) || (d.parent === "unempBenefit" && built(st, "ubi")); }
 // ritorno economico di un intervento: nullo per "after" anni dal completamento, poi cresce fino al massimo in "ramp" anni
 function payoffNow(d, a, st) {
   if (d.id === "moon" && st.moonHalt > st.year) return 0; // base evacuata dopo un incidente
@@ -1898,6 +1927,7 @@ function canStart(st, id) {
   if (d.from && st.year < d.from) return "Disponibile dal " + d.from;
   if (!parentOk(st, d)) return "Richiede: " + IBY[d.parent].name;
   if (d.need) { const w = d.need(st); if (w) return w; }
+  if (id === "unempBenefit" && built(st, "ubi")) return "Assorbito dal reddito di base";
   const a = st.acts[id];
   const inProg = st.prog.filter((p) => p.id === id).length;
   const own = (a ? a.n : 0) + inProg;
@@ -1917,6 +1947,7 @@ function startIntervention(st, id) {
     const gap = st.year + st.month / 12 - pz.at, a = pz.a;
     a.y += gap; if (a.y0 != null) a.y0 += gap;
     st.acts[id] = a;
+    if (id === "ubi") absorbBenefit(st);
     logNews(st, d.name + ": riattivato.", "done");
     return null;
   }
@@ -1927,11 +1958,18 @@ function startIntervention(st, id) {
   if (d.axis) st.axis = clamp(st.axis + d.axis, -100, 100);
   return null;
 }
+function absorbBenefit(st) {
+  if (!built(st, "unempBenefit")) return;
+  (st.absorbed || (st.absorbed = {})).unempBenefit = st.acts.unempBenefit; delete st.acts.unempBenefit;
+  logNews(st, "Sussidio di disoccupazione: assorbito dal reddito di base.", "info");
+}
 function complete(st, d) {
   const ec0 = avgEc(st);
   const a = st.acts[d.id] || (st.acts[d.id] = { n: 0, y: st.year, y0: st.year });
   a.n += 1; a.y = st.year;
   if (d.once) { if (d.wasRegion) ctrlRegions(st).forEach((r) => d.once(r, st)); else d.once(null, st); }
+  // il reddito di base assorbe il sussidio di disoccupazione: chi perde il lavoro lo riceve già (decisione del 27 ottobre 2026)
+  if (d.id === "ubi") absorbBenefit(st);
   if (d.gonce) d.gonce(st);
   logNews(st, d.name + ": operativo in tutto il mondo.", "done");
   if (COMPLETE_NOTE[d.id] && a.n === 1) note(st, "good", d.id, COMPLETE_NOTE[d.id].title, COMPLETE_NOTE[d.id].text(st, ec0));
@@ -2025,6 +2063,7 @@ function revoke(st, id) {
   (st.paused || (st.paused = {}))[id] = { a: st.acts[id], at: st.year + st.month / 12 };
   delete st.acts[id];
   if (id === "fossilSub" || id === "ubi" || id === "priceCap") ctrlRegions(st).forEach((r) => (r.shockU += 10));
+  if (id === "ubi" && st.absorbed && st.absorbed.unempBenefit) { st.acts.unempBenefit = st.absorbed.unempBenefit; delete st.absorbed.unempBenefit; logNews(st, "Torna il sussidio di disoccupazione.", "info"); }
   if (id === "geoeng") { ctrlRegions(st).forEach((r) => (r.shockU += 8)); logNews(st, "Interrotti gli aerosol riflettenti: il caldo trattenuto dalla CO₂ torna in un paio d'anni.", "bad"); }
   logNews(st, d.name + ": revocato.", "info");
 }
@@ -3698,6 +3737,14 @@ const DIFF_LOOK = {
   super: { c: "#d65b4a", tag: "Un mondo sull'orlo", acc: "difficile", inc: "scarse" },
 };
 const LOCK_SVG = '<svg viewBox="0 0 10 10"><use href="#i-lock"/></svg>';
+// rimpicciolisce testi e spazi di una schermata di scelta finché entra tutta, senza scorrere né tagli
+function fitMenu(el) {
+  const box = el && el.parentElement; if (!box || !box.clientHeight) return;
+  const over = () => box.scrollHeight > box.clientHeight + 1 || el.scrollWidth > el.clientWidth + 1 || [...el.children].some((c) => c.scrollHeight > c.clientHeight + 1);
+  let k = 1.15; el.style.setProperty("--k", k); box.style.setProperty("--k", k);
+  while (k > 0.55 && over()) { k -= 0.04; el.style.setProperty("--k", k.toFixed(2)); box.style.setProperty("--k", k.toFixed(2)); }
+}
+window.addEventListener("resize", () => { if (phase === "levels") fitMenu($("levels")); if (phase === "gov") fitMenu($("govs")); });
 function renderLevels() {
   if (!levelUnlocked(LEVELS.findIndex((l) => l.id === introLevel))) introLevel = "l1";
   $("levels").innerHTML = LEVELS.map((l, i) => {
@@ -3709,6 +3756,7 @@ function renderLevels() {
       ${open ? `<span class="foot2">${l.tutorial ? (levelWon(l.id) ? "Completato ✓" : "Consigliato per iniziare") : `<span class="medals" aria-label="Difficoltà vinte">${medals}</span><span>Governi ${gw}/${GOVS.length}</span>${crowned(l.id) ? `<span class="crown" title="Vinto a super difficile con tutti i governi">♛</span>` : ""}`}</span>`
         : `<span class="foot2"><span class="lockmsg">${LOCK_SVG}Vinci «${esc(LEVELS[i - 1].name)}»</span></span>`}</button>`;
   }).join("");
+  fitMenu($("levels"));
   for (const b of $("levels").querySelectorAll("[data-l]")) b.onclick = () => { if (b.classList.contains("locked")) return; introLevel = b.dataset.l; renderLevels(); };
   $("mLevelNext").textContent = LBY[introLevel].tutorial ? "Inizia" : "Avanti";
 }
@@ -3726,6 +3774,7 @@ function renderGovs() {
       <svg class="gi" viewBox="0 0 24 24" aria-hidden="true">${GOV_ICON[g.icon]}</svg><b>${esc(g.name)}</b><span class="sh">${esc(g.short)}</span>
       <ul>${g.pro.map((x) => `<li class="p">${esc(x)}</li>`).join("")}${g.con.map((x) => `<li class="c">${esc(x)}</li>`).join("")}</ul>
       ${won.includes(g.id) ? `<span class="won">✓ Scenario già vinto con questo governo</span>` : ""}</button>`).join("");
+  fitMenu($("govs"));
   for (const b of $("govs").querySelectorAll("[data-g]")) b.onclick = () => { introGov = b.dataset.g; renderGovs(); };
 }
 $("mLevelNext").onclick = () => {
@@ -3772,6 +3821,7 @@ function startGame() {
   // la partita viene preparata qui, ma il tempo parte solo dopo la schermata della missione
   st = newGame(introDiff, undefined, introLevel, introGov);
   sel = null; seenLog = st.logN; tut = st.L.tutorial ? { step: 0, events: 0 } : null;
+  pending = null; openScreen = null; acc = 0; endReopen = null; $("modal").hidden = true; $("bEnd").hidden = true; // nessun resto della partita precedente
   $("briefBack").dataset.back = st.L.tutorial ? "levels" : "gov";
   speed = 1;
   const ws = Math.round(worldStab(st));
@@ -3893,10 +3943,10 @@ function showBudget() {
   const b = budget(st), box = $("infoBox"), totIn = b.inc.reduce((a, x) => a + x.v, 0), totOut = b.out.reduce((a, x) => a + x.v, 0);
   const pc = (v, t) => (t > 0 ? `<i>${Math.round(v / t * 100)}%</i>` : "");
   const row = (x, t, neg) => `<div class="row"${x.id ? ` data-go="${x.id}"` : ""}><span>${esc(x.name)}${x.id ? " ›" : ""}</span><b style="${x.v < 0 ? "color:#f0a597" : ""}">${sign(neg ? -x.v : x.v)}${pc(Math.abs(x.v), t)}</b></div>`;
-  box.innerHTML = `<div class="card budget"><button type="button" class="x evx" aria-label="Chiudi" onclick="this.closest('#infoBox').hidden=true">×</button><h2>Entrate e spese dell'Autorità</h2>
+  box.innerHTML = `<div class="card budget"><div class="bhead"><h2>Entrate e spese dell'Autorità</h2><button type="button" class="x evx" aria-label="Chiudi" onclick="this.closest('#infoBox').hidden=true">×</button></div><div class="bbody">
     <div class="cols"><div><h4>Entrate</h4>${b.inc.map((x) => row(x, totIn)).join("")}<div class="row tot"><span>Totale</span><b>${sign(totIn)}</b></div></div>
     <div><h4>Spese</h4>${b.out.length ? b.out.map((x) => row(x, totOut, true)).join("") : `<div class="row"><span>Nessuna spesa annua</span><b></b></div>`}<div class="row tot"><span>Totale</span><b>${sign(-totOut)}</b></div></div></div>
-    <p>Saldo: <b style="color:${totIn - totOut < 0 ? "#f0a597" : "var(--accent)"}">${sign(totIn - totOut)}/anno</b>. Valori in fondi l'anno a prezzi di oggi (un fondo vale circa 10 miliardi di dollari del 2026). Tocca una spesa per aprire l'intervento e, se serve, smettere di finanziarlo.</p></div>`;
+    <p>Saldo: <b style="color:${totIn - totOut < 0 ? "#f0a597" : "var(--accent)"}">${sign(totIn - totOut)}/anno</b>. Valori in fondi l'anno a prezzi di oggi (un fondo vale circa 10 miliardi di dollari del 2026). Tocca una spesa per aprire l'intervento e, se serve, smettere di finanziarlo. Per chiudere tocca la X o fuori dal riquadro.</p></div></div>`;
   box.hidden = false;
   for (const r of box.querySelectorAll("[data-go]")) r.onclick = () => { const d = IBY[r.dataset.go]; box.hidden = true; actTab = d.cat; actNode = d.id; if (openScreen === "acts") renderActs(); else open("acts"); };
 }
@@ -3935,8 +3985,8 @@ const IND = [
   { id: "pens", gloss: "pens", tab: "welfare", icon: "#g-piggy", name: "Pensioni sostenibili", v: (x) => 1 - clamp((avgOfW(x, "pension") - 10) / 80, 0, 1) },
   { id: "wellbeing", gloss: "wellbeing", tab: "societa", icon: "#g-people", name: "Benessere della popolazione", v: (x) => 0.5 * (1 - avgOfW(x, "unrest") / 100) + 0.3 * (1 - avgOfW(x, "polar") / 100) + 0.2 * avgOfW(x, "wealth") / 100 },
   { id: "security", tab: "sicurezza", icon: "#i-sicurezza", name: "Sicurezza", v: (x) => 1 - (lvOf(x, "war") + lvOf(x, "bio")) / 6 },
-  { id: "ai", tab: "tecnologia", icon: "#i-ai", name: "Sicurezza dell'AI", v: (x) => 1 - lvOf(x, "ai") / 3 },
-  { id: "biosafe", tab: "genetica", icon: "#i-genetica", name: "Sicurezza biologica", v: (x) => 1 - lvOf(x, "bio") / 3 },
+  { id: "ai", tab: "tecnologia", icon: "#i-ai", name: "Sicurezza dell'AI", v: (x) => 1 - clamp((x.g.aiCap - x.g.aiSafety) / 50, 0, 1) },
+  { id: "biosafe", tab: "genetica", icon: "#i-genetica", name: "Sicurezza biologica", v: (x) => 1 - clamp((x.g.biotech - x.g.bioSafety) / 45, 0, 1) },
 ];
 const indText = (i, x) => (i.txt ? i.txt(x) : levelWord(i.v(x)));
 const indsOn = () => IND.filter((i) => (i.tab === "sicurezza" ? sysOn(st, "war") || sysOn(st, "bio") : i.tab === "tecnologia" ? sysOn(st, "ai") : i.tab === "genetica" ? sysOn(st, "gen") : i.tab === "clima" ? sysOn(st, "climate") : i.tab === "energia" ? sysOn(st, "energia") : true));
@@ -4038,6 +4088,7 @@ function renderActs() {
     <div class="acts${actTab === "sintesi" ? " wide" : ""}"><div class="treebox${actTab === "sintesi" ? " sum" : ""}" style="--tint:${tint}">${actTab === "sintesi" ? `<div class="sumlist" id="sumList"></div>` : `<div class="treewrap" id="treewrap"><svg id="tree" preserveAspectRatio="xMidYMid meet"></svg></div>`}</div><div class="detail" id="detail"></div></div>
     <div class="foot"><span>Fondi${infoBtn("funds")} <b style="${st.funds < 0 ? "color:#f0a597" : ""}">${fmt(st.funds, 1)}</b> <em class="delta" id="dFunds"></em></span><span class="budgetbtn" role="button" tabindex="0" data-budget aria-label="Entrate e spese dell'Autorità">Saldo${infoBtn("saldo")} <b style="${netYear() < 0 ? "color:#f0a597" : ""}">${sign(netYear())}/anno</b> <em class="delta" id="dNet"></em></span></div>`;
   wireClose(root);
+  { const t = root.querySelector(".tabs"); t.classList.add("fit"); let k = 1; t.style.setProperty("--tk", k); while (k > 0.6 && t.scrollWidth > t.clientWidth + 1) { k -= 0.05; t.style.setProperty("--tk", k.toFixed(2)); } }
   for (const b of root.querySelectorAll("[data-c]")) b.onclick = () => { actTab = b.dataset.c; actNode = null; renderActs(); };
   if (actTab === "sintesi") { renderSummary(); return; }
   drawTree();
@@ -4101,13 +4152,13 @@ function renderDetail() {
   const evGain = done ? 0 : (shadowPts ? st.income * shadowPts / 100 / tb : 0) + incomeGainOf(st, d);
   const dF = done || (s.prog.length && !d.stack) ? 0 : c0, dN = done ? 0 : -(Math.max(0, up) + (d.buildUpkeep || 0)) + (up < 0 ? -up : 0) + saved + evGain;
   // il condono incassa subito: quanto, con il sommerso e le entrate di oggi
-  const oneOff = d.id === "amnesty" ? amnestyYield(st) : 0;
+  const oneOff = d.gain && !done ? d.gain(st) : 0; // condono e privatizzazioni: si incassa subito
   $("dFunds").textContent = oneOff && !s.why ? "+" + fmt(oneOff, 1) + " subito" : dF && !s.why ? "−" + fmt(dF, dF % 1 ? 1 : 0) : "";
   $("dFunds").classList.toggle("up", !!oneOff);
   $("dNet").textContent = dN && !s.why ? sign(dN) : ""; $("dNet").classList.toggle("up", dN > 0);
   const slow = d.ramp && d.ramp >= 5 ? (d.ramp >= 15 ? " L'effetto pieno arriva dopo molti anni." : " L'effetto pieno arriva in alcuni anni.") : "";
-  const buyLabel = done ? "Già attivo" : st.paused && st.paused[d.id] ? "Riattiva" : (active && d.stack) ? "Costruisci ancora" : s.prog.length && !d.stack ? "In corso" : st.funds - c0 < 0 ? "Avvia a debito" : "Avvia";
-  const priceTxt = c0 && !done ? ` – ${fmt(c0, c0 % 1 ? 1 : 0)}` : "";
+  const buyLabel = d.gain && !done ? `Avvia e incassa +${fmt(d.gain(st), 1)}` : done ? "Già attivo" : st.paused && st.paused[d.id] ? "Riattiva" : (active && d.stack) ? "Costruisci ancora" : s.prog.length && !d.stack ? "In corso" : st.funds - c0 < 0 ? "Avvia a debito" : "Avvia";
+  const priceTxt = c0 && !done && !d.gain ? ` – ${fmt(c0, c0 % 1 ? 1 : 0)}` : "";
   const showWhy = s.why && !done && s.why !== "In corso" && !s.why.startsWith("Richiede") && !s.why.startsWith("Disponibile");
   const canStop = active && !d.fixed && (d.upkeep || d.upkeepFn || d.revocable); // le strutture lunari non si smontano
   // nel piede: quanto cambierebbe il saldo annuo fermandolo, senza doverlo fermare
@@ -4455,7 +4506,8 @@ const EV_ICON = { Cronaca: "societa", Economia: "economia", Previdenza: "demogra
 // dove si appoggia il segnaposto di una regione, se diverso dall'etichetta [lon, lat, scarto verticale]: il Nord America
 // sotto il nome, per non finire dietro ai pulsanti in alto a sinistra
 // Nord America: a destra del nome, così il numero della stabilità resta visibile (decisione del 22 ottobre 2026)
-const PIN_AT = { na: [-82, 37, 0], ru: [72, 45, 0], eu: [31, 50, 6] };
+const PIN_AT = { na: [-86, 33, 0], // Nord America più in basso, lontano dai pulsanti in alto a sinistra (27 ottobre 2026)
+  ru: [72, 45, 0], eu: [31, 50, 6] };
 // icona di ogni evento sul segnaposto (le altre usano l'icona della categoria)
 const EV_GLYPH = { debt: "vault", energyShock: "fuel", recession: "factoryDown", autoUnemp: "robot", pensions: "piggy", protests: "people", strike: "hardhat", govCrisis: "gavel", bubble: "house",
   antiAuth: "megaphone", migrationCrisis: "plane", scandal: "newspaper", heat: "sun", famine: "wheat", storm: "waves", solar: "sun", epidemic: "virus", labLeak: "flask", pandemic: "virus",
@@ -4700,7 +4752,7 @@ function endGame() {
   }
   tut = null; renderCoach();
   const c = $("modalCard");
-  c.innerHTML = `<div class="eyebrow">${win ? "Vittoria" : "Sconfitta"} · ${st.year} · ${DIFF[st.diffId].name}</div><h2>${esc(E.title)}</h2><p>${esc(endingText(st))}</p>
+  c.innerHTML = `<button type="button" class="buy alt endx" id="bEndX">Menu ✕</button><div class="eyebrow">${win ? "Vittoria" : "Sconfitta"} · ${st.year} · ${DIFF[st.diffId].name}</div><h2>${esc(E.title)}</h2><p>${esc(endingText(st))}</p>
     ${win ? `<div class="stars" aria-label="${stars} stelle su ${maxS}">${"★".repeat(stars)}<i>${"★".repeat(maxS - stars)}</i>${record ? ' <span style="font-size:13px;letter-spacing:0">nuovo record</span>' : ""}</div>
       ${unl.map((u) => `<div class="unlock">${u}</div>`).join("")}
       <p class="congr">Complimenti: hai guidato il mondo oltre il primo filtro.</p>
@@ -4722,13 +4774,14 @@ function endGame() {
   };
   const wireEnd = () => {
     $("bAgain").onclick = () => toMenu(win ? null : st.levelId);
+    $("bEndX").onclick = () => toMenu(win ? null : st.levelId);
     if ($("bNext")) $("bNext").onclick = () => toMenu(next.id);
     $("bLook").onclick = () => { $("modal").hidden = true; $("bEnd").hidden = false; };
     $("bStats").onclick = showStats;
     wireCharts(c); wireStats(c, st.hist);
   };
   endReopen = () => { closeScreensQuiet(); c.innerHTML = endHTML; $("modal").hidden = false; $("bEnd").hidden = true; wireEnd(); };
-  function toMenu(lid) { $("bEnd").hidden = true; endReopen = null; $("modal").hidden = true; st = null; sel = null; globeOn = false; showGlobe(); if (lid) introLevel = lid; showPhase("levels"); }
+  function toMenu(lid) { $("bEnd").hidden = true; endReopen = null; $("modal").hidden = true; pending = null; c.classList.remove("statsfull"); st = null; sel = null; globeOn = false; showGlobe(); if (lid) introLevel = lid; showPhase("levels"); }
   wireEnd();
   refresh();
 }
