@@ -378,6 +378,11 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
 #govs .gov .sh, #govs .gov ul { font-size: calc(11px * var(--k, 1)); line-height: 1.3; }
 #govs .gov ul { margin-top: calc(3px * var(--k, 1)); }
 #govs .gov .won { font-size: calc(10.5px * var(--k, 1)); }
+/* "Nessuna linea" è una striscia sottile in alto; sotto i sei governi veri in tre colonne per due righe (28 ottobre 2026) */
+#govs .gov[data-g="base"] { grid-column: 1 / -1; grid-template-columns: calc(22px * var(--k, 1)) auto auto 1fr; align-items: center; gap: 0 10px; padding-top: calc(4px * var(--k, 1)); padding-bottom: calc(4px * var(--k, 1)); }
+#govs .gov[data-g="base"] svg.gi { width: calc(22px * var(--k, 1)); height: calc(22px * var(--k, 1)); grid-row: auto; }
+#govs .gov[data-g="base"] ul { grid-column: auto; display: flex; gap: 14px; margin: 0; }
+#govs .gov[data-g="base"] .won { grid-column: auto; margin: 0; }
 .howto { max-width: 66ch; margin: 0 auto; font-size: 13.5px; line-height: 1.55; color: #cbd6df; }
 .howto h3 { font-family: var(--font-d); font-size: 17px; letter-spacing: .04em; color: var(--fg); margin: 14px 0 4px; }
 .howto p { margin: 0 0 8px; }
@@ -860,9 +865,9 @@ const GOVS = [
   /* Stato sociale (rivisto il 27 ottobre 2026): la sanità universale c'è già dall'inizio e non si può togliere; niente pensioni
      legate a stipendi e lavoratori. Per reggere la sanità gli stati versano un po' di più all'Autorità. */
   { id: "social", name: "Stato sociale", icon: "social", short: "Protezione per tutti, a caro prezzo",
-    pro: ["Malcontento più basso ovunque", "Sanità universale già attiva dal primo giorno", "Reddito di base sempre disponibile, con spese di gestione più basse", "Tasse più alte: entrate un po' più alte"],
-    con: ["Il debito cresce più in fretta", "Crescita più bassa", "La sanità universale non si può togliere", "Niente tagli alla spesa pubblica né pensioni legate a stipendi e lavoratori"],
-    m: { unrestT: -4, debtF: 0.4, g: -0.1 }, ban: ["austerity", "cutServices", "cutStaff", "pensionIndex"], grant: ["ubi"], cheapUp: { ubi: 0.6, healthcare: 0.6 }, pre: ["healthcare"], lock: ["healthcare"], inc: 1.25 },
+    pro: ["Malcontento più basso ovunque", "Sanità universale dal primo giorno (non si può togliere)", "Reddito di base sempre disponibile e più economico", "Esclusivo: patrimoniale sui grandi capitali e farmaci pubblici"],
+    con: ["Il debito cresce più in fretta", "Crescita più bassa", "Niente tagli alla spesa pubblica né pensioni legate a stipendi e lavoratori"],
+    m: { unrestT: -4, debtF: 0.4, g: -0.1 }, ban: ["austerity", "cutServices", "cutStaff", "pensionIndex"], grant: ["ubi"], cheapUp: { ubi: 0.6, healthcare: 0.6 }, pre: ["healthcare"], lock: ["healthcare"], own: ["socWealth", "pubDrugs"] }, // niente entrate regalate: due azioni esclusive (28 ottobre 2026)
   { id: "market", name: "Libero mercato", icon: "market", short: "Crescita prima di tutto",
     pro: ["Crescita più alta", "Debito più basso", "Esclusivo: privatizzazioni per fare cassa"],
     con: ["Più disoccupazione", "Più disuguaglianza: polarizzazione più alta", "Niente reddito di base"],
@@ -1476,6 +1481,14 @@ const INTERVENTIONS = [
     fx: (m) => { m.unrestT -= 8; m.polarT += 4; } },
   /* Privatizzazioni (riviste il 27 ottobre 2026): si incassa subito, ma si perdono per sempre i profitti delle aziende vendute
      e le tariffe dei servizi salgono. */
+  /* Esclusivi dello Stato sociale (28 ottobre 2026). La patrimoniale sui grandi capitali si aggiunge a quella normale.
+     I farmaci pubblici abbassano il costo dei programmi sanitari: le aziende guadagnano meno e la ricerca biotecnologica rallenta un po'. */
+  { id: "socWealth", cat: "economia", name: "Patrimoniale sui grandi capitali", desc: "Un'imposta progressiva su tutte le grandi fortune del mondo, registrate in un catasto patrimoniale unico.", scope: "region", cost: 2, T: 2, gov: "social",
+    pro: "Entrate più alte (circa un decimo in più, che si somma alla patrimoniale normale; di più quando i robot concentrano la ricchezza) e disuguaglianza molto più bassa", con: "Un po' meno investimenti e crescita; i grandi capitali si oppongono. Esclusivo dello Stato sociale",
+    eff: { polar: -5, g: -0.15 }, gfx: (st, gm, k) => { gm.income += k * (0.08 + 0.2 * (st.robShareW || 0)) * (1 - anarchyShare(st)); } },
+  { id: "pubDrugs", cat: "demografia", name: "Farmaci pubblici e prezzi calmierati", desc: "Farmaci essenziali e terapie prodotti da aziende pubbliche o venduti a prezzi fissati per legge, senza sovrapprofitti sui brevetti.", scope: "region", cost: 4, T: 2, gov: "social",
+    pro: "I programmi sanitari (sanità universale, invecchiamento in salute, terapie geniche, vaccini, screening) costano un quinto in meno ogni anno; meno malcontento", con: "Le aziende farmaceutiche guadagnano meno: la ricerca biotecnologica rallenta un po'. Esclusivo dello Stato sociale",
+    eff: { unrest: -4 }, geff: { biotech: -0.2 } },
   { id: "privat", cat: "economia", name: "Privatizzazioni", desc: "Vendita a privati di aziende e servizi pubblici.", scope: "global", cost: 0, upkeep: 0.8, T: 1, gov: "market", fixed: true,
     gain: (st) => priced(st, 15),
     pro: "Un grande incasso subito; le aziende vendute diventano un po' più efficienti", con: "Si perdono per sempre i profitti delle aziende pubbliche (un piccolo costo ogni anno); tariffe più care: malcontento e polarizzazione in aumento ovunque. Esclusivo del Libero mercato",
@@ -1486,14 +1499,14 @@ const INTERVENTIONS = [
   { id: "phage", cat: "genetica", name: "Terapia con virus batteriofagi", desc: "Virus innocui per l'uomo, programmati per distruggere i batteri resistenti agli antibiotici.", scope: "global", cost: 3.5, upkeep: 1, T: 3,
     pro: "Le infezioni resistenti si curano di nuovo: epidemie batteriche meno gravi e ospedali meno cari (un po' più di entrate)", con: "Costa ogni anno",
     gfx: (st, gm, k) => { gm.pmit += 0.1 * k; gm.income += 0.01 * k; } },
-  { id: "cellAg", cat: "genetica", name: "Agricoltura cellulare e fermentazione di precisione", desc: "Carne e proteine prodotte da cellule e microrganismi in grandi impianti, senza allevamenti.", scope: "global", cost: 8, upkeep: 2.5, T: 4, ramp: 8,
+  { id: "cellAg", cat: "genetica", name: "Agricoltura cellulare e fermentazione di precisione", desc: "Carne e proteine prodotte da cellule e microrganismi in grandi impianti, senza allevamenti.", scope: "region", cost: 8, upkeep: 2.5, T: 4, ramp: 8,
     pro: "Meno metano e meno deforestazione: le emissioni agricole calano di circa il 15%; i pascoli liberati rendono più utile la riforestazione", con: "Costa ogni anno; nei primi anni gli allevatori protestano, soprattutto nelle regioni rurali",
     gfx: (st, gm, k) => { gm.co2Rem += 1.5 * k + (built(st, "reforest") ? 0.5 * k : 0); },
     fx: (m, s, r, st, gm, a) => { if (st.year - (a.y0 || a.y) < 5) m.unrestT += r.rural > 30 ? 3 : 1; } },
-  { id: "plasticBugs", cat: "genetica", name: "Batteri mangia-plastica e chimica biologica", desc: "Enzimi e microrganismi sintetici che riciclano la plastica e producono sostanze chimiche senza petrolio.", scope: "global", cost: 9, T: 3, ramp: 5,
+  { id: "plasticBugs", cat: "genetica", name: "Batteri mangia-plastica e chimica biologica", desc: "Enzimi e microrganismi sintetici che riciclano la plastica e producono sostanze chimiche senza petrolio.", scope: "region", cost: 9, T: 3, ramp: 5,
     pro: "Dopo qualche anno nasce un'industria nuova: entrate più alte e un po' meno petrolio", con: "Costoso all'inizio; i benefici arrivano in circa cinque anni",
     gfx: (st, gm, k) => { gm.income += 0.03 * k; }, fx: (m, s) => { m.fossilShift += 0.1 * s; } },
-  { id: "bioprint", cat: "genetica", name: "Organi stampati in 3D e trapianti per tutti", desc: "Organi costruiti con le cellule del paziente: niente più liste d'attesa né rigetto.", scope: "global", cost: 6.5, T: 4,
+  { id: "bioprint", cat: "genetica", name: "Organi stampati in 3D e trapianti per tutti", desc: "Organi costruiti con le cellule del paziente: niente più liste d'attesa né rigetto.", scope: "region", cost: 6.5, T: 4,
     pro: "Le liste d'attesa per i trapianti spariscono, la sanità costa meno, si vive un po' di più; aiuta la ricerca sull'invecchiamento", con: "Più anziani da sostenere",
     fx: (m) => { m.life += 0.5; }, gfx: (st, gm, k) => { gm.income += 0.01 * k; } },
   { id: "screening", cat: "genetica", name: "Screening alla nascita e diagnosi sugli embrioni", desc: "Sequenziamento del DNA dei neonati, analisi dei portatori e fecondazione con diagnosi gratuita per le coppie a rischio di malattie gravi.", scope: "region", cost: 3, upkeep: 0.5, T: 2, ramp: 4, axis: 2,
@@ -1529,7 +1542,7 @@ const INTERVENTIONS = [
      crittografia, i vecchi codici di banche e reti si possono violare ("Q-Day"). ----- */
   { id: "qCrypto", cat: "ai", name: "Crittografia post-quantistica", desc: "Banche, reti elettriche e sistemi militari passano a codici matematici che resistono anche ai futuri computer quantistici.", scope: "global", cost: 4, upkeep: 0.5, T: 3,
     pro: "Il mondo è protetto dal giorno in cui un computer quantistico potrà violare i vecchi codici; attacchi informatici un po' più rari", con: "Costa ogni anno; da sola non porta crescita" },
-  { id: "qComp", cat: "ai", name: "Primi computer quantistici stabili", desc: "Processori quantistici che correggono i propri errori e simulano molecole e reazioni chimiche impossibili per i computer normali.", scope: "global", cost: 6, upkeep: 1.5, T: 5, from: 2030,
+  { id: "qComp", cat: "ai", name: "Primi computer quantistici stabili", desc: "Processori quantistici che correggono i propri errori e simulano molecole e reazioni chimiche impossibili per i computer normali.", scope: "region", cost: 6, upkeep: 1.5, T: 5, from: 2030,
     pro: "Nuove chimiche per batterie e catalizzatori: la cattura della CO₂ costa il 15% in meno e l'energia un po' meno", con: "Costa ogni anno; i benefici grandi arrivano con i centri industriali",
     fx: (m) => { m.energyCost -= 1; } },
   { id: "qIndustry", cat: "ai", name: "Grandi centri quantistici industriali", desc: "Calcolatori quantistici su larga scala progettano nuovi materiali, fertilizzanti a basso consumo e superconduttori.", scope: "global", cost: 10, upkeep: 3, T: 6, from: 2035,
@@ -1653,6 +1666,7 @@ function wageIdx(st) {
   const g0 = rs.reduce((a, r) => a + r.gdp0, 0), p0 = rs.reduce((a, r) => a + r.pop0, 0);
   return g && p && g0 ? (g / p) / (g0 / p0) : 1;
 }
+const HEALTH_COST = ["healthcare", "healthyAging", "rareTherapy", "somaticEdit", "screening", "vaccines", "phage", "amr"]; // costano meno con i farmaci pubblici
 function upkeepOf(st, d) {
   if (d.id === "moon" && st.acts.lunarIce && st.acts.lunarIce.n > 0) return 0;
   const k = st.G && st.G.cheapUp && st.G.cheapUp[d.id];
@@ -1664,6 +1678,7 @@ function upkeepOf(st, d) {
   if (base < 0 && a) base *= 1 - 0.4 * clamp((st.year - (a.y0 || a.y) - 8) / 12, 0, 1);
   if (d.id === "dac" && built(st, "qComp")) base *= 0.85;
   if (d.id === "healthcare" && built(st, "bioprint")) base *= 0.92;
+  if (HEALTH_COST.includes(d.id) && built(st, "pubDrugs")) base *= 0.8;
   return base * (k || 1) * (d.wasRegion && base > 0 ? ctrlShare(st) : 1) * (d.perUnit && a ? Math.max(1, a.n) : 1) * ((st.g && st.g.pl) || 1) * (WAGE.has(d.id) ? Math.pow(wageIdx(st), 0.6) : 1);
 }
 const worldDebt = (st) => { const rs = ctrlRegions(st), t = rs.reduce((a, r) => a + r.gdp, 0) || 1; return rs.reduce((a, r) => a + r.debt * r.gdp, 0) / t; };
@@ -3555,6 +3570,7 @@ const ICON_OF = {
   transparency: "eye", anticorr: "gavel", assemblies: "people", disinfo: "newspaper", police: "badge", education: "school", socialHousing: "buildings", civicService: "hands",
   adapt: "waves", agri: "wheat", reforest: "tree", dac: "fan", geoeng: "cloud", foodReserve: "silo", forestProtect: "pine",
   surveil: "virus", vaccines: "syringe", labRules: "flask", amr: "pill", arms: "missile", fissile: "radiation", mediation: "dove", cyber: "chipShield", massSurveil: "cctv",
+  socWealth: "diamond", pubDrugs: "pill",
   qCrypto: "lock", qComp: "qubit", qIndustry: "qfactory", qAI: "qbrain", phage: "phage", cellAg: "cellMeat", plasticBugs: "recycle", bioprint: "organ",
   robotTax: "robotCoin", sovFund: "pie", ubiMid: "coinHalf", childIncome: "babyCoin", teacherEval: "teacherStar", rooftop: "roofSun", stratoPlanes: "jet",
   massRobots: "humanoid", ubiPlus: "coinPlus", screening: "baby", rareTherapy: "syringe", somaticEdit: "dna", gmCrops: "wheat", agingResearch: "clock", embryoEdit: "stroller", geneDrive: "virus", dnaControl: "flask", aiBio: "chipShield", aiCap: "i-ai", aiOpen: "puzzle", aiPublic: "gear", align: "target", align2: "magnifier", align3: "cctv", aiReg: "scale", launch: "i-spazio", orbital: "satellite", pdef: "comet", moon: "moon", lunarSci: "telescope", lunarIce: "drop", lunarCity: "dome", lunarMining: "pick",
@@ -3570,6 +3586,7 @@ const iconHref = (id) => { const k = ICON_OF[id] || "hexdot"; return k.startsWit
 const SHORT = {
   fossilSub: "Sussidi fossili", carbonTax: "Tassa carbonio", efficiency: "Efficienza", renew: "Solare ed eolico", grid: "Reti e accumuli",
   smr: "Reattori modulari", fusion: "Fusione", nucInfo: "Informazione",
+  socWealth: "Patrimoniale grandi capitali", pubDrugs: "Farmaci pubblici",
   qCrypto: "Crittografia quantistica", qComp: "Computer quantistici", qIndustry: "Centri quantistici", qAI: "Quantistica e AI", phage: "Batteriofagi", cellAg: "Carne coltivata", plasticBugs: "Mangia-plastica", bioprint: "Organi stampati",
   robotTax: "Tassa robot", sovFund: "Fondo sovrano", ubiMid: "Reddito intermedio", childIncome: "Reddito ai figli", teacherEval: "Valutare docenti", rooftop: "Pannelli sui tetti", stratoPlanes: "Aerei stratosferici",
   invest: "Investimenti", automation: "Automazione", retrain: "Formazione", ubi: "Reddito di base", austerity: "Tagli alla spesa", debtRestr: "Taglio del debito",
@@ -3999,7 +4016,9 @@ function open(kind) {
   if (openScreen === null) { savedSpeed = speed || savedSpeed || 1; speed = 0; }
   for (const k of ["acts", "reg", "world"]) $(k === "acts" ? "scrActs" : k === "reg" ? "scrReg" : "scrWorld").hidden = k !== kind;
   openScreen = kind;
-  if (kind === "acts") renderActs(); else if (kind === "reg") renderRegion(); else renderWorld();
+  // se un pannello dà errore si chiude solo quel pannello: il gioco non deve mai sparire (crash del 28 ottobre 2026)
+  try { if (kind === "acts") renderActs(); else if (kind === "reg") renderRegion(); else renderWorld(); }
+  catch (e) { console.warn("pannello non disponibile", e); closeScreensQuiet(); if (!pending && phase === "play") speed = savedSpeed || 1; }
   hud();
 }
 function closeScreens() {
@@ -5388,10 +5407,13 @@ const lockLandscape = () => { try { screen.orientation && screen.orientation.loc
 document.addEventListener("pointerdown", lockLandscape, { once: true });
 
 /* ---------- musica provvisoria, generata dal codice ----------
-   Accordi lenti in la minore con un'eco leggera e qualche nota sparsa. Parte al primo tocco (i browser lo richiedono). */
+   Accordi lenti in la minore con un'eco leggera e qualche nota sparsa.
+   Dal 28 ottobre 2026 la musica è spenta finché non la accendi con l'altoparlante (poi il gioco se lo ricorda), e usa la sessione
+   audio "ambient": su iPhone non interrompe più le registrazioni vocali né la musica di altre app (in cambio tace con il tasto
+   silenzioso). Quando si spegne l'audio si chiude del tutto e libera il microfono e l'altoparlante. */
 const music = (() => {
   let ctx = null, master = null, timer = null, step = 0;
-  let on = true; try { on = localStorage.getItem("gf-music") !== "off"; } catch (e) {}
+  let on = false; try { on = localStorage.getItem("gf-music") === "on"; } catch (e) {}
   const CHORDS = [[57, 60, 64, 71], [53, 57, 60, 64], [48, 55, 60, 64], [55, 59, 62, 69]]; // la minore, fa, do, sol
   const PENTA = [69, 72, 74, 76, 79, 81];
   const hz = (n) => 440 * Math.pow(2, (n - 69) / 12);
@@ -5425,24 +5447,8 @@ const music = (() => {
       o.connect(g); g.connect(master); o.start(tt); o.stop(tt + 2.3);
     }
   }
-  /* Su iPhone l'audio delle pagine web tace con il tasto silenzioso. Dichiarare l'audio come riproduzione
-     multimediale (come la musica di un'app) lo fa suonare comunque: si alza con i tasti del volume. */
-  let keep = null;
-  function silentWav() {
-    const n = 4000, b = new Uint8Array(44 + n), v = new DataView(b.buffer), w = (o, s) => [...s].forEach((c, i) => (b[o + i] = c.charCodeAt(0)));
-    w(0, "RIFF"); v.setUint32(4, 36 + n, true); w(8, "WAVEfmt "); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
-    v.setUint32(24, 8000, true); v.setUint32(28, 8000, true); v.setUint16(32, 1, true); v.setUint16(34, 8, true); w(36, "data"); v.setUint32(40, n, true);
-    b.fill(128, 44);
-    let s = ""; b.forEach((x) => (s += String.fromCharCode(x)));
-    return "data:audio/wav;base64," + btoa(s);
-  }
-  function mediaSession() {
-    try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch (e) {}
-    try {
-      if (!keep) { keep = new Audio(silentWav()); keep.loop = true; keep.setAttribute("playsinline", ""); }
-      const p = keep.play(); if (p && p.catch) p.catch(() => {});
-    } catch (e) {}
-  }
+  // sessione audio che convive con le altre app e con le registrazioni (non le interrompe)
+  function mediaSession() { try { if (navigator.audioSession) navigator.audioSession.type = "ambient"; } catch (e) {} }
   function play() {
     mediaSession();
     if (!ctx && !setup()) return;
@@ -5451,10 +5457,10 @@ const music = (() => {
     if (!timer) { pad(ctx.currentTime + 0.05); timer = setInterval(() => pad(ctx.currentTime + 0.05), 8000); }
   }
   function stop() {
-    if (!ctx) return;
-    master.gain.cancelScheduledValues(ctx.currentTime); master.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.6);
     clearInterval(timer); timer = null;
-    if (keep) keep.pause();
+    if (!ctx) return;
+    const c = ctx; ctx = null; master = null; // si chiude davvero: l'iPhone libera l'audio
+    try { c.close(); } catch (e) {}
   }
   function paintBtns() {
     const icon = on
@@ -5466,14 +5472,14 @@ const music = (() => {
     e.stopPropagation(); on = !on; try { localStorage.setItem("gf-music", on ? "on" : "off"); } catch (er) {}
     paintBtns(); if (on) play(); else stop();
   });
-  // i browser dei telefoni accettano l'avvio dell'audio solo al rilascio del dito, non alla pressione
-  const first = () => { if (on && !timer) play(); if (timer) for (const t of ["pointerup", "touchend", "keydown"]) document.removeEventListener(t, first); };
-  for (const t of ["pointerup", "touchend", "keydown"]) document.addEventListener(t, first);
+  // i browser dei telefoni accettano l'avvio dell'audio solo al rilascio del dito: se la musica era stata accesa, riparte al primo tocco
+  const first = () => { if (on && !timer) play(); if (timer || !on) for (const t of ["pointerup", "touchend", "keydown"]) document.removeEventListener(t, first); };
+  if (on) for (const t of ["pointerup", "touchend", "keydown"]) document.addEventListener(t, first);
   paintBtns();
   // quando si esce dal gioco (altra app, schermo spento, scheda chiusa) la musica si ferma; al ritorno riparte
   let away = false;
-  function leave() { if (away) return; away = true; if (ctx) { master.gain.cancelScheduledValues(ctx.currentTime); master.gain.value = 0; clearInterval(timer); timer = null; try { ctx.suspend(); } catch (e) {} } if (keep) keep.pause(); }
-  function back() { if (!away) return; away = false; if (on && ctx) { try { ctx.resume(); } catch (e) {} play(); } }
+  function leave() { if (away) return; away = true; stop(); }
+  function back() { if (!away) return; away = false; if (on) play(); }
   document.addEventListener("visibilitychange", () => (document.hidden ? leave() : back()));
   window.addEventListener("pagehide", leave);
   window.addEventListener("blur", () => { if (document.hidden) leave(); });
