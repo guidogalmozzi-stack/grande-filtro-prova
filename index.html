@@ -500,6 +500,8 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
 .menu .sound { position: absolute; top: 10px; right: var(--gr); }
 
 /* messaggi brevi sulla mappa */
+.soundnote { position: fixed; z-index: 50; left: 50%; top: 14px; transform: translateX(-50%); width: min(90%, 460px); background: var(--panel-2); border: 1px solid var(--accent); border-radius: 10px; padding: 10px 14px; font-size: 14px; line-height: 1.4; color: var(--fg); box-shadow: 0 8px 24px rgba(0,0,0,.5); pointer-events: none; transition: opacity .5s; }
+.soundnote.out { opacity: 0; }
 .toasts { position: absolute; z-index: 5; left: 50%; transform: translateX(-50%); bottom: 96px; flex-direction: column-reverse !important; display: flex; flex-direction: column; align-items: center; gap: 4px; pointer-events: none; width: min(60%, 460px); }
 .toast { background: rgba(21,38,52,.96); border: 1px solid var(--line); border-left: 4px solid var(--good); border-radius: 8px; padding: 5px 10px; font-size: 13px; max-width: 100%; animation: tin .25s ease-out; }
 .toast.bad { border-left-color: var(--bad); }
@@ -5531,7 +5533,7 @@ const music = (() => {
   function play() {
     mediaSession();
     if (!ctx && !setup()) return;
-    if (ctx.resume) ctx.resume();
+    if (ctx.resume) ctx.resume().catch(() => {});
     master.gain.cancelScheduledValues(ctx.currentTime); master.gain.linearRampToValueAtTime(0.5, ctx.currentTime + 1.5);
     if (!timer) { pad(ctx.currentTime + 0.05); timer = setInterval(() => pad(ctx.currentTime + 0.05), 8000); }
   }
@@ -5549,8 +5551,20 @@ const music = (() => {
   }
   for (const b of document.querySelectorAll("[data-sound]")) b.addEventListener("click", (e) => {
     e.stopPropagation(); on = !on; try { localStorage.setItem("gf-music", on ? "on" : "off"); } catch (er) {}
-    paintBtns(); if (on) play(); else stop();
+    paintBtns(); if (on) { play(); iosNote(); } else stop();
   });
+  /* sull'iPhone la musica del gioco segue il tasto silenzioso (scelta del 28 ottobre 2026, per non interrompere registrazioni e
+     musica di altre app): quando si accende la musica lo si ricorda con un avviso (29 ottobre 2026) */
+  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  function iosNote() {
+    if (!isIOS) return;
+    let n = document.getElementById("soundNote");
+    if (!n) { n = document.createElement("div"); n.id = "soundNote"; n.className = "soundnote"; document.body.appendChild(n); }
+    n.textContent = "Non senti la musica? Togli la modalità silenziosa dell'iPhone (interruttore laterale o tasto Azione) e alza il volume.";
+    n.classList.remove("out"); clearTimeout(n._t); n._t = setTimeout(() => n.classList.add("out"), 6000);
+  }
+  // l'iPhone può sospendere l'audio (chiamata, Siri, sveglia): al tocco successivo riparte
+  document.addEventListener("pointerup", () => { if (on && ctx && ctx.state !== "running" && !away) { try { ctx.resume().catch(() => {}); } catch (e) {} } });
   // i browser dei telefoni accettano l'avvio dell'audio solo al rilascio del dito: se la musica era stata accesa, riparte al primo tocco
   const first = () => { if (on && !timer) play(); if (timer || !on) for (const t of ["pointerup", "touchend", "keydown"]) document.removeEventListener(t, first); };
   if (on) for (const t of ["pointerup", "touchend", "keydown"]) document.addEventListener(t, first);
