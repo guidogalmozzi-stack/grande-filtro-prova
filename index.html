@@ -498,10 +498,17 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
 .sound svg { width: 18px; height: 18px; }
 .sound[aria-pressed="true"] { color: var(--accent); }
 .menu .sound { position: absolute; top: 10px; right: var(--gr); }
+.settings { position: absolute; z-index: 20; top: 52px; right: var(--gr); width: min(340px, calc(100% - 32px)); background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px 14px; box-shadow: 0 12px 30px rgba(0,0,0,.55); font-size: 14px; line-height: 1.45; color: #cbd6df; }
+.settings h3 { margin: 0 0 8px; font-family: var(--font-d); font-size: 19px; letter-spacing: .04em; color: var(--fg); }
+.setrow { display: flex; align-items: center; justify-content: space-between; font-size: 16px; color: var(--fg); }
+.switch { width: 50px; height: 28px; border-radius: 14px; border: 1px solid var(--line); background: var(--panel-3); padding: 0; position: relative; flex: none; transition: background .2s; }
+.switch i { position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #cbd6df; transition: left .2s; }
+.switch[aria-checked="true"] { background: var(--accent); border-color: var(--accent); }
+.switch[aria-checked="true"] i { left: 25px; background: #2b2214; }
+.setnote { margin: 8px 0 12px; font-size: 13.5px; color: var(--muted); }
+.settings .mbtn { font-size: 17px; padding: 7px 14px; width: 100%; }
 
 /* messaggi brevi sulla mappa */
-.soundnote { position: fixed; z-index: 50; left: 50%; top: 14px; transform: translateX(-50%); width: min(90%, 460px); background: var(--panel-2); border: 1px solid var(--accent); border-radius: 10px; padding: 10px 14px; font-size: 14px; line-height: 1.4; color: var(--fg); box-shadow: 0 8px 24px rgba(0,0,0,.5); pointer-events: none; transition: opacity .5s; }
-.soundnote.out { opacity: 0; }
 .toasts { position: absolute; z-index: 5; left: 50%; transform: translateX(-50%); bottom: 96px; flex-direction: column-reverse !important; display: flex; flex-direction: column; align-items: center; gap: 4px; pointer-events: none; width: min(60%, 460px); }
 .toast { background: rgba(21,38,52,.96); border: 1px solid var(--line); border-left: 4px solid var(--good); border-radius: 8px; padding: 5px 10px; font-size: 13px; max-width: 100%; animation: tin .25s ease-out; }
 .toast.bad { border-left-color: var(--bad); }
@@ -718,7 +725,13 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
   </div>
 
   <div class="menu" id="menuTitle">
-    <button type="button" class="sound" data-sound aria-label="Musica" aria-pressed="true"></button>
+    <button type="button" class="sound" id="bSettings" aria-label="Impostazioni"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="2.6"/><path d="M10 2.2v2.2M10 15.6v2.2M2.2 10h2.2M15.6 10h2.2M4.5 4.5l1.6 1.6M13.9 13.9l1.6 1.6M4.5 15.5l1.6-1.6M13.9 6.1l1.6-1.6"/><circle cx="10" cy="10" r="5.2"/></svg></button>
+    <div class="settings" id="settings" hidden role="dialog" aria-label="Impostazioni">
+      <h3>Impostazioni</h3>
+      <div class="setrow"><span>Musica</span><button type="button" class="switch" id="musicSwitch" role="switch" aria-checked="true"><i></i></button></div>
+      <p class="setnote" id="musicNote"></p>
+      <button type="button" class="mbtn" id="settingsOk">Chiudi</button>
+    </div>
     <div class="in">
       <div class="logo"><h1>Grande<br>Filtro <span class="ch">1</span></h1><div class="sub">La Terra</div><div class="crownall" id="crownAll" hidden>♛ Tutti gli scenari vinti a super difficile con tutti i governi</div></div>
       <div class="btns">
@@ -5489,12 +5502,11 @@ document.addEventListener("pointerdown", lockLandscape, { once: true });
 
 /* ---------- musica provvisoria, generata dal codice ----------
    Accordi lenti in la minore con un'eco leggera e qualche nota sparsa.
-   Dal 28 ottobre 2026 la musica è spenta finché non la accendi con l'altoparlante (poi il gioco se lo ricorda), e usa la sessione
-   audio "ambient": su iPhone non interrompe più le registrazioni vocali né la musica di altre app (in cambio tace con il tasto
-   silenzioso). Quando si spegne l'audio si chiude del tutto e libera il microfono e l'altoparlante. */
+   Dal 29 ottobre 2026 si accende e si spegne dalle impostazioni della pagina principale (o con l'altoparlante in partita) ed è
+   accesa di serie. Quando si spegne l'audio si chiude del tutto e libera il microfono e l'altoparlante. */
 const music = (() => {
   let ctx = null, master = null, timer = null, step = 0;
-  let on = false; try { on = localStorage.getItem("gf-music") === "on"; } catch (e) {}
+  let on = true; try { on = localStorage.getItem("gf-music") !== "off"; } catch (e) {} // accesa di serie (29 ottobre 2026)
   const CHORDS = [[57, 60, 64, 71], [53, 57, 60, 64], [48, 55, 60, 64], [55, 59, 62, 69]]; // la minore, fa, do, sol
   const PENTA = [69, 72, 74, 76, 79, 81];
   const hz = (n) => 440 * Math.pow(2, (n - 69) / 12);
@@ -5528,8 +5540,9 @@ const music = (() => {
       o.connect(g); g.connect(master); o.start(tt); o.stop(tt + 2.3);
     }
   }
-  // sessione audio che convive con le altre app e con le registrazioni (non le interrompe)
-  function mediaSession() { try { if (navigator.audioSession) navigator.audioSession.type = "ambient"; } catch (e) {} }
+  /* musica accesa: sessione "playback", sull'iPhone si sente anche in modalità silenziosa (ma ferma la musica di altre app e le
+     registrazioni); musica spenta: l'audio si chiude e la sessione torna "ambient", così il gioco non disturba nulla */
+  function mediaSession(t) { try { if (navigator.audioSession) navigator.audioSession.type = t || "playback"; } catch (e) {} }
   function play() {
     mediaSession();
     if (!ctx && !setup()) return;
@@ -5542,6 +5555,7 @@ const music = (() => {
     if (!ctx) return;
     const c = ctx; ctx = null; master = null; // si chiude davvero: l'iPhone libera l'audio
     try { c.close(); } catch (e) {}
+    mediaSession("ambient");
   }
   function paintBtns() {
     const icon = on
@@ -5549,22 +5563,23 @@ const music = (() => {
       : '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h3l4-3.5v11L6 12H3z" fill="currentColor"/><path d="M13.5 8l4 4M17.5 8l-4 4"/></svg>';
     for (const b of document.querySelectorAll("[data-sound]")) { b.innerHTML = icon; b.setAttribute("aria-pressed", String(on)); b.setAttribute("aria-label", on ? "Spegni la musica" : "Accendi la musica"); }
   }
-  for (const b of document.querySelectorAll("[data-sound]")) b.addEventListener("click", (e) => {
-    e.stopPropagation(); on = !on; try { localStorage.setItem("gf-music", on ? "on" : "off"); } catch (er) {}
-    paintBtns(); if (on) { play(); iosNote(); } else stop();
-  });
-  /* sull'iPhone la musica del gioco segue il tasto silenzioso (scelta del 28 ottobre 2026, per non interrompere registrazioni e
-     musica di altre app): quando si accende la musica lo si ricorda con un avviso (29 ottobre 2026) */
-  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-  function iosNote() {
-    if (!isIOS) return;
-    let n = document.getElementById("soundNote");
-    if (!n) { n = document.createElement("div"); n.id = "soundNote"; n.className = "soundnote"; document.body.appendChild(n); }
-    n.textContent = "Non senti la musica? Togli la modalità silenziosa dell'iPhone (interruttore laterale o tasto Azione) e alza il volume.";
-    n.classList.remove("out"); clearTimeout(n._t); n._t = setTimeout(() => n.classList.add("out"), 6000);
+  function setOn(v) {
+    on = v; try { localStorage.setItem("gf-music", on ? "on" : "off"); } catch (er) {}
+    paintBtns(); if (on) play(); else stop();
   }
-  // l'iPhone può sospendere l'audio (chiamata, Siri, sveglia): al tocco successivo riparte
-  document.addEventListener("pointerup", () => { if (on && ctx && ctx.state !== "running" && !away) { try { ctx.resume().catch(() => {}); } catch (e) {} } });
+  for (const b of document.querySelectorAll("[data-sound]")) b.addEventListener("click", (e) => { e.stopPropagation(); setOn(!on); });
+  // impostazioni dalla pagina principale (29 ottobre 2026)
+  const sw = $("musicSwitch");
+  function paintSettings() {
+    sw.setAttribute("aria-checked", String(on));
+    $("musicNote").textContent = on ? "Accesa: si sente anche con il telefono in modalità silenziosa. Mentre giochi si fermano la musica di altre app e le registrazioni vocali."
+      : "Spenta: il gioco resta muto e non disturba la musica di altre app né le registrazioni vocali.";
+  }
+  sw.addEventListener("click", (e) => { e.stopPropagation(); setOn(!on); paintSettings(); });
+  $("bSettings").addEventListener("click", (e) => { e.stopPropagation(); paintSettings(); $("settings").hidden = !$("settings").hidden; });
+  $("settingsOk").addEventListener("click", (e) => { e.stopPropagation(); $("settings").hidden = true; });
+  $("settings").addEventListener("click", (e) => e.stopPropagation());
+  document.addEventListener("click", () => { $("settings").hidden = true; });
   // i browser dei telefoni accettano l'avvio dell'audio solo al rilascio del dito: se la musica era stata accesa, riparte al primo tocco
   const first = () => { if (on && !timer) play(); if (timer || !on) for (const t of ["pointerup", "touchend", "keydown"]) document.removeEventListener(t, first); };
   if (on) for (const t of ["pointerup", "touchend", "keydown"]) document.addEventListener(t, first);
