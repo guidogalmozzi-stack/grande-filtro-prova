@@ -23,7 +23,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 /* Sala operativa in orizzontale: il planisfero occupa tutta la finestra, i comandi galleggiano negli angoli
-   come in Rebel Inc; menu, interventi e schede regione sono schermate a tutta finestra con il tempo fermo.
+   e menu, interventi e schede regione sono schermate a tutta finestra con il tempo fermo.
    Un solo tema scuro, scelto di proposito: la mappa vive su un mare notturno. */
 :root {
   --sea: #0c1822;
@@ -122,7 +122,7 @@ button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); o
 @media (prefers-reduced-motion: reduce) { .ticker .run { animation: none; padding-left: 12px; } }
 .ticker b { color: var(--fg); font-weight: 500; }
 
-/* barra in basso, come in Rebel Inc: fondi e interventi a sinistra, regione al centro, mondo a destra */
+/* barra in basso: fondi e interventi a sinistra, regione al centro, mondo a destra */
 .bottom { position: absolute; z-index: 2; left: var(--gl); right: var(--gr); bottom: max(8px, env(safe-area-inset-bottom, 0px)); display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 8px; align-items: end; pointer-events: none; }
 .bottom > * { pointer-events: auto; }
 .opbox { display: flex; align-items: stretch; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
@@ -152,7 +152,7 @@ button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); o
 .tabs.fit button { font-size: calc(16px * var(--tk, 1)); padding: 6px calc(10px * var(--tk, 1)); gap: calc(6px * var(--tk, 1)); }
 .tabs button[aria-pressed="true"] { color: var(--fg); background: var(--panel-3); border-color: var(--line); }
 
-/* albero degli interventi: esagoni grandi con il nome dentro, come in Rebel Inc */
+/* albero degli interventi: esagoni grandi con il nome dentro */
 .acts { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, 32%); }
 .treebox { position: relative; min-width: 0; min-height: 0; background: radial-gradient(ellipse at 40% 45%, #1a3445 0%, var(--sea) 78%); }
 .treebox { display: flex; flex-direction: column; padding-left: env(safe-area-inset-left, 0px); }
@@ -211,7 +211,7 @@ button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); o
 .bank b { display: block; font-family: var(--font-m); font-size: 26px; color: var(--accent); }
 .bank small { color: var(--muted); font-size: 13px; }
 .legend2 svg { width: 14px; height: 14px; vertical-align: -2px; margin-right: 6px; }
-/* esagoni come in Rebel Inc: colore pieno del settore se attivo, scuro con bordo colorato se disponibile */
+/* esagoni: colore pieno del settore se attivo, scuro con bordo colorato se disponibile */
 .node { cursor: pointer; }
 .node .hex { fill: color-mix(in srgb, var(--c) 22%, #13222e); stroke: var(--c); stroke-width: 1.6; transition: fill .2s; }
 .node .ico { color: var(--c); }
@@ -421,7 +421,7 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
 .lvl.locked .num { -webkit-text-stroke-color: var(--muted); }
 .lvl .lockmsg { font-size: 13px; color: var(--muted); display: flex; gap: 5px; align-items: center; }
 .lvl .lockmsg svg, .diff .lockmsg svg { width: 12px; height: 12px; flex: none; }
-/* governi: sei carte con pro e contro, come i governatori dei giochi di Ndemic */
+/* governi: sei carte con pro e contro */
 .govs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; width: min(1000px, 100%); margin: 0 auto; }
 .gov { text-align: left; background: linear-gradient(180deg, var(--panel-2), var(--panel)); border: 1px solid var(--line); border-radius: 12px; padding: 9px 11px; display: grid; grid-template-columns: 34px 1fr; gap: 2px 9px; align-content: start; transition: border-color .2s, box-shadow .2s; }
 .gov svg.gi { width: 34px; height: 34px; grid-row: span 2; color: var(--accent); }
@@ -881,7 +881,7 @@ const LBY = Object.fromEntries(LEVELS.map((l) => [l.id, l]));
 const sysOn = (st, k) => st.L.sys.includes(k);
 
 /* ---------- governi ----------
-   Come i governatori dei giochi di Ndemic: si sceglie all'inizio e cambia alcuni parametri in meglio e altri in peggio.
+   Si sceglie all'inizio e cambia alcuni parametri in meglio e altri in peggio.
    m: scarti continui su ogni regione · build: velocità dei cantieri · anarchy: velocità del crollo
    ban: interventi vietati · grant: interventi concessi anche fuori dallo scenario · cheap: interventi a metà prezzo
    ev: probabilità di alcuni eventi · own: interventi esclusivi. Nomi e descrizioni di fantasia, senza modelli reali. */
@@ -4227,7 +4227,7 @@ function barHTML(v, dv, col) {
 const sectorList = (tab) => INTERVENTIONS.filter((x) => x.cat === tab && available(st, x));
 const sectorDone = (tab) => { const l = sectorList(tab); return { n: l.length || 1, did: l.filter((x) => built(st, x.id) || building(st, x.id)).length }; };
 
-/* ---------- albero: esagoni piccoli con un'icona, come in Rebel Inc; gli alberi si aprono in più direzioni ----------
+/* ---------- albero: esagoni piccoli con un'icona,; gli alberi si aprono in più direzioni ----------
    Le posizioni si calcolano su una griglia esagonale con tutti gli interventi, così non cambiano quando se ne sbloccano altri;
    si disegnano solo quelli già sbloccati. */
 const HR = 20, HEXD = [[1, 0], [1, -1], [0, -1], [-1, 0], [-1, 1], [0, 1]];
@@ -4644,7 +4644,7 @@ function wireCharts(root, h) {
   }
 }
 
-/* ---------- statistiche nel tempo, come in Rebel Inc: una voce a sinistra, il grafico a destra, mondo o singola regione ----------
+/* ---------- statistiche nel tempo: una voce a sinistra, il grafico a destra, mondo o singola regione ----------
    Ogni anno il motore salva una riga (st.hist). Il prodotto è lavoratori occupati × produttività: qui si vede come
    l'andamento delle nascite, dopo 18 anni, si riflette sui lavoratori e quindi sull'economia. */
 const STATS = [
@@ -4762,7 +4762,7 @@ function onExpire() {
   q.warned = true;
   if (globeOn) { globeOn = false; showGlobe(); }
   drawBubbles();
-  // come in Rebel Inc: la mappa si avvicina al problema
+  //: la mappa si avvicina al problema
   if (q.x != null) zoomMap(q.x, q.y - 18, 2.2);
 }
 /* zoom con le dita (due dita per ingrandire, un dito per spostarsi quando la mappa è ingrandita) e con la rotellina */
