@@ -402,7 +402,7 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
 .mddet .sh { color: var(--muted); font-size: 14px; }
 .mddet p { margin: 0 0 8px; }
 .mddet .adds { color: var(--info); }
-.mddet .adds::before { content: "Novità: "; color: var(--muted); }
+.mddet .adds .nov { color: var(--muted); }
 .mddet .foot2 { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; border-top: 1px solid var(--line); padding-top: 8px; margin-top: 4px; font-size: 13.5px; color: var(--muted); }
 .mddet .medals i { width: 11px; height: 11px; }
 .mddet .lockmsg { display: flex; gap: 6px; align-items: center; font-size: 14px; color: var(--muted); }
@@ -519,6 +519,8 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
 .switch i { position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #cbd6df; transition: left .2s; }
 .switch[aria-checked="true"] { background: var(--accent); border-color: var(--accent); }
 .switch[aria-checked="true"] i { left: 25px; background: #2b2214; }
+.langs { display: flex; gap: 4px; } .langs button { background: var(--panel-3); border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; font-size: 14px; color: var(--muted); }
+.langs button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .setnote { margin: 8px 0 12px; font-size: 13.5px; color: var(--muted); }
 .settings .mbtn { font-size: 17px; padding: 7px 14px; width: 100%; }
 
@@ -706,13 +708,13 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
   <div id="hud" hidden>
     <div class="hud tl">
       <button type="button" class="sound" id="bPause" aria-label="Menu della partita"><svg viewBox="0 0 16 16"><path d="M3 4h10M3 8h10M3 12h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
-      <button type="button" class="sound" data-sound aria-label="Musica" aria-pressed="true"></button>
-      <div class="chip"><span class="k">Stabilità mondiale</span><span class="v" id="sWorld">45 <small>obiettivo 52</small></span></div>
-      <div class="chip"><span class="k">Anni stabili</span><span class="v" id="sStable">0 / 10</span></div>
-      <div class="chip"><span class="k">Temperatura</span><span class="v" id="sTemp">+1,35 °C</span></div>
+      <button type="button" class="sound" data-sound data-dyn aria-label="Musica" aria-pressed="true"></button>
+      <div class="chip"><span class="k">Stabilità mondiale</span><span class="v" id="sWorld" data-dyn>45 <small>obiettivo 52</small></span></div>
+      <div class="chip"><span class="k">Anni stabili</span><span class="v" id="sStable" data-dyn>0 / 10</span></div>
+      <div class="chip"><span class="k">Temperatura</span><span class="v" id="sTemp" data-dyn>+1,35 °C</span></div>
     </div>
     <div class="hud tr">
-      <div class="datebox"><span class="d" id="sDate">gen 2026</span>
+      <div class="datebox"><span class="d" id="sDate" data-dyn>gen 2026</span>
         <div class="speed" role="group" aria-label="Velocità del tempo">
           <button type="button" data-s="0" aria-label="Pausa">II</button>
           <button type="button" data-s="1" aria-label="Velocità normale">1×</button>
@@ -722,19 +724,19 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
       </div>
     </div>
     <div class="side" id="side">
-      <button type="button" class="viewbtn" id="viewBtn"><small>Colori della mappa</small><b id="viewName">Malcontento</b> ▾</button>
-      <div class="views" id="views" hidden></div>
-      <div class="legend" id="legend"><span class="bar" id="legBar"></span><span class="ends"><span id="legLo"></span><span id="legHi"></span></span></div>
-      <div class="news" id="news" role="button" tabindex="0" aria-label="Ultime notizie: tocca per vederle tutte"><span class="nh">Ultime notizie</span><ul id="newsList"></ul></div>
-      <div class="toasts" id="toasts" aria-live="polite"></div>
+      <button type="button" class="viewbtn" id="viewBtn"><small>Colori della mappa</small><b id="viewName" data-dyn>Malcontento</b> ▾</button>
+      <div class="views" id="views" data-dyn hidden></div>
+      <div class="legend" id="legend"><span class="bar" id="legBar"></span><span class="ends"><span id="legLo" data-dyn></span><span id="legHi" data-dyn></span></span></div>
+      <div class="news" id="news" role="button" tabindex="0" aria-label="Ultime notizie: tocca per vederle tutte"><span class="nh">Ultime notizie</span><ul id="newsList" data-dyn></ul></div>
+      <div class="toasts" id="toasts" data-dyn aria-live="polite"></div>
     </div>
     <button type="button" class="buy endback" id="bEnd" hidden>Partita finita · torna al riepilogo</button>
     <div class="bottom">
       <div class="opbox">
-        <div class="funds" role="button" tabindex="0" data-budget aria-label="Entrate e spese dell'Autorità"><span class="k">Fondi</span><span class="v" id="sFunds">20</span><small id="sNet">+6,0/anno</small></div>
+        <div class="funds" role="button" tabindex="0" data-budget aria-label="Entrate e spese dell'Autorità"><span class="k">Fondi</span><span class="v" id="sFunds" data-dyn>20</span><small id="sNet" data-dyn>+6,0/anno</small></div>
         <button type="button" id="bActs">Interventi</button>
       </div>
-      <button type="button" class="regstrip" id="regStrip"></button>
+      <button type="button" class="regstrip" id="regStrip" data-dyn></button>
       <button type="button" class="worldbtn" id="bWorld">Mondo</button>
     </div>
   </div>
@@ -744,13 +746,15 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
     <div class="settings" id="settings" hidden role="dialog" aria-label="Impostazioni">
       <h3>Impostazioni</h3>
       <div class="setrow"><span>Musica</span><button type="button" class="switch" id="musicSwitch" role="switch" aria-checked="true"><i></i></button></div>
-      <p class="setnote" id="musicNote"></p>
+      <p class="setnote" id="musicNote" data-dyn></p>
+      <div class="setrow"><span>Lingua</span><span class="langs" id="langBtns" data-dyn></span></div>
+      <p class="setnote" id="langNote" data-dyn></p>
       <button type="button" class="mbtn" id="settingsOk">Chiudi</button>
     </div>
     <div class="in">
       <div class="logo"><h1>Grande<br>Filtro <span class="ch">1</span></h1><div class="sub">La Terra</div><div class="crownall" id="crownAll" hidden>♛ Tutti gli scenari vinti a super difficile con tutti i governi</div></div>
       <div class="btns">
-        <button type="button" class="mbtn" id="mCont" hidden>Continua</button>
+        <button type="button" class="mbtn" id="mCont" data-dyn hidden>Continua</button>
         <button type="button" class="mbtn" id="mPlay">Nuova partita</button>
         <button type="button" class="mbtn" id="mHow">Come si gioca</button>
       </div>
@@ -793,27 +797,27 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
 
   <div class="panelscreen" id="menuBrief" hidden>
     <div style="display:flex;align-items:center;gap:10px;padding:6px var(--gr) 6px var(--gl);border-bottom:1px solid var(--line);background:var(--panel)"><button type="button" class="back" id="briefBack" data-back="gov" aria-label="Indietro">‹</button><h2 style="margin:0;font-family:var(--font-d);font-size:20px;letter-spacing:.04em;flex:1">La missione</h2><button type="button" class="mbtn" id="mGo" style="font-size:17px;padding:7px 14px">Assumi il comando</button></div>
-    <div class="body"><div class="brief" id="briefBody"></div></div>
+    <div class="body"><div class="brief" id="briefBody" data-dyn></div></div>
   </div>
 
   <div class="panelscreen" id="menuLevels" hidden>
-    <div style="display:flex;align-items:center;gap:10px;padding:6px var(--gr) 6px var(--gl);border-bottom:1px solid var(--line);background:var(--panel)"><button type="button" class="back" data-back="title" aria-label="Indietro">‹</button><h2 style="margin:0;font-family:var(--font-d);font-size:20px;letter-spacing:.04em;flex:1">Scegli lo scenario</h2><button type="button" class="mbtn" id="mLevelNext" style="font-size:17px;padding:7px 14px">Avanti</button></div>
-    <div class="body"><div class="md" id="levels"></div></div>
+    <div style="display:flex;align-items:center;gap:10px;padding:6px var(--gr) 6px var(--gl);border-bottom:1px solid var(--line);background:var(--panel)"><button type="button" class="back" data-back="title" aria-label="Indietro">‹</button><h2 style="margin:0;font-family:var(--font-d);font-size:20px;letter-spacing:.04em;flex:1">Scegli lo scenario</h2><button type="button" class="mbtn" id="mLevelNext" data-dyn style="font-size:17px;padding:7px 14px">Avanti</button></div>
+    <div class="body"><div class="md" id="levels" data-dyn></div></div>
   </div>
 
   <div class="panelscreen" id="menuGov" hidden>
     <div style="display:flex;align-items:center;gap:10px;padding:6px var(--gr) 6px var(--gl);border-bottom:1px solid var(--line);background:var(--panel)"><button type="button" class="back" data-back="diff" aria-label="Indietro">‹</button><h2 style="margin:0;font-family:var(--font-d);font-size:20px;letter-spacing:.04em;flex:1">Scegli il governo</h2><button type="button" class="mbtn" id="mGovNext" style="font-size:17px;padding:7px 14px">Avanti</button></div>
-    <div class="body"><div class="md" id="govs"></div></div>
+    <div class="body"><div class="md" id="govs" data-dyn></div></div>
   </div>
 
   <div class="panelscreen" id="menuDiff" hidden>
-    <div style="display:flex;align-items:center;gap:10px;padding:6px var(--gr) 6px var(--gl);border-bottom:1px solid var(--line);background:var(--panel)"><button type="button" class="back" data-back="levels" aria-label="Indietro">‹</button><h2 style="margin:0;font-family:var(--font-d);font-size:20px;letter-spacing:.04em;flex:1" id="diffTitle">Scegli la difficoltà</h2><button type="button" class="mbtn" id="mNext" style="font-size:17px;padding:7px 14px">Avanti</button></div>
-    <div class="body"><div class="diffs" id="diffs"></div></div>
+    <div style="display:flex;align-items:center;gap:10px;padding:6px var(--gr) 6px var(--gl);border-bottom:1px solid var(--line);background:var(--panel)"><button type="button" class="back" data-back="levels" aria-label="Indietro">‹</button><h2 style="margin:0;font-family:var(--font-d);font-size:20px;letter-spacing:.04em;flex:1" id="diffTitle" data-dyn>Scegli la difficoltà</h2><button type="button" class="mbtn" id="mNext" style="font-size:17px;padding:7px 14px">Avanti</button></div>
+    <div class="body"><div class="diffs" id="diffs" data-dyn></div></div>
   </div>
 
-  <div class="screen" id="scrActs" hidden></div>
-  <div class="screen" id="scrReg" hidden></div>
-  <div class="screen" id="scrWorld" hidden></div>
+  <div class="screen" id="scrActs" data-dyn hidden></div>
+  <div class="screen" id="scrReg" data-dyn hidden></div>
+  <div class="screen" id="scrWorld" data-dyn hidden></div>
   <div class="modal" id="modal" hidden><div class="card" id="modalCard"></div></div>
   <div class="modal infobox" id="infoBox" hidden></div>
   <div class="coach" id="coach" hidden></div>
@@ -3583,7 +3587,178 @@ const GEO = {"regions":{"na":[[[-1715,636,-1709,636,-1704,637,-1700,635,-1694,63
 
 </script>
 <script>
+/* Traduzione inglese (dal 31 ottobre 2026). Chiave: il testo italiano esatto; {x} sono i valori che cambiano.
+   Tappa 1: menu, impostazioni, scenari, difficoltà, governi, missione, schermata principale. */
+const LANG_EN = {
+  // mesi
+  "gen": "Jan", "feb": "Feb", "mar": "Mar", "apr": "Apr", "mag": "May", "giu": "Jun", "lug": "Jul", "ago": "Aug", "set": "Sep", "ott": "Oct", "nov": "Nov", "dic": "Dec",
+
+  // titolo e impostazioni
+  "Grande": "Great", "Filtro": "Filter", "La Terra": "Earth",
+  "Nuova partita": "New game", "Come si gioca": "How to play", "Continua · {y} · {d}": "Continue · {y} · {d}",
+  "♛ Tutti gli scenari vinti a super difficile con tutti i governi": "♛ Every scenario won on very hard with every government",
+  "Impostazioni": "Settings", "Musica": "Music", "Lingua": "Language", "Chiudi": "Close",
+  "Accesa: si sente anche con il telefono in modalità silenziosa. Mentre giochi si fermano la musica di altre app e le registrazioni vocali.": "On: you will hear it even when the phone is on silent. While you play, music from other apps and voice recordings are paused.",
+  "Spenta: il gioco resta muto e non disturba la musica di altre app né le registrazioni vocali.": "Off: the game stays silent and does not interrupt music from other apps or voice recordings.",
+  "Spegni la musica": "Turn music off", "Accendi la musica": "Turn music on",
+  "Indietro": "Back", "Avanti": "Next", "Inizia": "Start",
+
+  // scenari
+  "Scegli lo scenario": "Choose a scenario",
+  "Addestramento": "Training", "Primo mandato": "First term", "Energia per tutti": "Energy for all", "Il clima che cambia": "A changing climate",
+  "Equilibrio del terrore": "Balance of terror", "Il secolo decisivo": "The decisive century", "Il Grande Filtro": "The Great Filter",
+  "Le basi del gioco, passo per passo: la stabilità, gli interventi, le crisi.": "The basics, step by step: stability, policies, crises.",
+  "Debiti, pensioni e malcontento: rimetti in piedi le società del pianeta.": "Debt, pensions and discontent: put the world's societies back on their feet.",
+  "Bollette, petrolio e centrali: un'economia che ha fame di energia.": "Energy bills, oil and power plants: an economy hungry for energy.",
+  "Un pianeta che si scalda e una transizione energetica da guidare.": "A warming planet and an energy transition to lead.",
+  "Potenze armate, epidemie e laboratori pericolosi: i primi grandi filtri.": "Armed powers, epidemics and dangerous laboratories: the first great filters.",
+  "Quasi tutto insieme: anche l'intelligenza artificiale e la corsa alla Luna.": "Almost everything at once, including artificial intelligence and the race to the Moon.",
+  "Tutto il gioco: crisi, AI, Luna e genetica. Curare le malattie, sfamare un pianeta più caldo, forse vivere più a lungo, senza aprire la porta a una pandemia costruita in laboratorio.": "The whole game: crises, AI, the Moon and genetics. Cure diseases, feed a hotter planet, perhaps live longer, without opening the door to a pandemic built in a laboratory.",
+  "Novità:": "New:",
+  "Economia e società": "Economy and society", "Tutti gli interventi di economia e società": "All economy and society policies", "Energia": "Energy",
+  "Clima e catastrofi naturali": "Climate and natural disasters", "Sicurezza, guerra nucleare, pandemie": "Security, nuclear war, pandemics",
+  "Tecnologia, AI, programma lunare": "Technology, AI, lunar programme", "Genetica": "Genetics",
+  "Completato ✓": "Completed ✓", "Consigliato per iniziare": "Recommended to start", "Difficoltà vinte": "Difficulties won",
+  "Governi vinti {a}/{b}": "Governments won {a}/{b}", "Vinto a super difficile con tutti i governi": "Won on very hard with every government",
+  "Per aprirlo vinci «{x}»": "Win «{x}» to unlock it",
+
+  // difficoltà
+  "Scegli la difficoltà": "Choose the difficulty", "{x} · difficoltà": "{x} · difficulty",
+  "Facile": "Easy", "Medio": "Normal", "Difficile": "Hard", "Super difficile": "Very hard",
+  "Per imparare": "To learn", "L'esperienza prevista": "The intended experience", "Per chi conosce il gioco": "For experienced players", "Un mondo sull'orlo": "A world on the brink",
+  "La popolazione accetta presto le riforme e protesta poco.": "People accept reforms quickly and rarely protest.",
+  "Le riforme entrano a regime in tempi realistici.": "Reforms take full effect over realistic timescales.",
+  "La gente cambia abitudini lentamente e reagisce male ai sacrifici.": "People change their habits slowly and react badly to sacrifices.",
+  "Ogni riforma è lenta da far accettare e scatena proteste.": "Every reform is slow to be accepted and sparks protests.",
+  "Entrate": "Income", "Accettazione": "Acceptance",
+  "alte": "high", "normali": "normal", "basse": "low", "scarse": "scarce",
+  "rapida": "fast", "realistica": "realistic", "lenta": "slow", "difficile": "difficult",
+  "Vinci questo scenario a livello difficile per sbloccarlo": "Win this scenario on hard to unlock it",
+  "Record: {s} · {y} anni": "Best: {s} · {y} years", "vittoria": "win", "Nessuna vittoria": "No wins yet",
+
+  // governi
+  "Scegli il governo": "Choose a government", "✓ Scenario già vinto con questo governo": "✓ Scenario already won with this government",
+  "Nessuna linea": "No doctrine", "L'Autorità non sceglie un modello": "The Authority does not pick a model", "Nessuno svantaggio": "No drawbacks", "Nessun vantaggio": "No advantages",
+  "Democrazia liberale": "Liberal democracy", "Libertà, pluralismo, tempi lunghi": "Freedom, pluralism, slow decisions",
+  "Più fiducia: polarizzazione più bassa": "More trust: lower polarisation", "Più innovazione: un po' più di crescita": "More innovation: slightly higher growth",
+  "Trasparenza e assemblee a metà prezzo": "Transparency and citizens' assemblies at half price",
+  "Decisioni lente: cantieri il 15% più lenti": "Slow decisions: projects take 15% longer",
+  "Niente ordine pubblico rafforzato né contrasto alla disinformazione": "No reinforced policing and no counter-disinformation agency",
+  "Stato sociale": "Welfare state", "Protezione per tutti, a caro prezzo": "Protection for everyone, at a high price",
+  "Malcontento più basso ovunque": "Lower discontent everywhere", "Sanità universale dal primo giorno (non si può togliere)": "Universal healthcare from day one (cannot be removed)",
+  "Reddito di base sempre disponibile e più economico": "Basic income always available and cheaper",
+  "Esclusivo: patrimoniale sui grandi capitali e farmaci pubblici": "Exclusive: wealth tax on large fortunes and public medicines",
+  "Il debito cresce più in fretta": "Debt grows faster", "Crescita più bassa": "Lower growth",
+  "Niente tagli alla spesa pubblica né pensioni legate a stipendi e lavoratori": "No public spending cuts and no pensions linked to wages and workers",
+  "Libero mercato": "Free market", "Crescita prima di tutto": "Growth above all", "Crescita più alta": "Higher growth", "Debito più basso": "Lower debt",
+  "Esclusivo: privatizzazioni per fare cassa": "Exclusive: privatisations to raise cash", "Più disoccupazione": "More unemployment",
+  "Più disuguaglianza: polarizzazione più alta": "More inequality: higher polarisation", "Niente reddito di base": "No basic income",
+  "Stato centralizzato": "Centralised state", "Rapido ed efficiente, ma fragile": "Fast and efficient, but fragile", "Cantieri il 30% più rapidi": "Projects 30% faster",
+  "Esclusivo: sorveglianza capillare, che rende le proteste molto più rare": "Exclusive: pervasive surveillance, which makes protests much rarer",
+  "Le persone sono di base più scontente e meno autonome": "People start out less satisfied and less autonomous",
+  "Meno innovazione: crescita più bassa": "Less innovation: lower growth", "Se il malcontento sale, le regioni crollano più in fretta": "If discontent rises, regions collapse faster",
+  "Niente assemblee di cittadini": "No citizens' assemblies",
+  "Lavoro umano": "Human labour", "Gli esseri umani al centro, niente macchine al loro posto": "People first: no machines in their place",
+  "Nessuna disoccupazione causata dalle macchine: lavoro per tutti": "No unemployment caused by machines: work for everyone",
+  "Le tasse sul lavoro non si perdono mai": "Taxes on work are never lost",
+  "Pensioni più solide: più persone lavorano e versano i contributi": "Sturdier pensions: more people work and pay contributions",
+  "L'AI cresce più lentamente: meno rischi": "AI grows more slowly: fewer risks",
+  "Niente automazione, robot né AI negli uffici pubblici": "No automation, robots or AI in public offices",
+  "Crescita più lenta (circa un quinto in meno)": "Slower growth (about one fifth less)",
+  "Tecnocrazia": "Technocracy", "Decidono gli esperti": "The experts decide",
+  "Tecnologie di frontiera il 25% più rapide": "Frontier technologies 25% faster",
+  "La sicurezza dell'AI e dei laboratori cresce più in fretta": "AI and laboratory safety improve faster",
+  "Distanza dal popolo: polarizzazione più alta": "Distance from the people: higher polarisation",
+  "Movimenti contro l'Autorità più frequenti": "More frequent anti-Authority movements",
+
+  // missione
+  "La missione": "The mission", "Assumi il comando": "Take command",
+  "È il 2026. Debiti pubblici fuori controllo, popolazioni che invecchiano, un clima che si scalda, tensioni tra potenze armate e tecnologie sempre più potenti: il mondo è in crisi su molti fronti nello stesso momento.": "It is 2026. Public debt out of control, ageing populations, a warming climate, tension between armed powers and ever more powerful technologies: the world is in crisis on many fronts at once.",
+  "Dopo lunghe trattative i governi hanno deciso che serve un ente sovranazionale capace di guidare il pianeta verso la stabilità. Le nazioni si sono impegnate a seguirne gli ordini. Quell'ente è l'Autorità, e la guidi tu.": "After long negotiations, governments have agreed that a supranational body is needed to steer the planet towards stability. The nations have pledged to follow its orders. That body is the Authority, and you lead it.",
+  "La tua missione è garantire all'umanità una stabilità duratura.": "Your mission is to give humanity lasting stability.",
+  "Una guida ti accompagnerà nei primi passi.": "A guide will walk you through your first steps.",
+  "Governo: {g}. Difficoltà: {d}.": "Government: {g}. Difficulty: {d}.",
+  "Per vincere": "To win", "Per perdere": "You lose if",
+  "Stabilità mondiale almeno {w} per {y} anni di fila": "World stability of at least {w} for {y} years in a row", "oggi {x}": "now {x}",
+  "La stabilità mondiale scende a zero, oppure resta sotto 15 per 5 anni di fila": "World stability falls to zero, or stays below 15 for 5 years in a row",
+  "Gli interessi sul debito dell'Autorità superano per tre anni tutto ciò che potrebbe incassare: è la bancarotta": "For three years the interest on the Authority's debt exceeds everything it could possibly raise: bankruptcy",
+
+  // schermata principale
+  "Stabilità mondiale": "World stability", "Anni stabili": "Stable years", "Temperatura": "Temperature", "obiettivo {x}": "target {x}",
+  "Crollo del mondo tra": "World collapse in", "{a} a {m} m": "{a} y {m} m",
+  "Velocità del tempo": "Game speed", "Pausa": "Pause", "Velocità normale": "Normal speed", "Velocità doppia": "Double speed", "Velocità quadrupla": "Quadruple speed",
+  "Menu della partita": "Game menu", "Planisfero a proiezione equivalente": "Equal-area world map", "La Terra e la Luna": "The Earth and the Moon",
+  "Colori della mappa": "Map colours", "Ultime notizie": "Latest news", "Ultime notizie: tocca per vederle tutte": "Latest news: tap to see them all",
+  "Fondi": "Funds", "/anno": "/year", "Entrate e spese dell'Autorità": "The Authority's income and spending", "Interventi": "Policies", "Mondo": "World",
+  "Partita finita · torna al riepilogo": "Game over · back to the summary",
+  "Nessuna regione": "No region selected", "Tocca una regione sulla mappa": "Tap a region on the map",
+  "Punto debole: {x}": "Weak spot: {x}", "In anarchia: non esegue più gli ordini": "In anarchy: no longer follows orders", "Cosa fare ›": "What to do ›",
+  // viste della mappa
+  "Stabilità": "Stability", "solida": "solid", "critica": "critical",
+  "Malcontento": "Discontent", "calmo": "calm", "in rivolta": "in revolt",
+  "Debito": "Debt", "basso": "low", "insostenibile": "unsustainable",
+  "Energia fossile": "Fossil energy", "pulita": "clean", "fossile": "fossil",
+  "Peso del welfare": "Welfare burden", "leggero": "light", "pesante": "heavy",
+  "Disoccupazione": "Unemployment", "bassa": "low", "alta": "high",
+  "Figli per donna": "Children per woman", "sotto 2,1: cala": "below 2.1: shrinking", "sopra 2,1: cresce": "above 2.1: growing",
+  // le parti della stabilità
+  "Pace sociale": "Social peace", "Coesione": "Cohesion", "Conti pubblici": "Public finances", "Welfare sostenibile": "Sustainable welfare",
+  "Lavoro": "Jobs", "Energia pulita": "Clean energy", "Sicurezza climatica": "Climate safety", "Equilibrio demografico": "Demographic balance",
+  // regioni
+  "Nord America": "North America", "America Latina": "Latin America", "Europa": "Europe", "Russia e Asia centrale": "Russia and Central Asia", "Russia e Asia c.": "Russia and C. Asia",
+  "Medio Oriente e Nord Africa": "Middle East and North Africa", "Medio Oriente e N. Africa": "Middle East and N. Africa",
+  "Africa occidentale e centrale": "West and Central Africa", "Africa occ. e centr.": "West and C. Africa",
+  "Africa orientale e australe": "East and Southern Africa", "Africa or. e australe": "East and S. Africa",
+  "Asia meridionale": "South Asia", "Asia orientale": "East Asia", "Sud-est asiatico": "Southeast Asia", "Oceania": "Oceania",
+
+  // cartina
+  "Circolo polare artico": "Arctic Circle", "Tropico del Cancro": "Tropic of Cancer", "Equatore": "Equator", "Tropico del Capricorno": "Tropic of Capricorn",
+  "Translation in progress: some parts of the game are still in Italian.": "Translation in progress: some parts of the game are still in Italian.",
+
+  // menu della partita e avvisi
+  "Partita in pausa": "Game paused", "Menu": "Menu",
+  "La partita si salva da sola. Dal menu principale puoi riprenderla con «Continua».": "The game saves itself. From the main menu you can pick it up again with «Continue».",
+  "Riprendi": "Resume", "Salva ed esci al menu": "Save and quit to menu",
+  "Per giocare a tutto schermo, senza ora e batteria, sblocca la rotazione dello schermo e gira il telefono.": "To play full screen, without the clock and battery, unlock screen rotation and turn your phone.",
+  "Prima decidi sulla crisi scaduta: tocca il segnale lampeggiante sulla mappa.": "First decide on the overdue crisis: tap the flashing marker on the map.",
+  "Partita ripresa: {m} {y}. Tocca 1× per far ripartire il tempo.": "Game resumed: {m} {y}. Tap 1× to restart time.",
+};
+
+</script>
+<script>
 "use strict";
+/* ---------- lingue (dal 31 ottobre 2026) ----------
+   I testi sono scritti in italiano; tr() li traduce con il dizionario della lingua scelta (lang/en.js, chiave = testo italiano).
+   {x} nelle frasi sono i valori che cambiano. Le frasi senza traduzione restano in italiano e finiscono in tMiss, che la prova
+   automatica controlla. La scelta automatica in base alla lingua del telefono si accende quando la traduzione è completa. */
+const LANG_AUTO = false;
+const LANGS = { it: { name: "Italiano", dict: null, loc: "it-IT" }, en: { name: "English", dict: typeof LANG_EN !== "undefined" ? LANG_EN : {}, loc: "en-GB" } };
+let LANG = (() => { try { const v = localStorage.getItem("gf-lang"); if (v && LANGS[v]) return v; } catch (e) {} return LANG_AUTO && !/^it/i.test(navigator.language || "") ? "en" : "it"; })();
+const tMiss = new Set();
+function tr(s, v) {
+  if (s == null) return s;
+  let r = String(s);
+  const d = LANGS[LANG].dict;
+  if (d && r.trim()) { const x = d[r]; if (x == null) { if (/[a-zàèéìòù]{3}/i.test(r)) tMiss.add(r); } else r = x; }
+  if (v) r = r.replace(/\{(\w+)\}/g, (_, k) => (v[k] != null ? v[k] : ""));
+  return r;
+}
+// testi fissi della pagina: si traducono i nodi di testo e le etichette per la lettura vocale; l'originale italiano resta da parte
+const tOrig = new WeakMap();
+function tStatic(root) {
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  for (let n = w.nextNode(); n; n = w.nextNode()) {
+    if (n.parentElement && n.parentElement.closest("script, style, svg, [data-dyn], #menuHow, #modal, #coach")) continue;
+    const raw = tOrig.has(n) ? tOrig.get(n) : n.nodeValue; const k = raw.trim(); if (!k) continue;
+    if (!tOrig.has(n)) tOrig.set(n, raw);
+    n.nodeValue = LANG === "it" ? raw : raw.replace(k, tr(k));
+  }
+  for (const el of root.querySelectorAll("[aria-label]")) {
+    if (el.closest("[data-dyn], #menuHow, #modal")) continue;
+    if (!el.dataset.al) el.dataset.al = el.getAttribute("aria-label");
+    el.setAttribute("aria-label", LANG === "it" ? el.dataset.al : tr(el.dataset.al));
+  }
+}
 /* ---------- proiezione Equal Earth (Šavrič, Patterson, Jenny 2018) ---------- */
 const A1 = 1.340264, A2 = -0.081106, A3 = 0.000893, A4 = 0.003796, MM = Math.sqrt(3) / 2, SC = 100;
 function ee(lon, lat) {
@@ -3596,8 +3771,11 @@ function ee(lon, lat) {
 const $ = (id) => document.getElementById(id);
 const NS = "http://www.w3.org/2000/svg";
 const svgEl = (tag, attrs) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
-const fmt = (v, d = 1) => v.toLocaleString("it-IT", { minimumFractionDigits: d, maximumFractionDigits: d });
-const MONTHS = ["gen", "feb", "mar", "apr", "mag", "giu", "lug", "ago", "set", "ott", "nov", "dic"];
+const fmt = (v, d = 1) => v.toLocaleString(LANGS[LANG].loc, { minimumFractionDigits: d, maximumFractionDigits: d });
+const MONTHS_IT = ["gen", "feb", "mar", "apr", "mag", "giu", "lug", "ago", "set", "ott", "nov", "dic"];
+const MONTHS = MONTHS_IT.slice();
+const setMonths = () => MONTHS.splice(0, 12, ...MONTHS_IT.map((m) => tr(m)));
+setMonths();
 const CAT_COLOR = { genetica: "#7fd1b9", welfare: "#c98fd6", tecnologia: "#8fa8ff", energia: "#e9b44c", nucleare: "#d4d86a", economia: "#9fc36b", demografia: "#c98fd6", societa: "#6fb0d8", clima: "#4fae8e", salute: "#e57d8c", sicurezza: "#d68a4a", ai: "#8fa8ff", spazio: "#cfd8df" };
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 /* icone degli interventi: una per ciascuno, disegnate su una griglia 10×10 (tratto = colore corrente) */
@@ -3876,7 +4054,7 @@ function buildMap() {
   for (const [la, name] of pars) {
     let d = ""; for (let lo = -180; lo <= 180; lo += 4) { const [x, y] = ee(lo, la); d += (d ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1); }
     g.appendChild(svgEl("path", { d, class: "grat" + (la === 0 ? " eq" : "") }));
-    const [x, y] = ee(-178, la); const t = svgEl("text", { x: x + 4, y: y - 1.5, class: "gratlbl" }); t.textContent = name; gl.appendChild(t);
+    const [x, y] = ee(-178, la); const t = svgEl("text", { x: x + 4, y: y - 1.5, class: "gratlbl" }); t.textContent = tr(name); t.dataset.it = name; gl.appendChild(t);
   }
   for (let lo = -150; lo <= 150; lo += 30) {
     let d = ""; for (let la = -88; la <= 88; la += 4) { const [x, y] = ee(lo, la); d += (d ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1); }
@@ -3895,7 +4073,7 @@ function buildMap() {
     regionEls[R.id] = grp;
     const [lx, ly] = ee(R.label[0], R.label[1]);
     const lab = svgEl("g", { class: "lbl", transform: `translate(${lx.toFixed(1)} ${ly.toFixed(1)})` });
-    const t = svgEl("text", { "text-anchor": "middle", y: 0 }); t.textContent = R.short; lab.appendChild(t);
+    const t = svgEl("text", { "text-anchor": "middle", y: 0 }); t.textContent = tr(R.short); lab.appendChild(t);
     const pill = svgEl("rect", { x: -9, y: 3, width: 18, height: 10, rx: 5, class: "pill", fill: "#152634", stroke: "#2b4356" }); lab.appendChild(pill);
     const num = svgEl("text", { "text-anchor": "middle", y: 10.8, class: "num" }); lab.appendChild(num);
     lab.addEventListener("click", (e) => { e.stopPropagation(); if (!mapMoved) onRegionTap(R.id); }); // anche il numero della regione si può toccare
@@ -3949,8 +4127,8 @@ function paint() {
   if (night && !lightsBuilt) buildLights();
   $("lights").style.display = night ? "" : "none";
   if (night) for (const g of $("lights").children) g.style.opacity = nightGlow(st.regions[g.dataset.r]).toFixed(2);
-  $("legLo").textContent = L.a; $("legHi").textContent = L.b; $("legBar").style.background = L.bar;
-  $("viewName").textContent = L.name;
+  $("legLo").textContent = tr(L.a); $("legHi").textContent = tr(L.b); $("legBar").style.background = L.bar;
+  $("viewName").textContent = tr(L.name);
 }
 function hud() {
   if (!st) return;
@@ -3958,23 +4136,23 @@ function hud() {
   const net = netYear();
   $("sFunds").style.color = st.funds < 0 ? "#f0a597" : "";
   $("sFunds").textContent = fmt(st.funds, 1);
-  $("sNet").textContent = (net >= 0 ? "+" : "−") + fmt(Math.abs(net), 1) + "/anno";
+  $("sNet").textContent = (net >= 0 ? "+" : "−") + fmt(Math.abs(net), 1) + tr("/anno");
   $("sTemp").textContent = tempTxt(st.g.temp + st.g.geoOff);
   const ws = worldStab(st);
-  $("sWorld").innerHTML = `<span style="color:${ws >= st.L.win ? "#9fd6c2" : "inherit"}">${Math.round(ws)}</span> <small>obiettivo ${st.L.win}</small>`;
+  $("sWorld").innerHTML = `<span style="color:${ws >= st.L.win ? "#9fd6c2" : "inherit"}">${Math.round(ws)}</span> <small>${tr("obiettivo {x}", { x: st.L.win })}</small>`;
   // sotto la soglia il riquadro degli anni stabili diventa il conto alla rovescia verso il crollo
   const low = st.lowM || 0, chipS = $("sStable").parentNode;
   chipS.classList.toggle("doom", low > 0);
-  if (low > 0) { const left = LOW_YEARS * 12 - low; chipS.querySelector(".k").textContent = "Crollo del mondo tra"; $("sStable").textContent = Math.floor(left / 12) + " a " + (left % 12) + " m"; }
-  else { chipS.querySelector(".k").textContent = "Anni stabili"; $("sStable").textContent = st.stable + " / " + st.L.years; }
+  if (low > 0) { const left = LOW_YEARS * 12 - low; chipS.querySelector(".k").textContent = tr("Crollo del mondo tra"); $("sStable").textContent = tr("{a} a {m} m", { a: Math.floor(left / 12), m: left % 12 }); }
+  else { chipS.querySelector(".k").textContent = tr("Anni stabili"); $("sStable").textContent = st.stable + " / " + st.L.years; }
   updateTicker();
   for (const b of document.querySelectorAll(".speed button")) b.setAttribute("aria-pressed", String(+b.dataset.s === speed));
   const s = $("regStrip");
-  if (!sel) { s.innerHTML = `<span class="stripe"></span><span class="nm">Nessuna regione</span><span class="st">Tocca una regione sulla mappa</span>`; layoutMap(); return; }
+  if (!sel) { s.innerHTML = `<span class="stripe"></span><span class="nm">${tr("Nessuna regione")}</span><span class="st">${tr("Tocca una regione sulla mappa")}</span>`; layoutMap(); return; }
   const r = st.regions[sel];
   const weak = r.controlled ? stabParts(r, st).sort((a, b) => a.val - b.val)[0] : null;
-  s.innerHTML = `<span class="stripe" style="background:${stabColor(r.stab)}"></span><span class="nm">${esc(RBY[sel].name)} · <span style="color:${stabColor(r.stab)}">${Math.round(r.stab)}</span></span>
-    <span class="st">${weak ? "Punto debole: " + weak.name.toLowerCase() : "In anarchia: non esegue più gli ordini"}</span><span class="go">Cosa fare ›</span>`;
+  s.innerHTML = `<span class="stripe" style="background:${stabColor(r.stab)}"></span><span class="nm">${esc(tr(RBY[sel].name))} · <span style="color:${stabColor(r.stab)}">${Math.round(r.stab)}</span></span>
+    <span class="st">${weak ? tr("Punto debole: {x}", { x: tr(weak.name).toLowerCase() }) : tr("In anarchia: non esegue più gli ordini")}</span><span class="go">${tr("Cosa fare ›")}</span>`;
   layoutMap();
 }
 function refresh() {
@@ -3988,7 +4166,7 @@ function refresh() {
 
 /* ---------- vista della mappa ---------- */
 function renderViews() {
-  $("views").innerHTML = Object.entries(LAYERS).map(([k, L]) => `<button type="button" data-l="${k}" aria-pressed="${k === layer}">${L.name}</button>`).join("");
+  $("views").innerHTML = Object.entries(LAYERS).map(([k, L]) => `<button type="button" data-l="${k}" aria-pressed="${k === layer}">${tr(L.name)}</button>`).join("");
   for (const b of $("views").querySelectorAll("button")) b.onclick = () => { layer = b.dataset.l; $("views").hidden = true; renderViews(); paint(); };
 }
 $("viewBtn").onclick = () => { $("views").hidden = !$("views").hidden; };
@@ -3998,7 +4176,7 @@ function showPhase(p) {
   phase = p;
   $("menuTitle").hidden = p !== "title";
   if (p === "title") $("crownAll").hidden = !LEVELS.filter((l) => !l.tutorial).every((l) => crowned(l.id));
-  if (p === "title") { const sv = peekSave(); $("mCont").hidden = !sv; if (sv) $("mCont").textContent = `Continua · ${sv.year} · ${DIFF[sv.diffId].name}`; }
+  if (p === "title") { const sv = peekSave(); $("mCont").hidden = !sv; if (sv) $("mCont").textContent = tr("Continua · {y} · {d}", { y: sv.year, d: tr(DIFF[sv.diffId].name) }); }
   $("menuHow").hidden = p !== "how";
   $("menuDiff").hidden = p !== "diff";
   $("menuLevels").hidden = p !== "levels";
@@ -4030,21 +4208,21 @@ function renderLevels() {
   const list = LEVELS.map((l, i) => {
     const open = levelUnlocked(i);
     return `<button type="button" class="mdi ${l.tutorial ? "tut" : ""} ${open ? "" : "locked"}" data-l="${l.id}" aria-pressed="${l.id === introLevel}" ${open ? "" : 'aria-disabled="true"'}>
-      <span class="n">${num(l, i)}</span><b>${esc(l.name)}</b><span class="mk">${!open ? LOCK_SVG : crowned(l.id) ? "♛" : levelWon(l.id) ? "✓" : ""}</span></button>`;
+      <span class="n">${num(l, i)}</span><b>${esc(tr(l.name))}</b><span class="mk">${!open ? LOCK_SVG : crowned(l.id) ? "♛" : levelWon(l.id) ? "✓" : ""}</span></button>`;
   }).join("");
   const i = LEVELS.findIndex((l) => l.id === introLevel), l = LEVELS[i], gw = govsWon(l.id).length;
   // una vittoria a una difficoltà conta anche per tutte quelle più facili (decisione del 23 ottobre 2026)
-  const medals = Object.keys(DIFF).map((k) => `<i style="${wonAtLeast(l.id, k) ? `background:${DIFF_LOOK[k].c};border-color:${DIFF_LOOK[k].c}` : ""}" title="${DIFF[k].name}"></i>`).join("");
-  const det = `<div class="hd"><span class="num" style="${l.tutorial ? "-webkit-text-stroke-color:var(--good)" : ""}">${num(l, i)}</span><h3>${esc(l.name)}</h3></div>
-    <p>${esc(l.intro)}</p><p class="adds">${esc(l.adds)}</p>
-    <div class="foot2">${l.tutorial ? (levelWon(l.id) ? "Completato ✓" : "Consigliato per iniziare") : `<span class="medals" aria-label="Difficoltà vinte">${medals}</span><span>Governi vinti ${gw}/${GOVS.length}</span>${crowned(l.id) ? `<span class="crown" title="Vinto a super difficile con tutti i governi">♛</span>` : ""}`}</div>`;
+  const medals = Object.keys(DIFF).map((k) => `<i style="${wonAtLeast(l.id, k) ? `background:${DIFF_LOOK[k].c};border-color:${DIFF_LOOK[k].c}` : ""}" title="${tr(DIFF[k].name)}"></i>`).join("");
+  const det = `<div class="hd"><span class="num" style="${l.tutorial ? "-webkit-text-stroke-color:var(--good)" : ""}">${num(l, i)}</span><h3>${esc(tr(l.name))}</h3></div>
+    <p>${esc(tr(l.intro))}</p><p class="adds"><span class="nov">${tr("Novità:")}</span> ${esc(tr(l.adds))}</p>
+    <div class="foot2">${l.tutorial ? (levelWon(l.id) ? tr("Completato ✓") : tr("Consigliato per iniziare")) : `<span class="medals" aria-label="${tr("Difficoltà vinte")}">${medals}</span><span>${tr("Governi vinti {a}/{b}", { a: gw, b: GOVS.length })}</span>${crowned(l.id) ? `<span class="crown" title="${tr("Vinto a super difficile con tutti i governi")}">♛</span>` : ""}`}</div>`;
   $("levels").innerHTML = `<div class="mdlist">${list}</div><div class="mddet">${det}</div>`;
   mdShow($("levels"));
   for (const b of $("levels").querySelectorAll("[data-l]")) b.onclick = () => {
-    if (b.classList.contains("locked")) { const j = LEVELS.findIndex((x) => x.id === b.dataset.l); $("levels").querySelector(".mddet").innerHTML = `<div class="hd"><span class="num" style="-webkit-text-stroke-color:var(--muted)">${j}</span><h3>${esc(LEVELS[j].name)}</h3></div><p class="lockmsg">${LOCK_SVG}Per aprirlo vinci «${esc(LEVELS[j - 1].name)}»</p>`; return; }
+    if (b.classList.contains("locked")) { const j = LEVELS.findIndex((x) => x.id === b.dataset.l); $("levels").querySelector(".mddet").innerHTML = `<div class="hd"><span class="num" style="-webkit-text-stroke-color:var(--muted)">${j}</span><h3>${esc(tr(LEVELS[j].name))}</h3></div><p class="lockmsg">${LOCK_SVG}${tr("Per aprirlo vinci «{x}»", { x: esc(tr(LEVELS[j - 1].name)) })}</p>`; return; }
     introLevel = b.dataset.l; renderLevels();
   };
-  $("mLevelNext").textContent = LBY[introLevel].tutorial ? "Inizia" : "Avanti";
+  $("mLevelNext").textContent = LBY[introLevel].tutorial ? tr("Inizia") : tr("Avanti");
 }
 const GOV_ICON = {
   human: '<path d="M9.5 20v-4.5L7 13v-3.5l2-1.5M14.5 20v-4.5L17 13v-3.5l-2-1.5M9 8h6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="5" r="2.2" fill="none" stroke="currentColor" stroke-width="1.6"/>',
@@ -4058,10 +4236,10 @@ const GOV_ICON = {
 function renderGovs() {
   const won = govsWon(introLevel), g = GOVS.find((x) => x.id === introGov) || GOVS[0];
   const list = GOVS.map((x) => `<button type="button" class="mdi" data-g="${x.id}" aria-pressed="${x.id === g.id}">
-      <svg class="gi" viewBox="0 0 24 24" aria-hidden="true">${GOV_ICON[x.icon]}</svg><b>${esc(x.name)}</b><span class="mk">${won.includes(x.id) ? "✓" : ""}</span></button>`).join("");
-  const det = `<div class="hd"><svg class="gi" viewBox="0 0 24 24" aria-hidden="true">${GOV_ICON[g.icon]}</svg><div><h3>${esc(g.name)}</h3><span class="sh">${esc(g.short)}</span></div></div>
-    <ul>${g.pro.map((x) => `<li class="p">${esc(x)}</li>`).join("")}${g.con.map((x) => `<li class="c">${esc(x)}</li>`).join("")}</ul>
-    ${won.includes(g.id) ? `<span class="won">✓ Scenario già vinto con questo governo</span>` : ""}`;
+      <svg class="gi" viewBox="0 0 24 24" aria-hidden="true">${GOV_ICON[x.icon]}</svg><b>${esc(tr(x.name))}</b><span class="mk">${won.includes(x.id) ? "✓" : ""}</span></button>`).join("");
+  const det = `<div class="hd"><svg class="gi" viewBox="0 0 24 24" aria-hidden="true">${GOV_ICON[g.icon]}</svg><div><h3>${esc(tr(g.name))}</h3><span class="sh">${esc(tr(g.short))}</span></div></div>
+    <ul>${g.pro.map((x) => `<li class="p">${esc(tr(x))}</li>`).join("")}${g.con.map((x) => `<li class="c">${esc(tr(x))}</li>`).join("")}</ul>
+    ${won.includes(g.id) ? `<span class="won">${tr("✓ Scenario già vinto con questo governo")}</span>` : ""}`;
   $("govs").innerHTML = `<div class="mdlist">${list}</div><div class="mddet">${det}</div>`;
   mdShow($("govs"));
   for (const b of $("govs").querySelectorAll("[data-g]")) b.onclick = () => { introGov = b.dataset.g; renderGovs(); };
@@ -4085,12 +4263,12 @@ function renderDiffs() {
   $("diffs").innerHTML = Object.entries(DIFF).map(([k, d], i) => {
     const L = DIFF_LOOK[k], b = bestOf(introLevel, k), locked = k === "super" && !superUnlocked(introLevel);
     return `<button type="button" class="diff ${locked ? "locked" : ""}" data-d="${k}" aria-pressed="${k === introDiff}" ${locked ? 'aria-disabled="true"' : ""} style="--lc:${L.c}">
-      ${emblem(i + 1)}<span class="tagl">${L.tag}</span><b>${d.name}</b><span class="txt">${DIFF_TEXT[k]}</span>
-      <dl><dt>Entrate</dt><dd>${L.inc}</dd><dt>Accettazione</dt><dd>${L.acc}</dd></dl>
-      ${locked ? `<span class="lockmsg">${LOCK_SVG}Vinci questo scenario a livello difficile per sbloccarlo</span>` : `<span class="best ${b ? "" : "none"}">${b ? `Record: ${"★".repeat(b.stars) || "vittoria"} · ${b.years} anni` : "Nessuna vittoria"}</span>`}</button>`;
+      ${emblem(i + 1)}<span class="tagl">${tr(L.tag)}</span><b>${tr(d.name)}</b><span class="txt">${tr(DIFF_TEXT[k])}</span>
+      <dl><dt>${tr("Entrate")}</dt><dd>${tr(L.inc)}</dd><dt>${tr("Accettazione")}</dt><dd>${tr(L.acc)}</dd></dl>
+      ${locked ? `<span class="lockmsg">${LOCK_SVG}${tr("Vinci questo scenario a livello difficile per sbloccarlo")}</span>` : `<span class="best ${b ? "" : "none"}">${b ? tr("Record: {s} · {y} anni", { s: "★".repeat(b.stars) || tr("vittoria"), y: b.years }) : tr("Nessuna vittoria")}</span>`}</button>`;
   }).join("");
   for (const b of $("diffs").querySelectorAll("[data-d]")) b.onclick = () => { if (b.classList.contains("locked")) return; introDiff = b.dataset.d; renderDiffs(); };
-  $("diffTitle").textContent = LBY[introLevel].name + " · difficoltà";
+  $("diffTitle").textContent = tr("{x} · difficoltà", { x: tr(LBY[introLevel].name) });
 }
 $("mPlay").onclick = () => { tryLandscape(); music.start(); showPhase("levels"); };
 $("mCont").onclick = continueGame;
@@ -4115,16 +4293,16 @@ function startGame() {
   speed = 1;
   const ws = Math.round(worldStab(st));
   $("briefBody").innerHTML = `
-    <p>È il 2026. Debiti pubblici fuori controllo, popolazioni che invecchiano, un clima che si scalda, tensioni tra potenze armate e tecnologie sempre più potenti: il mondo è in crisi su molti fronti nello stesso momento.</p>
-    <p>Dopo lunghe trattative i governi hanno deciso che serve un ente sovranazionale capace di guidare il pianeta verso la stabilità. Le nazioni si sono impegnate a seguirne gli ordini. Quell'ente è l'Autorità, e la guidi tu.</p>
-    <p><b>La tua missione è garantire all'umanità una stabilità duratura.</b></p>
-    <h3>${esc(st.L.name)}</h3>
-    <p>${esc(st.L.intro)}${st.L.tutorial ? " Una guida ti accompagnerà nei primi passi." : ` Governo: ${esc(st.G.name)}. Difficoltà: ${esc(st.D.name.toLowerCase())}.`}</p>
-    <h3>Per vincere</h3>
-    <ul class="goals"><li><span>Stabilità mondiale almeno ${st.L.win} per ${st.L.years} anni di fila</span><span>oggi ${ws}</span></li></ul>
-    <h3>Per perdere</h3>
-    <ul class="goals"><li><span>La stabilità mondiale scende a zero, oppure resta sotto 15 per 5 anni di fila</span><span></span></li>
-      <li><span>Gli interessi sul debito dell'Autorità superano per tre anni tutto ciò che potrebbe incassare: è la bancarotta</span><span></span></li></ul>`;
+    <p>${tr("È il 2026. Debiti pubblici fuori controllo, popolazioni che invecchiano, un clima che si scalda, tensioni tra potenze armate e tecnologie sempre più potenti: il mondo è in crisi su molti fronti nello stesso momento.")}</p>
+    <p>${tr("Dopo lunghe trattative i governi hanno deciso che serve un ente sovranazionale capace di guidare il pianeta verso la stabilità. Le nazioni si sono impegnate a seguirne gli ordini. Quell'ente è l'Autorità, e la guidi tu.")}</p>
+    <p><b>${tr("La tua missione è garantire all'umanità una stabilità duratura.")}</b></p>
+    <h3>${esc(tr(st.L.name))}</h3>
+    <p>${esc(tr(st.L.intro))}${st.L.tutorial ? " " + tr("Una guida ti accompagnerà nei primi passi.") : " " + tr("Governo: {g}. Difficoltà: {d}.", { g: esc(tr(st.G.name)), d: esc(tr(st.D.name).toLowerCase()) })}</p>
+    <h3>${tr("Per vincere")}</h3>
+    <ul class="goals"><li><span>${tr("Stabilità mondiale almeno {w} per {y} anni di fila", { w: st.L.win, y: st.L.years })}</span><span>${tr("oggi {x}", { x: ws })}</span></li></ul>
+    <h3>${tr("Per perdere")}</h3>
+    <ul class="goals"><li><span>${tr("La stabilità mondiale scende a zero, oppure resta sotto 15 per 5 anni di fila")}</span><span></span></li>
+      <li><span>${tr("Gli interessi sul debito dell'Autorità superano per tre anni tutto ciò che potrebbe incassare: è la bancarotta")}</span><span></span></li></ul>`;
   showPhase("brief");
   fitBrief();
 }
@@ -4148,7 +4326,7 @@ function rotateHint() {
   // il gioco girato dal codice funziona, ma solo con il telefono davvero in orizzontale spariscono ora e batteria
   if (!$("app").classList.contains("turned")) return;
   let n = 0; try { n = +localStorage.getItem("gf-rot") || 0; localStorage.setItem("gf-rot", n + 1); } catch (e) {}
-  if (n < 3) toast("Per giocare a tutto schermo, senza ora e batteria, sblocca la rotazione dello schermo e gira il telefono.", "spread");
+  if (n < 3) toast(tr("Per giocare a tutto schermo, senza ora e batteria, sblocca la rotazione dello schermo e gira il telefono."), "spread");
 }
 function continueGame() {
   const o = loadSave();
@@ -4158,7 +4336,7 @@ function continueGame() {
   st = o.st; sel = null; speed = 0; savedSpeed = 1; seenLog = st.logN || 0; tut = st.L.tutorial ? { step: 0, events: 0 } : null;
   showPhase("play"); refresh();
   rotateHint();
-  if (o.pending) showEvent(o.pending); else toast("Partita ripresa: " + MONTHS[st.month] + " " + st.year + ". Tocca 1× per far ripartire il tempo.", "spread");
+  if (o.pending) showEvent(o.pending); else toast(tr("Partita ripresa: {m} {y}. Tocca 1× per far ripartire il tempo.", { m: MONTHS[st.month], y: st.year }), "spread");
 }
 function onRegionTap(id) {
   $("views").hidden = true;
@@ -5469,6 +5647,23 @@ function showGlobe() {
   $("globe").toggleAttribute("hidden", !globeOn); $("map").style.visibility = globeOn ? "hidden" : "";
   if (globeOn && st) drawGlobe();
 }
+/* cambio di lingua: testi fissi, mesi, etichette della mappa e la schermata aperta si ridisegnano */
+function setLang(l) {
+  if (!LANGS[l]) return;
+  LANG = l; try { localStorage.setItem("gf-lang", l); } catch (e) {}
+  document.documentElement.lang = l;
+  setMonths(); tStatic(document.body); paintLang();
+  for (const id in labelEls) labelEls[id].t.textContent = tr(RBY[id].short);
+  for (const el of document.querySelectorAll("svg [data-it]")) el.textContent = tr(el.dataset.it);
+  renderViews(); if (st) { paint(); hud(); }
+  newsKey = ""; if (st) updateTicker();
+  showPhase(phase);
+}
+function paintLang() {
+  $("langBtns").innerHTML = Object.entries(LANGS).map(([k, v]) => `<button type="button" data-lang="${k}" aria-pressed="${k === LANG}">${v.name}</button>`).join("");
+  for (const b of $("langBtns").querySelectorAll("[data-lang]")) b.onclick = (e) => { e.stopPropagation(); setLang(b.dataset.lang); };
+  $("langNote").textContent = LANG === "it" ? "" : "Translation in progress: some parts of the game are still in Italian.";
+}
 // la vista Terra e Luna è stata tolta il 31 ottobre 2026 (i giocatori non la usavano); il codice del globo resta per il futuro
 
 /* ---------- menu della partita: riprendere oppure salvare e tornare al menu principale ---------- */
@@ -5477,9 +5672,9 @@ $("bPause").onclick = () => {
   if (phase !== "play" || pending) return;
   savedSpeed = speed || savedSpeed || 1; speed = 0; pending = { pause: true }; hud();
   const c = $("modalCard");
-  c.innerHTML = `<div class="eyebrow">Partita in pausa · ${MONTHS[st.month]} ${st.year}</div><h2>Menu</h2>
-    <p>La partita si salva da sola. Dal menu principale puoi riprenderla con «Continua».</p>
-    <div class="choices"><button type="button" class="buy" id="pResume" style="margin:0">Riprendi</button><button type="button" class="buy alt" id="pExit" style="margin:0">Salva ed esci al menu</button></div>`;
+  c.innerHTML = `<div class="eyebrow">${tr("Partita in pausa")} · ${MONTHS[st.month]} ${st.year}</div><h2>${tr("Menu")}</h2>
+    <p>${tr("La partita si salva da sola. Dal menu principale puoi riprenderla con «Continua».")}</p>
+    <div class="choices"><button type="button" class="buy" id="pResume" style="margin:0">${tr("Riprendi")}</button><button type="button" class="buy alt" id="pExit" style="margin:0">${tr("Salva ed esci al menu")}</button></div>`;
   $("modal").hidden = false;
   $("pResume").onclick = () => { pending = null; $("modal").hidden = true; speed = savedSpeed || 1; refresh(); };
   $("pExit").onclick = () => {
@@ -5495,7 +5690,7 @@ $("bPause").onclick = () => {
 /* ---------- comandi ---------- */
 for (const b of document.querySelectorAll(".speed button")) b.onclick = () => {
   if (phase !== "play" || pending) return;
-  if (+b.dataset.s > 0 && expiredEv()) { toast("Prima decidi sulla crisi scaduta: tocca il segnale lampeggiante sulla mappa.", "bad"); return; }
+  if (+b.dataset.s > 0 && expiredEv()) { toast(tr("Prima decidi sulla crisi scaduta: tocca il segnale lampeggiante sulla mappa."), "bad"); return; }
   speed = +b.dataset.s; if (speed > 0) savedSpeed = speed;
 
   hud();
@@ -5606,7 +5801,7 @@ const music = (() => {
     const icon = on
       ? '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h3l4-3.5v11L6 12H3z" fill="currentColor"/><path d="M13 7.5a3.5 3.5 0 0 1 0 5M15.5 5a7 7 0 0 1 0 10"/></svg>'
       : '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h3l4-3.5v11L6 12H3z" fill="currentColor"/><path d="M13.5 8l4 4M17.5 8l-4 4"/></svg>';
-    for (const b of document.querySelectorAll("[data-sound]")) { b.innerHTML = icon; b.setAttribute("aria-pressed", String(on)); b.setAttribute("aria-label", on ? "Spegni la musica" : "Accendi la musica"); }
+    for (const b of document.querySelectorAll("[data-sound]")) { b.innerHTML = icon; b.setAttribute("aria-pressed", String(on)); b.setAttribute("aria-label", on ? tr("Spegni la musica") : tr("Accendi la musica")); }
   }
   function setOn(v) {
     on = v; try { localStorage.setItem("gf-music", on ? "on" : "off"); } catch (er) {}
@@ -5617,8 +5812,8 @@ const music = (() => {
   const sw = $("musicSwitch");
   function paintSettings() {
     sw.setAttribute("aria-checked", String(on));
-    $("musicNote").textContent = on ? "Accesa: si sente anche con il telefono in modalità silenziosa. Mentre giochi si fermano la musica di altre app e le registrazioni vocali."
-      : "Spenta: il gioco resta muto e non disturba la musica di altre app né le registrazioni vocali.";
+    $("musicNote").textContent = on ? tr("Accesa: si sente anche con il telefono in modalità silenziosa. Mentre giochi si fermano la musica di altre app e le registrazioni vocali.")
+      : tr("Spenta: il gioco resta muto e non disturba la musica di altre app né le registrazioni vocali.");
   }
   sw.addEventListener("click", (e) => { e.stopPropagation(); setOn(!on); paintSettings(); });
   $("bSettings").addEventListener("click", (e) => { e.stopPropagation(); paintSettings(); $("settings").hidden = !$("settings").hidden; });
@@ -5639,6 +5834,7 @@ const music = (() => {
   return { start() { if (on) play(); }, leave, back };
 })();
 
+tStatic(document.body); paintLang(); document.documentElement.lang = LANG;
 renderViews();
 buildMap();
 fit();
