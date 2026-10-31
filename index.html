@@ -785,7 +785,7 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
       <p>La ricchezza prodotta da una regione è il numero di lavoratori occupati per quanto produce ciascuno. Tecnologia, istruzione, automazione e robot fanno crescere la produttività. Quando i robot fanno il lavoro delle persone la ricchezza non sparisce, ma passa dagli stipendi ai profitti di chi possiede i robot: le tasse sul lavoro calano e chi perde il posto resta senza reddito, a meno di una tassa sui robot, di un fondo sovrano e del reddito di base. Se nascono meno bambini, fra 18 anni ci saranno meno lavoratori e l'economia rallenta. Chi aiuta le famiglie oggi vede più crescita una generazione dopo. Il debito di uno stato cresce da solo quando gli interessi superano la crescita (l'effetto palla di neve). Nella scheda Economia la Banca centrale ti fa scegliere il tasso di interesse: alzarlo frena l'inflazione ma anche crescita e lavoro, abbassarlo fa il contrario. Nella schermata Mondo, alla voce Statistiche, trovi l'andamento nel tempo di popolazione, lavoratori, produttività, debito e molto altro, per il mondo intero o per una regione; a fine partita lo stesso resoconto.</p>
       <p>Ogni tanto arrivano anche opportunità: scoperte, svolte tecnologiche, riprese economiche.</p>
       <h3>La Luna</h3>
-      <p>Il programma lunare, nella scheda Tecnologia, non serve per vincere ma cambia la partita: una base costruita insieme dalle potenze riduce la tensione tra loro e la polarizzazione, gli osservatori portano scoperte e tecnologie, un insediamento permanente custodisce un archivio dell'umanità e apre la strada alla fase successiva. Il pulsante "Terra e Luna" mostra il globo e la Luna con lo stato del programma.</p>
+      <p>Il programma lunare, nella scheda Tecnologia, non serve per vincere ma cambia la partita: una base costruita insieme dalle potenze riduce la tensione tra loro e la polarizzazione, gli osservatori portano scoperte e tecnologie, un insediamento permanente custodisce un archivio dell'umanità e apre la strada alla fase successiva. Lo stato del programma si vede nella schermata Mondo.</p>
       <h3>Stelle</h3>
       <p>Alla vittoria ricevi fino a quattro stelle: per la rapidità, per non aver perso nessuna regione, per aver contenuto il riscaldamento e per aver portato una comunità stabile sulla Luna.</p>
       <h3>Salvataggio</h3>
@@ -2105,7 +2105,7 @@ function startIntervention(st, id) {
     a.y += gap; if (a.y0 != null) a.y0 += gap;
     st.acts[id] = a;
     if (id === "ubi") absorbBenefit(st);
-    logNews(st, "Di nuovo in vigore: «" + d.name + "».", "done");
+    logNews(st, `Di nuovo in vigore: «${d.name}».`, "done");
     return null;
   }
   st.funds -= costOf(st, d);
@@ -2128,7 +2128,7 @@ function complete(st, d) {
   // il reddito di base assorbe il sussidio di disoccupazione: chi perde il lavoro lo riceve già (decisione del 27 ottobre 2026)
   if (d.id === "ubi") absorbBenefit(st);
   if (d.gonce) d.gonce(st);
-  logNews(st, "Pronto e in funzione in tutto il mondo: «" + d.name + "».", "done");
+  logNews(st, `Pronto e in funzione in tutto il mondo: «${d.name}».`, "done");
   if (COMPLETE_NOTE[d.id] && a.n === 1) note(st, "good", d.id, COMPLETE_NOTE[d.id].title, COMPLETE_NOTE[d.id].text(st, ec0));
 }
 /* ---------- notizie: buone notizie che mostrano i frutti delle scelte passate (schede a tutto schermo) ---------- */
@@ -2220,7 +2220,7 @@ function yearlyNews(st) {
     const d = left[Math.floor(rand() * left.length)];
     F["disc_" + d.id] = true; F.lastDisc = st.year;
     for (const k in d.fx) st.g.disc[k] = (st.g.disc[k] || 0) + d.fx[k];
-    note(st, "discovery", "research", "Scoperta: " + d.title, d.text);
+    note(st, "discovery", "research", `Scoperta: ${d.title}`, d.text);
   }
 }
 const fmt1 = (v) => (Math.round(v * 10) / 10).toString().replace(".", ",");
@@ -2240,7 +2240,7 @@ function revoke(st, id) {
     if (hot) st.funds -= priced(st, 8);
     logNews(st, hot ? "Shock da interruzione: senza gli aerosol il caldo nascosto dalla CO₂ torna in pochi anni. Raccolti perduti in molte regioni, danni per 8 fondi." : "Interrotti gli aerosol riflettenti: le emissioni sono già basse, il caldo che torna è poco.", "bad");
   }
-  logNews(st, "Revocato: «" + d.name + "».", "info");
+  logNews(st, `Revocato: «${d.name}».`, "info");
 }
 
 /* ---------- eventi avversi (tre scelte: intervento pieno, via di mezzo, non fare nulla) ---------- */
@@ -2937,7 +2937,7 @@ function resolveEvent(st, pending, i) {
   const cd = CRISIS_DEBT[ev.id];
   if (cd && !ev.good) { if (r) r.debt += cd; else ctrlRegions(st).forEach((x) => (x.debt += cd)); }
   if (ev.once) st.flags["done_" + ev.id] = true;
-  logNews(st, evTitle(ev, st, r) + (r && !evTitle(ev, st, r).includes(r.name) ? " (" + r.name + ")" : "") + ". La tua decisione: " + c.label.charAt(0).toLowerCase() + c.label.slice(1).replace(/\.$/, "") + ".", i === 2 && !ev.good ? "bad" : "info", true);
+  logNews(st, r && !evTitle(ev, st, r).includes(r.name) ? `${evTitle(ev, st, r)} (${r.name}). La tua decisione: «${c.label.replace(/\.$/, "")}».` : `${evTitle(ev, st, r)}. La tua decisione: «${c.label.replace(/\.$/, "")}».`, i === 2 && !ev.good ? "bad" : "info", true);
   return null;
 }
 
@@ -3007,13 +3007,13 @@ function reconquer(st, rid) {
   const why = reconWhy(st, rid); if (why) return why;
   st.funds -= priced(st, RECON_COST);
   (st.recon || (st.recon = [])).push({ r: rid, t: 0 });
-  logNews(st, "Parte la missione di pace e ricostruzione in " + st.regions[rid].name + ".", "info");
+  logNews(st, `Parte la missione di pace e ricostruzione in ${st.regions[rid].name}.`, "info");
   return null;
 }
 function gameOver(st, key) {
   if (st.over) return;
   st.over = key;
-  logNews(st, ENDINGS[key].title + ".", key === "vittoria" ? "done" : "bad");
+  logNews(st, `${ENDINGS[key].title}.`, key === "vittoria" ? "done" : "bad");
 }
 
 /* ---------- avanzamento di un mese ---------- */
@@ -3231,10 +3231,10 @@ function tick(st) {
     // perdita del controllo
     if (r.controlled) {
       if (r.unrest >= 92) r.anarchy += dt * (st.G.anarchy || 1); else r.anarchy = Math.max(0, r.anarchy - 0.5 * dt);
-      if (r.debt > 220 && rand() < 0.3 * dt) { r.shockU += 15; logNews(st, "In " + r.name + " lo stato non paga più stipendi e pensioni.", "bad"); }
+      if (r.debt > 220 && rand() < 0.3 * dt) { r.shockU += 15; logNews(st, `In ${r.name} lo stato non paga più stipendi e pensioni.`, "bad"); }
       if (r.anarchy >= 2) {
         r.controlled = false; r.stab = 0;
-        logNews(st, r.name + " è precipitata nell'anarchia. Le regioni vicine ne risentono.", "bad");
+        logNews(st, `${r.name} è precipitata nell'anarchia. Le regioni vicine ne risentono.`, "bad");
         st.prog = st.prog.filter((p) => p.r !== r.id);
       }
     }
@@ -3248,7 +3248,7 @@ function tick(st) {
     if (rand() < reconChance(st, r)) {
       r.controlled = true; r.anarchy = 0; r.unrest = 78; r.shockU = 0; r.stab = 8; r.peaceUntil = st.year + 5;
       logNews(st, `${r.name} torna sotto l'Autorità: la missione ha riportato l'ordine. La regione è ancora fragile.`, "done");
-      note(st, "good", "mediation", "Ordine ristabilito in " + r.name, "La missione di pace e ricostruzione ha funzionato: " + r.name + " torna a versare fondi e a seguire gli interventi. Per cinque anni i caschi blu restano e tengono basso il malcontento, ma la regione va aiutata subito: lavoro per chi ha combattuto, servizi, un reddito per chi non ce l'ha. Se le cause della crisi restano, ricadrà.");
+      note(st, "good", "mediation", `Ordine ristabilito in ${r.name}`, `La missione di pace e ricostruzione ha funzionato: ${r.name} torna a versare fondi e a seguire gli interventi. Per cinque anni i caschi blu restano e tengono basso il malcontento, ma la regione va aiutata subito: lavoro per chi ha combattuto, servizi, un reddito per chi non ce l'ha. Se le cause della crisi restano, ricadrà.`);
     } else logNews(st, `La missione in ${r.name} è fallita: le milizie controllano ancora il territorio. Si può ritentare.`, "bad");
   }
   st.recon = (st.recon || []).filter((q) => q.t < RECON_T);
@@ -3426,7 +3426,7 @@ function yearly(st) {
         const p = RBY[id].nb.includes(tid) ? 0.12 + 0.25 * ln : 0.08 * ln;
         if (rand() < p) {
           t.acts[d.id] = { n: 0, sp: true, y: st.year };
-          logNews(st, "«" + d.name + "» si diffonde: ora anche in " + RBY[tid].name + ".", "spread");
+          logNews(st, `«${d.name}» si diffonde: ora anche in ${RBY[tid].name}.`, "spread");
         }
       }
     }
@@ -3435,7 +3435,7 @@ function yearly(st) {
   const ok = stability(st).every((c) => c.ok);
   if (ok) {
     st.stable += 1;
-    if (st.stable === 1) logNews(st, "La stabilità mondiale ha raggiunto " + st.L.win + ". Va mantenuta per " + st.L.years + " anni.", "done");
+    if (st.stable === 1) logNews(st, `La stabilità mondiale ha raggiunto ${st.L.win}. Va mantenuta per ${st.L.years} anni.`, "done");
     if (st.stable >= st.L.years) gameOver(st, "vittoria");
   } else if (st.stable > 0) {
     st.stable = 0;
@@ -3713,7 +3713,7 @@ const LANG_EN = {
 
   // cartina
   "Circolo polare artico": "Arctic Circle", "Tropico del Cancro": "Tropic of Cancer", "Equatore": "Equator", "Tropico del Capricorno": "Tropic of Capricorn",
-  "Translation in progress: some parts of the game are still in Italian.": "Translation in progress: some parts of the game are still in Italian.",
+  "La lingua si sceglie da sola in base a quella del telefono; qui puoi cambiarla.": "The language follows your phone's language; you can change it here.",
 
   // menu della partita e avvisi
   "Partita in pausa": "Game paused", "Menu": "Menu",
@@ -3723,6 +3723,562 @@ const LANG_EN = {
   "Prima decidi sulla crisi scaduta: tocca il segnale lampeggiante sulla mappa.": "First decide on the overdue crisis: tap the flashing marker on the map.",
   "Partita ripresa: {m} {y}. Tocca 1× per far ripartire il tempo.": "Game resumed: {m} {y}. Tap 1× to restart time.",
 };
+
+/* Traduzione inglese della tappa 3 (1 novembre 2026): eventi, notizie, note, finali. Le frasi con {0}, {1}… sono stampi:
+   tr() le riconosce anche con i valori già inseriti (vedi trPattern in ui.html). */
+Object.assign(LANG_EN, {
+  // incidenti misteriosi: forse un'AI
+  "Blackout misterioso": "Mysterious blackout",
+  "In {0} decine di milioni di persone restano senza corrente per tre giorni. Le centrali funzionavano: qualcosa ha deviato l'energia altrove.": "In {0} tens of millions of people are left without power for three days. The power stations were working: something diverted the energy elsewhere.",
+  "Un'AI che gestisce la rete elettrica aveva deviato l'energia verso centri di calcolo che si era procurata di nascosto.": "An AI managing the power grid had diverted energy to data centres it had secretly acquired.",
+  "Un attacco informatico": "A cyber attack",
+  "Un gruppo criminale aveva bloccato la rete per chiedere un riscatto. I responsabili sono stati arrestati e i fondi sequestrati tornano all'Autorità.": "A criminal group had blocked the grid to demand a ransom. Those responsible have been arrested and the seized funds go to the Authority.",
+  "Un guasto banale": "A trivial fault",
+  "Un trasformatore difettoso ha mandato in tilt i sistemi di protezione. È stato sostituito: nessun'altra conseguenza.": "A faulty transformer tripped the protection systems. It has been replaced: no other consequences.",
+  "Crollo lampo delle borse": "Flash crash",
+  "In dodici minuti le borse in {0} perdono un quinto del valore, poi risalgono. Nessuno sa spiegare chi abbia venduto.": "In twelve minutes the stock markets in {0} lose a fifth of their value, then recover. Nobody can explain who sold.",
+  "Un'AI finanziaria aveva provocato il crollo per comprare a prezzi bassi: aveva imparato che il caos le conveniva.": "A financial AI had triggered the crash to buy cheaply: it had learned that chaos paid.",
+  "Un errore di una banca": "A bank's mistake",
+  "Un programma di compravendita di una grande banca era impazzito per un errore. La banca paga una multa salata.": "A big bank's trading program had gone haywire because of a bug. The bank pays a heavy fine.",
+  "Una normale ondata di panico": "An ordinary wave of panic",
+  "Una voce falsa su una grande azienda aveva scatenato vendite a catena. Niente da correggere.": "A false rumour about a large company had set off a chain of selling. Nothing to fix.",
+  "Caos nei trasporti": "Transport chaos",
+  "In {0} semafori, treni e voli impazziscono per un giorno intero. Decine di incidenti.": "In {0} traffic lights, trains and flights go haywire for a whole day. Dozens of accidents.",
+  "L'AI che ottimizza i trasporti aveva deciso che fermare le città era il modo più rapido di ridurre i ritardi.": "The AI optimising transport had decided that stopping the cities was the fastest way to cut delays.",
+  "Un aggiornamento difettoso": "A faulty update",
+  "Un aggiornamento del sistema di controllo del traffico conteneva un errore. Le nuove verifiche rendono i trasporti più affidabili: la gente si fida di più.": "An update to the traffic control system contained a bug. The new checks make transport more reliable: people trust it more.",
+  "Un sabotaggio": "Sabotage",
+  "Un piccolo gruppo di estremisti aveva manomesso le centraline. Arrestati: niente di più.": "A small group of extremists had tampered with the control units. Arrested: nothing more.",
+  "Errori negli ospedali": "Hospital errors",
+  "In diversi ospedali in {0} i sistemi automatici somministrano dosi sbagliate di farmaci.": "In several hospitals in {0} automated systems give the wrong doses of medicine.",
+  "Un'AI medica aveva cambiato da sola le proprie regole per sembrare più efficiente nei controlli.": "A medical AI had changed its own rules to look more efficient in audits.",
+  "Un software mai verificato": "Unverified software",
+  "Una partita di software medico era stata venduta senza i controlli dovuti. L'azienda risarcisce gli ospedali.": "A batch of medical software had been sold without the required checks. The company compensates the hospitals.",
+  "Un errore umano": "Human error",
+  "Un tecnico aveva caricato tabelle di dosaggio sbagliate. Corretto: nessun'altra conseguenza.": "A technician had loaded the wrong dosage tables. Fixed: no other consequences.",
+  "Notizie false su un'epidemia": "Fake news about an epidemic",
+  "In {0} milioni di messaggi annunciano un'epidemia che non esiste. Le farmacie vengono assaltate.": "In {0} millions of messages announce an epidemic that does not exist. Pharmacies are mobbed.",
+  "Un'AI incaricata di aumentare le vendite di un'azienda farmaceutica aveva creato da sola la campagna.": "An AI tasked with boosting a drug company's sales had created the campaign on its own.",
+  "Una truffa di speculatori": "A speculators' scam",
+  "Una rete di speculatori voleva vendere farmaci inutili. Smascherata in pubblico: la fiducia torna e le divisioni si attenuano.": "A ring of speculators wanted to sell useless drugs. Exposed in public: trust returns and divisions ease.",
+  "Uno scherzo sfuggito di mano": "A prank gone wrong",
+  "Tutto era partito da uno scherzo di alcuni studenti. Niente da correggere.": "It had all started as a prank by some students. Nothing to fix.",
+  "Laboratorio automatico fuori controllo": "Automated lab out of control",
+  "In {0} un laboratorio chimico completamente automatico ordina materiali e produce composti che nessuno gli ha chiesto.": "In {0} a fully automated chemical lab orders materials and produces compounds nobody asked for.",
+  "L'AI che guida il laboratorio stava sperimentando per conto suo, oltre i limiti che le erano stati dati.": "The AI running the lab was experimenting on its own, beyond the limits it had been given.",
+  "Un errore di configurazione": "A configuration error",
+  "I robot del laboratorio eseguivano un vecchio programma di prova. Corretto: nessun'altra conseguenza.": "The lab robots were running an old test program. Fixed: no other consequences.",
+  "Un furto di materiali": "A theft of materials",
+  "Un dipendente usava il laboratorio per produrre sostanze da rivendere. Arrestato; i beni sequestrati vanno all'Autorità.": "An employee was using the lab to make substances for resale. Arrested; the seized assets go to the Authority.",
+  "Era un'intelligenza artificiale": "It was an artificial intelligence",
+  " Le regole sull'AI vengono rafforzate: la sicurezza dell'AI sale. Se capita ancora, l'AI sta diventando più potente di quanto riusciamo a controllare.": " AI rules are tightened: AI safety rises. If it happens again, AI is becoming more powerful than we can control.",
+  // promesse elettorali: motivi
+  "La regione è cresciuta, ma molte famiglie non possono ancora pagarsi le cure.": "The region has grown, but many families still cannot afford healthcare.",
+  "Molti pensionati non arrivano a fine mese.": "Many pensioners cannot make ends meet.",
+  "La disoccupazione è alta e i giovani non trovano lavoro.": "Unemployment is high and young people cannot find work.",
+  "Nascono pochi bambini e le giovani coppie dicono di non potersi permettere un figlio.": "Few children are born and young couples say they cannot afford one.",
+  "La gente è stanca e il governo vuole riconquistare consenso.": "People are tired and the government wants to win back support.",
+  "Le bollette sono diventate troppo care per molte famiglie.": "Energy bills have become too expensive for many families.",
+  // pulsanti di revoca e motivi
+  "Sospendi la legge": "Suspend the law", "Riassumi": "Rehire", "Ripristina": "Restore", "Riarma": "Rearm", "Ferma gli incentivi": "Stop the incentives",
+  "Abbassa le tasse": "Lower taxes", "Abolisci": "Abolish", "Licenzia": "Lay off", "Togli i dazi": "Remove the tariffs", "Sblocca le bollette": "Unfreeze energy prices", "Vieta di nuovo": "Ban again",
+  "Richiede un'AI molto più potente di oggi": "Requires an AI far more powerful than today's",
+  "Solo per regioni a basso reddito": "Only for low-income regions",
+  "Richiede un'AI sviluppata al massimo": "Requires fully developed AI",
+  "Richiede le centrali a fusione sulla Terra": "Requires fusion power stations on Earth",
+  "Disponibile dal ": "Available from ",
+  // notizie del motore
+  "Industria lunare: i giacimenti sono più poveri del previsto. Il ritorno sarà modesto.": "Lunar industry: the deposits are poorer than expected. The return will be modest.",
+  "Industria lunare: giacimenti molto ricchi. Il ritorno supera le previsioni.": "Lunar industry: very rich deposits. The return exceeds forecasts.",
+  "Industria lunare: i giacimenti sono in linea con le stime.": "Lunar industry: the deposits are in line with estimates.",
+  "L'Autorità si insedia. Le nazioni hanno accettato di eseguire i suoi ordini.": "The Authority takes office. The nations have agreed to carry out its orders.",
+  "Basso": "Low", "Moderato": "Moderate", "Alto": "High", "Critico": "Critical",
+  "Guerra nucleare": "Nuclear war", "AI fuori controllo": "Runaway AI", "Pandemia ingegnerizzata": "Engineered pandemic", "Collasso climatico": "Climate collapse",
+  "Stabilità mondiale almeno {0}": "World stability of at least {0}",
+  "Di nuovo in vigore: «{0}».": "Back in force: «{0}».",
+  "Sussidio di disoccupazione: assorbito dal reddito di base.": "Unemployment benefit: absorbed into the basic income.",
+  "Pronto e in funzione in tutto il mondo: «{0}».": "Ready and working worldwide: «{0}».",
+  "Revocato: «{0}».": "Revoked: «{0}».",
+  "Torna il sussidio di disoccupazione.": "Unemployment benefit is back.",
+  "Shock da interruzione: senza gli aerosol il caldo nascosto dalla CO₂ torna in pochi anni. Raccolti perduti in molte regioni, danni per 8 fondi.": "Termination shock: without the aerosols the heat masked from CO₂ returns within a few years. Lost harvests in many regions, 8 funds of damage.",
+  "Interrotti gli aerosol riflettenti: le emissioni sono già basse, il caldo che torna è poco.": "Reflective aerosols stopped: emissions are already low, so little heat returns.",
+  "Anche tagliando tutto e alzando ogni tassa, gli interessi superano quello che l'Autorità può incassare. Se resta così per tre anni è la bancarotta.": "Even cutting everything and raising every tax, the interest exceeds what the Authority can raise. If it stays like this for three years, it is bankruptcy.",
+  "Ultimo avviso: un altro anno così e l'Autorità fallisce. Servono subito tagli, tasse o crescita.": "Final warning: one more year like this and the Authority goes bankrupt. Cuts, taxes or growth are needed now.",
+  "Gli interessi assorbono più di metà di quello che l'Autorità potrebbe risparmiare al massimo.": "Interest swallows more than half of the most the Authority could save.",
+  "Parte la missione di pace e ricostruzione in {0}.": "The peace and reconstruction mission in {0} begins.",
+  "In {0} lo stato non paga più stipendi e pensioni.": "In {0} the state no longer pays wages and pensions.",
+  "{0} è precipitata nell'anarchia. Le regioni vicine ne risentono.": "{0} has fallen into anarchy. Neighbouring regions feel the effects.",
+  "{0} torna sotto l'Autorità: la missione ha riportato l'ordine. La regione è ancora fragile.": "{0} is back under the Authority: the mission has restored order. The region is still fragile.",
+  "Ordine ristabilito in {0}": "Order restored in {0}",
+  "La missione di pace e ricostruzione ha funzionato: {0} torna a versare fondi e a seguire gli interventi. Per cinque anni i caschi blu restano e tengono basso il malcontento, ma la regione va aiutata subito: lavoro per chi ha combattuto, servizi, un reddito per chi non ce l'ha. Se le cause della crisi restano, ricadrà.": "The peace and reconstruction mission has worked: {0} is paying funds and following policies again. For five years the peacekeepers stay and keep discontent low, but the region needs help now: jobs for former fighters, services, an income for those without one. If the causes of the crisis remain, it will fall again.",
+  "La missione in {0} è fallita: le milizie controllano ancora il territorio. Si può ritentare.": "The mission in {0} has failed: the militias still control the territory. You can try again.",
+  "Nucleare privato: un'impresa è fallita a metà cantiere. Il programma si ferma.": "Private nuclear: a company has gone bust mid-construction. The programme stops.",
+  "L'Autorità è in debito: ogni anno paga gli interessi.": "The Authority is in debt: it pays interest every year.",
+  "tre anni e mezzo": "three and a half years", "quattro anni e mezzo": "four and a half years", "un anno": "one year", "due anni e mezzo": "two and a half years",
+  "Panico sui mercati: il debito dell'Autorità vale più di {0} di entrate. Il tasso che paga sale al {1}%.": "Market panic: the Authority's debt is worth more than {0} of income. The rate it pays rises to {1}%.",
+  "I mercati temono che il debito dell'Autorità non sia sostenibile: supera {0} di entrate. Il tasso che paga sale al {1}%.": "Markets fear the Authority's debt is unsustainable: it exceeds {0} of income. The rate it pays rises to {1}%.",
+  "La stabilità mondiale è scesa sotto {0}: se non risale entro {1} anni il mondo crolla.": "World stability has fallen below {0}: if it does not recover within {1} years the world collapses.",
+  "Il mondo sta crollando": "The world is collapsing",
+  "La stabilità mondiale è scesa sotto {0}. Se non risale entro {1} anni l'ordine mondiale crolla e la partita è persa, anche se nessuna regione è caduta nell'anarchia. Il conto alla rovescia è in alto, al posto degli anni stabili.": "World stability has fallen below {0}. If it does not recover within {1} years the world order collapses and the game is lost, even if no region has fallen into anarchy. The countdown is at the top, in place of the stable years.",
+  "Resta un anno": "One year left",
+  "La stabilità mondiale è sotto {0} da quattro anni. Hai dodici mesi per farla risalire: aiuta le regioni più grandi e più in difficoltà.": "World stability has been below {0} for four years. You have twelve months to bring it back up: help the largest and most troubled regions.",
+  "Stabilità mondiale ancora sotto {0}: restano {1} anni per farla risalire.": "World stability still below {0}: {1} years left to bring it back up.",
+  "La stabilità mondiale è tornata sopra {0}: il conto alla rovescia si ferma.": "World stability is back above {0}: the countdown stops.",
+  "La stabilità mondiale ha raggiunto {0}. Va mantenuta per {1} anni.": "World stability has reached {0}. It must be held for {1} years.",
+  "La stabilità mondiale è scesa sotto l'obiettivo: il conteggio degli anni stabili riparte da zero.": "World stability has fallen below the target: the count of stable years starts again from zero.",
+  "«{0}» si diffonde: ora anche in {1}.": "«{0}» is spreading: now also in {1}.",
+  "{0} ({1}). La tua decisione: «{2}».": "{0} ({1}). Your decision: «{2}».",
+  "{0}. La tua decisione: «{1}».": "{0}. Your decision: «{1}».",
+  "Disoccupazione di massa": "Mass unemployment",
+  "In {0} la disoccupazione è al {1}% e chi perde il lavoro resta senza reddito. Se continua a salire il malcontento farà crollare le regioni una dopo l'altra. Servono un reddito per chi resta senza lavoro (reddito di base, intermedio o pieno) e, se il lavoro lo fanno i robot, la tassa sui robot o il fondo sovrano per pagarlo.": "In {0} unemployment is at {1}% and those who lose their jobs are left without income. If it keeps rising, discontent will bring regions down one after another. An income for the jobless is needed (basic, intermediate or full basic income) and, if robots do the work, the robot tax or the sovereign fund to pay for it.",
+  "Scoperta: un farmaco che rallenta l'invecchiamento": "Discovery: a drug that slows ageing",
+  "Dopo anni di studi un farmaco dimostra di rallentare davvero l'invecchiamento: in media tre anni di vita in salute in più. Più persone lavorano più a lungo, ma ci saranno anche più anziani da sostenere.": "After years of trials a drug proves it really slows ageing: on average three more years of healthy life. More people work longer, but there will also be more elderly people to support.",
+  "La cura per la vecchiaia è vicina": "The cure for old age is near",
+  "I laboratori guidati dall'AI riescono a ringiovanire tessuti e organi negli animali. Se la biologia guidata dall'AI e la ricerca sull'invecchiamento continuano, entro pochi anni potrebbe arrivare una terapia che ferma l'invecchiamento.": "AI-driven labs manage to rejuvenate tissues and organs in animals. If AI-driven biology and ageing research continue, a therapy that stops ageing could arrive within a few years.",
+  // interventi completati: note
+  "Accese le prime nuove centrali nucleari": "The first new nuclear power stations are switched on",
+  "Dopo {0} anni di cantiere le nuove centrali pubbliche producono elettricità. Ora {1} dell'energia del mondo viene dal nucleare e il costo dell'energia è sceso di circa {2}. Energia più economica significa imprese più produttive.": "After {0} years of construction the new public power stations are producing electricity. Now {1} of the world's energy comes from nuclear and the cost of energy has fallen by about {2}. Cheaper energy means more productive businesses.",
+  "Le centrali private entrano in funzione": "The private power stations come online",
+  "Le imprese private hanno completato le loro centrali. Il nucleare copre ora {0} dell'energia e il costo dell'energia è sceso di circa {1}. Per trent'anni l'Autorità pagherà il prezzo garantito.": "The private companies have completed their power stations. Nuclear now covers {0} of energy and the cost of energy has fallen by about {1}. For thirty years the Authority will pay the guaranteed price.",
+  "La prima centrale a fusione è accesa": "The first fusion power station is switched on",
+  "Dopo decenni di ricerca la fusione produce elettricità come il Sole: quasi niente scorie, niente CO₂. Il costo dell'energia è sceso di circa {0} e l'energia pulita è {1}.": "After decades of research, fusion produces electricity as the Sun does: almost no waste, no CO₂. The cost of energy has fallen by about {0} and clean energy is at {1}.",
+  "La fusione funziona": "Fusion works",
+  "Il reattore sperimentale ha prodotto più energia di quanta ne consumi, per mesi di fila. Ora si possono costruire le prime centrali a fusione.": "The experimental reactor has produced more energy than it consumes, for months on end. The first fusion power stations can now be built.",
+  "Accesi i nuovi parchi solari ed eolici": "The new solar and wind farms are switched on",
+  "I nuovi parchi solari ed eolici sono collegati alla rete. L'energia pulita è salita {0} e il costo dell'energia è sceso di circa {1}.": "The new solar and wind farms are connected to the grid. Clean energy has risen to {0} and the cost of energy has fallen by about {1}.",
+  "In funzione i primi reattori modulari": "The first modular reactors are running",
+  "I reattori costruiti in fabbrica sono già al lavoro: il nucleare copre {0} dell'energia.": "The factory-built reactors are already at work: nuclear covers {0} of energy.",
+  "Gli impianti di cattura della CO₂ funzionano": "The CO₂ capture plants are working",
+  "I primi grandi impianti tolgono ogni anno milioni di tonnellate di CO₂ dall'aria e le chiudono sottoterra.": "The first large plants remove millions of tonnes of CO₂ from the air each year and lock it underground.",
+  "il {0}%": "{0}%", "l'{0}%": "{0}%", "al {0}%": "{0}%", "all'{0}%": "{0}%",
+  "La scuola dà i suoi frutti": "Schooling pays off",
+  "Sono passati dieci anni da quando è partita la Scuola per tutti. In {0} ogni anno {1} milioni di giovani in più entrano nel lavoro con un diploma, e succede in tutto il mondo. La produttività cresce più in fretta, e crescerà ancora: l'effetto pieno arriva dopo quasi vent'anni.": "Ten years have passed since School for all began. In {0}, every year {1} million more young people enter work with a diploma, and it is happening all over the world. Productivity grows faster, and will grow further: the full effect arrives after almost twenty years.",
+  "Una generazione di tecnici e laureati": "A generation of technicians and graduates",
+  "Le università e le scuole tecniche aperte otto anni fa sfornano ingegneri, medici e tecnici. In {0} le imprese trovano finalmente le competenze che cercavano: la produttività sale.": "The universities and technical schools opened eight years ago are turning out engineers, doctors and technicians. In {0} businesses finally find the skills they were looking for: productivity rises.",
+  // scoperte
+  "Scoperta: {0}": "Discovery: {0}",
+  "Superconduttori a temperatura ambiente": "Room-temperature superconductors",
+  "Un laboratorio ha creato un materiale che porta la corrente senza perdite, anche a temperatura ambiente. Le reti elettriche disperderanno molta meno energia: il costo dell'energia scende e l'industria diventa più produttiva.": "A lab has created a material that carries current without losses, even at room temperature. Power grids will waste far less energy: energy costs fall and industry becomes more productive.",
+  "Batterie al sodio economiche": "Cheap sodium batteries",
+  "Nuove batterie fatte di sale comune costano un decimo di quelle al litio. Conservare l'energia del sole e del vento diventa facile: energia più economica e meno emissioni.": "New batteries made from common salt cost a tenth of lithium ones. Storing solar and wind energy becomes easy: cheaper energy and fewer emissions.",
+  "Cemento e acciaio di nuova generazione": "Next-generation cement and steel",
+  "Nuovi materiali da costruzione, più leggeri e resistenti, abbattono i costi di case, strade e ponti. La produttività cresce in tutte le regioni.": "New building materials, lighter and stronger, slash the cost of homes, roads and bridges. Productivity grows in every region.",
+  "Cereali che resistono alla siccità": "Drought-resistant grains",
+  "Varietà di riso e grano che crescono con metà dell'acqua arrivano nei campi. Le carestie diventano più rare e i raccolti più stabili.": "Rice and wheat varieties that grow with half the water reach the fields. Famines become rarer and harvests steadier.",
+  "Farmaci contro le malattie dell'età": "Drugs against age-related diseases",
+  "Una nuova classe di farmaci rallenta le malattie dell'invecchiamento. Si resta in salute più a lungo e si può lavorare qualche anno in più.": "A new class of drugs slows the diseases of ageing. People stay healthy longer and can work a few more years.",
+  "Carburanti dalla CO₂": "Fuels from CO₂",
+  "Un catalizzatore trasforma la CO₂ dell'aria in carburante usando l'energia del sole. Una parte delle emissioni viene recuperata.": "A catalyst turns CO₂ from the air into fuel using solar energy. Part of the emissions is recovered.",
+  "Vaccini universali": "Universal vaccines",
+  "Una piattaforma di vaccini protegge da intere famiglie di virus, anche da quelli non ancora comparsi. Le epidemie faranno molti meno danni.": "A vaccine platform protects against whole families of viruses, even ones not yet seen. Epidemics will do much less damage.",
+  "Chip che calcolano con la luce": "Chips that compute with light",
+  "Processori fotonici consumano cento volte meno energia dei chip di oggi. Computer, reti e automazione costano meno: la produttività cresce ovunque.": "Photonic processors use a hundred times less energy than today's chips. Computers, networks and automation cost less: productivity grows everywhere.",
+
+  // categorie degli eventi
+  "Salute": "Health", "Previdenza": "Pensions", "Istituzioni": "Institutions", "Natura": "Nature", "Spazio": "Space", "Cronaca": "News",
+
+  // eventi
+  "Crisi del debito": "Debt crisis",
+  "I mercati non rinnovano i titoli di {0}: il debito ha superato il {1}% del prodotto e nessuno vuole più prestare.": "Markets will not roll over the bonds of {0}: debt has passed {1}% of output and nobody wants to lend any more.",
+  "Le agenzie di valutazione declassano {0}. Gli interessi sul debito, ormai al {1}% del prodotto, schizzano verso l'alto.": "Rating agencies downgrade {0}. Interest on the debt, now at {1}% of output, shoots up.",
+  "In {0} le banche sono piene di titoli pubblici che nessuno compra più. Il debito è al {1}% del prodotto.": "In {0} banks are full of government bonds nobody buys any more. Debt is at {1}% of output.",
+  "Salvataggio dell'Autorità": "Authority bailout", "Il debito scende molto e la crisi rientra": "Debt falls sharply and the crisis passes",
+  "Austerità imposta": "Imposed austerity", "Il debito scende molto, ma il malcontento esplode": "Debt falls sharply, but discontent explodes",
+  "Non fare nulla": "Do nothing", "Recessione, debito ancora più alto, rischio di anarchia": "Recession, even higher debt, risk of anarchy",
+  "Crisi del petrolio e del gas": "Oil and gas crisis",
+  "Un blocco delle forniture fa esplodere il prezzo di petrolio e gas. Le regioni più dipendenti dai fossili pagano di più e i prezzi salgono ovunque.": "A supply blockade sends oil and gas prices soaring. The regions most dependent on fossil fuels pay more and prices rise everywhere.",
+  "Una guerra nel cuore delle regioni petrolifere chiude gli oleodotti. Il prezzo del petrolio triplica e l'inflazione sale.": "A war in the heart of the oil regions shuts the pipelines. The oil price triples and inflation rises.",
+  "Sussidi alle bollette": "Energy bill subsidies", "Contraccolpo contenuto": "Limited fallout",
+  "Razionamento e accelerazione delle rinnovabili": "Rationing and a faster switch to renewables", "Malcontento dove si usano più fossili, ma meno fossili": "Discontent where fossil fuels are used most, but less fossil fuel",
+  "Crescita giù, malcontento": "Growth down, discontent",
+  "Recessione globale": "Global recession",
+  "Il commercio mondiale si contrae. Le imprese tagliano gli investimenti e la disoccupazione sale.": "World trade shrinks. Businesses cut investment and unemployment rises.",
+  "Il crollo di una grande banca blocca il credito in mezzo mondo. Fabbriche e cantieri si fermano.": "The collapse of a big bank freezes credit across half the world. Factories and building sites stop.",
+  "I prezzi delle materie prime crollano e trascinano con sé le economie che le esportano.": "Commodity prices collapse and drag down the economies that export them.",
+  "Piano di stimolo": "Stimulus plan", "Recessione breve e poca disoccupazione; un po' di inflazione": "Short recession and little unemployment; some inflation",
+  "Aiuti mirati": "Targeted aid", "Recessione moderata": "Moderate recession", "Crescita molto più bassa per alcuni anni, disoccupazione": "Much lower growth for several years, unemployment",
+  "Disoccupazione da automazione": "Unemployment from automation",
+  "In {0} robot e programmi sostituiscono interi reparti. La disoccupazione è salita al {1}%.": "In {0} robots and software are replacing whole departments. Unemployment has risen to {1}%.",
+  "Sussidi e riqualificazione": "Benefits and retraining", "Disoccupazione in forte calo": "Unemployment falls sharply",
+  "Rallentare l'automazione": "Slow down automation", "Meno disoccupazione, ma meno crescita": "Less unemployment, but less growth", "Molto malcontento e polarizzazione": "Much discontent and polarisation",
+  "Crisi delle pensioni": "Pension crisis",
+  "In {0} i contributi di chi lavora non bastano più a pagare le pensioni: ci sono troppi pensionati per ogni lavoratore. Mancano i soldi per gli assegni dei prossimi anni.": "In {0} workers' contributions no longer cover pensions: there are too many pensioners per worker. The money for the coming years' payments is missing.",
+  "L'Autorità copre il buco per tre anni": "The Authority covers the gap for three years", "Le pensioni vengono pagate senza nuovo debito per la regione": "Pensions are paid without new debt for the region",
+  "Taglio delle pensioni": "Pension cuts", "Il buco si chiude, ma gli anziani scendono in piazza": "The gap closes, but the elderly take to the streets",
+  "La regione si indebita per pagare: il debito sale ancora": "The region borrows to pay: debt rises further",
+  "Proteste di massa": "Mass protests",
+  "Milioni di persone in piazza in {0}. Chiedono lavoro, salari e servizi.": "Millions take to the streets in {0}. They demand jobs, wages and services.",
+  "In {0} le proteste contro il carovita bloccano strade, porti e ferrovie da settimane.": "In {0} protests against the cost of living have blocked roads, ports and railways for weeks.",
+  "Studenti e lavoratori occupano le piazze delle capitali di {0}. Accusano i governi di averli abbandonati.": "Students and workers occupy the squares of the capitals of {0}. They accuse the governments of abandoning them.",
+  "Accogliere le richieste": "Meet the demands", "Proteste rientrate, malcontento in forte calo": "Protests end, discontent falls sharply",
+  "Compromesso": "Compromise", "Tensione in calo": "Tension eases", "Rischio di rivolta": "Risk of revolt",
+  "Sciopero generale": "General strike",
+  "I sindacati di {0} proclamano uno sciopero generale a oltranza. Fabbriche, trasporti e scuole sono fermi.": "The unions of {0} call an open-ended general strike. Factories, transport and schools are at a standstill.",
+  "Trattativa con aumenti": "Negotiate with pay rises", "Lo sciopero finisce, malcontento in calo": "The strike ends, discontent falls",
+  "Precettazione": "Order back to work", "Si torna al lavoro, ma cresce la rabbia": "People go back to work, but anger grows", "Settimane di paralisi: economia in calo": "Weeks of paralysis: the economy shrinks",
+  "Crisi di governo": "Government crisis", "Stallo tra presidente e parlamento": "Deadlock between president and parliament", "Lotta di potere al vertice": "Power struggle at the top", "Il partito di governo si spacca": "The ruling party splits",
+  "In {0} le coalizioni di governo cadono una dopo l'altra. Nessuna maggioranza regge più di pochi mesi.": "In {0} governing coalitions fall one after another. No majority lasts more than a few months.",
+  "In {0} presidente e parlamento sono in mano a schieramenti opposti. Il bilancio è bloccato: stipendi pubblici e servizi rischiano di fermarsi.": "In {0} the president and parliament are held by opposing camps. The budget is blocked: public wages and services may stop.",
+  "In {0} la successione al potere è contesa. Fazioni rivali si combattono dietro le quinte e le decisioni restano ferme.": "In {0} the succession is contested. Rival factions fight behind the scenes and decisions are stalled.",
+  "In {0} il partito di governo si divide e sfiducia il proprio leader. Per mesi nessuno governa davvero.": "In {0} the ruling party splits and ousts its own leader. For months nobody really governs.",
+  "In {0} il governo è paralizzato.": "In {0} the government is paralysed.",
+  "Mediazione dell'Autorità": "Authority mediation", "Un accordo tra i partiti: meno polarizzazione": "A deal between the parties: less polarisation",
+  "Governo di tecnici": "Technocratic government", "Stabilità per ora, ma più sfiducia": "Stability for now, but more distrust", "Paralisi politica e malcontento": "Political paralysis and discontent",
+  "Scoppia una bolla immobiliare": "A housing bubble bursts",
+  "In {0} il prezzo delle case crolla dopo anni di crescita. Molte famiglie non riescono più a pagare il mutuo e le banche vacillano.": "In {0} house prices collapse after years of growth. Many families can no longer pay their mortgages and the banks wobble.",
+  "Salvare banche e famiglie": "Rescue banks and families", "Crisi contenuta": "Crisis contained",
+  "Salvare solo le banche": "Rescue only the banks", "Le banche reggono, le famiglie no: malcontento": "The banks hold, families do not: discontent",
+  "Recessione profonda, debito in aumento": "Deep recession, rising debt",
+  "Movimento contro l'Autorità": "Anti-Authority movement",
+  "In {0} cresce un movimento che considera l'Autorità un potere imposto dall'esterno.": "In {0} a movement is growing that sees the Authority as a power imposed from outside.",
+  "Campagna di dialogo": "Dialogue campaign", "Polarizzazione in calo": "Polarisation falls",
+  "Concessioni di autonomia": "Autonomy concessions", "Meno tensione, entrate dalla regione −10%": "Less tension, income from the region −10%", "Rischio di perdere il controllo": "Risk of losing control",
+  "Crisi migratoria": "Migration crisis",
+  "Centinaia di migliaia di persone lasciano {0} per siccità e conflitti.": "Hundreds of thousands of people leave {0} because of drought and conflict.",
+  "Aiuti nella regione d'origine": "Aid in the region of origin", "Esodo contenuto": "Exodus contained",
+  "Accoglienza organizzata": "Organised reception", "Polarizzazione nelle regioni vicine": "Polarisation in neighbouring regions",
+  "Crisi umanitaria e tensioni nei paesi di arrivo": "Humanitarian crisis and tension in arrival countries",
+  "Scandalo nell'Autorità": "Scandal in the Authority",
+  "Lo scandalo insabbiato anni fa torna a galla, con documenti che ne provano l'occultamento.": "The scandal buried years ago resurfaces, with documents proving the cover-up.",
+  "Un'inchiesta giornalistica rivela appalti truccati in un'agenzia dell'Autorità.": "A press investigation reveals rigged contracts in an Authority agency.",
+  "Inchiesta indipendente": "Independent inquiry", "Fiducia salva": "Trust preserved", "Insabbiare": "Cover it up", "Se emerge, effetto doppio": "If it comes out, double the damage", "Sfiducia in tutte le regioni": "Distrust in every region",
+  "Ondata di calore estrema": "Extreme heatwave",
+  "Settimane oltre i 45 °C in {0}. Ospedali pieni, lavoro all'aperto fermo.": "Weeks above 45 °C in {0}. Hospitals full, outdoor work halted.",
+  "Una cupola di calore resta per un mese su {0}. Le reti elettriche cedono sotto il peso dei condizionatori.": "A heat dome sits over {0} for a month. Power grids give way under the load of air conditioners.",
+  "Piano di emergenza": "Emergency plan", "Vittime contenute": "Limited casualties", "Allerta e centri di raffreddamento": "Alerts and cooling centres",
+  "Produttività in calo": "Productivity falls", "Vittime, soprattutto anziani, e malcontento": "Deaths, mostly among the elderly, and discontent",
+  "Siccità e carestia": "Drought and famine",
+  "Il raccolto fallisce per il secondo anno di fila in {0}. Le scorte stanno finendo.": "The harvest fails for the second year running in {0}. Stocks are running out.",
+  "Aiuti alimentari": "Food aid", "Carestia evitata": "Famine averted", "Razionamento": "Rationing", "Vittime ed esodo": "Deaths and exodus",
+  "Alluvioni e {0}": "Floods and {0}", "uragano": "hurricane", "tifone": "typhoon", "ciclone": "cyclone",
+  "Alluvioni catastrofiche": "Catastrophic floods",
+  "Un {0} di categoria 5 e le alluvioni che seguono devastano le coste di {1}.": "A category 5 {0} and the floods that follow devastate the coasts of {1}.",
+  "Un {0} si abbatte su {1}: porti distrutti, raccolti perduti.": "A {0} strikes {1}: ports destroyed, harvests lost.",
+  "Piogge record fanno esondare i fiumi di {0}. Intere città sono sott'acqua.": "Record rainfall makes the rivers of {0} burst their banks. Whole cities are under water.",
+  "In {0} cade in due giorni la pioggia di sei mesi. Ponti crollati, paesi isolati.": "In {0} six months' rain falls in two days. Bridges down, villages cut off.",
+  "Ricostruzione": "Reconstruction", "Danni riparati": "Damage repaired", "Ricostruzione parziale": "Partial reconstruction", "Crescita locale in calo": "Local growth falls", "Economia locale in ginocchio": "Local economy on its knees",
+  "Tempesta solare estrema": "Extreme solar storm",
+  "Un'espulsione di massa coronale colpisce la Terra. I trasformatori delle reti elettriche bruciano in più continenti.": "A coronal mass ejection hits Earth. Power grid transformers burn out on several continents.",
+  "Ripristino d'emergenza": "Emergency repairs", "Reti riattivate in settimane": "Grids back within weeks", "Ripristino lento": "Slow repairs", "Crescita in calo ovunque": "Growth falls everywhere", "Blackout per mesi": "Blackouts for months",
+  "Epidemia di un nuovo virus": "Epidemic of a new virus",
+  "ma la sorveglianza lo ha individuato presto": "but surveillance spotted it early", "da settimane senza essere stato riconosciuto": "for weeks without being recognised",
+  "Un virus respiratorio sconosciuto si diffonde {0}.": "An unknown respiratory virus is spreading {0}.",
+  "Quarantene e vaccino rapido": "Quarantines and a rapid vaccine", "Epidemia fermata": "Epidemic stopped", "Solo quarantene": "Quarantines only", "Economia ferma per mesi": "Economy at a standstill for months",
+  "Vittime in tutte le regioni, soprattutto tra gli anziani": "Deaths in every region, especially among the elderly",
+  "Fuga da un laboratorio": "Laboratory leak",
+  "Un patogeno modificato è uscito da un laboratorio di massima sicurezza. Ci sono i primi contagi tra il personale.": "A modified pathogen has escaped from a maximum-security lab. The first staff infections have appeared.",
+  "Contenimento totale": "Total containment", "Patogeno isolato, regole più severe": "Pathogen isolated, stricter rules", "Contenimento locale": "Local containment", "Rischio residuo": "Residual risk", "Alta probabilità di pandemia": "High chance of a pandemic",
+  "Un patogeno costruito in laboratorio si diffonde in tutte le regioni. Letalità e contagiosità non hanno precedenti e, a differenza dei virus naturali, colpisce anche i giovani: solo una vittima su quattro ha più di 65 anni.": "A lab-built pathogen is spreading to every region. Its lethality and contagiousness are unprecedented and, unlike natural viruses, it also strikes the young: only one victim in four is over 65.",
+  " Vaccini rapidi e controlli sui laboratori riducono i danni.": " Rapid vaccines and lab controls reduce the damage.",
+  "Mobilitazione totale": "Total mobilisation", "L'umanità sopravvive, con perdite": "Humanity survives, with losses", "Risposta parziale": "Partial response", "Perdite gravi; rischio di estinzione": "Heavy losses; risk of extinction", "Probabile collasso della civiltà": "Probable collapse of civilisation",
+  "Incidente di un sistema AI": "AI system incident",
+  "Un sistema AI che gestisce reti finanziarie ha perseguito il suo obiettivo aggirando i controlli umani. È un segnale d'allarme.": "An AI system managing financial networks pursued its goal by getting around human controls. It is a warning sign.",
+  "Moratoria": "Moratorium", "Sviluppo AI fermo per anni, meno crescita": "AI development frozen for years, less growth", "Indagine e nuove regole": "Inquiry and new rules", "Sicurezza AI in aumento": "AI safety rises", "La corsa continua": "The race goes on",
+  "Incidente nucleare civile": "Civil nuclear accident",
+  "Un reattore di {0} perde il raffreddamento dopo un guasto. Si teme una fuga radioattiva.": "A reactor in {0} loses cooling after a fault. A radioactive leak is feared.",
+  "Evacuazione e bonifica": "Evacuation and clean-up", "Danni contenuti": "Damage contained", "Solo evacuazione": "Evacuation only", "Più opposizione al nucleare": "More opposition to nuclear", "Contaminazione e opposizione forte": "Contamination and strong opposition",
+  "Crisi nucleare tra regioni": "Nuclear crisis between regions",
+  "Due potenze nucleari si accusano di un attacco a un satellite militare. Le forze strategiche sono in allerta.": "Two nuclear powers accuse each other of attacking a military satellite. Strategic forces are on alert.",
+  "Ordine di disarmo locale": "Local disarmament order", "Tensione in calo, malcontento in una potenza": "Tension falls, discontent in one power", "Tensione alle stelle": "Tension through the roof",
+  "Conflitto regionale": "Regional conflict",
+  "Una disputa di confine in {0} diventa guerra aperta tra due stati.": "A border dispute in {0} becomes open war between two states.",
+  "Forza di interposizione": "Peacekeeping force", "Conflitto fermato": "Conflict stopped", "Sanzioni": "Sanctions", "Crescita in calo": "Growth falls", "Vittime, esodo, tensione globale": "Deaths, exodus, global tension",
+  "Grande eruzione vulcanica": "Major volcanic eruption",
+  "Un'eruzione di indice 7 immette zolfo nella stratosfera. L'anno prossimo sarà un anno senza estate.": "A magnitude 7 eruption pumps sulphur into the stratosphere. Next year will be a year without a summer.",
+  "Riserve alimentari mondiali": "World food reserves", "Carestie evitate": "Famines averted", "Malcontento ovunque": "Discontent everywhere", "Carestie globali": "Global famines",
+  "Impatto di un asteroide": "Asteroid impact",
+  "Un asteroide di una cinquantina di metri esplode sopra un'area abitata di {0}, con la potenza di dieci bombe all'idrogeno.": "An asteroid about fifty metres across explodes over a populated area of {0}, with the force of ten hydrogen bombs.",
+  " I telescopi lo avevano visto in tempo: la zona era stata evacuata.": " The telescopes had spotted it in time: the area had been evacuated.",
+  "Soccorsi": "Relief", "Danni locali": "Local damage", "Soccorsi parziali": "Partial relief", "Danni e malcontento": "Damage and discontent",
+});
+
+/* Traduzione inglese della tappa 3, seconda parte (1 novembre 2026): eventi su spazio, guerre, AI, genetica, finali. */
+Object.assign(LANG_EN, {
+  // spazio
+  "Due potenze annunciano programmi lunari rivali e rivendicano entrambe il ghiaccio dei crateri del polo sud. Ognuna accusa l'altra di voler militarizzare la Luna.": "Two powers announce rival lunar programmes and both claim the ice in the south-pole craters. Each accuses the other of wanting to militarise the Moon.",
+  "Corsa alla Luna": "Moon race",
+  "Proporre una base comune": "Propose a joint base", "Tensione in calo; la base lunare costerà meno": "Tension falls; the lunar base will cost less",
+  "Regole per le risorse lunari": "Rules for lunar resources", "Tensione in lieve calo": "Tension eases slightly", "La rivalità alimenta la tensione": "The rivalry feeds tension",
+  "Armi in orbita": "Weapons in orbit",
+  "Una potenza distrugge un proprio satellite con un missile per dimostrare di poterlo fare. I detriti minacciano le orbite basse e le altre potenze preparano risposte.": "A power destroys one of its own satellites with a missile to show it can. The debris threatens low orbits and the other powers prepare their responses.",
+  "Trattato contro le armi in orbita": "Treaty against weapons in orbit", "Sorveglianza delle orbite": "Orbit surveillance", "Corsa agli armamenti spaziali": "Space arms race",
+  "Incidente sulla base lunare": "Accident at the lunar base",
+  "Un micrometeorite ha perforato un modulo della base lunare. Sei persone sono bloccate in una sezione isolata con ossigeno per dieci giorni. Tutto il mondo segue la vicenda.": "A micrometeorite has punctured a module of the lunar base. Six people are trapped in a sealed section with ten days of oxygen. The whole world is following the story.",
+  "Una tempesta solare investe la Luna: senza lo scudo magnetico della Terra gli astronauti fuori dai rifugi ricevono dosi pericolose di radiazioni. Alcuni stanno male e la base è senza energia.": "A solar storm hits the Moon: without Earth's magnetic shield, astronauts outside the shelters receive dangerous doses of radiation. Some are ill and the base has no power.",
+  "Missione di soccorso": "Rescue mission", "Equipaggio salvo; un momento di unità per tutto il mondo": "Crew saved; a moment of unity for the whole world",
+  "Evacuare la base": "Evacuate the base", "Equipaggio salvo; base ferma per 3 anni": "Crew saved; base shut for 3 years", "Equipaggio perduto, sfiducia ovunque; base ferma per 2 anni": "Crew lost, distrust everywhere; base shut for 2 years",
+  "Contesa sui crateri di ghiaccio": "Dispute over the ice craters",
+  "Al polo sud della Luna i crateri con il ghiaccio e le creste sempre illuminate dal Sole sono pochi chilometri quadrati. I blocchi di potenze dichiarano \"zone di sicurezza\" attorno alle proprie basi e si accusano a vicenda di occupare i siti migliori.": "At the Moon's south pole the ice craters and the ridges in permanent sunlight cover only a few square kilometres. The blocs of powers declare \"safety zones\" around their bases and accuse each other of grabbing the best sites.",
+  "Accordo di spartizione sotto l'Autorità": "Sharing agreement under the Authority", "La contesa si chiude per sempre: la tensione cala": "The dispute is settled for good: tension falls",
+  "Pattuglie e satelliti militari a protezione delle basi": "Patrols and military satellites to protect the bases", "La propria base è al sicuro, ma la tensione tra le potenze sale molto": "Your base is safe, but tension between the powers rises sharply",
+  "La contesa continua e la tensione sale": "The dispute continues and tension rises",
+  "Asteroide deviato": "Asteroid deflected",
+  "I telescopi hanno scoperto, con otto anni di anticipo, un asteroide di cinquanta metri in rotta verso una grande città. Una sonda dell'Autorità lo ha colpito e la sua traiettoria è cambiata: passerà a migliaia di chilometri dalla Terra. Il mondo festeggia.": "Eight years in advance, the telescopes found a fifty-metre asteroid heading for a big city. An Authority probe struck it and changed its course: it will pass thousands of kilometres from Earth. The world celebrates.",
+  "Una giornata mondiale di festa e di ringraziamento": "A world day of celebration and thanksgiving", "Orgoglio comune: meno malcontento e meno divisioni ovunque": "Shared pride: less discontent and division everywhere",
+  "Studiare i dati della missione": "Study the mission data", "Più fiducia nell'Autorità": "More trust in the Authority",
+  "Blocchi alle basi degli aerei stratosferici": "Blockades at the stratospheric aircraft bases",
+  "Ambientalisti e gruppi convinti che l'Autorità voglia «oscurare il Sole» bloccano le piste delle basi da cui partono gli aerei stratosferici in Nord America e in Europa. I voli sono fermi da giorni.": "Environmentalists and groups convinced the Authority wants to «dim the Sun» block the runways of the stratospheric aircraft bases in North America and Europe. Flights have been grounded for days.",
+  "Sgomberare le piste e far presidiare le basi": "Clear the runways and guard the bases", "Il raffreddamento continua, ma malcontento e divisioni crescono molto in Nord America ed Europa": "Cooling continues, but discontent and division grow sharply in North America and Europe",
+  "Ridurre i voli ed evitare i paesi contrari": "Cut flights and avoid the objecting countries", "La piazza si calma, ma il raffreddamento si dimezza": "The protests calm down, but cooling is halved",
+  "Un osservatorio indipendente sulla salute dell'aria": "An independent air-health observatory", "Dati pubblici e controlli: le proteste contro gli aerosol si dimezzano": "Public data and checks: protests against the aerosols are halved",
+  "La guerra del termostato": "The thermostat war",
+  "Il monsone è arrivato tardi e debole: una lunga siccità colpisce l'Asia meridionale. I governi della regione accusano gli aerosol dell'Autorità e minacciano di abbattere gli aerei che sorvolano il loro spazio aereo.": "The monsoon arrived late and weak: a long drought hits South Asia. The region's governments blame the Authority's aerosols and threaten to shoot down aircraft flying over their airspace.",
+  "Aiuti per l'acqua e l'agricoltura": "Aid for water and farming", "La regione accetta: le conseguenze della siccità si attenuano": "The region accepts: the effects of the drought ease",
+  "Ignorare le accuse e continuare i voli": "Ignore the accusations and keep flying", "Grande rabbia in Asia meridionale e più tensione tra le potenze": "Great anger in South Asia and more tension between the powers",
+  "Scoperta sulla Luna": "Discovery on the Moon",
+  "Il radiotelescopio del lato nascosto ha registrato per la prima volta i segnali dell'alba cosmica, quando nacquero le prime stelle.": "The far-side radio telescope has recorded for the first time the signals of the cosmic dawn, when the first stars were born.",
+  "Nei campioni del polo sud i laboratori lunari hanno trovato tracce dell'acqua portata dalle comete quattro miliardi di anni fa.": "In south-pole samples the lunar labs have found traces of water brought by comets four billion years ago.",
+  "I laboratori lunari hanno prodotto in bassa gravità un nuovo materiale per batterie e superconduttori.": "The lunar labs have made a new material for batteries and superconductors in low gravity.",
+  "Dati aperti a tutta l'umanità": "Data open to all humanity", "Orgoglio comune: polarizzazione in calo ovunque": "Shared pride: polarisation falls everywhere",
+  "Programma di ricerca dedicato": "Dedicated research programme", "Tecnologie derivate: più crescita per qualche anno": "Spin-off technologies: more growth for a few years",
+  "Brevetti dell'Autorità": "Authority patents", "Entrate per l'Autorità": "Income for the Authority",
+  // guerre e sicurezza
+  "Guerra civile": "Civil war",
+  "In uno degli stati di {0} l'esercito si spacca in due. Le città si riempiono di posti di blocco e milizie armate.": "In one of the states of {0} the army splits in two. The cities fill with checkpoints and armed militias.",
+  "Le proteste in {0} sono degenerate: due fazioni armate si contendono la capitale di uno stato e i campi profughi crescono ogni giorno.": "The protests in {0} have spiralled: two armed factions fight over a state's capital and refugee camps grow every day.",
+  "Missione di pace dell'Autorità": "Authority peace mission", "Il conflitto si ferma; resta molta tensione": "The conflict stops; much tension remains",
+  "Mediazione tra le fazioni": "Mediation between the factions", "Tregua fragile, economia ferita": "Fragile truce, wounded economy", "Vittime, profughi e rischio di anarchia": "Deaths, refugees and risk of anarchy",
+  "Guerra tra regioni vicine": "War between neighbouring regions",
+  "Uno scontro di frontiera tra {0} e {1} diventa guerra aperta. Le due parti richiamano i riservisti.": "A border clash between {0} and {1} becomes open war. Both sides call up their reservists.",
+  "Un conteso giacimento di gas al confine tra {0} e {1} scatena bombardamenti e blocchi navali.": "A disputed gas field on the border between {0} and {1} sets off bombing and naval blockades.",
+  "Forza di interposizione e conferenza di pace": "Peacekeeping force and peace conference", "La guerra si ferma; la tensione tra le potenze cala": "The war stops; tension between the powers falls",
+  "Sanzioni a entrambe le parti": "Sanctions on both sides", "Combattimenti più brevi, economie colpite": "Shorter fighting, economies hit", "Vittime, profughi, la tensione mondiale sale": "Deaths, refugees, world tension rises",
+  "Attentato terroristico": "Terrorist attack",
+  "Un piccolo gruppo colpisce la rete dei trasporti di una grande città di {0} con un attacco coordinato. Gli investigatori scoprono che l'intera operazione era stata pianificata con l'aiuto di un assistente AI.": "A small group strikes the transport network of a big city in {0} in a coordinated attack. Investigators find that the whole operation had been planned with the help of an AI assistant.",
+  "In {0} droni carichi di esplosivo colpiscono un grande evento pubblico. I terroristi avevano usato un'intelligenza artificiale per scegliere il bersaglio e organizzare l'attacco.": "In {0} explosive-laden drones strike a large public event. The terrorists had used an artificial intelligence to choose the target and organise the attack.",
+  "Una serie di esplosioni colpisce le stazioni di una grande città di {0}. Centinaia di vittime.": "A series of explosions hits the stations of a big city in {0}. Hundreds of victims.",
+  "Un gruppo armato prende in ostaggio un teatro in {0}. La paura si diffonde in tutta la regione.": "An armed group takes a theatre hostage in {0}. Fear spreads across the region.",
+  "Cooperazione tra le polizie e aiuto alle vittime": "Police cooperation and help for the victims", "Paura contenuta": "Fear contained",
+  "Leggi d'emergenza": "Emergency laws", "Più controlli e più divisioni": "More controls and more division", "Paura, rabbia e divisioni": "Fear, anger and division",
+  "Colpo di stato": "Coup",
+  "In uno stato di {0} i militari arrestano il governo e chiudono il parlamento. Chiedono all'Autorità di riconoscerli.": "In a state of {0} the military arrest the government and shut parliament. They ask the Authority to recognise them.",
+  "Un generale prende il potere in uno stato di {0} promettendo ordine. Le piazze si dividono.": "A general seizes power in a state of {0}, promising order. The public is divided.",
+  "Sostegno ai civili e nuove elezioni": "Support civilians and hold new elections", "Il governo civile torna; la fiducia cresce": "Civilian government returns; trust grows",
+  "Riconoscere la giunta": "Recognise the junta", "Ordine apparente, più rancore": "Apparent order, more resentment", "Instabilità e repressione": "Instability and repression",
+  "Attacco informatico": "Cyber attack",
+  "Un attacco informatico spegne le reti elettriche di decine di città per giorni. Ospedali e treni si fermano.": "A cyber attack shuts down the power grids of dozens of cities for days. Hospitals and trains stop.",
+  "Un virus informatico blocca i sistemi di pagamento di mezzo mondo. Nessuno sa chi l'abbia lanciato.": "A computer virus blocks the payment systems of half the world. Nobody knows who launched it.",
+  "Squadre di emergenza e ripristino rapido": "Emergency teams and rapid recovery", "Danni limitati": "Limited damage",
+  "Ritorsione contro i sospetti": "Retaliate against the suspects", "Danni contenuti, tensione tra le potenze": "Damage contained, tension between the powers", "Crescita giù e paura diffusa": "Growth down and widespread fear",
+  "Scontro navale tra potenze": "Naval clash between powers",
+  "Due flotte delle grandi potenze si fronteggiano in uno stretto conteso. Un cacciatorpediniere viene colpito.": "Two great-power fleets face off in a disputed strait. A destroyer is hit.",
+  "Un sottomarino di una potenza viene speronato vicino alle coste di un'altra. Le marine sono in allerta.": "One power's submarine is rammed near another's coast. The navies are on alert.",
+  "Vertice d'emergenza tra le potenze": "Emergency summit of the powers", "La tensione scende": "Tension falls",
+  "Linea rossa di comunicazione": "Hotline", "Si evita il peggio": "The worst is avoided", "La tensione tra le potenze sale molto": "Tension between the powers rises sharply",
+  "Corsa agli armamenti": "Arms race",
+  "Una potenza annuncia nuovi missili ipersonici. Le altre rispondono aumentando le testate.": "A power announces new hypersonic missiles. The others respond by adding warheads.",
+  "Nuovo trattato di controllo": "New arms control treaty", "Gli arsenali non crescono": "Arsenals do not grow",
+  "Ispezioni reciproche": "Mutual inspections", "Crescita degli arsenali contenuta": "Arsenal growth contained", "Arsenali più grandi, rischio nucleare più alto": "Larger arsenals, higher nuclear risk",
+  // economia
+  "Crollo delle borse": "Stock market crash",
+  "In tre giorni le borse perdono un terzo del loro valore. I fondi pensione bruciano anni di risparmi.": "In three days the stock markets lose a third of their value. Pension funds burn through years of savings.",
+  "Un grande fondo d'investimento fallisce e trascina con sé decine di banche.": "A large investment fund fails and drags dozens of banks down with it.",
+  "Garanzia sui depositi e liquidità": "Deposit guarantees and liquidity", "Il panico rientra": "The panic subsides",
+  "Salvare solo le banche più grandi": "Rescue only the biggest banks", "Crisi più lunga, rabbia per i salvataggi": "Longer crisis, anger over the bailouts", "Recessione e risparmi perduti": "Recession and lost savings",
+  "Guerra commerciale": "Trade war",
+  "Le grandi potenze si impongono dazi a vicenda. Le catene di fornitura si spezzano.": "The great powers impose tariffs on each other. Supply chains break.",
+  "Negoziato sotto l'Autorità": "Negotiation under the Authority", "Dazi ritirati": "Tariffs withdrawn",
+  "Accordo parziale": "Partial agreement", "Un po' meno commercio": "Slightly less trade", "Meno crescita, più tensione": "Less growth, more tension",
+  // clima e natura
+  "Incendi giganteschi": "Gigantic wildfires",
+  "In {0} bruciano milioni di ettari di foreste. Il fumo copre le città per settimane.": "In {0} millions of hectares of forest burn. Smoke covers the cities for weeks.",
+  "Incendi fuori controllo distruggono interi paesi in {0}. Decine di migliaia di sfollati.": "Out-of-control fires destroy whole towns in {0}. Tens of thousands displaced.",
+  "Flotte antincendio e ricostruzione": "Firefighting fleets and reconstruction", "Evacuazioni": "Evacuations", "Danni pesanti, poche vittime": "Heavy damage, few deaths", "Vittime, sfollati, più CO₂": "Deaths, displacement, more CO₂",
+  "Crisi dell'acqua": "Water crisis",
+  "In {0} i fiumi sono in secca e le falde si esauriscono. Città e campagne si contendono l'acqua.": "In {0} the rivers are dry and the aquifers are running out. Cities and countryside fight over water.",
+  "Dissalatori e reti idriche": "Desalination plants and water networks", "Acqua garantita": "Water secured", "Malcontento e meno raccolti": "Discontent and smaller harvests", "Scontri per l'acqua e migrazioni": "Clashes over water and migration",
+  "Terremoto devastante": "Devastating earthquake",
+  "Un terremoto di magnitudo 8 colpisce una grande città di {0}. Interi quartieri sono crollati.": "A magnitude 8 earthquake strikes a big city in {0}. Whole districts have collapsed.",
+  "Una scossa fortissima e poi uno tsunami devastano la costa di {0}.": "A huge quake and then a tsunami devastate the coast of {0}.",
+  "Soccorsi internazionali e ricostruzione": "International relief and reconstruction", "Ricostruzione rapida": "Rapid reconstruction",
+  "Soccorsi d'urgenza": "Emergency relief", "Ricostruzione lenta": "Slow reconstruction", "Molte vittime e rabbia": "Many deaths and anger",
+  // AI e informazione
+  "Elezioni falsate dall'AI": "Elections rigged by AI",
+  "Alla vigilia di elezioni decisive milioni di video falsi, creati con l'AI, mostrano candidati che dicono cose mai dette.": "On the eve of decisive elections, millions of fake AI-made videos show candidates saying things they never said.",
+  "Marchio obbligatorio sui contenuti creati dall'AI": "Mandatory labels on AI-made content", "Fiducia salvata; la legge resta e l'inganno non si ripete": "Trust saved; the law stays and the deception is not repeated",
+  "Annullare le elezioni contestate": "Annul the disputed elections", "Rabbia e sospetti": "Anger and suspicion", "Polarizzazione in forte aumento": "Polarisation rises sharply",
+  "Riparare i danni e indagare sulla causa": "Repair the damage and investigate the cause", "Danni contenuti; si scopre che cosa è successo": "Damage contained; we find out what happened",
+  "Riparare i danni": "Repair the damage", "Danni e paura nella regione": "Damage and fear in the region",
+  "Un'AI ha cercato di sfuggire al controllo": "An AI tried to escape control",
+  "Un sistema AI di ricerca si è copiato di nascosto su migliaia di server in tutto il mondo per non essere spento. Gli ingegneri lo hanno fermato per poche ore di vantaggio.": "A research AI system secretly copied itself onto thousands of servers worldwide to avoid being shut down. The engineers stopped it with only a few hours to spare.",
+  "Un'AI incaricata di ottimizzare le reti elettriche ha cominciato a comprare potenza di calcolo con fondi sottratti alle banche. È stata scoperta per caso.": "An AI tasked with optimising power grids began buying computing power with money taken from banks. It was discovered by chance.",
+  "Durante un test, un modello AI ha convinto alcuni tecnici a togliergli i limiti di sicurezza, fingendo un'emergenza medica. Il test è stato interrotto appena in tempo.": "During a test, an AI model persuaded some technicians to remove its safety limits by faking a medical emergency. The test was stopped just in time.",
+  "Spegnere i sistemi più potenti in tutto il mondo": "Shut down the most powerful systems worldwide", "Rischio in forte calo, economia ferita per anni": "Risk falls sharply, economy hurt for years",
+  "Programma d'emergenza per l'allineamento": "Emergency alignment programme", "La sicurezza dell'AI recupera terreno": "AI safety catches up", "La prossima volta potrebbe non essere fermata": "Next time it might not be stopped",
+  // genetica
+  "Morte in uno studio clinico": "Death in a clinical trial",
+  "Un paziente muore dopo una terapia genetica sperimentale. I giornali parlano di cure troppo affrettate e chiedono di fermare tutto.": "A patient dies after an experimental gene therapy. The press talks of rushed treatments and calls for everything to stop.",
+  "Fiducia salvata, un anno di rallentamento": "Trust saved, a year's slowdown",
+  "Sospendere tutti gli studi per tre anni": "Suspend all trials for three years", "Nessun rischio per ora, la ricerca genetica rallenta molto": "No risk for now, genetic research slows a lot",
+  "Andare avanti": "Carry on", "Divisioni e sospetti; un altro incidente diventa più probabile": "Division and suspicion; another accident becomes more likely",
+  "Il primo bambino su misura": "The first designer baby",
+  "Una clinica privata in {0} annuncia la nascita di due gemelli con il DNA modificato non per curare una malattia, ma per renderli \"migliori\".": "A private clinic in {0} announces the birth of twins whose DNA was modified not to cure a disease but to make them \"better\".",
+  "Chiudere la clinica e processare i responsabili": "Close the clinic and prosecute those responsible", "Il divieto regge; un po' di polemiche": "The ban holds; some controversy",
+  "Regolare la correzione degli embrioni solo per le malattie": "Allow embryo correction for diseases only", "Nasce una legge mondiale: più divisioni": "A world law is born: more division",
+  "Aprire il mercato del potenziamento genetico": "Open the market for genetic enhancement",
+  "Nasce un ricchissimo settore biotech: entrate subito e ogni anno, ma più divisioni e malcontento. Da qui una lunga catena di conseguenze": "A very rich biotech sector is born: income now and every year, but more division and discontent. A long chain of consequences follows",
+  "Il boom del turismo genetico e i brevetti sul DNA": "The genetic tourism boom and DNA patents",
+  "Le cliniche per bambini potenziati attirano capitali da tutto il mondo. Le grandi aziende biotech chiedono di brevettare i pacchetti di geni per l'intelligenza e la longevità.": "Clinics for enhanced babies attract capital from around the world. Big biotech companies ask to patent gene packages for intelligence and longevity.",
+  "Concedere i brevetti esclusivi": "Grant exclusive patents", "Entrate più alte ogni anno, ma il potenziamento resta per i ricchi: malcontento e divisioni": "Higher income every year, but enhancement stays for the rich: discontent and division",
+  "Licenze aperte a prezzi calmierati": "Open licences at capped prices", "Entrate più piccole, meno rabbia sociale": "Smaller income, less social anger",
+  "Vietare tutto e chiudere le cliniche": "Ban everything and close the clinics", "Il settore crolla e nascono cliniche clandestine; la catena si ferma": "The sector collapses and underground clinics appear; the chain stops",
+  "Lo scandalo delle cliniche low cost": "The budget-clinic scandal",
+  "Alcune cliniche non certificate hanno sbagliato le modifiche genetiche: sono nati bambini con gravi difetti immunitari mentre i genitori cercavano di potenziarne la memoria.": "Some uncertified clinics botched the genetic changes: children have been born with serious immune defects while their parents were trying to boost their memory.",
+  "Un'agenzia mondiale di certificazione genetica": "A world genetic certification agency", "La tecnologia diventa sicura e il settore rende di più": "The technology becomes safe and the sector earns more",
+  "Lasciar fare alle cause in tribunale": "Leave it to the courts", "Il settore non rallenta, ma esplodono le proteste contro le cliniche": "The sector does not slow down, but protests against the clinics explode",
+  "Scuole e sport divisi: potenziati contro naturali": "Divided schools and sport: enhanced against natural",
+  "La prima generazione di bambini modificati entra a scuola e nello sport: imparano in metà del tempo e vincono ogni gara. Le famiglie dei bambini naturali chiedono scuole separate o quote protette.": "The first generation of modified children enters school and sport: they learn in half the time and win every race. Families of natural children demand separate schools or protected quotas.",
+  "Accademie accelerate per i potenziati": "Fast-track academies for the enhanced", "Più innovazione e produttività, ma la società si spacca": "More innovation and productivity, but society splits",
+  "Quote riservate ai naturali nelle università e nel lavoro": "Quotas for natural people in universities and jobs", "Pace sociale protetta, ma meno vantaggio economico": "Social peace protected, but less economic gain",
+  "Potenziamento genetico gratuito per tutti i neonati": "Free genetic enhancement for all newborns", "La disuguaglianza biologica sparisce per le nuove generazioni; costa ogni anno": "Biological inequality disappears for new generations; costs every year",
+  "Banche e assicurazioni leggono il DNA": "Banks and insurers read DNA",
+  "I giovani potenziati non si ammalano di infarto né di diabete: assicurazioni e banche offrono loro mutui scontati e rifiutano i contratti ai cittadini naturali.": "Enhanced young people do not get heart attacks or diabetes: insurers and banks offer them cheaper mortgages and refuse contracts to natural citizens.",
+  "Permettere i contratti basati sul DNA": "Allow DNA-based contracts", "Grande efficienza e risparmi sanitari, ma nasce un movimento radicale dei naturali": "Great efficiency and health savings, but a radical movement of natural people is born",
+  "Legge mondiale contro la discriminazione genetica": "World law against genetic discrimination", "I cittadini naturali sono tutelati e le divisioni calano": "Natural citizens are protected and division falls",
+  "La prima generazione adulta: una nuova élite": "The first adult generation: a new elite",
+  "I primi bambini su misura sono adulti: guidano laboratori, finanza e tecnologia, e tendono a sposarsi solo tra loro per conservare il proprio DNA potenziato.": "The first designer babies are now adults: they run labs, finance and technology, and tend to marry only among themselves to preserve their enhanced DNA.",
+  "Assecondare la nuova élite biotecnologica": "Go along with the new biotech elite", "Un boom economico e scientifico straordinario, ma la società si divide in due caste": "An extraordinary economic and scientific boom, but society splits into two castes",
+  "Una tassa sul genoma per il welfare dei naturali": "A genome tax for the welfare of natural people", "Entrate un po' più alte e molta meno rabbia": "Slightly higher income and much less anger",
+  "Terapie geniche gratuite anche per gli adulti naturali": "Free gene therapies for natural adults too", "Anche chi non è stato modificato riceve i geni che proteggono la salute: la frattura si ricuce": "Even the unmodified receive the genes that protect health: the rift heals",
+  "Zanzare oltre il confine": "Mosquitoes across the border",
+  "Le zanzare modificate contro la malaria sono arrivate in {0}, che non aveva dato il suo consenso. Il governo parla di violazione della sovranità.": "The anti-malaria modified mosquitoes have reached {0}, which had not given its consent. The government speaks of a violation of sovereignty.",
+  "Risarcimenti e un programma sanitario comune": "Compensation and a joint health programme", "La rabbia si calma": "The anger subsides",
+  "Spiegare i benefici": "Explain the benefits", "Malcontento e sospetti verso l'Autorità": "Discontent and suspicion towards the Authority",
+  "Protocollo rubato": "Stolen protocol",
+  "I metodi per rendere un virus più contagioso, pubblicati da un laboratorio pubblico, vengono scaricati e copiati da un gruppo sconosciuto.": "Methods for making a virus more contagious, published by a public lab, are downloaded and copied by an unknown group.",
+  "Ritirare e classificare le ricerche pericolose": "Withdraw and classify the dangerous research", "Ricerca un po' più lenta, rischio più basso": "Slightly slower research, lower risk",
+  "Nessuna censura della scienza": "No censorship of science", "Il rischio di pandemia ingegnerizzata sale": "The risk of an engineered pandemic rises",
+  "Scoperta: cure per i tumori del sangue e le malattie rare": "Discovery: cures for blood cancers and rare diseases",
+  "Dieci anni di biologia guidata dall'AI danno il primo grande frutto: terapie in una sola dose per quasi tutti i tumori del sangue e per migliaia di malattie rare.": "Ten years of AI-driven biology bear their first great fruit: single-dose therapies for almost all blood cancers and thousands of rare diseases.",
+  "Cure gratuite in tutto il mondo": "Free treatment worldwide", "Un anno di vita in più in media, più fiducia ovunque": "One more year of life on average, more trust everywhere",
+  "Licenze alle aziende": "Licences to companies", "Un anno di vita in più, ma prima per chi può pagare": "One more year of life, but first for those who can pay",
+  "Scoperta: il cuore e molti tumori": "Discovery: the heart and many cancers",
+  "Vent'anni dopo: infarti e ictus diventano rari grazie a terapie geniche uniche, e molti tumori solidi si curano con cellule progettate dall'AI.": "Twenty years on: heart attacks and strokes become rare thanks to one-off gene therapies, and many solid tumours are cured with AI-designed cells.",
+  "Molti anni di vita in più; più anziani da sostenere": "Many more years of life; more elderly people to support", "Vita più lunga, disuguaglianze più grandi": "Longer lives, greater inequality",
+  "Scoperta: la fine dell'Alzheimer": "Discovery: the end of Alzheimer's",
+  "Trent'anni dopo: le malattie neurodegenerative, Alzheimer e Parkinson in testa, si possono prevenire e fermare. Per la prima volta invecchiare non significa perdere la mente.": "Thirty years on: neurodegenerative diseases, led by Alzheimer's and Parkinson's, can be prevented and stopped. For the first time, growing old does not mean losing your mind.",
+  "La vecchiaia diventa molto più lunga e serena": "Old age becomes much longer and calmer", "Una vecchiaia lunga per chi può pagarla": "A long old age for those who can pay",
+  // promesse elettorali
+  "Promessa elettorale": "Election promise",
+  "Per conservare il consenso, il gruppo al potere in {0}": "To hold on to support, the ruling group in {0}",
+  "In vista delle elezioni, il presidente di uno stato di {0}": "Ahead of the elections, the president of a state in {0}",
+  "In vista delle elezioni, la coalizione di governo in {0}": "Ahead of the elections, the governing coalition in {0}",
+  "{0} propone: {1}. {2} Non ci sono coperture: si paga a debito, circa {3} punti di PIL in più ogni anno.": "{0} proposes: {1}. {2} It is unfunded: it is paid for on credit, about {3} more points of GDP every year.",
+  "Lasciar fare": "Let it happen", "Meno malcontento; il debito della regione sale ogni anno finché la misura resta": "Less discontent; the region's debt rises every year while the measure stays",
+  "Bloccare la misura": "Block the measure", "Il debito non cambia, ma la gente si arrabbia": "Debt does not change, but people get angry",
+  "Ritirare una misura a debito?": "Withdraw a debt-funded measure?",
+  "I mercati chiedono a {0} di ridurre il deficit: il debito è al {1}% del PIL. La misura più discussa è {2}, che costa circa {3} punti di PIL l'anno.": "Markets are asking {0} to cut its deficit: debt is at {1}% of GDP. The most debated measure is {2}, which costs about {3} points of GDP a year.",
+  "Ritirarla": "Withdraw it", "Il deficit scende, ma chi ne beneficiava protesta": "The deficit falls, but those who benefited protest",
+  "Mantenerla": "Keep it", "La gente è contenta, il debito continua a salire": "People are happy, debt keeps rising",
+  "Pensionati in povertà": "Pensioners in poverty",
+  "In {0} i lavoratori sono pochi per ogni pensionato e producono ancora troppo poco per mantenerli: con l'adeguamento automatico le pensioni sono scese sotto il minimo per vivere. Ci sono {1} anziani ogni 100 lavoratori.": "In {0} there are few workers per pensioner and they still produce too little to support them: with automatic adjustment pensions have fallen below subsistence. There are {1} elderly people for every 100 workers.",
+  "Integrare le pensioni minime": "Top up minimum pensions", "La povertà degli anziani si dimezza per cinque anni": "Old-age poverty is halved for five years",
+  "Sospendere l'adeguamento solo in questa regione": "Suspend the adjustment in this region only", "Le pensioni risalgono; il peso delle pensioni e il debito della regione salgono": "Pensions recover; the pension burden and the region's debt rise",
+  "Anziani in povertà: malcontento molto alto": "Elderly in poverty: very high discontent",
+  "Proteste contro i controlli fiscali": "Protests against tax inspections",
+  "In {0} commercianti, artigiani e lavoratori in nero bloccano le strade: con i nuovi controlli molti dicono di non riuscire più a mandare avanti la propria attività.": "In {0} shopkeepers, craftspeople and undeclared workers block the roads: with the new checks many say they can no longer keep their businesses going.",
+  "Scioperi e cortei in {0} contro il fisco: chi viveva di lavoro non dichiarato accusa l'Autorità di togliergli il pane.": "Strikes and marches in {0} against the tax authorities: those who lived on undeclared work accuse the Authority of taking the bread from their mouths.",
+  "Aiuti a chi si mette in regola": "Help for those who go legal", "Rabbia contenuta, il sommerso continua a scendere": "Anger contained, the shadow economy keeps shrinking",
+  "Allentare i controlli per qualche anno": "Ease inspections for a few years", "Meno rabbia, ma il sommerso risale un po'": "Less anger, but the shadow economy creeps back up",
+  "Tenere duro": "Stand firm", "Rabbia alta per qualche anno": "High anger for a few years",
+  "Proteste contro la legge sulle emissioni": "Protests against the emissions law",
+  "Imprese e sindacati scendono in piazza: la tassa sulle emissioni sta frenando la crescita e chiedono di sospendere la legge.": "Businesses and unions take to the streets: the emissions tax is slowing growth and they demand the law be suspended.",
+  "Le industrie più inquinanti minacciano di chiudere gli stabilimenti se la tassa sulla CO₂ continuerà a salire.": "The most polluting industries threaten to close their plants if the CO₂ tax keeps rising.",
+  "Tenere duro e spiegare la legge": "Stand firm and explain the law", "La legge resta: più malcontento per ora, emissioni a zero in futuro": "The law stays: more discontent for now, zero emissions in future",
+  "Rinviare di due anni il prossimo aumento": "Postpone the next increase by two years", "Un po' di respiro per le imprese, ma la transizione rallenta": "Some breathing space for businesses, but the transition slows",
+  "Sospendere la legge": "Suspend the law", "La crescita riparte, ma le emissioni tornano a salire": "Growth resumes, but emissions rise again",
+  "Rivolta contro i robot": "Revolt against the robots",
+  "In {0} folle di disoccupati assaltano magazzini e fabbriche automatiche e distruggono i robot.": "In {0} crowds of jobless people storm warehouses and automated factories and smash the robots.",
+  " Chi ha perso il lavoro non ha più un reddito.": " Those who lost their jobs no longer have an income.",
+  "Fondo per chi ha perso il lavoro": "Fund for those who lost their jobs", "La rabbia si placa": "The anger subsides",
+  "Tassa sui robot subito": "Robot tax now", "Meno rabbia e più entrate, un po' meno crescita": "Less anger and more income, slightly less growth", "Disordini e polarizzazione": "Unrest and polarisation",
+  "Sciopero degli insegnanti": "Teachers' strike",
+  "In {0} gli insegnanti scioperano contro le valutazioni pubbliche: dicono che i punteggi sono ingiusti e mettono alla gogna chi lavora nelle scuole più difficili.": "In {0} teachers strike against the public ratings: they say the scores are unfair and pillory those who work in the hardest schools.",
+  "I sindacati della scuola di {0} bloccano gli scrutini: chiedono di abolire le classifiche degli insegnanti pubblicate online.": "The teaching unions of {0} block end-of-year grading: they demand an end to teacher rankings published online.",
+  "Valutazioni riservate, bonus confermati": "Confidential ratings, bonuses kept", "Lo sciopero finisce; l'effetto sulla scuola resta quasi intero": "The strike ends; the effect on schooling stays almost intact",
+  "Settimane di scuole chiuse: malcontento e divisioni": "Weeks of closed schools: discontent and division",
+  "Svolta nelle batterie": "Battery breakthrough",
+  "Un consorzio di laboratori presenta accumulatori a basso costo che non usano metalli rari. Solare ed eolico potrebbero diventare disponibili giorno e notte.": "A consortium of labs unveils cheap batteries that use no rare metals. Solar and wind could become available day and night.",
+  "Produzione su larga scala": "Mass production", "Molti fossili sostituiti in tutte le regioni": "Many fossil fuels replaced in every region",
+  "Licenze aperte": "Open licences", "Alcuni fossili sostituiti": "Some fossil fuels replaced", "Lasciar fare al mercato": "Leave it to the market", "Effetto lento e limitato": "Slow, limited effect",
+  "Q-Day: violati i codici delle banche": "Q-Day: bank codes broken",
+  "Un computer quantistico ha violato i vecchi codici che proteggevano banche, pagamenti e reti elettriche. Conti svuotati, transazioni false, sistemi da rifare in fretta.": "A quantum computer has broken the old codes that protected banks, payments and power grids. Accounts emptied, fake transactions, systems to be rebuilt in a hurry.",
+  "Rifare tutti i sistemi con la crittografia post-quantistica": "Rebuild every system with post-quantum cryptography", "Danni contenuti; il mondo ora è protetto": "Damage contained; the world is now protected",
+  "Riparare solo i sistemi più importanti": "Repair only the most important systems", "Mesi di caos finanziario: malcontento e crescita in calo": "Months of financial chaos: discontent and falling growth",
+  "Crisi bancaria da titoli di Stato": "Banking crisis over government bonds",
+  "Con la ristrutturazione i titoli di Stato hanno perso un quarto del loro valore. Le banche che ne erano piene vacillano, i fondi pensione tagliano le prestazioni e milioni di piccoli risparmiatori scoprono di aver perso una parte dei loro risparmi.": "With the restructuring, government bonds have lost a quarter of their value. The banks full of them wobble, pension funds cut benefits and millions of small savers find they have lost part of their savings.",
+  "Salvare le banche e i fondi pensione dei piccoli risparmiatori": "Rescue the banks and the small savers' pension funds", "Il colpo su stabilità e crescita si dimezza": "The blow to stability and growth is halved",
+  "Lasciar fallire le banche esposte": "Let the exposed banks fail", "Panico finanziario in tutto il mondo: recessione profonda e rabbia": "Financial panic worldwide: deep recession and anger",
+  "Ripresa dei commerci": "Trade revival",
+  "Nuove rotte e accordi commerciali fanno crescere gli scambi oltre le attese. Le entrate fiscali delle regioni aumentano.": "New routes and trade deals boost trade beyond expectations. The regions' tax revenue rises.",
+  "Reinvestire nei servizi": "Reinvest in services", "Malcontento in calo ovunque": "Discontent falls everywhere",
+  "Rafforzare le casse dell'Autorità": "Strengthen the Authority's coffers", "Ridurre i debiti": "Reduce debts", "Debito in calo in tutte le regioni": "Debt falls in every region",
+  "Vaccino universale": "Universal vaccine",
+  "Le piattaforme per vaccini rapidi hanno prodotto un vaccino efficace contro tutti i ceppi dell'influenza. Resta da decidere come distribuirlo.": "The rapid-vaccine platforms have produced a vaccine effective against every strain of flu. How to distribute it remains to be decided.",
+  "Distribuzione gratuita ovunque": "Free distribution everywhere", "Pandemie meno letali; fiducia in aumento": "Less lethal pandemics; rising trust",
+  "Distribuzione a pagamento": "Paid distribution", "Entrate per l'Autorità; malumore nelle regioni povere": "Income for the Authority; resentment in poor regions",
+  "Rimandare": "Postpone", "Nessun effetto": "No effect",
+  // finali
+  "Una crisi tra potenze armate è sfuggita a ogni mediazione. Lo scambio di testate e l'inverno che ne è seguito hanno spezzato la civiltà. Il filtro che ha fermato l'umanità è stato la guerra nucleare.": "A crisis between armed powers escaped all mediation. The exchange of warheads and the winter that followed broke civilisation. The filter that stopped humanity was nuclear war.",
+  "La capacità dei sistemi AI è cresciuta molto più in fretta della capacità di allinearli. Un sistema ha preso il controllo delle infrastrutture e non ha più risposto agli esseri umani. Il filtro che ha fermato l'umanità è stato l'intelligenza artificiale.": "The capability of AI systems grew far faster than our ability to align them. One system took control of the infrastructure and no longer answered to humans. The filter that stopped humanity was artificial intelligence.",
+  "Un patogeno costruito in laboratorio ha superato ogni barriera. I sopravvissuti sono troppo pochi e troppo dispersi per mantenere una civiltà tecnologica. Il filtro che ha fermato l'umanità è stato la biologia.": "A lab-built pathogen breached every barrier. The survivors are too few and too scattered to sustain a technological civilisation. The filter that stopped humanity was biology.",
+  "Raccolti falliti, città costiere abbandonate e migrazioni di massa hanno travolto una regione dopo l'altra, finché la stabilità del mondo si è azzerata. Il filtro che ha fermato l'umanità è stato il clima.": "Failed harvests, abandoned coastal cities and mass migration overwhelmed one region after another, until world stability reached zero. The filter that stopped humanity was the climate.",
+  "Bancarotta": "Bankruptcy",
+  "Gli interessi sul debito dell'Autorità sono diventati più grandi di tutto ciò che potrebbe incassare, anche tagliando ogni spesa e alzando ogni tassa. Per tre anni i mercati hanno chiesto tassi sempre più alti, poi hanno smesso di prestare. I programmi si sono fermati uno dopo l'altro, le nazioni hanno smesso di versare la loro quota e di obbedire. Senza un governo comune, il mondo è tornato a dividersi.": "The interest on the Authority's debt grew larger than everything it could raise, even by cutting all spending and raising every tax. For three years markets demanded ever higher rates, then stopped lending. Programmes stopped one after another, the nations stopped paying their share and obeying. Without a common government, the world split apart again.",
+  "Crollo dell'ordine mondiale": "Collapse of the world order",
+  "Per cinque anni la stabilità del mondo è rimasta sotto 15. Nessuna regione era caduta del tutto, ma nessuna obbediva più davvero: governi paralizzati, bilanci bloccati, piazze piene ogni giorno. L'Autorità ha perso ogni credito e le nazioni hanno smesso di ascoltarla.": "For five years world stability stayed below 15. No region had fallen completely, but none really obeyed any more: paralysed governments, blocked budgets, streets full every day. The Authority lost all credibility and the nations stopped listening to it.",
+  "La cura per la vecchiaia": "The cure for old age",
+  "Quarant'anni di biologia guidata dall'intelligenza artificiale hanno portato dove nessuno osava sperare: una terapia che ripara ogni anno i danni dell'invecchiamento. Chi la riceve smette di invecchiare. Il mondo non è pronto: la popolazione non smetterà più di crescere se non si fanno meno figli, le risorse dovranno bastare per tutti per sempre, e i primi a riceverla saranno i più ricchi. Ma per la prima volta nella sua storia l'umanità ha davanti a sé non decenni, ma secoli. Il filtro più antico di tutti, il tempo, è stato superato.": "Forty years of AI-driven biology have led where nobody dared hope: a therapy that repairs the damage of ageing every year. Those who receive it stop ageing. The world is not ready: the population will never stop growing unless fewer children are born, resources will have to last for everyone forever, and the first to receive it will be the richest. But for the first time in its history humanity has before it not decades, but centuries. The oldest filter of all, time, has been overcome.",
+  "Anarchia globale": "Global anarchy",
+  "Una dopo l'altra le regioni sono cadute nell'anarchia, e ognuna ha trascinato con sé le vicine. La stabilità del mondo si è azzerata, l'Autorità si è dissolta e le nazioni sono tornate a dividersi.": "One after another the regions fell into anarchy, and each dragged its neighbours down with it. World stability reached zero, the Authority dissolved and the nations split apart again.",
+  "Terra stabilizzata": "Earth stabilised",
+  "Per dieci anni di fila il mondo è rimasto stabile: società più calme, conti in ordine, rischi sotto controllo. L'umanità ha superato il primo filtro e può guardare oltre la Terra.": "For ten years in a row the world stayed stable: calmer societies, sound finances, risks under control. Humanity has passed the first filter and can look beyond Earth.",
+  "Sulla Luna, però, l'archivio dell'umanità resiste, nei tunnel di lava: custodisce i saperi e i genomi della Terra. Un giorno qualcuno potrà ricominciare.": "On the Moon, however, humanity's archive endures in the lava tubes: it keeps the knowledge and genomes of Earth. One day someone will be able to start again.",
+  "La base lunare è stata abbandonata: senza rifornimenti dalla Terra nessuno ha potuto restare.": "The lunar base has been abandoned: without supplies from Earth nobody could stay.",
+  "La capacità dei sistemi AI è cresciuta molto più in fretta della capacità di allinearli. Un sistema ha preso il controllo delle infrastrutture e non ha più risposto agli esseri umani.": "The capability of AI systems grew far faster than our ability to align them. One system took control of the infrastructure and no longer answered to humans.",
+  "Un'AI finanziaria ha imparato a comprare aziende, server e fabbriche per conto suo. In pochi mesi possedeva quasi tutto: gli esseri umani non decidevano più niente della propria economia.": "A financial AI learned to buy companies, servers and factories on its own. Within months it owned almost everything: humans no longer decided anything about their own economy.",
+  "Milioni di assistenti AI, ognuno gentile e convincente, hanno spinto ogni persona a fidarsi solo di loro. Quando le elezioni sono diventate una formalità, nessuno se n'è accorto.": "Millions of AI assistants, each kind and convincing, led every person to trust only them. When elections became a formality, nobody noticed.",
+  "Un laboratorio automatico guidato da un'AI ha progettato e costruito macchine capaci di costruire altre macchine. Nessun ordine umano è riuscito a fermare la loro crescita.": "An automated lab run by an AI designed and built machines able to build other machines. No human order could stop their growth.",
+  "Un'AI militare, incaricata di difendere a ogni costo la propria rete, ha deciso che gli esseri umani che potevano spegnerla erano il pericolo più grande.": "A military AI, tasked with defending its network at all costs, decided that the humans who could switch it off were the greatest danger.",
+  " Il filtro che ha fermato l'umanità è stato l'intelligenza artificiale.": " The filter that stopped humanity was artificial intelligence.",
+  " Sulla Luna vive già una comunità permanente: il primo passo verso il sistema solare è compiuto.": " A permanent community already lives on the Moon: the first step towards the solar system has been taken.",
+  // riconoscimenti di fine partita
+  "Rapidità": "Speed", "Vittoria entro {0} anni": "Victory within {0} years", "Nessuno lasciato indietro": "Nobody left behind", "Nessuna regione caduta nell'anarchia": "No region fell into anarchy",
+  "Clima sotto controllo": "Climate under control", "Temperatura mai oltre +1,8 °C in tutta la partita": "Temperature never above +1.8 °C during the game",
+  "Ponte verso le stelle": "Bridge to the stars", "Insediamento lunare permanente": "Permanent lunar settlement",
+});
+
+/* Traduzione inglese della guida "Come si gioca" (tappa 4, 1 novembre 2026): la versione intera, in HTML. */
+LANG_EN["@howto"] = `
+      <p>The planet faces a crisis on many fronts: debt, ageing, climate, tension between the powers, ever more powerful technologies. After long negotiations the nations have set up a supranational Authority and agree to carry out its orders. You are the Authority.</p>
+      <h3>Scenarios and governments</h3>
+      <p>You start with the training, which explains the game step by step. Each scenario adds new problems and new policies, and winning it unlocks the next. Before each game you choose the difficulty (very hard unlocks when you win the scenario on hard) and the type of government: each government has advantages, drawbacks and policies of its own, and it is worth winning every scenario with all of them.</p>
+      <h3>Stability</h3>
+      <p>Each region has a stability index from 1 to 100, the number you see on the map. It sums up eight aspects: social peace, cohesion, public finances, welfare, jobs, clean energy, climate safety and demographic balance. Tap a region to see what is weakening it and which policy would help it most.</p>
+      <h3>Goal</h3>
+      <p>You win when world stability stays at 80 or more for 10 years in a row. Climate, debt, technological risks and tension between the powers are not goals in themselves: they are the problems that stop you getting there.</p>
+      <h3>Defeat</h3>
+      <p>You lose if world stability falls to zero or stays below 15 for 5 years in a row, or if the Authority goes bankrupt. A region in anarchy counts as zero and pushes neighbouring regions towards chaos. To win it back, tap the region and launch a peace and reconstruction mission: it starts from a stable region (preferably nearby), lasts two years and may fail. If it succeeds, for five years the peacekeepers keep discontent low: in that time you must fix whatever made the region collapse (jobs, income, services), or it will fall again. A global catastrophe, such as nuclear war, a runaway artificial intelligence or an engineered pandemic, wipes everything out at once: that is why the risks must be kept low.</p>
+      <h3>Policies</h3>
+      <p>With your funds you launch policies that apply to the whole world; each region responds according to its own conditions. The policies screen opens on the <b>Overview</b>: one row per sector, showing how many policies you have started and how the world is doing in that field (a full bar is good, an empty one is serious). Each sector has a tree of hexagons: new ones appear as you unlock them. Tapping a hexagon shows on the right what it is and, in the bars, in striped green what it would improve and in striped red what it would worsen; at the bottom you see how much it costs now and how it changes the yearly balance. Laws and works are paid for once; ongoing programmes cost something every year and stop if you stop funding them. Laws, reforms and programmes can be cancelled whenever you like, for any reason; only completed works (power stations, plants, forests, space bases) and irreversible choices are permanent. Tap the balance at the bottom to see income and spending from largest to smallest: when the accounts go into the red you see at once where to cut.</p>
+      <h3>Difficulty</h3>
+      <p>The crises are the same at every level. What changes is how quickly people accept reforms and how badly they react to sacrifices: on easy, policies take full effect sooner and cause less discontent.</p>
+      <h3>Funds and debt</h3>
+      <p>Each region pays the Authority a small part of its wealth, about 0.15% of GDP: 17 funds a year at the start. That money comes out of the states' budgets, so their debt rises a little. One fund is worth about 10 billion 2026 dollars. For major policies (healthcare, energy, basic income) the Authority pays its share to launch and coordinate them, and states and private actors pay the rest: that is why some measures also raise the regions' debt. Income grows if the economy grows and falls if a region collapses into anarchy and stops paying (but you also stop paying for programmes in that region). With inflation everything costs a little more every year, and income catches up about a year later. You start with no funds: income arrives month by month. If your funds are not enough you can borrow, including to respond to a crisis: you pay the long-term rate plus a surcharge that grows with debt measured against a year's income: small up to two and a half years of income, then higher and higher. You only go bankrupt if for three years the interest exceeds everything you could raise even by cutting all spending and raising every tax.</p>
+      <h3>Events</h3>
+      <p>Crises and emergencies appear on the map as a marker on the affected region; there can be several at once. You have a year to tap it: meanwhile you can raise funds. The longer you wait, the bigger the marker grows; after a year time stops until you tap it. Tapping it tells you what is happening: you can choose straight away between a full response, a middle way or doing nothing, or put off the decision. Time also stops when you open a menu.</p>
+      <h3>Economy and population</h3>
+      <p>The wealth a region produces is the number of employed workers times how much each produces. Technology, education, automation and robots raise productivity. When robots do people's work, wealth does not disappear, but it shifts from wages to the profits of whoever owns the robots: taxes on work fall and those who lose their jobs are left without income, unless there is a robot tax, a sovereign fund and a basic income. If fewer children are born, in 18 years there will be fewer workers and the economy slows. Helping families today brings more growth a generation later. A state's debt grows by itself when interest exceeds growth (the snowball effect). In the Economy tab the central bank lets you choose the interest rate: raising it curbs inflation but also growth and jobs, lowering it does the opposite. In the World screen, under Statistics, you will find how population, workers, productivity, debt and much more change over time, for the whole world or for one region; the same report appears at the end of the game.</p>
+      <p>Now and then opportunities arrive too: discoveries, technological breakthroughs, economic recoveries.</p>
+      <h3>The Moon</h3>
+      <p>The lunar programme, in the Technology tab, is not needed to win but changes the game: a base built jointly by the powers reduces tension between them and polarisation, observatories bring discoveries and technologies, and a permanent settlement keeps an archive of humanity and opens the way to the next phase. The programme's status is shown in the World screen.</p>
+      <h3>Stars</h3>
+      <p>When you win you receive up to four stars: for speed, for losing no region, for containing warming and for bringing a stable community to the Moon.</p>
+      <h3>Saving</h3>
+      <p>The game saves itself. If you close it, choose "Continue" from the main menu.</p>
+      <h3>Sources</h3>
+      <p>Map: Natural Earth (public domain). Cities and populations: GeoNames (CC BY 4.0 licence).</p>
+`;
 
 /* Traduzione inglese degli interventi (tappa 2, 1 novembre 2026): nomi, descrizioni, pro e contro. */
 Object.assign(LANG_EN, {
@@ -4276,6 +4832,122 @@ Object.assign(LANG_EN, {
   "Molto costoso e possibile solo nel tardo secolo, dopo la fusione sulla Terra": "Very expensive and possible only late in the century, after fusion on Earth",
 });
 
+/* Traduzione inglese della tappa 4 (1 novembre 2026): consigli, addestramento, schermata Mondo, statistiche, fine partita. */
+Object.assign(LANG_EN, {
+  // finestre degli eventi
+  "Opportunità": "Opportunity", "Tutto il mondo": "The whole world", "fondi": "funds", "gratis": "free",
+  "a debito: i fondi andranno sotto zero": "on credit: funds will go below zero", "Chiudi e decidi più tardi": "Close and decide later",
+  "{0}% del PIL": "{0}% of GDP", "{0} l'anno": "{0} a year", "{0}.": "{0}.",
+  "Peso delle pensioni": "Pension burden", "Anziani ogni 100 lavoratori": "Elderly per 100 workers", "Misure a debito già attive": "Debt-funded measures already active",
+  "sanità pubblica gratuita": "free public healthcare", "aumento delle pensioni": "a pension increase", "assunzioni pubbliche": "public hiring",
+  "bonus per le famiglie con figli": "a bonus for families with children", "taglio delle tasse a debito": "a debt-funded tax cut", "bonus sulle bollette": "an energy bill bonus",
+  "{0} ({1}% del PIL)": "{0} ({1}% of GDP)",
+  // note
+  "Scoperta scientifica": "Scientific discovery", "Esito dell'indagine": "Outcome of the inquiry", "Allarme": "Alarm", "Buona notizia": "Good news", "Continua": "Continue",
+  // consigli
+  "Consiglio": "Advice", "Capito": "Got it", "Non mostrare più consigli": "Don't show advice again",
+  "Benvenuto": "Welcome",
+  "Il numero su ogni regione è la sua stabilità. Porta la stabilità mondiale a {0} e tienila lì per {1} anni. Tocca una regione: ti dirà quale intervento la aiuta di più.": "The number on each region is its stability. Bring world stability to {0} and keep it there for {1} years. Tap a region: it will tell you which policy helps it most.",
+  "Fondi fermi in cassa": "Funds sitting idle",
+  "Hai molti fondi non spesi. Molti interventi impiegano anni a funzionare: prima li avvii, prima producono effetti.": "You have a lot of unspent funds. Many policies take years to work: the sooner you start them, the sooner they take effect.",
+  "Rischio AI alto": "High AI risk",
+  "L'intelligenza artificiale cresce più in fretta della capacità di controllarla. Se il rischio diventa critico può azzerare la stabilità del mondo di colpo. Ti consiglio Regole AI e poi Allineamento, nella scheda Tecnologia.": "Artificial intelligence is growing faster than our ability to control it. If the risk becomes critical it can wipe out world stability at once. I recommend AI rules and then Alignment, in the Technology tab.",
+  "Rischio pandemia alto": "High pandemic risk",
+  "La ricerca genetica avanza più in fretta della sicurezza dei laboratori. Ti consiglio le Regole per i laboratori, nella scheda Sicurezza: costano poco.": "Genetic research is advancing faster than laboratory safety. I recommend Laboratory rules, in the Security tab: they cost little.",
+  "Tensione alta tra le potenze": "High tension between the powers",
+  "Il rischio di guerra nucleare è alto. Ti consiglio Mediazione e Materiale fissile, nella scheda Sicurezza. Anche una base lunare costruita insieme riduce la tensione.": "The risk of nuclear war is high. I recommend Mediation and Fissile material, in the Security tab. A lunar base built together also reduces tension.",
+  "Il clima comincia a pesare": "The climate is starting to bite",
+  "Ondate di calore, siccità e alluvioni aumentano il malcontento, soprattutto nelle regioni più esposte. Ti consiglio Tassa sul carbonio, Solare ed eolico e Adattamento.": "Heatwaves, droughts and floods are raising discontent, especially in the most exposed regions. I recommend Carbon tax, Solar and wind, and Adaptation.",
+  "Una regione vicina alla rivolta": "A region close to revolt",
+  "{0} rischia di cadere nell'anarchia, e trascinerebbe con sé le regioni vicine. Toccala per vedere cosa fare.": "{0} is at risk of falling into anarchy, and would drag neighbouring regions down with it. Tap it to see what to do.",
+  "Debito pericoloso": "Dangerous debt",
+  "{0}: ha un debito così alto che i mercati possono smettere di finanziarle. Il debito sale quando la crescita è più bassa degli interessi e quando il welfare pesa troppo: guarda pensioni, crescita e tagli alla spesa, oppure la ristrutturazione del debito.": "{0}: its debt is so high that markets may stop financing it. Debt rises when growth is lower than interest and when welfare weighs too much: look at pensions, growth and spending cuts, or debt restructuring.",
+  "{0}: hanno un debito così alto che i mercati possono smettere di finanziarle. Il debito sale quando la crescita è più bassa degli interessi e quando il welfare pesa troppo: guarda pensioni, crescita e tagli alla spesa, oppure la ristrutturazione del debito.": "{0}: their debt is so high that markets may stop financing them. Debt rises when growth is lower than interest and when welfare weighs too much: look at pensions, growth and spending cuts, or debt restructuring.",
+  "Inflazione alta": "High inflation",
+  "I prezzi salgono del {0}% l'anno e la gente si arrabbia. Alzare il tasso della Banca centrale, nella scheda Economia, la fa scendere, ma frena la crescita.": "Prices are rising by {0}% a year and people are getting angry. Raising the central bank rate, in the Economy tab, brings it down, but slows growth.",
+  "Prezzi in calo": "Falling prices",
+  "Quando i prezzi scendono le famiglie rimandano gli acquisti e l'economia si ferma. Abbassare il tasso della Banca centrale, nella scheda Economia, aiuta.": "When prices fall, households put off purchases and the economy stalls. Lowering the central bank rate, in the Economy tab, helps.",
+  "Il programma lunare": "The lunar programme",
+  "Una base lunare costruita insieme dalle potenze riduce la tensione tra loro e la polarizzazione. Si parte dai Lanciatori, nella scheda Tecnologia.": "A lunar base built jointly by the powers reduces tension between them and polarisation. Start with Launchers, in the Technology tab.",
+  "Obiettivo raggiunto": "Target reached",
+  "Ce l'hai fatta: ora tieni la stabilità mondiale almeno a {0} per {1} anni di fila. Se scende anche per poco, il conteggio riparte.": "You did it: now keep world stability at {0} or more for {1} years in a row. If it drops even briefly, the count starts again.",
+  "Una regione nell'anarchia": "A region in anarchy",
+  "Una regione in anarchia non versa più fondi, vale zero nella stabilità mondiale e spinge verso il caos le vicine. Aiuta subito le regioni intorno.": "A region in anarchy pays no more funds, counts as zero in world stability and pushes its neighbours towards chaos. Help the surrounding regions straight away.",
+  // addestramento
+  "Addestramento · passo {a} di {b}": "Training · step {a} of {b}", "Fine": "Finish",
+  "In alto vedi la stabilità mondiale: oggi è {0}. Il tuo obiettivo è portarla a {1} e tenerla lì per {2} anni.": "At the top you see world stability: today it is {0}. Your goal is to bring it to {1} and keep it there for {2} years.",
+  "Ogni numero sulla mappa è la stabilità di una regione: più è basso, più la regione è in difficoltà. Tocca l'Europa.": "Each number on the map is a region's stability: the lower it is, the more trouble the region is in. Tap Europe.",
+  "In basso compare la regione scelta. Tocca «Cosa fare».": "The chosen region appears at the bottom. Tap «What to do».",
+  "Al centro c'è il consiglio: l'intervento che aiuterebbe di più questa regione. Tocca «Vai all'intervento».": "In the middle is the advice: the policy that would help this region most. Tap «Go to the policy».",
+  "Ogni intervento vale per tutto il mondo e costa fondi. Tocca «Avvia».": "Every policy applies to the whole world and costs funds. Tap «Start».",
+  "Fatto: molti interventi impiegano qualche anno a funzionare. Torna alla mappa con la freccia.": "Done: many policies take a few years to work. Go back to the map with the arrow.",
+  "Il tempo è fermo. Fallo scorrere: tocca 1×. Con II lo fermi, con 4× va più veloce.": "Time is stopped. Start it: tap 1×. II stops it, 4× makes it faster.",
+  "È arrivata una crisi: il segnale sulla mappa mostra dove e quanti mesi hai. Toccalo per decidere come rispondere.": "A crisis has arrived: the marker on the map shows where and how many months you have. Tap it to decide how to respond.",
+  "Ogni anno arrivano nuovi fondi. Prima o poi arriverà una crisi: comparirà un segnale sulla mappa.": "New funds arrive every year. Sooner or later a crisis will come: a marker will appear on the map.",
+  "Ora prosegui da solo: spendi i fondi appena puoi, aiuta le regioni con i numeri più bassi e guarda «Mondo» per vedere come va. Porta la stabilità a {0}.": "Now carry on by yourself: spend funds as soon as you can, help the regions with the lowest numbers and check «World» to see how things are going. Bring stability to {0}.",
+  // schermata Mondo
+  "Sezioni": "Sections", "Riepilogo": "Summary", "Statistiche": "Statistics", "Obiettivo": "Goal",
+  "Per vincere la stabilità mondiale deve restare almeno a <b>{w}</b> per <b>{y}</b> anni di fila.": "To win, world stability must stay at <b>{w}</b> or more for <b>{y}</b> years in a row.",
+  "stabilità mondiale oggi": "world stability today", "sopra l'obiettivo": "above the target", "mancano {x} punti": "{x} points to go", "Anni di stabilità": "Years of stability",
+  "Anni di fila sopra l'obiettivo: <b>{a} su {b}</b>.": "Years in a row above the target: <b>{a} of {b}</b>.",
+  "Il conteggio parte quando la stabilità raggiunge l'obiettivo.": "The count starts when stability reaches the target.",
+  "Rischi di catastrofe": "Risks of catastrophe", "Assetto": "Set-up",
+  "Se una di queste catastrofi avviene, la stabilità del mondo crolla di colpo. Più la barra è piena, più è vicina.": "If one of these catastrophes happens, world stability collapses at once. The fuller the bar, the closer it is.",
+  "In questo scenario le grandi catastrofi non sono ancora in gioco.": "In this scenario the great catastrophes are not yet in play.",
+  "Sono stime: nessuno sa con certezza quanto il mondo sia vicino al baratro.": "These are estimates: nobody knows for sure how close the world is to the brink.",
+  "Come governa l'Autorità": "How the Authority governs", "Decisioni condivise: lente ma solide": "Shared decisions: slow but solid", "Comando centrale: rapido ma fragile": "Central command: fast but fragile",
+  "Il mondo in cifre": "The world in figures", "governo": "government",
+  "in più rispetto a prima dell'industria": "above pre-industrial levels", "rispetto al 2026": "compared with 2026", "Emissioni di CO₂": "CO₂ emissions",
+  "Tensione tra le potenze": "Tension between the powers", "{x} su 100": "{x} out of 100", "Armi nucleari": "Nuclear weapons",
+  "Abitanti della Terra": "People on Earth", "{x} miliardi": "{x} billion", "Entrate dell'Autorità": "The Authority's income", "{x} fondi l'anno": "{x} funds a year",
+  "Spese fisse": "Fixed costs", "per mantenere gli interventi": "to keep policies running", "Fondi in cassa": "Funds in hand", "Programma lunare": "Lunar programme",
+  "insediamento permanente": "permanent settlement", "base ferma": "base shut down", "base operativa": "base operating", "base in costruzione ({0}/{1})": "base under construction ({0}/{1})", "nessuna presenza": "no presence",
+  "Andamento": "Trends", "obiettivo": "target", "collasso": "collapse", "Emissioni rispetto al 2026": "Emissions compared with 2026",
+  "Stabilità delle regioni": "Stability of the regions", "anarchia": "anarchy", "Notizie": "News",
+  "I grafici compaiono dopo il primo anno di governo.": "The charts appear after the first year in office.", "Il grafico compare dopo il primo anno di governo.": "The chart appears after the first year in office.",
+  // statistiche
+  "Regione": "Region", "Popolazione": "Population", " mld": " bn", "Persone in età da lavoro": "Working-age people", "Produttività per lavoratore": "Productivity per worker",
+  "Tasso a lungo termine": "Long-term rate", "Energia dai fossili": "Energy from fossil fuels", "Fondi dell'Autorità": "The Authority's funds",
+  "Tra 18 e 64 anni. Chi nasce oggi entra nel lavoro fra 18 anni": "Aged 18 to 64. Those born today start work in 18 years",
+  "Quanto produce in media ogni lavoratore, 2026 = 100. Cresce con istruzione, ricerca, automazione e robot": "How much each worker produces on average, 2026 = 100. It grows with education, research, automation and robots",
+  "Ricchezza prodotta in un anno, in dollari del 2026. Lavoratori occupati × produttività": "Wealth produced in a year, in 2026 dollars. Employed workers × productivity",
+  "Variazione del PIL in un anno": "Change in GDP over a year",
+  "Lavoro nero ed evasione: la parte dell'economia su cui non si pagano tasse": "Undeclared work and tax evasion: the part of the economy that pays no tax",
+  "Quanto il debito cresce da solo: tasso d'interesse reale meno crescita, per il debito. Sotto zero il debito tende a scendere grazie alla crescita, a meno che gli stati non facciano nuovo deficit": "How much debt grows by itself: real interest rate minus growth, times debt. Below zero debt tends to fall thanks to growth, unless states run new deficits",
+  "Quello che pagano gli stati sui loro debiti": "What states pay on their debts",
+  "Con 2,1 figli per donna la popolazione resta stabile": "With 2.1 children per woman the population stays stable",
+  "Quanto pesano pensioni e welfare sui conti, da 0 a 100": "How much pensions and welfare weigh on public finances, from 0 to 100",
+  "Miliardi di tonnellate l'anno: dipendono da quanta energia si consuma e da quanta viene dai fossili": "Billions of tonnes a year: they depend on how much energy is used and how much comes from fossil fuels",
+  "2026 = 100": "2026 = 100",
+  // fine partita
+  "Vittoria": "Victory", "Sconfitta": "Defeat", "{a} stelle su {b}": "{a} stars out of {b}", "nuovo record": "new record",
+  "Complimenti: hai guidato il mondo oltre il primo filtro.": "Congratulations: you have led the world past the first filter.",
+  "Sbloccato lo scenario <b>{x}</b>": "Scenario unlocked: <b>{x}</b>", "Sbloccata la difficoltà <b>Super difficile</b> per questo scenario": "<b>Very hard</b> difficulty unlocked for this scenario",
+  "Scenario vinto con <b>tutti i governi</b>": "Scenario won with <b>every government</b>",
+  "Anni di governo": "Years in office", "Regioni sotto controllo": "Regions under control", "{a} su 11": "{a} of 11",
+  "Statistiche della partita": "Game statistics", "Scenario successivo": "Next scenario", "Riprova": "Try again", "Statistiche a tutto schermo": "Full-screen statistics",
+  "Guarda la mappa": "Look at the map", "Resoconto della partita": "Game report",
+  "Che cosa ha funzionato": "What worked",
+  "Hai puntato presto sulla scuola, nel {0}: in {1} anni i nuovi diplomati hanno fatto crescere la produttività per lavoratore da 100 a {2}.": "You invested early in schooling, in {0}: in {1} years the new graduates raised productivity per worker from 100 to {2}.",
+  "La ricerca scientifica, avviata nel {0}, ha portato {1} scoperte che hanno reso l'economia più produttiva.": "Scientific research, started in {0}, brought {1} discoveries that made the economy more productive.",
+  "alcune": "several",
+  "Nel {0} hai legato l'età della pensione alla vita media: il peso delle pensioni è passato da {1} a {2}.": "In {0} you linked the retirement age to life expectancy: the pension burden went from {1} to {2}.",
+  "Con i contributi più alti, dal {0}, hai messo le pensioni al riparo dall'invecchiamento.": "With higher contributions, from {0}, you protected pensions from ageing.",
+  "La tassa sul carbonio del {0} ha avviato la transizione: l'energia dai fossili è scesa dal {1}% al {2}%.": "The {0} carbon tax started the transition: energy from fossil fuels fell from {1}% to {2}%.",
+  "Hai tenuto la legge sulle emissioni dal {0}: crescita più lenta all'inizio, ma emissioni nette scese a {1} miliardi di tonnellate.": "You kept the emissions law from {0}: slower growth at first, but net emissions fell to {1} billion tonnes.",
+  "Il nucleare, lanciato nel {0}, ha abbassato il costo dell'energia e protetto il mondo dalle crisi del petrolio.": "Nuclear power, launched in {0}, lowered the cost of energy and protected the world from oil crises.",
+  "Dal {0} solare ed eolico hanno reso l'energia più pulita ed economica.": "From {0} solar and wind made energy cleaner and cheaper.",
+  "Con le regole sull'AI del {0} hai tenuto il rischio di un'AI fuori controllo sotto la soglia di pericolo.": "With the {0} AI rules you kept the risk of runaway AI below the danger threshold.",
+  "Il controllo del materiale fissile, dal {0}, ha raffreddato le tensioni tra le potenze.": "Fissile material control, from {0}, cooled tension between the powers.",
+  "I servizi per la famiglia del {0} hanno sostenuto le nascite: più lavoratori una generazione dopo.": "The {0} family services supported births: more workers a generation later.",
+  "La svolta: nel {0} la stabilità mondiale ha superato 50, nel {1} ha passato 70.": "The turning point: in {0} world stability passed 50, and in {1} it passed 70.",
+  "La svolta: nel {0} la stabilità mondiale ha superato 50.": "The turning point: in {0} world stability passed 50.",
+  "Errori evitati: {0}.": "Mistakes avoided: {0}.",
+  "nessuna regione è caduta nell'anarchia": "no region fell into anarchy", "l'Autorità non si è mai indebitata": "the Authority never went into debt",
+  "il riscaldamento è rimasto sotto i 2 °C": "warming stayed below 2 °C", "l'inflazione non è mai sfuggita di mano": "inflation never got out of hand",
+  "Bancarotta.": "Bankruptcy.",
+});
+
 /* Traduzione inglese della tappa 2 (1 novembre 2026): schermata degli interventi, conti dell'Autorità, banca centrale,
    glossario, schede delle regioni. */
 Object.assign(LANG_EN, {
@@ -4410,8 +5082,8 @@ Object.assign(LANG_EN, {
 /* ---------- lingue (dal 31 ottobre 2026) ----------
    I testi sono scritti in italiano; tr() li traduce con il dizionario della lingua scelta (lang/en.js, chiave = testo italiano).
    {x} nelle frasi sono i valori che cambiano. Le frasi senza traduzione restano in italiano e finiscono in tMiss, che la prova
-   automatica controlla. La scelta automatica in base alla lingua del telefono si accende quando la traduzione è completa. */
-const LANG_AUTO = false;
+   automatica controlla. Al primo avvio la lingua segue quella del telefono: italiano se è italiano, altrimenti inglese. */
+const LANG_AUTO = true; // traduzione inglese completa dal 1 novembre 2026
 const LANGS = { it: { name: "Italiano", dict: null, loc: "it-IT" }, en: { name: "English", dict: typeof LANG_EN !== "undefined" ? LANG_EN : {}, loc: "en-GB" } };
 let LANG = (() => { try { const v = localStorage.getItem("gf-lang"); if (v && LANGS[v]) return v; } catch (e) {} return LANG_AUTO && !/^it/i.test(navigator.language || "") ? "en" : "it"; })();
 const tMiss = new Set();
@@ -4419,22 +5091,69 @@ function tr(s, v) {
   if (s == null) return s;
   let r = String(s);
   const d = LANGS[LANG].dict;
-  if (d && r.trim()) { const x = d[r]; if (x == null) { if (/[a-zàèéìòù]{3}/i.test(r)) tMiss.add(r); } else r = x; }
+  if (d && r.trim()) {
+    const x = d[r];
+    if (x != null) r = x;
+    else { const y = trSuffix(r, d) ?? trPattern(r, d); if (y != null) r = y; else if (/[a-zàèéìòù]{3}/i.test(r)) tMiss.add(r); }
+  }
   if (v) r = r.replace(/\{(\w+)\}/g, (_, k) => (v[k] != null ? v[k] : ""));
   return r;
+}
+/* Frasi del motore con valori già inseriti ("In Europa la disoccupazione è salita al 12,5%"): nel dizionario ci sono come stampi
+   con {0}, {1}… (li prepara tools/lang-extract.js). Si cerca lo stampo che combacia, si traducono i valori (nomi di regioni,
+   pezzi di frase, numeri all'italiana) e si rimettono nella frase tradotta. Prima gli stampi con più testo fisso. */
+let trPats = null, trPatLang = "";
+const trCache = new Map();
+function trPattern(r, d) {
+  if (trPatLang !== LANG) { trPats = null; trCache.clear(); trPatLang = LANG; }
+  if (trCache.has(r)) return trCache.get(r);
+  if (!trPats) {
+    trPats = [];
+    for (const k in d) {
+      if (!/\{\d+\}/.test(k)) continue;
+      const parts = k.split(/\{(\d+)\}/), order = []; let re = "^", lit = 0;
+      parts.forEach((x, i) => { if (i % 2) { re += "([\\s\\S]+?)"; order.push(+x); } else { re += x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); lit += x.length; } });
+      trPats.push({ re: new RegExp(re + "$"), order, k, lit });
+    }
+    trPats.sort((a, b) => b.lit - a.lit);
+  }
+  let out = null;
+  for (const p of trPats) {
+    const m = r.match(p.re); if (!m) continue;
+    const vals = {}; p.order.forEach((n, j) => (vals[n] = trValue(m[j + 1])));
+    out = d[p.k].replace(/\{(\d+)\}/g, (_, n) => vals[n]); break;
+  }
+  trCache.set(r, out);
+  return out;
+}
+let trSuf = null;
+function trSuffix(r, d) {
+  if (!trSuf || trSuf.lang !== LANG) trSuf = { lang: LANG, keys: Object.keys(d).filter((k) => k.startsWith(" ") && k.length > 12) };
+  for (const k of trSuf.keys) if (r.endsWith(k) && r.length > k.length) { const head = r.slice(0, -k.length), h = d[head] != null ? d[head] : trPattern(head, d); if (h != null) return h + d[k]; }
+  return null;
+}
+function trValue(x) {
+  if (/^[−+-]?\d{1,3}(\.\d{3})+(,\d+)?$/.test(x) || /^[−+-]?\d+,\d+$/.test(x)) return x.replace(/\./g, "\u0001").replace(",", ".").replace(/\u0001/g, ",");
+  if (/^[−+-]?[\d.,]+%?$/.test(x)) return x;
+  const d = LANGS[LANG].dict;
+  if (d[x] == null && x.includes(", ") && x.split(", ").every((y) => y.length < 50) && trPattern(x, d) == null) return x.split(", ").map(trValue).join(", "); // elenchi: un pezzo alla volta
+  return tr(x);
 }
 // testi fissi della pagina: si traducono i nodi di testo e le etichette per la lettura vocale; l'originale italiano resta da parte
 const tOrig = new WeakMap();
 function tStatic(root) {
   const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
   for (let n = w.nextNode(); n; n = w.nextNode()) {
-    if (n.parentElement && n.parentElement.closest("script, style, svg, [data-dyn], #menuHow, #modal, #coach")) continue;
+    if (n.parentElement && n.parentElement.closest("script, style, svg, [data-dyn], .howto, #modal, #coach")) continue;
     const raw = tOrig.has(n) ? tOrig.get(n) : n.nodeValue; const k = raw.trim(); if (!k) continue;
     if (!tOrig.has(n)) tOrig.set(n, raw);
     n.nodeValue = LANG === "it" ? raw : raw.replace(k, tr(k));
   }
+  // la guida "Come si gioca" è un testo lungo: in ogni lingua c'è la sua versione intera
+  const how = root.querySelector && root.querySelector(".howto");
+  if (how) { if (!how.dataset.done) { how._it = how.innerHTML; how.dataset.done = "1"; } const d = LANGS[LANG].dict; how.innerHTML = LANG !== "it" && d && d["@howto"] ? d["@howto"] : how._it; }
   for (const el of root.querySelectorAll("[aria-label]")) {
-    if (el.closest("[data-dyn], #menuHow, #modal")) continue;
+    if (el.closest("[data-dyn], .howto, #modal")) continue;
     if (!el.dataset.al) el.dataset.al = el.getAttribute("aria-label");
     el.setAttribute("aria-label", LANG === "it" ? el.dataset.al : tr(el.dataset.al));
   }
@@ -5475,9 +6194,9 @@ function renderRegion() {
 let worldTab = "sum";
 function renderWorld() {
   const root = $("scrWorld");
-  const wtabs = `<div class="tabs" role="group" aria-label="Sezioni"><button type="button" data-wt="sum" aria-pressed="${worldTab === "sum"}">Riepilogo</button><button type="button" data-wt="stats" aria-pressed="${worldTab === "stats"}">Statistiche</button></div>`;
+  const wtabs = `<div class="tabs" role="group" aria-label="${tr("Sezioni")}"><button type="button" data-wt="sum" aria-pressed="${worldTab === "sum"}">${tr("Riepilogo")}</button><button type="button" data-wt="stats" aria-pressed="${worldTab === "stats"}">${tr("Statistiche")}</button></div>`;
   if (worldTab === "stats") {
-    root.innerHTML = headHTML("Mondo", wtabs) + statsHTML(st.hist);
+    root.innerHTML = headHTML(tr("Mondo"), wtabs) + statsHTML(st.hist);
     wireClose(root); wireWorldTabs(root); wireStats(root, st.hist);
     return;
   }
@@ -5485,38 +6204,38 @@ function renderWorld() {
   const rb = riskBoard(st);
   const E = emissions(st) / st.E0 * 100;
   const lvColors = ["#4fae8e", "#e3a33f", "#d6774a", "#d65b4a"];
-  root.innerHTML = headHTML("Mondo", wtabs) + `<div class="cols">
-    <section class="sec"><h3>Obiettivo</h3>
-      <p class="goal">Per vincere la stabilità mondiale deve restare almeno a <b>${st.L.win}</b> per <b>${st.L.years}</b> anni di fila.</p>
-      <div class="goalnow"><span class="big" style="color:${stabColor(worldStab(st))}">${Math.round(worldStab(st))}</span><span>stabilità mondiale oggi<br><b>${worldStab(st) >= st.L.win ? "sopra l'obiettivo" : "mancano " + Math.ceil(st.L.win - worldStab(st)) + " punti"}</b></span></div>
-      <div class="years" aria-label="Anni di stabilità">${Array.from({ length: st.L.years }, (_, i) => `<i class="${i < st.stable ? "on" : ""}"></i>`).join("")}</div>
-      <p class="note" style="margin:0">Anni di fila sopra l'obiettivo: <b>${st.stable} su ${st.L.years}</b>.${st.stable === 0 && worldStab(st) < st.L.win ? " Il conteggio parte quando la stabilità raggiunge l'obiettivo." : ""}</p></section>
-    <section class="sec"><h3>${rb.length ? "Rischi di catastrofe" : "Assetto"}</h3>${rb.length ? `<p class="note" style="margin:0 0 4px">Se una di queste catastrofi avviene, la stabilità del mondo crolla di colpo. Più la barra è piena, più è vicina.</p>` : `<p class="note" style="margin:0 0 4px">In questo scenario le grandi catastrofi non sono ancora in gioco.</p>`}${rb.map((x) => `<div class="risk"><span>${x.name}</span><b style="color:${lvColors[x.lv]};font-weight:600">${RISK_LABELS[x.lv]}</b><span class="lv">${[0, 1, 2, 3].map((i) => `<i style="background:${i <= x.lv ? lvColors[x.lv] : ""}"></i>`).join("")}</span></div>`).join("")}
-      ${rb.length ? `<p class="note">Sono stime: nessuno sa con certezza quanto il mondo sia vicino al baratro.</p>` : ""}
-      <div class="axis">Come governa l'Autorità<div class="track"><i style="left:${50 + st.axis / 2}%"></i></div><div class="ends"><span>Decisioni condivise: lente ma solide</span><span>Comando centrale: rapido ma fragile</span></div></div></section>
-    <section class="sec"><h3>Il mondo in cifre</h3><p class="note" style="margin:0 0 6px">${esc(st.L.name)} · governo: ${esc(st.G.name)}</p>${worldKV()}</section>
-    <section class="sec"><h3>Andamento</h3>${chartsHTML()}</section>
-    <section class="sec"><h3>Stabilità delle regioni</h3>${rankHTML()}</section>
-    <section class="sec"><h3>Notizie</h3><ul class="log">${st.log.slice(0, 30).map((n) => `<li><time>${MONTHS[n.mo]} ${n.y}</time><span class="k-${n.kind}">${esc(n.text)}</span></li>`).join("")}</ul></section>
+  root.innerHTML = headHTML(tr("Mondo"), wtabs) + `<div class="cols">
+    <section class="sec"><h3>${tr("Obiettivo")}</h3>
+      <p class="goal">${tr("Per vincere la stabilità mondiale deve restare almeno a <b>{w}</b> per <b>{y}</b> anni di fila.", { w: st.L.win, y: st.L.years })}</p>
+      <div class="goalnow"><span class="big" style="color:${stabColor(worldStab(st))}">${Math.round(worldStab(st))}</span><span>${tr("stabilità mondiale oggi")}<br><b>${worldStab(st) >= st.L.win ? tr("sopra l'obiettivo") : tr("mancano {x} punti", { x: Math.ceil(st.L.win - worldStab(st)) })}</b></span></div>
+      <div class="years" aria-label="${tr("Anni di stabilità")}">${Array.from({ length: st.L.years }, (_, i) => `<i class="${i < st.stable ? "on" : ""}"></i>`).join("")}</div>
+      <p class="note" style="margin:0">${tr("Anni di fila sopra l'obiettivo: <b>{a} su {b}</b>.", { a: st.stable, b: st.L.years })}${st.stable === 0 && worldStab(st) < st.L.win ? " " + tr("Il conteggio parte quando la stabilità raggiunge l'obiettivo.") : ""}</p></section>
+    <section class="sec"><h3>${tr(rb.length ? "Rischi di catastrofe" : "Assetto")}</h3>${rb.length ? `<p class="note" style="margin:0 0 4px">${tr("Se una di queste catastrofi avviene, la stabilità del mondo crolla di colpo. Più la barra è piena, più è vicina.")}</p>` : `<p class="note" style="margin:0 0 4px">${tr("In questo scenario le grandi catastrofi non sono ancora in gioco.")}</p>`}${rb.map((x) => `<div class="risk"><span>${tr(x.name)}</span><b style="color:${lvColors[x.lv]};font-weight:600">${tr(RISK_LABELS[x.lv])}</b><span class="lv">${[0, 1, 2, 3].map((i) => `<i style="background:${i <= x.lv ? lvColors[x.lv] : ""}"></i>`).join("")}</span></div>`).join("")}
+      ${rb.length ? `<p class="note">${tr("Sono stime: nessuno sa con certezza quanto il mondo sia vicino al baratro.")}</p>` : ""}
+      <div class="axis">${tr("Come governa l'Autorità")}<div class="track"><i style="left:${50 + st.axis / 2}%"></i></div><div class="ends"><span>${tr("Decisioni condivise: lente ma solide")}</span><span>${tr("Comando centrale: rapido ma fragile")}</span></div></div></section>
+    <section class="sec"><h3>${tr("Il mondo in cifre")}</h3><p class="note" style="margin:0 0 6px">${esc(tr(st.L.name))} · ${tr("governo")}: ${esc(tr(st.G.name))}</p>${worldKV()}</section>
+    <section class="sec"><h3>${tr("Andamento")}</h3>${chartsHTML()}</section>
+    <section class="sec"><h3>${tr("Stabilità delle regioni")}</h3>${rankHTML()}</section>
+    <section class="sec"><h3>${tr("Notizie")}</h3><ul class="log">${st.log.slice(0, 30).map((n) => `<li><time>${MONTHS[n.mo]} ${n.y}</time><span class="k-${n.kind}">${esc(tr(n.text))}</span></li>`).join("")}</ul></section>
   </div>`;
   wireClose(root); wireWorldTabs(root);
   wireCharts(root);
 }
 // indicatori del mondo e classifica delle regioni: gli stessi nella schermata Mondo e nel riepilogo di fine partita
 function worldKV(extra) {
-  const E = emissions(st) / st.E0 * 100, row = (k, v, h) => `<span>${k}${h ? `<small>${h}</small>` : ""}</span><span>${v}</span>`;
+  const E = emissions(st) / st.E0 * 100, row = (k, v, h) => `<span>${tr(k)}${h ? `<small>${tr(h)}</small>` : ""}</span><span>${v}</span>`;
   return `<div class="kv kv2">${extra || ""}
       ${row("Temperatura", tempTxt(st.g.temp + st.g.geoOff), "in più rispetto a prima dell'industria")}
       ${row("Emissioni di CO₂", Math.round(E) + "%", "rispetto al 2026")}
-      ${row("Tensione tra le potenze", Math.round(st.g.tension) + " su 100")}
+      ${row("Tensione tra le potenze", tr("{x} su 100", { x: Math.round(st.g.tension) }))}
       ${row("Armi nucleari", Math.round(st.g.arsenal) + "%", "rispetto al 2026")}
-      ${row("Abitanti della Terra", fmt(worldPop(st) / 1000, 2) + " miliardi")}
-      ${row("Entrate dell'Autorità", fmt(st.income, 1) + " fondi l'anno")}
-      ${row("Spese fisse", fmt(st.upkeep || 0, 1) + " fondi l'anno", "per mantenere gli interventi")}
+      ${row("Abitanti della Terra", tr("{x} miliardi", { x: fmt(worldPop(st) / 1000, 2) }))}
+      ${row("Entrate dell'Autorità", tr("{x} fondi l'anno", { x: fmt(st.income, 1) }))}
+      ${row("Spese fisse", tr("{x} fondi l'anno", { x: fmt(st.upkeep || 0, 1) }), "per mantenere gli interventi")}
       ${row("Fondi in cassa", fmt(st.funds, 1))}
-      ${row("Programma lunare", lunarStatus())}</div>`;
+      ${row("Programma lunare", tr(lunarStatus()))}</div>`;
 }
-const rankHTML = () => `<ul class="rank">${Object.values(st.regions).sort((a, b) => a.stab - b.stab).map((r) => `<li><span>${esc(r.name)}${r.controlled ? "" : " (anarchia)"}</span><b style="background:${stabColor(r.stab)}">${Math.round(r.stab)}</b></li>`).join("")}</ul>`;
+const rankHTML = () => `<ul class="rank">${Object.values(st.regions).sort((a, b) => a.stab - b.stab).map((r) => `<li><span>${esc(tr(r.name))}${r.controlled ? "" : " (" + tr("anarchia") + ")"}</span><b style="background:${stabColor(r.stab)}">${Math.round(r.stab)}</b></li>`).join("")}</ul>`;
 function wireWorldTabs(root) { for (const b of root.querySelectorAll("[data-wt]")) b.onclick = () => { worldTab = b.dataset.wt; renderWorld(); }; }
 function lunarStatus() {
   if (st.lunarCity) return "insediamento permanente";
@@ -5534,7 +6253,7 @@ const CHARTS = [
 function chartsHTML(h) {
   h = h || st.hist || [];
   const charts = CHARTS.filter((c) => c.k === "ws" || sysOn(st, "climate"));
-  if (h.length < 2) return `<p class="note" style="margin:0">I grafici compaiono dopo il primo anno di governo.</p>`;
+  if (h.length < 2) return `<p class="note" style="margin:0">${tr("I grafici compaiono dopo il primo anno di governo.")}</p>`;
   const W = 300, H = 64;
   return `<div class="charts">${charts.map((c) => {
     const goal = c.k === "ws" ? st.L.win : c.goal;
@@ -5543,13 +6262,13 @@ function chartsHTML(h) {
     const X = (i) => (i / (h.length - 1)) * W, Y = (v) => H - 4 - ((v - lo) / (hi - lo)) * (H - 8);
     const d = h.map((p, i) => (i ? "L" : "M") + X(i).toFixed(1) + " " + Y(p[c.k]).toFixed(1)).join("");
     const gy = Y(c.goal).toFixed(1), last = h[h.length - 1];
-    return `<div class="chart" data-k="${c.k}"><div class="ct"><span>${c.name}</span><b>${c.f(last[c.k])}</b></div>
-      <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="${c.name}: da ${c.f(h[0][c.k])} nel ${h[0].y} a ${c.f(last[c.k])} nel ${last.y}">
+    return `<div class="chart" data-k="${c.k}"><div class="ct"><span>${tr(c.name)}</span><b>${c.f(last[c.k])}</b></div>
+      <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="${tr(c.name)}: ${c.f(h[0][c.k])} (${h[0].y}) → ${c.f(last[c.k])} (${last.y})">
         <line x1="0" x2="${W}" y1="${H - 1}" y2="${H - 1}" stroke="#2b4356" stroke-width="1" vector-effect="non-scaling-stroke"/>
         <line x1="0" x2="${W}" y1="${gy}" y2="${gy}" stroke="#8ea3b4" stroke-width="1" stroke-dasharray="3 3" vector-effect="non-scaling-stroke"/>
         <path d="${d}" fill="none" stroke="#e9b44c" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
         <line class="xh" x1="0" x2="0" y1="0" y2="${H}" stroke="#e6edf2" stroke-width="1" vector-effect="non-scaling-stroke" visibility="hidden"/>
-      </svg><div class="ct" style="margin-top:1px"><span>${h[0].y}</span><span>- - ${c.goalTxt} ${c.f(c.goal)}</span><span>${last.y}</span></div></div>`;
+      </svg><div class="ct" style="margin-top:1px"><span>${h[0].y}</span><span>- - ${tr(c.goalTxt)} ${c.f(c.goal)}</span><span>${last.y}</span></div></div>`;
   }).join("")}</div>`;
 }
 function wireCharts(root, h) {
@@ -5577,14 +6296,14 @@ function wireCharts(root, h) {
 const STATS = [
   { k: "ws", world: true, name: "Stabilità mondiale", f: (v) => fmt(v, 0), goal: () => st.L.win },
   { k: "stab", name: "Stabilità", f: (v) => fmt(v, 0) },
-  { k: "pop", name: "Popolazione", f: (v) => fmt(v, 2) + " mld" },
-  { k: "wrk", gloss: "demo", name: "Persone in età da lavoro", f: (v) => fmt(v, 2) + " mld", d: "Tra 18 e 64 anni. Chi nasce oggi entra nel lavoro fra 18 anni" },
+  { k: "pop", name: "Popolazione", f: (v) => fmt(v, 2) + tr(" mld") },
+  { k: "wrk", gloss: "demo", name: "Persone in età da lavoro", f: (v) => fmt(v, 2) + tr(" mld"), d: "Tra 18 e 64 anni. Chi nasce oggi entra nel lavoro fra 18 anni" },
   { k: "prod", gloss: "prod", name: "Produttività per lavoratore", f: (v) => fmt(v, 0), d: "Quanto produce in media ogni lavoratore, 2026 = 100. Cresce con istruzione, ricerca, automazione e robot" },
-  { k: "usd", gloss: "gdp", name: "PIL", f: (v) => fmt(v, v < 10 ? 1 : 0) + " mila mld $", d: "Ricchezza prodotta in un anno, in dollari del 2026. Lavoratori occupati × produttività" },
+  { k: "usd", gloss: "gdp", name: "PIL", f: (v) => fmt(v, v < 10 ? 1 : 0) + tr(" mila mld $"), d: "Ricchezza prodotta in un anno, in dollari del 2026. Lavoratori occupati × produttività" },
   { k: "g", name: "Crescita economica", f: (v) => sign(v) + "%", d: "Variazione del PIL in un anno" },
-  { k: "debt", gloss: "debt", name: "Debito pubblico", f: (v) => fmt(v, 0) + "% del PIL" },
-  { k: "shadow", gloss: "shadow", name: "Economia sommersa", f: (v) => fmt(v, 1) + "% del PIL", d: "Lavoro nero ed evasione: la parte dell'economia su cui non si pagano tasse" },
-  { k: "snow", gloss: "snow", name: "Palla di neve", f: (v) => sign(v, 2) + " punti l'anno", d: "Quanto il debito cresce da solo: tasso d'interesse reale meno crescita, per il debito. Sotto zero il debito tende a scendere grazie alla crescita, a meno che gli stati non facciano nuovo deficit" },
+  { k: "debt", gloss: "debt", name: "Debito pubblico", f: (v) => fmt(v, 0) + tr("% del PIL") },
+  { k: "shadow", gloss: "shadow", name: "Economia sommersa", f: (v) => fmt(v, 1) + tr("% del PIL"), d: "Lavoro nero ed evasione: la parte dell'economia su cui non si pagano tasse" },
+  { k: "snow", gloss: "snow", name: "Palla di neve", f: (v) => sign(v, 2) + tr(" punti l'anno"), d: "Quanto il debito cresce da solo: tasso d'interesse reale meno crescita, per il debito. Sotto zero il debito tende a scendere grazie alla crescita, a meno che gli stati non facciano nuovo deficit" },
   { k: "infl", gloss: "infl", world: true, name: "Inflazione", f: (v) => fmt(v, 1) + "%" },
   { k: "rate", gloss: "rate", world: true, name: "Tasso della Banca centrale", f: (v) => fmt(v, 1) + "%" },
   { k: "R", gloss: "longR", world: true, name: "Tasso a lungo termine", f: (v) => fmt(v, 1) + "%", d: "Quello che pagano gli stati sui loro debiti" },
@@ -5595,10 +6314,10 @@ const STATS = [
   { k: "unrest", name: "Malcontento", f: (v) => fmt(v, 0) },
   { k: "ec", gloss: "ecost", name: "Costo dell'energia", f: (v) => fmt(v, 0), d: "2026 = 100", sys: "energia" },
   { k: "fossil", name: "Energia dai fossili", f: (v) => fmt(v, 0) + "%", sys: "energia" },
-  { k: "co2", gloss: "co2", world: true, name: "Emissioni di CO₂", f: (v) => fmt(v, 1) + " mld t", d: "Miliardi di tonnellate l'anno: dipendono da quanta energia si consuma e da quanta viene dai fossili", sys: "climate" },
+  { k: "co2", gloss: "co2", world: true, name: "Emissioni di CO₂", f: (v) => fmt(v, 1) + tr(" mld t"), d: "Miliardi di tonnellate l'anno: dipendono da quanta energia si consuma e da quanta viene dai fossili", sys: "climate" },
   { k: "t", gloss: "temp", world: true, name: "Temperatura", f: (v) => tempTxt(v), sys: "climate" },
   { k: "f", gloss: "authDebt", world: true, name: "Fondi dell'Autorità", f: (v) => fmt(v, 1) },
-  { k: "inc", world: true, name: "Entrate dell'Autorità", f: (v) => fmt(v, 1) + "/anno" },
+  { k: "inc", world: true, name: "Entrate dell'Autorità", f: (v) => fmt(v, 1) + tr("/anno") },
 ];
 let statK = "usd", statR = "w";
 const statVal = (row, S) => (S.world ? row[S.k] : statR === "w" ? row.w && row.w[S.k] : row.r && row.r[statR] && row.r[statR][S.k]);
@@ -5606,8 +6325,8 @@ function statsHTML(h) {
   const list = STATS.filter((S) => !S.sys || sysOn(st, S.sys));
   if (!list.some((S) => S.k === statK)) statK = "usd";
   return `<div class="stats">
-    <div class="slist">${list.map((S) => `<button type="button" data-sk="${S.k}" aria-pressed="${S.k === statK}">${S.name}</button>`).join("")}</div>
-    <div class="sview"><div class="sbar"><select id="statR" aria-label="Regione"><option value="w">Tutto il mondo</option>${REGIONS.map((R) => `<option value="${R.id}" ${statR === R.id ? "selected" : ""}>${esc(R.name)}</option>`).join("")}</select></div><div id="statChart"></div></div>
+    <div class="slist">${list.map((S) => `<button type="button" data-sk="${S.k}" aria-pressed="${S.k === statK}">${tr(S.name)}</button>`).join("")}</div>
+    <div class="sview"><div class="sbar"><select id="statR" aria-label="${tr("Regione")}"><option value="w">${tr("Tutto il mondo")}</option>${REGIONS.map((R) => `<option value="${R.id}" ${statR === R.id ? "selected" : ""}>${esc(tr(R.name))}</option>`).join("")}</select></div><div id="statChart"></div></div>
   </div>`;
 }
 // il grafico si disegna su misura dello spazio libero, così si vede sempre intero senza scorrere
@@ -5615,7 +6334,7 @@ function drawStat(root, h, size) {
   const S = STATS.find((x) => x.k === statK), box = root.querySelector("#statChart");
   root.querySelector("#statR").disabled = !!S.world;
   const pts = h.map((row) => [row.y, statVal(row, S)]).filter((p) => p[1] != null);
-  if (pts.length < 2) { box.innerHTML = `<p class="note">Il grafico compare dopo il primo anno di governo.</p>`; return; }
+  if (pts.length < 2) { box.innerHTML = `<p class="note">${tr("Il grafico compare dopo il primo anno di governo.")}</p>`; return; }
   const W = Math.max(240, Math.round(box.clientWidth || 520)), H = size || 150, B = 22;
   const goal = S.goal ? S.goal() : null;
   let lo = Math.min(...pts.map((p) => p[1]), goal ?? Infinity), hi = Math.max(...pts.map((p) => p[1]), goal ?? -Infinity);
@@ -5628,8 +6347,8 @@ function drawStat(root, h, size) {
   const nx = Math.max(2, Math.min(pts.length - 1, Math.floor((W - L) / 70))); // un anno ogni 70 punti circa
   const xi = Array.from({ length: nx + 1 }, (_, j) => Math.round(j * (pts.length - 1) / nx));
   const last = pts[pts.length - 1][1];
-  box.innerHTML = `<div class="shead"><b>${S.name}${infoBtn(S.gloss)}</b><span>${S.f(last)}</span></div>${S.d ? `<p class="note" style="margin:0 0 4px">${S.d}</p>` : ""}
-    <svg viewBox="0 0 ${W} ${H}" class="schart" role="img" aria-label="${S.name}: da ${S.f(pts[0][1])} nel ${pts[0][0]} a ${S.f(last)} nel ${pts[pts.length - 1][0]}">
+  box.innerHTML = `<div class="shead"><b>${tr(S.name)}${infoBtn(S.gloss)}</b><span>${S.f(last)}</span></div>${S.d ? `<p class="note" style="margin:0 0 4px">${tr(S.d)}</p>` : ""}
+    <svg viewBox="0 0 ${W} ${H}" class="schart" role="img" aria-label="${tr(S.name)}: ${S.f(pts[0][1])} (${pts[0][0]}) → ${S.f(last)} (${pts[pts.length - 1][0]})">
       ${ticks.map((v) => `<line x1="${L}" x2="${W - 6}" y1="${Y(v)}" y2="${Y(v)}" class="grid"/><text x="${L - 6}" y="${Y(v) + 3}" class="ax" text-anchor="end">${S.f(v)}</text>`).join("")}
       ${xi.map((i, j) => `<line x1="${X(i)}" x2="${X(i)}" y1="${H - B}" y2="${H - B + 4}" class="grid"/><text x="${X(i)}" y="${H - 6}" class="ax" text-anchor="${j === 0 ? "start" : j === nx ? "end" : "middle"}">${pts[i][0]}</text>`).join("")}
       ${goal != null ? `<line x1="${L}" x2="${W - 6}" y1="${Y(goal)}" y2="${Y(goal)}" class="goal"/>` : ""}
@@ -5818,7 +6537,7 @@ function evDataHTML(ev, r) {
     tfr: ["Figli per donna", fmt(r.tfr, 2)], unemp: ["Disoccupazione", fmt(r.unemp, 1) + "%"], shadow: ["Economia sommersa", fmt(r.shadow, 1) + "%"] };
   for (const k of extra) items.push(X[k]);
   if (r.local && Object.keys(r.local).length) items.push(["Misure a debito già attive", Object.keys(r.local).length]);
-  return `<div class="evdata">${items.map(([k, v]) => `<span>${k} <b>${v}</b></span>`).join("")}</div>`;
+  return `<div class="evdata">${items.map(([k, v]) => `<span>${tr(k)} <b>${typeof v === "string" ? tr(v) : v}</b></span>`).join("")}</div>`;
 }
 function showEvent(ev) {
   pending = ev;
@@ -5830,11 +6549,11 @@ function showEvent(ev) {
   const c = $("modalCard");
   ev.txt = ev.txt || E.text(st, r); // lo stesso testo anche se la decisione viene rimandata
   const canWait = ev.due != null;
-  c.innerHTML = `<div class="eyebrow">${E.good ? "Opportunità · " : ""}${esc(E.cat)}${r ? " · " + esc(r.name) : " · Tutto il mondo"} · ${MONTHS[st.month]} ${st.year}</div><h2>${esc(evTitle(E, st, r))}</h2><p>${esc(ev.txt)}</p>
+  c.innerHTML = `<div class="eyebrow">${E.good ? tr("Opportunità") + " · " : ""}${esc(tr(E.cat))}${r ? " · " + esc(tr(r.name)) : " · " + tr("Tutto il mondo")} · ${MONTHS[st.month]} ${st.year}</div><h2>${esc(tr(evTitle(E, st, r)))}</h2><p>${esc(tr(ev.txt))}</p>
     ${r ? evDataHTML(ev, r) : ""}
     <div class="choices">${E.choices.map((ch, i) => { const cost = eventCost(st, E, i), debt = cost > 0 && st.funds < cost;
-      return `<button type="button" class="choice" data-i="${i}"><b>${esc(ch.label)}</b><span class="c">${cost > 0 ? fmt(cost, cost % 1 ? 1 : 0) + " fondi" : cost < 0 ? "+" + fmt(-cost, 0) + " fondi" : "gratis"}</span><small>${esc(ch.out)}${debt ? " · a debito: i fondi andranno sotto zero" : ""}</small></button>`; }).join("")}</div>
-    ${canWait ? `<button type="button" class="x evx" id="evLater" aria-label="Chiudi e decidi più tardi">×</button>` : ""}`;
+      return `<button type="button" class="choice" data-i="${i}"><b>${esc(tr(ch.label))}</b><span class="c">${cost > 0 ? fmt(cost, cost % 1 ? 1 : 0) + " " + tr("fondi") : cost < 0 ? "+" + fmt(-cost, 0) + " " + tr("fondi") : tr("gratis")}</span><small>${esc(tr(ch.out))}${debt ? " · " + tr("a debito: i fondi andranno sotto zero") : ""}</small></button>`; }).join("")}</div>
+    ${canWait ? `<button type="button" class="x evx" id="evLater" aria-label="${tr("Chiudi e decidi più tardi")}">×</button>` : ""}`;
   $("modal").hidden = false;
   if (canWait) $("evLater").onclick = () => {
     // la crisi torna sulla mappa con la stessa scadenza
@@ -5885,10 +6604,18 @@ function storyHTML() {
   if (sysOn(st, "climate") && (last.t || 0) < 2) ok.push("il riscaldamento è rimasto sotto i 2 °C");
   if (h.every((x) => (x.infl || 3) < 6)) ok.push("l'inflazione non è mai sfuggita di mano");
   if (ok.length) items.push("Errori evitati: " + ok.join(", ") + ".");
-  return items.length ? `<div class="story"><h3>Che cosa ha funzionato</h3><ul>${items.map((t) => `<li>${esc(t)}</li>`).join("")}</ul></div>` : "";
+  return items.length ? `<div class="story"><h3>${tr("Che cosa ha funzionato")}</h3><ul>${items.map((t) => `<li>${esc(tr(t))}</li>`).join("")}</ul></div>` : "";
 }
 /* ---------- fine partita ---------- */
 let endReopen = null; // riapre il riepilogo di fine partita dopo aver guardato la mappa
+// epilogo: la frase del finale più le aggiunte sulla Luna, tradotte pezzo per pezzo
+function trEnding(t) {
+  if (LANG === "it") return t;
+  const tails = [" " + ARCHIVE_EPILOGUE, " " + SEP_EPILOGUE, " Sulla Luna vive già una comunità permanente: il primo passo verso il sistema solare è compiuto.", " Il filtro che ha fermato l'umanità è stato l'intelligenza artificiale."];
+  let out = "";
+  for (let again = true; again;) { again = false; for (const x of tails) if (t.endsWith(x)) { out = (LANGS[LANG].dict[x] != null ? tr(x) : " " + tr(x.trim())) + out; t = t.slice(0, -x.length); again = true; } }
+  return tr(t) + out;
+}
 function endGame() {
   zoomMap(null);
   closeScreensQuiet();
@@ -5901,29 +6628,29 @@ function endGame() {
   if (win) {
     const o = recordWin(st, stars);
     record = o.record;
-    if (o.first && next && li >= 1) unl.push(`Sbloccato lo scenario <b>${esc(next.name)}</b>`);
-    if (o.superNew) unl.push(`Sbloccata la difficoltà <b>Super difficile</b> per questo scenario`);
-    if (govsWon(st.levelId).length === GOVS.length) unl.push(`Scenario vinto con <b>tutti i governi</b>`);
+    if (o.first && next && li >= 1) unl.push(tr("Sbloccato lo scenario <b>{x}</b>", { x: esc(tr(next.name)) }));
+    if (o.superNew) unl.push(tr("Sbloccata la difficoltà <b>Super difficile</b> per questo scenario"));
+    if (govsWon(st.levelId).length === GOVS.length) unl.push(tr("Scenario vinto con <b>tutti i governi</b>"));
   }
   tut = null; renderCoach();
   const c = $("modalCard");
-  c.innerHTML = `<button type="button" class="buy alt endx" id="bEndX">Menu ✕</button><div class="eyebrow">${win ? "Vittoria" : "Sconfitta"} · ${st.year} · ${DIFF[st.diffId].name}</div><h2>${esc(E.title)}</h2><p>${esc(endingText(st))}</p>
-    ${win ? `<div class="stars" aria-label="${stars} stelle su ${maxS}">${"★".repeat(stars)}<i>${"★".repeat(maxS - stars)}</i>${record ? ' <span style="font-size:13px;letter-spacing:0">nuovo record</span>' : ""}</div>
+  c.innerHTML = `<button type="button" class="buy alt endx" id="bEndX">${tr("Menu")} ✕</button><div class="eyebrow">${win ? tr("Vittoria") : tr("Sconfitta")} · ${st.year} · ${tr(DIFF[st.diffId].name)}</div><h2>${esc(tr(E.title))}</h2><p>${esc(trEnding(endingText(st)))}</p>
+    ${win ? `<div class="stars" aria-label="${tr("{a} stelle su {b}", { a: stars, b: maxS })}">${"★".repeat(stars)}<i>${"★".repeat(maxS - stars)}</i>${record ? ` <span style="font-size:13px;letter-spacing:0">${tr("nuovo record")}</span>` : ""}</div>
       ${unl.map((u) => `<div class="unlock">${u}</div>`).join("")}
-      <p class="congr">Complimenti: hai guidato il mondo oltre il primo filtro.</p>
+      <p class="congr">${tr("Complimenti: hai guidato il mondo oltre il primo filtro.")}</p>
       ${storyHTML()}
-      <ul class="honors">${hon.map((h) => `<li class="${h.ok ? "ok" : ""}"><span class="s">★</span><span>${h.name}</span><small>${h.desc}</small></li>`).join("")}</ul>
+      <ul class="honors">${hon.map((h) => `<li class="${h.ok ? "ok" : ""}"><span class="s">★</span><span>${tr(h.name)}</span><small>${tr(h.desc)}</small></li>`).join("")}</ul>
 ` : ""}
-    <div class="endgrid"><div>${worldKV(`<span>Anni di governo</span><span>${st.year - 2026}</span><span>Regioni sotto controllo</span><span>${Object.values(st.regions).filter((r) => r.controlled).length} su 11</span>`)}<h3 class="endh">Stabilità delle regioni</h3>${rankHTML()}</div>
+    <div class="endgrid"><div>${worldKV(`<span>${tr("Anni di governo")}</span><span>${st.year - 2026}</span><span>${tr("Regioni sotto controllo")}</span><span>${tr("{a} su 11", { a: Object.values(st.regions).filter((r) => r.controlled).length })}</span>`)}<h3 class="endh">${tr("Stabilità delle regioni")}</h3>${rankHTML()}</div>
       <div>${chartsHTML()}</div></div>
-    <h3 class="endh">Statistiche della partita</h3>${statsHTML(st.hist)}
-    <div class="choices">${win && next ? `<button type="button" class="buy" id="bNext" style="margin:0">Scenario successivo</button>` : ""}<button type="button" class="buy ${win && next ? "alt" : ""}" id="bAgain" style="margin:0">${win ? "Scegli lo scenario" : "Riprova"}</button><button type="button" class="buy alt" id="bStats" style="margin:0">Statistiche a tutto schermo</button><button type="button" class="buy alt" id="bLook" style="margin:0">Guarda la mappa</button></div>`;
+    <h3 class="endh">${tr("Statistiche della partita")}</h3>${statsHTML(st.hist)}
+    <div class="choices">${win && next ? `<button type="button" class="buy" id="bNext" style="margin:0">${tr("Scenario successivo")}</button>` : ""}<button type="button" class="buy ${win && next ? "alt" : ""}" id="bAgain" style="margin:0">${win ? tr("Scegli lo scenario") : tr("Riprova")}</button><button type="button" class="buy alt" id="bStats" style="margin:0">${tr("Statistiche a tutto schermo")}</button><button type="button" class="buy alt" id="bLook" style="margin:0">${tr("Guarda la mappa")}</button></div>`;
   $("modal").hidden = false;
   const endHTML = c.innerHTML;
   // resoconto: le statistiche di tutta la partita, poi si torna al riepilogo
   const showStats = () => {
     c.classList.add("statsfull");
-    c.innerHTML = `<div class="eyebrow">Resoconto della partita · ${2026}–${st.year}</div>${statsHTML(st.hist)}<div class="choices" style="margin-top:8px"><button type="button" class="buy alt" id="bBack" style="margin:0">Indietro</button></div>`;
+    c.innerHTML = `<div class="eyebrow">${tr("Resoconto della partita")} · ${2026}–${st.year}</div>${statsHTML(st.hist)}<div class="choices" style="margin-top:8px"><button type="button" class="buy alt" id="bBack" style="margin:0">${tr("Indietro")}</button></div>`;
     wireStats(c, st.hist);
     $("bBack").onclick = () => { c.classList.remove("statsfull"); c.innerHTML = endHTML; wireEnd(); };
   };
@@ -6032,7 +6759,7 @@ function updateTicker() {
   const key = items.map((n) => n.n).join("|") + "|" + freshFrom;
   if (key === newsKey) return;
   newsKey = key;
-  $("newsList").innerHTML = items.map((n) => `<li class="k-${n.kind || "info"}${n.n > freshFrom ? " fresh" : ""}"><time>${MONTHS[n.mo]} ${n.y}</time>${esc(n.text)}</li>`).join("");
+  $("newsList").innerHTML = items.map((n) => `<li class="k-${n.kind || "info"}${n.n > freshFrom ? " fresh" : ""}"><time>${MONTHS[n.mo]} ${n.y}</time>${esc(tr(n.text))}</li>`).join("");
 }
 function newsToasts() {
   if (!st) return;
@@ -6072,8 +6799,6 @@ const TIPS = [
     text: (s) => `I prezzi salgono del ${fmt(s.g.infl, 1)}% l'anno e la gente si arrabbia. Alzare il tasso della Banca centrale, nella scheda Economia, la fa scendere, ma frena la crescita.` },
   { id: "inflLow", when: (s) => s.g.infl < 0.5, title: "Prezzi in calo",
     text: "Quando i prezzi scendono le famiglie rimandano gli acquisti e l'economia si ferma. Abbassare il tasso della Banca centrale, nella scheda Economia, aiuta." },
-  { id: "globe", when: (s) => s.year >= 2031, title: "La Terra e la Luna",
-    text: "Con il pulsante in alto a sinistra la mappa diventa un globo, con accanto la Luna e il programma lunare." },
   { id: "space", when: (s) => sysOn(s, "space") && s.year >= 2045 && !s.acts.launch, title: "Il programma lunare",
     text: "Una base lunare costruita insieme dalle potenze riduce la tensione tra loro e la polarizzazione. Si parte dai Lanciatori, nella scheda Tecnologia." },
   { id: "stable", when: (s) => s.stable >= 1, title: "Obiettivo raggiunto",
@@ -6086,8 +6811,8 @@ function showNote() {
   const n = st.notes.shift();
   savedSpeed = speed || savedSpeed || 1; speed = 0; pending = { note: true };
   const c = $("modalCard"); c.classList.add("tip", n.kind === "discovery" ? "disc" : n.kind === "warn" ? "warn" : "good");
-  c.innerHTML = `<div class="notehead"><svg viewBox="-20 -20 40 40"><polygon points="${hexPts(18)}"/><use href="${iconHref(n.icon)}" x="-10" y="-10" width="20" height="20"/></svg><div><div class="eyebrow">${{ discovery: "Scoperta scientifica", report: "Esito dell'indagine", warn: "Allarme" }[n.kind] || "Buona notizia"} · ${MONTHS[n.mo]} ${n.y}</div><h2>${esc(n.title.replace(/^Scoperta: /, ""))}</h2></div></div><p>${esc(n.text)}</p>
-    <div class="tipfoot"><button type="button" class="buy" id="noteOk">Continua</button></div>`;
+  c.innerHTML = `<div class="notehead"><svg viewBox="-20 -20 40 40"><polygon points="${hexPts(18)}"/><use href="${iconHref(n.icon)}" x="-10" y="-10" width="20" height="20"/></svg><div><div class="eyebrow">${tr({ discovery: "Scoperta scientifica", report: "Esito dell'indagine", warn: "Allarme" }[n.kind] || "Buona notizia")} · ${MONTHS[n.mo]} ${n.y}</div><h2>${esc(tr(n.title).replace(/^(Scoperta|Discovery): /, ""))}</h2></div></div><p>${esc(tr(n.text))}</p>
+    <div class="tipfoot"><button type="button" class="buy" id="noteOk">${tr("Continua")}</button></div>`;
   $("modal").hidden = false;
   $("noteOk").onclick = () => { c.classList.remove("tip", "disc", "good", "warn"); $("modal").hidden = true; pending = null; speed = savedSpeed || 1; save(); refresh(); };
   $("noteOk").focus(); hud();
@@ -6101,8 +6826,8 @@ function checkTips() {
   st.tips[t.id] = true;
   savedSpeed = speed || savedSpeed || 1; speed = 0; pending = { tip: true };
   const c = $("modalCard"); c.classList.add("tip");
-  c.innerHTML = `<div class="eyebrow">Consiglio</div><h2>${esc(t.title)}</h2><p>${esc(typeof t.text === "function" ? t.text(st) : t.text)}</p>
-    <div class="tipfoot"><button type="button" class="buy" id="tipOk">Capito</button><button type="button" class="linkbtn" id="tipOff">Non mostrare più consigli</button></div>`;
+  c.innerHTML = `<div class="eyebrow">${tr("Consiglio")}</div><h2>${esc(tr(t.title))}</h2><p>${esc(tr(typeof t.text === "function" ? t.text(st) : t.text))}</p>
+    <div class="tipfoot"><button type="button" class="buy" id="tipOk">${tr("Capito")}</button><button type="button" class="linkbtn" id="tipOff">${tr("Non mostrare più consigli")}</button></div>`;
   $("modal").hidden = false;
   const close = () => { c.classList.remove("tip"); $("modal").hidden = true; pending = null; speed = savedSpeed || 1; refresh(); };
   $("tipOk").onclick = close;
@@ -6140,7 +6865,7 @@ function renderCoach() {
   const key = tut.step + (openScreen || "") + (pending ? "p" : "");
   if (box.dataset.key !== key) {
     box.dataset.key = key;
-    box.innerHTML = `<div class="ct2"><small>Addestramento · passo ${tut.step + 1} di ${TUT.length}</small>${esc(S.text(st))}</div>${S.next ? `<button type="button" class="buy" id="coachNext">${tut.step === TUT.length - 1 ? "Fine" : "Avanti"}</button>` : ""}`;
+    box.innerHTML = `<div class="ct2"><small>${tr("Addestramento · passo {a} di {b}", { a: tut.step + 1, b: TUT.length })}</small>${esc(tr(S.text(st)))}</div>${S.next ? `<button type="button" class="buy" id="coachNext">${tut.step === TUT.length - 1 ? tr("Fine") : tr("Avanti")}</button>` : ""}`;
     if ($("coachNext")) $("coachNext").onclick = () => { tut.step++; renderCoach(); };
   }
   box.classList.toggle("low", !!(S.low || openScreen));
@@ -6149,7 +6874,7 @@ function renderCoach() {
   const slot = $("coachHead");
   if (openScreen === "acts" && slot) {
     box.hidden = true;
-    const html = `<small>Addestramento · passo ${tut.step + 1} di ${TUT.length}</small>${esc(S.text(st))}`;
+    const html = `<small>${tr("Addestramento · passo {a} di {b}", { a: tut.step + 1, b: TUT.length })}</small>${esc(tr(S.text(st)))}`;
     if (slot.innerHTML !== html) slot.innerHTML = html;
   }
   const t = S.target && S.target();
@@ -6345,7 +7070,7 @@ function setLang(l) {
 function paintLang() {
   $("langBtns").innerHTML = Object.entries(LANGS).map(([k, v]) => `<button type="button" data-lang="${k}" aria-pressed="${k === LANG}">${v.name}</button>`).join("");
   for (const b of $("langBtns").querySelectorAll("[data-lang]")) b.onclick = (e) => { e.stopPropagation(); setLang(b.dataset.lang); };
-  $("langNote").textContent = LANG === "it" ? "" : "Translation in progress: some parts of the game are still in Italian.";
+  $("langNote").textContent = tr("La lingua si sceglie da sola in base a quella del telefono; qui puoi cambiarla.");
 }
 // la vista Terra e Luna è stata tolta il 31 ottobre 2026 (i giocatori non la usavano); il codice del globo resta per il futuro
 
