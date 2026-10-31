@@ -333,6 +333,8 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
 .risk .lv i { flex: 1; height: 5px; border-radius: 2px; background: var(--panel-2); }
 .kv { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; font-size: 13px; }
 .kv span:nth-child(even) { font-family: var(--font-m); font-variant-numeric: tabular-nums; text-align: right; }
+.shockwarn { margin: 8px 0 0; padding: 8px 10px; border: 1px solid #d65b4a; border-radius: 8px; background: rgba(90,24,18,.6); color: #ffd2c8; font-size: 13.5px; line-height: 1.4; }
+.shockwarn b { color: #ff9c8a; }
 .kv2 { gap: 7px 12px; } .kv2 span:nth-child(even) { font-family: inherit; font-weight: 600; color: var(--fg); white-space: nowrap; align-self: start; }
 .kv2 small { display: block; font-size: 12.5px; color: var(--muted); line-height: 1.25; }
 .goal { margin: 0 0 8px; font-size: 14px; line-height: 1.4; color: #cbd6df; }
@@ -772,7 +774,7 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
       <h3>Difficoltà</h3>
       <p>Le crisi sono le stesse a ogni livello. Cambia quanto in fretta la popolazione accetta le riforme e quanto reagisce male ai sacrifici: a livello facile gli interventi entrano a regime prima e fanno meno malcontento.</p>
       <h3>Fondi e debito</h3>
-      <p>Ogni regione versa all'Autorità una piccola parte della sua ricchezza, circa lo 0,15% del PIL: all'inizio 17 fondi l'anno. Un fondo vale circa 10 miliardi di dollari del 2026. Per le grandi politiche (sanità, energia, reddito di base) l'Autorità paga la sua quota per lanciarle e coordinarle, il resto lo pagano gli stati e i privati: per questo alcune misure fanno salire anche il debito delle regioni. Le entrate: le entrate crescono se l'economia cresce e calano se una regione cade nell'anarchia, che smette di versare (ma smetti anche di pagare i programmi in quella regione). Con l'inflazione ogni anno tutto costa un po' di più, e le entrate si adeguano con circa un anno di ritardo. Si parte senza fondi: le entrate arrivano mese dopo mese. Se i fondi non bastano puoi indebitarti, anche per rispondere a una crisi: paghi il tasso a lungo termine, più un punto ogni 50 fondi di debito (ai prezzi del 2026). Perdi per bancarotta solo se per tre anni gli interessi superano tutto ciò che potresti incassare anche tagliando ogni spesa e alzando ogni tassa.</p>
+      <p>Ogni regione versa all'Autorità una piccola parte della sua ricchezza, circa lo 0,15% del PIL: all'inizio 17 fondi l'anno. Quei soldi escono dai bilanci degli stati, quindi il loro debito sale un poco. Un fondo vale circa 10 miliardi di dollari del 2026. Per le grandi politiche (sanità, energia, reddito di base) l'Autorità paga la sua quota per lanciarle e coordinarle, il resto lo pagano gli stati e i privati: per questo alcune misure fanno salire anche il debito delle regioni. Le entrate: le entrate crescono se l'economia cresce e calano se una regione cade nell'anarchia, che smette di versare (ma smetti anche di pagare i programmi in quella regione). Con l'inflazione ogni anno tutto costa un po' di più, e le entrate si adeguano con circa un anno di ritardo. Si parte senza fondi: le entrate arrivano mese dopo mese. Se i fondi non bastano puoi indebitarti, anche per rispondere a una crisi: paghi il tasso a lungo termine, più un sovrapprezzo che cresce con il debito rispetto alle entrate di un anno: piccolo fino a due anni e mezzo di entrate, poi sempre più alto. Perdi per bancarotta solo se per tre anni gli interessi superano tutto ciò che potresti incassare anche tagliando ogni spesa e alzando ogni tassa.</p>
       <h3>Eventi</h3>
       <p>Crisi ed emergenze compaiono sulla mappa come un segnaposto sulla regione colpita; possono essercene più di uno insieme. Hai un anno di tempo per toccarlo: intanto puoi raccogliere i fondi. Più aspetti, più il segnaposto si gonfia; dopo un anno il tempo si ferma finché non lo tocchi. Toccandolo leggi che cosa succede: puoi scegliere subito tra intervento pieno, una via di mezzo o non fare nulla, oppure rimandare la decisione. Il tempo si ferma anche quando apri un menu.</p>
       <h3>Economia e popolazione</h3>
@@ -840,7 +842,7 @@ const pick = (arr) => arr[Math.floor(rand() * arr.length)];
    e rilanciare node tools/tune.js. I numeri dei singoli interventi stanno nella tabella degli interventi (eff/geff). */
 const P = {
   baseIncome: 17,        // fondi l'anno nel 2026 nello scenario completo, livello medio; crescono con l'economia
-  // debito dell'Autorità: nessun tetto; paga il tasso a lungo termine più un punto ogni 50 fondi di debito (vedi authRate)
+  // debito dell'Autorità: nessun tetto; paga il tasso a lungo termine più uno spread che dipende da debito / entrate (vedi authRate)
   stabC: 50.66, stabK: 3.8, // scala dell'indice di stabilità (mondo del 2026 ≈ 45)
   anarchySpread: 12,     // malcontento portato da ogni regione vicina in anarchia
   lowStab: 15, lowYears: 5, // sotto questa stabilità mondiale per tanti anni: sconfitta
@@ -862,7 +864,7 @@ const DIFF = {
   facile:    { name: "Facile",          inc: 1.1,  ev: 1, funds: 0, risk: 0.8,  adopt: 1.6, backlash: 0.6 },
   medio:     { name: "Medio",           inc: 1.0,  ev: 1, funds: 0, risk: 1.0,  adopt: 1.0, backlash: 1.0 },
   difficile: { name: "Difficile",       inc: 0.98, ev: 1, funds: 0, risk: 1.1,  adopt: 0.85, backlash: 1.08 },
-  super:     { name: "Super difficile", inc: 0.935, ev: 1, funds: 0, risk: 1.235, adopt: 0.685, backlash: 1.29 }, // il giocatore automatico vince circa 1 volta su 20 (5 su 100 negli scenari 5 e 6, 28 ottobre 2026)
+  super:     { name: "Super difficile", inc: 0.927, ev: 1, funds: 0, risk: 1.255, adopt: 0.678, backlash: 1.305 }, // il giocatore automatico vince circa 1 volta su 20 (4-5 su 100 negli scenari 5 e 6, ritarato il 31 ottobre 2026)
 };
 
 /* ---------- scenari ----------
@@ -939,25 +941,25 @@ const GBY = Object.fromEntries(GOVS.map((g) => [g.id, g]));
    I contorni geografici delle regioni stanno in geo.js (dati reali, preparati da tools/geo-build.js). */
 const REGIONS = [
   { id: "na", name: "Nord America", short: "Nord America", links: 95, nb: ["latam", "ru"], label: [-97, 36], // più in basso: in alto a sinistra ci sono i pulsanti
-    init: { yng: 0.21, oldS: 0.18, cbr: 11, oldG: 2.8, pop: 380, tfr: 1.6, age: 38, wealth: 90, debt: 115, pension: 55, unrest: 35, polar: 70, unemp: 4.5, fossil: 78, nuclear: 9, renew: 13, climate: 40, resist: 45, urban: 83, rural: 15, remote: 2 } },
+    init: { yng: 0.21, oldS: 0.18, cbr: 11, oldG: 2.8, pop: 380, tfr: 1.6, age: 38, wealth: 90, debt: 122, pension: 55, unrest: 35, polar: 70, unemp: 4.5, fossil: 78, nuclear: 9, renew: 13, climate: 40, resist: 45, urban: 83, rural: 15, remote: 2 } },
   { id: "latam", name: "America Latina", short: "America Latina", links: 55, nb: ["na"], label: [-60, -12],
     init: { yng: 0.25, oldS: 0.1, cbr: 14, oldG: 3.8, pop: 660, tfr: 1.8, age: 31, wealth: 45, debt: 70, pension: 35, unrest: 45, polar: 55, unemp: 7, fossil: 66, nuclear: 1, renew: 33, climate: 55, resist: 50, urban: 81, rural: 17, remote: 2 } },
   { id: "eu", name: "Europa", short: "Europa", links: 95, nb: ["ru", "mena"], label: [16, 50],
-    init: { yng: 0.18, oldS: 0.22, cbr: 9, oldG: 1.5, pop: 600, tfr: 1.45, age: 43, wealth: 80, debt: 90, pension: 70, unrest: 40, polar: 55, unemp: 6.5, fossil: 68, nuclear: 11, renew: 21, climate: 35, resist: 55, urban: 75, rural: 23, remote: 2 } },
+    init: { yng: 0.18, oldS: 0.22, cbr: 9, oldG: 1.5, pop: 600, tfr: 1.45, age: 43, wealth: 80, debt: 88, pension: 70, unrest: 40, polar: 55, unemp: 6.5, fossil: 68, nuclear: 11, renew: 21, climate: 35, resist: 55, urban: 75, rural: 23, remote: 2 } },
   { id: "ru", name: "Russia e Asia centrale", short: "Russia e Asia c.", links: 45, nb: ["eu", "mena", "sa", "ea", "na"], label: [58, 56], // più a ovest: a 90° est finiva sotto la data in alto a destra
-    init: { yng: 0.25, oldS: 0.13, cbr: 13, oldG: 2.5, pop: 225, tfr: 1.6, age: 38, wealth: 45, debt: 25, pension: 45, unrest: 40, polar: 40, unemp: 5, fossil: 88, nuclear: 7, renew: 5, climate: 30, resist: 30, urban: 68, rural: 28, remote: 4 } },
+    init: { yng: 0.25, oldS: 0.13, cbr: 13, oldG: 2.5, pop: 225, tfr: 1.6, age: 38, wealth: 45, debt: 22, pension: 45, unrest: 40, polar: 40, unemp: 5, fossil: 88, nuclear: 7, renew: 5, climate: 30, resist: 30, urban: 68, rural: 28, remote: 4 } },
   { id: "mena", name: "Medio Oriente e Nord Africa", short: "Medio Oriente e N. Africa", links: 60, nb: ["eu", "ru", "wca", "esa", "sa"], label: [28, 25],
-    init: { yng: 0.33, oldS: 0.06, cbr: 22, oldG: 4.0, pop: 600, tfr: 2.6, age: 27, wealth: 45, debt: 55, pension: 25, unrest: 55, polar: 50, unemp: 11, fossil: 96, nuclear: 1, renew: 3, climate: 75, resist: 40, urban: 66, rural: 30, remote: 4 } },
+    init: { yng: 0.33, oldS: 0.06, cbr: 22, oldG: 4.0, pop: 600, tfr: 2.6, age: 27, wealth: 45, debt: 48, pension: 25, unrest: 55, polar: 50, unemp: 11, fossil: 96, nuclear: 1, renew: 3, climate: 75, resist: 40, urban: 66, rural: 30, remote: 4 } },
   { id: "wca", name: "Africa occidentale e centrale", short: "Africa occ. e centr.", links: 25, nb: ["mena", "esa"], label: [12, 4],
-    init: { yng: 0.48, oldS: 0.03, cbr: 36, oldG: 3.5, pop: 650, tfr: 4.6, age: 18, wealth: 12, debt: 55, pension: 8, unrest: 55, polar: 35, unemp: 10, fossil: 55, nuclear: 0, renew: 45, climate: 80, resist: 35, urban: 48, rural: 45, remote: 7 } },
+    init: { yng: 0.48, oldS: 0.03, cbr: 36, oldG: 3.5, pop: 650, tfr: 4.6, age: 18, wealth: 12, debt: 58, pension: 8, unrest: 55, polar: 35, unemp: 10, fossil: 55, nuclear: 0, renew: 45, climate: 80, resist: 35, urban: 48, rural: 45, remote: 7 } },
   { id: "esa", name: "Africa orientale e australe", short: "Africa or. e australe", links: 30, nb: ["mena", "wca"], label: [31, -14],
-    init: { yng: 0.46, oldS: 0.03, cbr: 32, oldG: 3.5, pop: 700, tfr: 4.0, age: 19, wealth: 15, debt: 60, pension: 10, unrest: 50, polar: 35, unemp: 12, fossil: 55, nuclear: 1, renew: 44, climate: 75, resist: 35, urban: 38, rural: 55, remote: 7 } },
+    init: { yng: 0.46, oldS: 0.03, cbr: 32, oldG: 3.5, pop: 700, tfr: 4.0, age: 19, wealth: 15, debt: 68, pension: 10, unrest: 50, polar: 35, unemp: 12, fossil: 55, nuclear: 1, renew: 44, climate: 75, resist: 35, urban: 38, rural: 55, remote: 7 } },
   { id: "sa", name: "Asia meridionale", short: "Asia meridionale", links: 50, nb: ["mena", "ru", "ea", "sea"], label: [76, 21],
-    init: { yng: 0.31, oldS: 0.07, cbr: 17, oldG: 3.8, pop: 2050, tfr: 2.1, age: 28, wealth: 25, debt: 80, pension: 15, unrest: 50, polar: 55, unemp: 7, fossil: 88, nuclear: 2, renew: 10, climate: 85, resist: 35, urban: 36, rural: 60, remote: 4 } },
+    init: { yng: 0.31, oldS: 0.07, cbr: 17, oldG: 3.8, pop: 2050, tfr: 2.1, age: 28, wealth: 25, debt: 83, pension: 15, unrest: 50, polar: 55, unemp: 7, fossil: 88, nuclear: 2, renew: 10, climate: 85, resist: 35, urban: 36, rural: 60, remote: 4 } },
   { id: "ea", name: "Asia orientale", short: "Asia orientale", links: 85, nb: ["ru", "sa", "sea"], label: [107, 35],
-    init: { yng: 0.17, oldS: 0.15, cbr: 7.5, oldG: 3.2, pop: 1650, tfr: 1.0, age: 40, wealth: 65, debt: 90, pension: 50, unrest: 30, polar: 30, unemp: 5, fossil: 82, nuclear: 5, renew: 13, climate: 50, resist: 30, urban: 66, rural: 32, remote: 2 } },
+    init: { yng: 0.17, oldS: 0.15, cbr: 7.5, oldG: 3.2, pop: 1650, tfr: 1.0, age: 40, wealth: 65, debt: 115, pension: 50, unrest: 30, polar: 30, unemp: 5, fossil: 82, nuclear: 5, renew: 13, climate: 50, resist: 30, urban: 66, rural: 32, remote: 2 } },
   { id: "sea", name: "Sud-est asiatico", short: "Sud-est asiatico", links: 70, nb: ["sa", "ea", "oce"], label: [112, 6],
-    init: { yng: 0.27, oldS: 0.08, cbr: 15, oldG: 4.0, pop: 700, tfr: 2.0, age: 30, wealth: 40, debt: 50, pension: 25, unrest: 40, polar: 45, unemp: 3, fossil: 83, nuclear: 0, renew: 17, climate: 80, resist: 40, urban: 52, rural: 44, remote: 4 } },
+    init: { yng: 0.27, oldS: 0.08, cbr: 15, oldG: 4.0, pop: 700, tfr: 2.0, age: 30, wealth: 40, debt: 60, pension: 25, unrest: 40, polar: 45, unemp: 3, fossil: 83, nuclear: 0, renew: 17, climate: 80, resist: 40, urban: 52, rural: 44, remote: 4 } },
   { id: "oce", name: "Oceania", short: "Oceania", links: 60, nb: ["sea"], label: [134, -25],
     init: { yng: 0.22, oldS: 0.17, cbr: 12, oldG: 2.8, pop: 45, tfr: 1.6, age: 36, wealth: 85, debt: 50, pension: 40, unrest: 30, polar: 45, unemp: 4, fossil: 85, nuclear: 0, renew: 15, climate: 60, resist: 60, urban: 86, rural: 12, remote: 2 } },
 ];
@@ -1045,6 +1047,13 @@ const pensPoverty = (r) => {
    La probabilità non dipende dal debito: solo da malcontento, condizioni della regione e misure già prese dall'Autorità.
    def: punti di debito sul PIL in più ogni anno; u: malcontento in meno finché la misura resta; fert/g: effetti secondari. */
 const TROPIC = ["wca", "esa", "sa", "sea", "latam"]; // dove la malaria pesa di più
+// deficit pubblico nel 2026, % del PIL (FMI, World Economic Outlook e Fiscal Monitor 2025-2026, medie per regione) [Probabile]
+// crescita nominale del PIL nel 2026 (crescita reale più inflazione, FMI), % [Probabile]
+const NOMG_2026 = { na: 4.5, eu: 3.5, ea: 4.5, sa: 10, sea: 7, mena: 6, latam: 6, wca: 9, esa: 9, ru: 8, oce: 4.5 };
+const DEF_2026 = { na: 6.2, eu: 3.2, ea: 6.8, sa: 7.2, sea: 3.3, mena: 3.0, latam: 5.3, wca: 4.2, esa: 4.8, ru: 2.5, oce: 1.8 };
+/* i contributi all'Autorità (circa lo 0,15% del PIL) escono dai bilanci degli stati: il loro deficit sale di altrettanto
+   (quarto rapporto, 31 ottobre 2026) */
+const CONTRIB_DEF = 0.075;
 const MONSOON = ["sa", "sea", "wca", "esa"]; // dove gli aerosol nella stratosfera possono ridurre le piogge
 const FAMILY_ACTS = ["family", "parentalLeave", "housing", "birthDowry", "natality"];
 const PROMISES = {
@@ -1353,9 +1362,9 @@ const INTERVENTIONS = [
      Se si smette, gli aerosol cadono in 1-2 anni e la temperatura recupera il 70-80% del caldo nascosto in 10-15 anni. */
   { id: "stratoPlanes", cat: "clima", name: "Aerei stratosferici", desc: "Progettazione e costruzione di una flotta di alcune centinaia di aerei speciali, capaci di portare carichi pesanti a 20 km di quota, dove gli aerei di oggi non arrivano.", scope: "global", cost: 3, T: 8, from: 2030,
     pro: "Rendono possibili gli aerosol riflettenti nella stratosfera", con: "Servono circa otto anni di sviluppo; da soli non fanno niente" },
-  { id: "geoeng", cat: "clima", name: "Aerosol riflettenti nella stratosfera", desc: "Aerei ad alta quota iniettano ogni anno a circa 20 km di altezza biossido di zolfo, che forma minuscole goccioline di solfato capaci di riflettere una parte della luce del Sole, come accade dopo le grandi eruzioni vulcaniche. È l'idea più studiata dagli scienziati; in alternativa si studia la polvere finissima di carbonato di calcio, che danneggerebbe meno lo strato di ozono.", scope: "global", cost: 6, upkeepFn: (st) => 1 + 1.5 * Math.max(0, st.g.temp), T: 2, revocable: true, toggle: "Interrompi",
-    pro: "Riporta la temperatura ai livelli preindustriali in pochi anni, finché si continua; costa relativamente poco", con: "Non toglie CO₂ e la CO₂ continua ad accumularsi: il costo annuo cresce sempre e non si può più smettere senza pagarla. Se si interrompe, il caldo nascosto torna nel giro di 10-15 anni, molto più in fretta di quanto ecosistemi e città riescano ad adattarsi. Sposta le piogge monsoniche (più carestie e malcontento in Asia meridionale e in Africa), indebolisce lo strato di ozono, aumenta le tensioni tra le potenze",
-    fx: (m, s, r, st, gm) => { gm.geo -= st.g.temp; gm.tensionT += 6; } },
+  { id: "geoeng", cat: "clima", name: "Aerosol riflettenti nella stratosfera", desc: "Aerei ad alta quota iniettano ogni anno a circa 20 km di altezza biossido di zolfo, che forma minuscole goccioline di solfato capaci di riflettere una parte della luce del Sole, come accade dopo le grandi eruzioni vulcaniche. È l'idea più studiata dagli scienziati; in alternativa si studia la polvere finissima di carbonato di calcio, che danneggerebbe meno lo strato di ozono.", scope: "global", cost: 3, upkeepFn: (st) => 0.5 + 0.6 * Math.max(0, st.g.temp), T: 2, revocable: true, toggle: "Interrompi",
+    pro: "Riporta la temperatura ai livelli preindustriali in pochi anni, finché si continua; costa relativamente poco", con: "Non toglie CO₂: la CO₂ continua ad accumularsi e il costo annuo cresce. Proteste in tutto il mondo (ambientalisti e complottisti) e più divisioni. Piogge monsoniche più scarse: carestie e malcontento in Asia meridionale e in Africa. Indebolisce lo strato di ozono e aumenta le tensioni tra le potenze. Se si interrompe prima che le emissioni siano quasi a zero, il caldo nascosto torna in pochi anni: raccolti perduti, danni e malcontento ovunque (shock da interruzione)",
+    fx: (m, s, r, st, gm) => { gm.geo -= st.g.temp * (st.flags.geoHalf ? 0.5 : 1); gm.tensionT += 6; } },
   // Salute
   { id: "surveil", cat: "salute", name: "Sorveglianza epidemiologica", desc: "Una rete mondiale di laboratori e ospedali che segnala subito i nuovi virus.", scope: "global", cost: 4, upkeep: 0.5, T: 2, axis: 3,
     pro: "Le epidemie vengono scoperte prima e fanno meno danni (riduce i danni, non il rischio che una pandemia nasca)", con: "Costa ogni anno; più dati sanitari raccolti dalle autorità",
@@ -1887,8 +1896,12 @@ function newGame(diffId, seed, levelId = "l5", govId = "base") {
     r.pBase = r.polar - r.unrest * 0.3;
     r.pensBase = r.pension - r.old / r.wrk * PENS_K;
     r.pens0 = r.pension; r.dep0 = r.old / r.wrk;
-    // deficit di partenza: il debito di ogni regione all'inizio sale di circa mezzo punto l'anno
-    r.defBase = 0.5 - snowball(r, st);
+    /* deficit di partenza dai dati FMI 2025-2026 (quarto rapporto, 31 ottobre 2026) [Probabile]: il debito sul PIL cambia ogni anno
+       di deficit − crescita nominale × debito (crescita nominale reale del 2026, non quella del modello, che nei paesi emergenti
+       è più bassa); la parte che dipende dai tassi la calcola già snowball, il resto è defBase */
+    const D0 = DEF_2026[r.id];
+    const move = D0 != null ? clamp(D0 - NOMG_2026[r.id] * r.debt / 100, -1.5, 2) : 0.5;
+    r.defBase = move - snowball(r, st);
     r.tfrBase = r.tfr - fTfr(r, st.year);
     r.unempBase = r.unemp - 5;
     r.resistBase = r.resist;
@@ -2145,9 +2158,20 @@ const DISCOVERIES = [
   { id: "mrna", title: "Vaccini universali", text: "Una piattaforma di vaccini protegge da intere famiglie di virus, anche da quelli non ancora comparsi. Le epidemie faranno molti meno danni.", fx: { bio: 0.15 } },
   { id: "photonic", title: "Chip che calcolano con la luce", text: "Processori fotonici consumano cento volte meno energia dei chip di oggi. Computer, reti e automazione costano meno: la produttività cresce ovunque.", fx: { g: 0.2 } },
 ];
-// debito dell'Autorità a gradini di 50 fondi (a prezzi correnti): ognuno aggiunge un punto al tasso d'interesse
-const debtStep = (st) => (st.funds < 0 ? Math.floor(-st.funds / (50 * ((st.g && st.g.pl) || 1))) : 0);
-const authRate = (st) => Math.max(1, st.g.longR) + debtStep(st);
+/* Debito dell'Autorità (quarto rapporto, 31 ottobre 2026) [Probabile]: i mercati guardano il debito rispetto alle entrate di un
+   anno (R), come fanno le agenzie di rating con gli stati. Fino a un anno di entrate nessun sovrapprezzo; poi sale piano (0,8 punti
+   per ogni anno di entrate in più) e oltre 2,5 anni sale sempre più in fretta (panico dei mercati). Se il mondo è instabile i
+   mercati chiedono di più: ×1,25 sotto 45 di stabilità mondiale, ×1,5 sotto 30. Il tasso di base è quello a lungo termine del
+   mondo, che segue già la banca centrale, l'inflazione e la crescita. */
+const debtRatio = (st) => (st.funds < 0 ? -st.funds / Math.max(1, st.income || 1) : 0);
+function authSpread(st) {
+  const R = debtRatio(st);
+  let s = R <= 1 ? 0 : R <= 2.5 ? 0.8 * (R - 1) : 1.2 + 1.5 * (R - 2.5) ** 2;
+  const ws = st.regions ? worldStab(st) : 50;
+  return Math.min(40, s * (ws < 30 ? 1.5 : ws < 45 ? 1.25 : 1));
+}
+const debtStep = (st) => { const R = debtRatio(st); return R <= 1 ? 0 : R <= 2.5 ? 1 : R <= 3.5 ? 2 : R <= 4.5 ? 3 : 4; }; // fasce, per gli avvisi
+const authRate = (st) => Math.max(1, st.g.longR) + authSpread(st);
 /* Il massimo avanzo possibile: le entrate con tutte le tasse e i tagli ancora disponibili, senza nessun programma da pagare.
    Se per tre anni di fila gli interessi lo superano, tornare in pareggio è impossibile: bancarotta. */
 function maxSurplus(st) {
@@ -2205,7 +2229,13 @@ function revoke(st, id) {
   delete st.acts[id];
   if (id === "fossilSub" || id === "ubi" || id === "priceCap") ctrlRegions(st).forEach((r) => (r.shockU += 10));
   if (id === "ubi" && st.absorbed && st.absorbed.unempBenefit) { st.acts.unempBenefit = st.absorbed.unempBenefit; delete st.absorbed.unempBenefit; logNews(st, "Torna il sussidio di disoccupazione.", "info"); }
-  if (id === "geoeng") { ctrlRegions(st).forEach((r) => (r.shockU += 8)); logNews(st, "Interrotti gli aerosol riflettenti: il caldo trattenuto dalla CO₂ torna in un paio d'anni.", "bad"); }
+  if (id === "geoeng") {
+    // shock da interruzione: finché le emissioni non sono quasi a zero il caldo nascosto torna tutto in pochi anni e i raccolti crollano
+    const hot = co2Gt(st) > 5 && st.g.geoOff < -0.3;
+    ctrlRegions(st).forEach((r) => (r.shockU += hot ? 15 : 6));
+    if (hot) st.funds -= priced(st, 8);
+    logNews(st, hot ? "Shock da interruzione: senza gli aerosol il caldo nascosto dalla CO₂ torna in pochi anni. Raccolti perduti in molte regioni, danni per 8 fondi." : "Interrotti gli aerosol riflettenti: le emissioni sono già basse, il caldo che torna è poco.", "bad");
+  }
   logNews(st, "Revocato: «" + d.name + "».", "info");
 }
 
@@ -2499,6 +2529,21 @@ const EVENTS = [
     choices: [
       { label: "Una giornata mondiale di festa e di ringraziamento", cost: 2, out: "Orgoglio comune: meno malcontento e meno divisioni ovunque", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockU -= 5; r.polar -= 3; }) },
       { label: "Studiare i dati della missione", cost: 0, out: "Più fiducia nell'Autorità", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockU -= 3; }) },
+    ] },
+  { id: "geoBlockade", scope: "global", cat: "Clima", title: "Blocchi alle basi degli aerei stratosferici",
+    p: (st) => (built(st, "geoeng") && !st.flags.geoBlock && st.year - (st.acts.geoeng.y || st.year) >= 1 ? 0.6 : 0),
+    text: () => "Ambientalisti e gruppi convinti che l'Autorità voglia «oscurare il Sole» bloccano le piste delle basi da cui partono gli aerei stratosferici in Nord America e in Europa. I voli sono fermi da giorni.",
+    choices: [
+      { label: "Sgomberare le piste e far presidiare le basi", cost: 0, out: "Il raffreddamento continua, ma malcontento e divisioni crescono molto in Nord America ed Europa", fx: (st) => { st.flags.geoBlock = true; for (const id of ["na", "eu"]) { const r = st.regions[id]; if (r.controlled) { r.shockU += 10; r.polar += 8; } } } },
+      { label: "Ridurre i voli ed evitare i paesi contrari", cost: 0, out: "La piazza si calma, ma il raffreddamento si dimezza", fx: (st) => { st.flags.geoBlock = true; st.flags.geoHalf = true; } },
+      { label: "Un osservatorio indipendente sulla salute dell'aria", cost: 4, out: "Dati pubblici e controlli: le proteste contro gli aerosol si dimezzano", fx: (st) => { st.flags.geoBlock = true; st.flags.geoWatch = true; } },
+    ] },
+  { id: "thermostatWar", scope: "global", cat: "Clima", title: "La guerra del termostato",
+    p: (st) => (built(st, "geoeng") && !st.flags.thermo && st.regions.sa.controlled && st.year - (st.acts.geoeng.y || st.year) >= 4 ? 0.35 : 0),
+    text: () => "Il monsone è arrivato tardi e debole: una lunga siccità colpisce l'Asia meridionale. I governi della regione accusano gli aerosol dell'Autorità e minacciano di abbattere gli aerei che sorvolano il loro spazio aereo.",
+    choices: [
+      { label: "Aiuti per l'acqua e l'agricoltura", cost: 6, out: "La regione accetta: le conseguenze della siccità si attenuano", fx: (st) => { st.flags.thermo = true; st.flags.thermoAid = true; st.regions.sa.shockU -= 4; } },
+      { label: "Ignorare le accuse e continuare i voli", cost: 0, out: "Grande rabbia in Asia meridionale e più tensione tra le potenze", fx: (st) => { st.flags.thermo = true; const r = st.regions.sa; r.shockU += 15; r.polar += 6; st.g.tShock += 6; } },
     ] },
   { id: "moonDiscovery", scope: "global", cat: "Spazio", title: "Scoperta sulla Luna", good: true,
     p: (st) => built(st, "lunarSci") ? 0.06 : 0,
@@ -3009,7 +3054,13 @@ function tick(st) {
       const gen = (st.flags.gen1 ? 1 : 0) + (st.flags.gen2 ? 1 : 0) + (st.flags.gen3 ? 1 : 0);
       if (gen) { m.life += [0, 1, 2.5, 4.5][gen]; m.g += 0.1 * gen; m.pensT += 1.5 * gen; }
       // aerosol riflettenti: piogge monsoniche più scarse nelle regioni tropicali, un po' meno ozono ovunque [Probabile]
-      if (built(st, "geoeng")) { m.life -= 0.2; if (MONSOON.includes(r.id)) { m.unrestT += 2; m.g -= 0.1; } }
+      /* aerosol nella stratosfera (quarto rapporto, 31 ottobre 2026): ambientalisti e complottisti protestano ovunque (meno con
+         l'osservatorio indipendente), piogge monsoniche più scarse in Asia meridionale e in Africa (meno con gli aiuti all'Asia meridionale) */
+      if (built(st, "geoeng")) {
+        m.life -= 0.2; const k = st.flags.geoWatch ? 0.5 : 1;
+        m.unrestT += 3 * k; m.polarT += 4 * k;
+        if (MONSOON.includes(r.id)) { m.unrestT += r.id === "sa" && st.flags.thermoAid ? 2 : 5; m.g -= 0.15; }
+      }
       // dopo una missione di pace: cinque anni di transizione con i caschi blu, che tengono basso il malcontento
       if (r.peaceUntil > st.year) m.unrestT -= 15 * clamp((r.peaceUntil - st.year - st.month / 12) / 5, 0, 1);
     }
@@ -3041,7 +3092,8 @@ function tick(st) {
   G.tension += (tT - G.tension) * 0.3 * dt;
   G.tension = clamp(G.tension, 5, 100);
   // quando si smette gli aerosol cadono in un paio d'anni e il caldo nascosto torna in 10-15 anni (shock da interruzione) [Probabile]
-  G.geoOff += (gm.geo - G.geoOff) * (gm.geo < G.geoOff ? 0.6 : 0.12) * dt;
+  // gli aerosol cadono in uno-due anni: se si smette il caldo nascosto torna in pochi anni, dieci volte più in fretta del normale
+  G.geoOff += (gm.geo - G.geoOff) * (gm.geo < G.geoOff ? 0.6 : built(st, "geoeng") ? 0.12 : 0.35) * dt;
   st.tMax = Math.max(st.tMax || 0, G.temp + G.geoOff); // la temperatura più alta raggiunta: conta per il riconoscimento finale
 
   // moneta: il tasso a breve va verso quello scelto, l'inflazione verso il suo livello di equilibrio
@@ -3132,7 +3184,7 @@ function tick(st) {
     // l'invecchiamento fa salire anche la spesa sanitaria (decisione del 24 ottobre 2026) [Probabile]
     const cyc = r.controlled ? Math.max(0, basePg(r) - 1 - r.growth) * 0.5 : 0; // solo in una vera frenata
     const ageCost = r.dep0 != null ? Math.max(0, r.old / r.wrk - r.dep0) * 0.8 : 0;
-    r.dSnow = snowball(r, st); r.dDef = r.defBase + (r.pension - r.pens0) * 0.08 + m.debtF + cyc + ageCost; // palla di neve e deficit
+    r.dSnow = snowball(r, st); r.dDef = r.defBase + (r.pension - r.pens0) * 0.08 + m.debtF + cyc + ageCost + (r.controlled ? CONTRIB_DEF * st.D.inc : 0); // palla di neve e deficit
     r.debt += dt * (r.dDef + r.dSnow);
     r.debt = clamp(r.debt, 0, 400);
 
@@ -3234,14 +3286,14 @@ function tick(st) {
   for (const p of st.prog) { const d = IBY[p.id]; if (d.buildUpkeep) upkeep += priced(st, d.buildUpkeep) * (LUNAR_HALF.includes(d.id) && built(st, "lunarIce") ? 0.5 : 1); }
   st.upkeep = upkeep;
   st.funds += (st.income - upkeep) * dt;
-  // debito dell'Autorità: nessun tetto, ma il tasso sale di un punto ogni 50 fondi di debito (a prezzi di oggi)
+  // debito dell'Autorità: nessun tetto, ma il tasso sale con il rapporto tra debito ed entrate (authRate)
   st.authRate = authRate(st);
   st.interest = st.funds < 0 ? -st.funds * st.authRate / 100 : 0;
   st.funds -= st.interest * dt;
   const step = debtStep(st);
   if (st.funds < 0 && !st.flags.debt0) { st.flags.debt0 = true; logNews(st, "L'Autorità è in debito: ogni anno paga gli interessi.", "bad"); }
   if (st.funds > 3) st.flags.debt0 = false;
-  if (step > (st.debtStep || 0) && !st.sim) logNews(st, `I mercati temono che il debito dell'Autorità non sia sostenibile: il tasso che paga sale al ${fmt1(st.authRate)}%.`, "bad");
+  if (step > (st.debtStep || 0) && !st.sim) logNews(st, step >= 3 ? `Panico sui mercati: il debito dell'Autorità vale più di ${step === 3 ? "tre anni e mezzo" : "quattro anni e mezzo"} di entrate. Il tasso che paga sale al ${fmt1(st.authRate)}%.` : `I mercati temono che il debito dell'Autorità non sia sostenibile: supera ${step === 1 ? "un anno" : "due anni e mezzo"} di entrate. Il tasso che paga sale al ${fmt1(st.authRate)}%.`, "bad");
   st.debtStep = step;
 
   // calendario
@@ -3283,7 +3335,7 @@ const EV_SYS = {
   wildfire: "climate", waterCrisis: "climate", quake: "nature", deepfake: "ai", cyberAttack: "ai", robotRiots: "ai", aiAnomaly: "ai", aiNearMiss: "ai", trialDeath: "gen", designerBaby: "gen", mosquitoBorder: "gen", stolenProtocol: "gen", aiBio1: "gen", aiBio2: "gen", aiBio3: "gen", genPatents: "gen", genScandal: "gen", genSchools: "gen", genInsurance: "gen", genElite: "gen", qDay: "ai",
   epidemic: "bio", labLeak: "bio", pandemic: "bio", uniVax: "bio",
   aiIncident: "ai",
-  moonRace: "space", moonAccident: "space", moonDiscovery: "space", craterContest: "space", asteroidDeflected: "space",
+  moonRace: "space", moonAccident: "space", moonDiscovery: "space", craterContest: "space", asteroidDeflected: "space", geoBlockade: "climate", thermostatWar: "climate",
 };
 function evMult(st, id) {
   let k = (st.G.ev && st.G.ev[id]) || 1;
@@ -4169,7 +4221,7 @@ const GLOSS = {
   pens: { t: "Pensioni sostenibili", x: "Le pensioni di oggi sono pagate dai contributi di chi lavora oggi. Se i pensionati crescono e i lavoratori calano, il loro peso sui conti sale. Aiutano crescita, più giovani, l'età della pensione legata alla vita media e i fondi pensione." },
   co2: { t: "Emissioni nette di CO₂", x: "Le tonnellate di CO₂ messe nell'aria in un anno, meno quelle catturate da alberi e impianti. Finché sono sopra zero la temperatura sale; comincia a scendere solo quando vanno sotto zero." },
   ecost: { t: "Costo dell'energia", x: "Il prezzo medio dell'energia per famiglie e imprese (2026 = 100). Scende con nucleare, rinnovabili e fonti diverse; sale con le crisi del petrolio. L'energia economica rende le imprese più produttive." },
-  authDebt: { t: "Debito dell'Autorità", x: "Se spendi più dei fondi che hai, l'Autorità si indebita e paga interessi ogni anno. Ogni 50 fondi di debito il tasso sale di un punto. Perdi solo se per tre anni gli interessi superano tutto ciò che potresti incassare anche tagliando ogni spesa." },
+  authDebt: { t: "Debito dell'Autorità", x: "Se spendi più dei fondi che hai, l'Autorità si indebita e paga interessi ogni anno. Il tasso dipende da quanti anni di entrate servirebbero per ripagare il debito: fino a un anno nessun sovrapprezzo, poi sale piano, e oltre due anni e mezzo sale sempre più in fretta (i mercati vanno nel panico). Se il mondo è instabile i mercati chiedono ancora di più. Perdi solo se per tre anni gli interessi superano tutto ciò che potresti incassare anche tagliando ogni spesa." },
   saldo: { t: "Saldo annuo", x: "È quanto crescono i fondi dell'Autorità in un anno: le entrate, meno i costi annui dei programmi attivi, meno gli interessi se l'Autorità è in debito. Cambia nel tempo: le entrate seguono l'economia e i prezzi, i costi dei programmi seguono i prezzi e, per quelli fatti di lavoro umano, gli stipendi. Tocca il saldo per vedere entrate e spese una per una." },
   funds: { t: "Fondi", x: "Un fondo vale circa 10 miliardi di dollari del 2026: all'inizio gli stati versano all'Autorità circa 17 fondi l'anno, lo 0,15% del PIL mondiale. Per le grandi politiche l'Autorità paga la sua quota, il resto lo pagano stati e privati. Con l'inflazione tutto costa un po' di più ogni anno, e anche le entrate crescono." },
   shadow: { t: "Economia sommersa", x: "È la parte dell'economia che sfugge al fisco: lavoro nero, vendite senza scontrino, redditi nascosti. Va dall'8% del PIL in Nord America a quasi il 40% in Africa. Le tasse si pagano solo sulla parte emersa: ridurre il sommerso fa salire le entrate senza alzare le tasse." },
@@ -4417,6 +4469,7 @@ function renderDetail() {
       ${!done && available(st, d) ? `<div class="prev" id="prevBox"><small>Calcolo dell'effetto…</small></div>` : ""}
       ${showWhy ? `<p class="why">${esc(s.why)}</p>` : ""}
       ${pillar && active ? `<p class="why">Pilastro non revocabile dello ${esc(st.G.name)}.</p>` : ""}
+      ${d.id === "geoeng" && canStop && co2Gt(st) > 5 && st.g.geoOff < -0.3 ? `<p class="shockwarn"><b>Attenzione: shock da interruzione.</b> Le emissioni sono ancora alte: se interrompi ora, circa ${fmt(-st.g.geoOff, 1)} °C di caldo nascosto tornano in pochi anni. Raccolti perduti, danni per circa 8 fondi e forte malcontento in tutte le regioni.</p>` : ""}
     </div>
     <button type="button" class="buy" id="dBuy" ${s.why ? "disabled" : ""}>${buyLabel}${priceTxt}</button>
     ${canStop ? `<button type="button" class="buy alt" id="dRev">${d.toggle || (d.upkeep > 0 ? "Smetti di finanziare" : "Revoca")}</button>` : ""}`;
