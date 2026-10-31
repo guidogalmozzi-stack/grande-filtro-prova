@@ -5376,7 +5376,16 @@ const stabColor = (v) => v < 30 ? "#d65b4a" : v < 50 ? "#d6774a" : v < 70 ? "#e3
 /* ---------- mappa ---------- */
 let regionEls = {}, labelEls = {};
 // anelli di GEO (decimi di grado) → tracciato SVG proiettato
-function ringD(r) { let d = ""; for (let i = 0; i < r.length; i += 2) { const [x, y] = ee(r[i] / 10, r[i + 1] / 10); d += (i ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1); } return d; }
+// isole a cavallo della linea del cambio di data (Figi, Nuova Zelanda): i punti dall'altra parte del mondo si fermano sul bordo
+// della cartina, altrimenti il contorno della regione scelta attraversava tutta la mappa con una riga
+function ringD(r) {
+  let d = ""; const side = r[0] >= 0 ? 1 : -1;
+  for (let i = 0; i < r.length; i += 2) {
+    let lon = r[i] / 10; if (Math.abs(lon - r[0] / 10) > 180) lon = 180 * side;
+    const [x, y] = ee(lon, r[i + 1] / 10); d += (i ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1);
+  }
+  return d;
+}
 function regionD(id) { let d = ""; for (const poly of GEO.regions[id]) for (const r of poly) d += ringD(r) + "Z"; return d; }
 // grana del suolo: rumore morbido disegnato una volta su una piccola tela e ripetuto
 function grainTexture() {
