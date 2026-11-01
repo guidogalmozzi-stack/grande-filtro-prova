@@ -848,7 +848,7 @@ const pick = (arr) => arr[Math.floor(rand() * arr.length)];
 const P = {
   baseIncome: 17,        // fondi l'anno nel 2026 nello scenario completo, livello medio; crescono con l'economia
   // debito dell'Autorità: nessun tetto; paga il tasso a lungo termine più uno spread che dipende da debito / entrate (vedi authRate)
-  stabC: 50.66, stabK: 3.8, // scala dell'indice di stabilità (mondo del 2026 ≈ 45)
+  stabC: 53.2, stabK: 3.8, // scala dell'indice di stabilità (mondo del 2026 ≈ 45)
   anarchySpread: 12,     // malcontento portato da ogni regione vicina in anarchia
   lowStab: 15, lowYears: 5, // sotto questa stabilità mondiale per tanti anni: sconfitta
   stableYears: 10, winWorld: 80, // traguardo predefinito (ogni scenario ha il suo)
@@ -880,12 +880,12 @@ const ALL_CATS = ["energia", "economia", "welfare", "societa", "clima", "sicurez
 const LEVELS = [
   { id: "tut", name: "Addestramento", tutorial: true, funds: 10, cats: ["economia", "welfare", "societa"], tier: 1, sys: [], inc: 0.65, win: 52, years: 3, fast: 15,
     intro: "Le basi del gioco, passo per passo: la stabilità, gli interventi, le crisi.", adds: "Economia e società" },
-  { id: "l1", name: "Primo mandato", cats: ["economia", "welfare", "societa"], tier: 2, sys: [], inc: 0.9, win: 72, years: 5, fast: 30,
+  { id: "l1", name: "Primo mandato", cats: ["economia", "welfare", "societa"], tier: 2, sys: [], inc: 0.9, win: 72, years: 10, fast: 30,
     intro: "Debiti, pensioni e malcontento: rimetti in piedi le società del pianeta.", adds: "Tutti gli interventi di economia e società" },
   /* Dopo il primo mandato ogni scenario aggiunge un solo settore (decisione del 18 ottobre 2026) */
-  { id: "l2", name: "Energia per tutti", cats: ["energia", "economia", "welfare", "societa"], tier: 2, sys: ["energia"], inc: 0.93, win: 75, years: 6, fast: 40,
+  { id: "l2", name: "Energia per tutti", cats: ["energia", "economia", "welfare", "societa"], tier: 2, sys: ["energia"], inc: 0.93, win: 75, years: 10, fast: 40,
     intro: "Bollette, petrolio e centrali: un'economia che ha fame di energia.", adds: "Energia" },
-  { id: "l3", name: "Il clima che cambia", cats: ["energia", "economia", "welfare", "societa", "clima"], tier: 2, sys: ["energia", "climate", "nature"], inc: 0.92, win: 77, years: 8, fast: 50,
+  { id: "l3", name: "Il clima che cambia", cats: ["energia", "economia", "welfare", "societa", "clima"], tier: 2, sys: ["energia", "climate", "nature"], inc: 0.92, win: 77, years: 10, fast: 50,
     intro: "Un pianeta che si scalda e una transizione energetica da guidare.", adds: "Clima e catastrofi naturali" },
   { id: "l4", name: "Equilibrio del terrore", cats: ["energia", "economia", "welfare", "societa", "clima", "sicurezza"], tier: 2, sys: ["energia", "climate", "nature", "war", "bio"], inc: 1.02, win: 79, years: 10, fast: 60,
     intro: "Potenze armate, epidemie e laboratori pericolosi: i primi grandi filtri.", adds: "Sicurezza, guerra nucleare, pandemie" },
@@ -905,36 +905,39 @@ const sysOn = (st, k) => st.L.sys.includes(k);
    m: scarti continui su ogni regione · build: velocità dei cantieri · anarchy: velocità del crollo
    ban: interventi vietati · grant: interventi concessi anche fuori dallo scenario · cheap: interventi a metà prezzo
    ev: probabilità di alcuni eventi · own: interventi esclusivi. Nomi e descrizioni di fantasia, senza modelli reali. */
+/* Governi riprogettati il 1 novembre 2026 con Guido: nessun effetto continuo e nessuno sconto. Le differenze nascono da
+   ciò che ogni governo per scelta fa o non fa: azioni esclusive (own, campo gov degli interventi), azioni vietate (ban),
+   azioni sostituite da una versione propria, regole proprie ed eventi propri (campo gov degli eventi).
+   pre/lock: interventi attivi dall'inizio che non si tolgono · ref: riforme che passano solo con un referendum ·
+   auto: interventi che arrivano da soli (non li decide l'Autorità) · progress: il progresso tecnologico parte da solo */
 const GOVS = [
-  { id: "base", name: "Nessuna linea", icon: "base", short: "L'Autorità non sceglie un modello", pro: ["Nessuno svantaggio"], con: ["Nessun vantaggio"], m: {} },
-  { id: "liberal", name: "Democrazia liberale", icon: "liberal", short: "Libertà, pluralismo, tempi lunghi",
-    pro: ["Più fiducia: polarizzazione più bassa", "Più innovazione: un po' più di crescita", "Trasparenza e assemblee a metà prezzo"],
-    con: ["Decisioni lente: cantieri il 15% più lenti", "Niente ordine pubblico rafforzato né contrasto alla disinformazione"],
-    m: { polarT: -2.5, g: 0.1 }, build: 0.75, ban: ["police", "disinfo"], cheap: ["transparency", "assemblies"], ev: { antiAuth: 0.6 } },
-  /* Stato sociale (rivisto il 27 ottobre 2026): la sanità universale c'è già dall'inizio e non si può togliere; niente pensioni
-     legate a stipendi e lavoratori. Per reggere la sanità gli stati versano un po' di più all'Autorità. */
-  { id: "social", name: "Stato sociale", icon: "social", short: "Protezione per tutti, a caro prezzo",
-    pro: ["Malcontento più basso ovunque", "Sanità universale dal primo giorno (non si può togliere)", "Reddito di base sempre disponibile e più economico", "Esclusivo: patrimoniale sui grandi capitali e farmaci pubblici"],
-    con: ["Il debito cresce più in fretta", "Crescita più bassa", "Niente tagli alla spesa pubblica né pensioni legate a stipendi e lavoratori"],
-    m: { unrestT: -4, debtF: 0.4, g: -0.1 }, ban: ["austerity", "cutServices", "cutStaff", "pensionIndex"], grant: ["ubi"], cheapUp: { ubi: 0.6, healthcare: 0.6 }, pre: ["healthcare"], lock: ["healthcare"], own: ["socWealth", "pubDrugs"] }, // niente entrate regalate: due azioni esclusive (28 ottobre 2026)
-  { id: "market", name: "Libero mercato", icon: "market", short: "Crescita prima di tutto",
-    pro: ["Crescita più alta", "Debito più basso", "Esclusivo: privatizzazioni per fare cassa"],
-    con: ["Più disoccupazione", "Più disuguaglianza: polarizzazione più alta", "Niente reddito di base"],
-    m: { g: 0.5, debtF: -0.5, unempT: 0.8, polarT: 3 }, ban: ["ubi"], own: ["privat"] },
-  { id: "central", name: "Stato centralizzato", icon: "central", short: "Rapido ed efficiente, ma fragile",
-    pro: ["Cantieri il 30% più rapidi", "Esclusivo: sorveglianza capillare, che rende le proteste molto più rare"],
-    con: ["Le persone sono di base più scontente e meno autonome", "Meno innovazione: crescita più bassa", "Se il malcontento sale, le regioni crollano più in fretta", "Niente assemblee di cittadini"],
-    m: { unrestT: 0.5, g: -0.15 }, build: 1.3, anarchy: 1.5, ban: ["assemblies"], own: ["massSurveil"], ev: { protests: 0.7 } },
-  /* Lavoro umano (nuovo governo, proposta del 27 ottobre 2026): niente macchine al posto delle persone. Crescita più lenta, ma
-     nessuna disoccupazione da automazione, nessuna tassa sul lavoro persa e un'AI che cresce più piano. */
-  { id: "human", name: "Lavoro umano", icon: "human", short: "Gli esseri umani al centro, niente macchine al loro posto",
-    pro: ["Nessuna disoccupazione causata dalle macchine: lavoro per tutti", "Le tasse sul lavoro non si perdono mai", "Pensioni più solide: più persone lavorano e versano i contributi", "L'AI cresce più lentamente: meno rischi"],
-    con: ["Niente automazione, robot né AI negli uffici pubblici", "Crescita più lenta (circa un quinto in meno)"],
-    m: { g: -0.3, unempT: -1, pensT: -3 }, ban: ["automation", "robots", "massRobots", "robotTax", "sovFund", "aiPublic"], aiRate: -0.6 },
+  { id: "base", name: "Nessuna linea", icon: "base", short: "L'Autorità non sceglie un modello", pro: ["Tutte le azioni normali", "Il governo per imparare"], con: ["Nessuna azione esclusiva"], m: {} },
+  { id: "liberal", name: "Democrazia liberale", icon: "liberal", short: "Diritti, regole e consenso",
+    pro: ["Le riforme più dure passano con un referendum: se vinci, metà del malcontento", "Esclusive: comunità energetiche, antitrust, patto sociale, stampa libera, tribunale del clima, ispezioni sulle armi, algoritmi trasparenti, comitato etico"],
+    con: ["Elezioni in ogni regione ogni 5 anni: se il malcontento è alto può vincere chi vuole uscire dall'Autorità", "Niente ordine pubblico rafforzato, contrasto alla disinformazione, assunzioni pubbliche straordinarie, dazi; sorveglianza epidemiologica solo volontaria"],
+    m: {}, ban: ["police", "disinfo", "publicJobs", "tariffs", "surveil"], ref: ["retire", "cutServices", "taxRaise", "carbonLaw", "geoeng", "massRobots", "embryoEdit"], elections: true },
+  { id: "social", name: "Stato sociale", icon: "social", short: "Protezione garantita a tutti",
+    pro: ["Sanità universale e pensione minima garantita dal primo giorno (non si tolgono)", "Esclusive: tariffa sociale dell'energia, asili gratuiti, edilizia pubblica di massa, ticket, fondo pensione pubblico, contributi sulle macchine, imposta sulle eredità, medicina territoriale, terapie geniche pubbliche"],
+    con: ["Spese fisse alte che crescono con l'invecchiamento: vanno finanziate", "Niente tagli al personale e ai servizi, pensioni legate a stipendi e lavoratori, nucleare privato; la revisione della spesa taglia solo sprechi e sussidi; niente potenziamento genetico privato"],
+    m: {}, ban: ["austerity", "cutServices", "cutStaff", "pensionIndex", "nucPrivate", "robotTax"], grant: ["ubi"], pre: ["healthcare", "pensionFloor"], lock: ["healthcare", "pensionFloor"], noGenMarket: true },
+  { id: "market", name: "Libero mercato", icon: "market", short: "Lo Stato si ritira",
+    pro: ["L'automazione arriva da sola, senza spese per l'Autorità", "Esclusive: privatizzazioni, azionariato popolare, zone economiche speciali, opere in partenariato, permessi di emissione, sanità privata, buono scuola, corsa privata all'AI e altre"],
+    con: ["Niente reddito di base, sussidio di disoccupazione, salario minimo, investimenti e assunzioni pubbliche, sanità e scuola pubbliche, legge sulle emissioni, regole sull'AI", "L'automazione non si può fermare né tassare: la disoccupazione arriva a ondate"],
+    m: {}, ban: ["ubi", "ubiMid", "ubiPlus", "childIncome", "unempBenefit", "minWage", "publicJobs", "tariffs", "invest", "robotTax", "sovFund", "socWealth", "wealthTax", "priceCap", "carbonLaw", "aiReg", "healthcare", "education", "socialHousing", "retrain"], auto: ["automation", "robots", "massRobots"] },
+  { id: "central", name: "Stato centralizzato", icon: "central", short: "Ordine ed efficienza, ma fragile",
+    pro: ["Cantieri il 30% più rapidi: si decide senza discussioni", "Esclusivo: sorveglianza capillare, che rende le proteste molto più rare"],
+    con: ["Niente assemblee di cittadini"],
+    m: {}, build: 1.3, ban: ["assemblies"] },
+  /* Repubblica del lavoro (prima "Lavoro umano"; nome scelto da Guido il 1 novembre 2026): il lavoro come diritto e centro
+     della società, le macchine al suo servizio. Senza robot la popolazione che invecchia pesa davvero. */
+  { id: "human", name: "Repubblica del lavoro", icon: "human", short: "Il lavoro al centro, le macchine al suo servizio",
+    pro: ["Esclusive: settimana corta, cooperative, formazione per tutta la vita, cantieri energetici e agricoltura ad alta occupazione, servizio civile esteso, protezione civile di volontari, tecnologie che aiutano chi lavora"],
+    con: ["Niente automazione, robot, AI negli uffici pubblici né biologia guidata dall'AI: con meno giovani mancano lavoratori e servono nascite, immigrazione e pensione più tardi"],
+    m: {}, ban: ["automation", "robots", "massRobots", "robotTax", "sovFund", "aiPublic", "aiBio"] },
   { id: "techno", name: "Tecnocrazia", icon: "techno", short: "Decidono gli esperti",
-    pro: ["Tecnologie di frontiera il 25% più rapide", "La sicurezza dell'AI e dei laboratori cresce più in fretta"],
-    con: ["Distanza dal popolo: polarizzazione più alta", "Movimenti contro l'Autorità più frequenti"],
-    m: { polarT: 1 }, frontier: 0.25, safeRate: 0.8, bioRate: 0.3, ev: { antiAuth: 1.4 } },
+    pro: ["Esclusive: rete elettrica mondiale, ufficio di bilancio indipendente, bilancio attuariale delle pensioni, consulte scientifiche, geoingegneria controllata, laboratori di massima sicurezza, programma di sicurezza dell'AI, squadra di attacco controllato, protocolli genetici"],
+    con: ["Il progresso non si ferma: ogni 7 anni una nuova tecnologia parte da sola (e si paga), anche se la sicurezza non è pronta", "Niente assemblee di cittadini né incentivi senza controlli alle grandi aziende dell'AI"],
+    m: {}, ban: ["assemblies", "aiCap"], progress: true },
 ];
 const GBY = Object.fromEntries(GOVS.map((g) => [g.id, g]));
 
@@ -1113,7 +1116,7 @@ const lifeOld = (r, m) => 12 + 10 * r.wealth / 100 + (m ? m.life : 0); // anni d
 const incomeSupport = (r) => {
   if (!r.acts) return 0;
   const on = (id) => (lvl(r, id) > 0 ? 1 : 0);
-  return Math.min(0.97, 0.25 * Math.max(on("unempBenefit"), on("ubi")) + 0.45 * on("ubi") + 0.2 * on("ubiMid") + 0.25 * on("ubiPlus") + 0.15 * on("sovFund"));
+  return Math.min(0.97, 0.25 * Math.max(on("unempBenefit"), on("ubi")) + 0.45 * on("ubi") + 0.2 * on("ubiMid") + 0.25 * on("ubiPlus") + 0.15 * on("sovFund") + on("popShares") * Math.min(0.6, 0.05 + 1.5 * (r.robShare || 0)));
 };
 const unempPain = (r) => Math.min(r.unemp, 6) + Math.max(0, r.unemp - 6) * (1 - incomeSupport(r));
 const fEnergyCost = (r) => 40 + 0.15 * r.fossil;
@@ -1535,11 +1538,182 @@ const INTERVENTIONS = [
   { id: "massSurveil", cat: "sicurezza", name: "Sorveglianza capillare", desc: "Telecamere, intercettazioni e informatori in tutte le città.", scope: "region", cost: 8, upkeep: 1, T: 2, axis: 15, gov: "central",
     pro: "Telecamere, dati e informatori individuano le proteste prima che crescano: proteste e movimenti contro l'Autorità molto più rari, malcontento visibile più basso", con: "Sfiducia e polarizzazione in aumento. Esclusivo dello Stato centralizzato",
     fx: (m) => { m.unrestT -= 8; m.polarT += 4; } },
+  /* ===== Azioni esclusive dei governi (riprogettazione del 1 novembre 2026). Numeri dalle ricerche di Gemini e Grok
+     (docs/ricerche/2026-11-01-governi-*.md); dove i dati mancano, stime di Claude [Ipotesi]. ===== */
+  // --- Democrazia liberale ---
+  { id: "energyComm", cat: "energia", name: "Comunità energetiche", desc: "Cittadini, comuni e piccole imprese producono e condividono la propria energia rinnovabile.", scope: "region", cost: 3, upkeep: 0.5, T: 2, ramp: 5, gov: "liberal",
+    pro: "Molta meno opposizione alle nuove centrali, bollette più basse per chi partecipa, rinnovabili un po' più veloci", con: "Costa ogni anno; effetto graduale. Esclusivo della Democrazia liberale",
+    eff: { resist: -10, energy: -3, fossil: 0.15, unrest: -1 } },
+  { id: "antitrust", cat: "economia", name: "Autorità antitrust", desc: "Un'autorità indipendente indaga sui monopoli e può dividere le aziende troppo grandi.", scope: "region", cost: 4, upkeep: 0.5, T: 3, gov: "liberal",
+    pro: "Dopo qualche anno più concorrenza: prezzi più bassi, un po' più di crescita, meno disuguaglianza e potere meno concentrato; le corse tecnologiche rallentano un po' (meno rischi)", con: "Cause lunghe e care: nei primi 4-5 anni borse e investimenti scendono e le regioni ricche protestano. Esclusivo della Democrazia liberale [Probabile]",
+    fx: (m, s, r, st, gm, a) => { const y = st.year - (a.y0 || a.y); if (y < 5) { m.g -= 0.15 * s; if (r.wealth > 60) m.unrestT += 2 * s; } else { m.g += 0.2 * s; m.polarT -= 2 * s; } gm.aiRate -= 0.05 * s / 13; } },
+  { id: "socialPact", cat: "economia", name: "Patto sociale", desc: "Sindacati e imprese firmano un accordo: aumenti graduali dei salari in cambio di pace sociale.", scope: "region", cost: 2, T: 1, gov: "liberal",
+    pro: "Scioperi molto più rari, meno malcontento, inflazione più tranquilla", con: "Salari che crescono piano: un po' meno spinta ai consumi. Esclusivo della Democrazia liberale [Probabile]",
+    eff: { unrest: -3, g: -0.03 }, evm: { strike: 0.25, teacherStrike: 0.4 } },
+  { id: "freePress", cat: "societa", name: "Stampa libera e giornalismo indipendente", desc: "Fondi pubblici senza condizioni ai giornali indipendenti, protezione delle fonti e dei giornalisti.", scope: "region", cost: 3, upkeep: 1, T: 2, ramp: 8, gov: "liberal",
+    pro: "Le divisioni calano lentamente, la corruzione e l'economia sommersa scendono, gli scandali emergono prima e fanno meno danni", con: "Costa ogni anno; effetto lento. Esclusivo della Democrazia liberale",
+    eff: { polar: -3, shadow: -1 }, evm: { scandal: 0.5, deepfake: 0.6 } },
+  { id: "climCourt", cat: "clima", name: "Tribunale internazionale del clima", desc: "Gli impegni sulle emissioni diventano vincolanti: un tribunale può condannare chi non li rispetta.", scope: "region", cost: 4, T: 3, gov: "liberal",
+    pro: "Le emissioni scendono più in fretta in tutte le regioni", con: "Le industrie fossili protestano: un po' di malcontento. Esclusivo della Democrazia liberale [Ipotesi]",
+    eff: { fossil: 0.25, unrest: 1 } },
+  { id: "armsInspect", cat: "sicurezza", name: "Ispezioni aperte sugli arsenali", desc: "Ispettori internazionali possono visitare in ogni momento basi, depositi e laboratori militari.", scope: "global", cost: 4, upkeep: 0.5, T: 2, sys: "war", gov: "liberal",
+    pro: "La tensione tra le potenze scende più in fretta", con: "Costa ogni anno. Esclusivo della Democrazia liberale",
+    geff: { tension: -3 } },
+  { id: "volSurveil", cat: "salute", name: "Rete volontaria di allerta sanitaria", desc: "Medici, ospedali e cittadini segnalano volontariamente i casi sospetti; i dati restano anonimi.", scope: "global", cost: 3, upkeep: 0.4, T: 2, sys: "bio", gov: "liberal",
+    pro: "I nuovi virus si scoprono prima, senza sfiducia nelle istituzioni", con: "Meno efficace della sorveglianza obbligatoria. Esclusivo della Democrazia liberale (al posto della sorveglianza epidemiologica)" },
+  { id: "algoTransp", cat: "ai", name: "Algoritmi trasparenti", desc: "Chi usa un'intelligenza artificiale per decisioni importanti deve spiegare come funziona e farla controllare.", scope: "global", cost: 3, T: 2, gov: "liberal",
+    pro: "Più sicurezza e fiducia: gli incidenti con le intelligenze artificiali sono circa un quarto più rari", con: "Lo sviluppo dell'AI rallenta un po' per rispettare le regole. Esclusivo della Democrazia liberale [Ipotesi]",
+    geff: { safeRate: 0.3, aiRate: -0.1 }, evm: { aiIncident: 0.75, aiAnomaly: 0.75, deepfake: 0.7 } },
+  { id: "ethicsCom", cat: "genetica", name: "Comitato etico mondiale", desc: "Scienziati, filosofi e cittadini estratti a sorte valutano ogni nuova tecnica genetica prima che sia permessa.", scope: "global", cost: 2, T: 2, gov: "liberal",
+    pro: "Meno divisioni sulle scelte genetiche", con: "La ricerca rallenta un po'. Esclusivo della Democrazia liberale",
+    geff: { polarAll: -1.5, biotech: -0.05 } },
+  // --- Stato sociale ---
+  { id: "pensionFloor", cat: "demografia", name: "Pensione minima garantita", desc: "Nessun anziano sotto la soglia di povertà: lo Stato integra ogni pensione troppo bassa.", scope: "region", cost: 0, upkeepFn: (st) => 3 * (1 + 3 * Math.max(0, oldRatio(st) - 0.16)), T: 1, gov: "social",
+    pro: "La povertà degli anziani quasi sparisce: meno malcontento", con: "Una spesa fissa che cresce con l'invecchiamento e pesa sulle pensioni; non si può togliere. Esclusivo dello Stato sociale [Certo: costa dall'1 al 5% del PIL]",
+    fx: (m, s, r) => { m.pensT += 4 * s; m.unrestT -= (2 + pensPoverty(r) * 0.6) * s; } },
+  { id: "spendReview", cat: "economia", name: "Revisione della spesa senza tagli ai servizi", desc: "Si eliminano sprechi, doppioni e sussidi alle imprese, ma non si toccano personale e servizi.", scope: "region", cost: 2, upkeep: -0.8, T: 1, gov: "social",
+    pro: "Un piccolo risparmio ogni anno con pochissimo malcontento", con: "Risparmia circa la metà di una revisione normale. Esclusivo dello Stato sociale",
+    eff: { debt: -0.15, unrest: 0.3 } },
+  { id: "machineContrib", cat: "economia", name: "Contributi sociali sulle macchine", desc: "Le aziende pagano per ogni robot e programma che sostituisce un lavoratore i contributi per le pensioni.", scope: "region", cost: 2, T: 2, gov: "social",
+    pro: "Più robot ci sono, più le pensioni si reggono: il loro peso scende; meno rabbia contro i robot", con: "L'automazione rallenta: crescita un po' più bassa. Esclusivo dello Stato sociale (al posto della tassa sui robot) [Ipotesi]",
+    fx: (m, s, r) => { m.g -= 0.08 * s; m.pensT -= 25 * (r.robShare || 0) * s; if (r.robShare > 0.05) m.unrestT -= 2 * s; } },
+  { id: "inheritTax", cat: "economia", name: "Imposta progressiva sulle eredità", desc: "Le grandi eredità pagano un'imposta che cresce con il loro valore; le piccole sono esenti.", scope: "region", cost: 2, T: 2, gov: "social",
+    pro: "Entrate più alte e meno disuguaglianza, quasi senza danni alla crescita", con: "Le grandi famiglie si oppongono. Esclusivo dello Stato sociale [Certo: è la tassa sul capitale che pesa meno sulla crescita]",
+    eff: { polar: -3, g: -0.02 }, gfx: (st, gm, k) => { gm.income += k * 0.06 * (1 - anarchyShare(st)); } },
+  { id: "socTariff", cat: "energia", name: "Tariffa sociale dell'energia", desc: "Un assegno fisso in bolletta per le famiglie povere, pagato con un piccolo rincaro a chi consuma molto.", scope: "region", cost: 1, T: 1, gov: "social",
+    pro: "Nessuno resta al freddo: quando l'energia rincara, molto meno malcontento. Non pesa sui conti dell'Autorità", con: "Le industrie pagano un po' di più: crescita un po' più bassa. Esclusivo dello Stato sociale [Certo]",
+    fx: (m, s, r) => { m.unrestT -= (1 + Math.max(0, r.energyCost - 55) * 0.35) * s; m.g -= 0.03 * s; } },
+  { id: "childcare", cat: "demografia", name: "Asili e servizi per l'infanzia gratuiti", desc: "Nidi e scuole dell'infanzia gratuiti per tutti i bambini da 0 a 6 anni.", scope: "region", cost: 4, upkeep: 2.5, T: 2, ramp: 5, gov: "social",
+    pro: "Più madri al lavoro (circa metà del costo rientra con le loro tasse), un po' più di nascite, meno malcontento", con: "Costa ogni anno. Esclusivo dello Stato sociale [Certo; effetto sulle nascite Probabile]",
+    eff: { fert: 0.1, labor: 0.02, unrest: -1 } },
+  { id: "massHousing", cat: "societa", name: "Edilizia pubblica di massa", desc: "Un piano decennale per costruire case pubbliche a canone basso per metà della popolazione, anche per il ceto medio.", scope: "region", cost: 20, upkeepFn: (st) => { const a = st.acts.massHousing; return a && st.year - (a.y0 || a.y) >= 10 ? -1.5 : 8; }, T: 1, gov: "social",
+    pro: "Durante i 10 anni di cantieri molto lavoro e crescita; poi affitti bassi: molto meno malcontento e divisioni, un po' più di nascite. Dopo 10 anni gli affitti restituiscono una parte della spesa", con: "Costa circa 100 fondi in 10 anni: fa salire il debito. Esclusivo dello Stato sociale [Certo: Vienna e Singapore]",
+    fx: (m, s, r, st, gm, a) => { if (st.year - (a.y0 || a.y) < 10) { m.unempT -= 1 * s; m.g += 0.2 * s; m.unrestT -= 1 * s; } else { m.unrestT -= 6 * s; m.polarT -= 3 * s; m.fert += 0.1 * s; } } },
+  { id: "healthBrake", cat: "demografia", name: "Crescita frenata della spesa sanitaria", desc: "I servizi sanitari non crescono quanto gli anziani: la sanità resta gratuita, ma le liste d'attesa si allungano.", scope: "region", cost: 0, T: 1, gov: "social",
+    pro: "La sanità universale costa un quinto in meno ogni anno", con: "Il malcontento cresce anno dopo anno, chi può paga la sanità privata (più divisioni), le liste d'attesa diventano una crisi. Esclusivo dello Stato sociale [Certo: Regno Unito e Italia]",
+    fx: (m, s, r, st, gm, a) => { const y = st.year - (a.y0 || a.y); m.unrestT += Math.min(6, 0.6 * y) * s; m.polarT += 2 * s; m.labor -= 0.01 * s; }, evm: { waitList: 3 } },
+  { id: "ticketEx", cat: "demografia", name: "Ticket sanitari con esenzioni", desc: "Una piccola quota per visite, esami e farmaci; ne sono esenti i redditi bassi, i malati cronici e gli anziani.", scope: "region", cost: 0, T: 1, gov: "social",
+    pro: "La sanità universale costa un po' meno e si fanno meno visite inutili", con: "Un po' di malcontento. Esclusivo dello Stato sociale [Certo]",
+    eff: { unrest: 1 } },
+  { id: "ticketAll", cat: "demografia", name: "Ticket sanitari per tutti", desc: "Si tolgono le esenzioni: tutti pagano una quota per visite, esami e farmaci.", scope: "region", cost: 0, T: 1, gov: "social",
+    pro: "Nei primi anni la sanità costa molto meno", con: "I poveri rinunciano alle cure: entro 2-3 anni più ricoveri gravi che si mangiano quasi tutto il risparmio, salute peggiore e molto malcontento. Esclusivo dello Stato sociale [Certo: esperimento RAND, Chandra 2010]",
+    eff: { unrest: 4, polar: 2, life: -0.5, labor: -0.005 } },
+  { id: "pubPensionFund", cat: "demografia", name: "Fondo pensione pubblico", desc: "Lo Stato mette da parte ogni anno una quota delle entrate e la investe: il fondo pagherà una parte delle pensioni quando arriverà l'ondata dei pensionati.", scope: "region", cost: 2, upkeepFn: (st) => { const a = st.acts.pubPensionFund; return a && st.year - (a.y0 || a.y) >= 15 ? 0 : 2.5; }, T: 1, gov: "social",
+    pro: "Dopo 15 anni il fondo paga circa un quinto delle pensioni: il loro peso scende molto e smette di costare", con: "Per 15 anni costa senza dare niente. Esclusivo dello Stato sociale [Certo: Norvegia, Canada, Svezia]",
+    fx: (m, s, r, st, gm, a) => { if (st.year - (a.y0 || a.y) >= 15) m.pensT -= 8 * s; } },
+  { id: "justTransition", cat: "clima", name: "Transizione giusta", desc: "Chi perde il lavoro nelle miniere e nelle industrie fossili viene riqualificato e pagato finché non ne trova un altro.", scope: "region", cost: 4, upkeep: 1.5, T: 2, gov: "social",
+    pro: "Meno opposizione all'abbandono dei fossili e meno malcontento nelle regioni minerarie", con: "Costa ogni anno. Esclusivo dello Stato sociale [Certo: Germania e Spagna]",
+    fx: (m, s, r) => { m.unrestT -= (0.5 + r.fossil / 40) * s; m.resistT -= 5 * s; m.fossilShift += 0.1 * s; } },
+  { id: "territorialMed", cat: "salute", name: "Medicina territoriale", desc: "Case della salute, medici di famiglia in squadra e infermieri di quartiere.", scope: "region", cost: 5, upkeep: 1.5, T: 3, ramp: 6, gov: "social",
+    pro: "Dopo qualche anno meno ricoveri: la sanità universale costa un decimo in meno; vita in salute più lunga; le epidemie fanno meno danni", con: "Costa ogni anno e rende solo dopo 5-8 anni. Esclusivo dello Stato sociale [Probabile]",
+    eff: { life: 1, unrest: -1 } },
+  { id: "pubGene", cat: "genetica", name: "Terapie geniche pubbliche e gratuite", desc: "Le terapie che correggono le malattie genetiche sono prodotte da laboratori pubblici e date gratis a chi ne ha bisogno.", scope: "global", cost: 6, upkeep: 2, T: 3, gov: "social",
+    pro: "Nessuno resta escluso dalle cure genetiche: meno divisioni e meno malcontento", con: "Costa ogni anno. Esclusivo dello Stato sociale",
+    geff: { polarAll: -2 } },
+  // --- Libero mercato ---
+  { id: "popShares", cat: "economia", name: "Azionariato popolare", desc: "Ogni cittadino riceve quote delle grandi aziende automatizzate e ne incassa i dividendi.", scope: "region", cost: 3, T: 2, gov: "market",
+    pro: "Più robot lavorano, più i cittadini guadagnano: chi perde il lavoro non resta senza niente e le divisioni calano", con: "All'inizio vale poco (come il dividendo dell'Alaska, 1.000-2.000 dollari l'anno): diventa importante solo con molta automazione. Esclusivo del Libero mercato [Certo/Ipotesi]",
+    fx: (m, s, r) => { m.polarT -= (1 + 8 * (r.robShare || 0)) * s; } },
+  { id: "sez", cat: "economia", name: "Zone economiche speciali", desc: "Aree con tasse basse e poche regole per attirare imprese e investimenti dall'estero.", scope: "region", cost: 5, T: 3, gov: "market",
+    pro: "Nelle regioni povere la crescita può accelerare molto", con: "Più disuguaglianza; nelle regioni già ricche serve a poco. Esclusivo del Libero mercato [Probabile: Shenzhen sì, molte altre no]",
+    fx: (m, s, r) => { m.g += (r.wealth < 45 ? 0.5 : 0.1) * s; m.polarT += 3 * s; } },
+  { id: "ppp", cat: "economia", name: "Opere in partenariato con i privati", desc: "I privati costruiscono strade, ferrovie e ospedali; lo Stato paga un canone per trent'anni.", scope: "region", cost: 3, upkeep: 3.5, T: 2, gov: "market",
+    pro: "Più crescita e meno disoccupazione, con una spesa iniziale bassa", con: "Si paga per sempre e alla fine costa circa un quinto in più di un investimento pubblico. Esclusivo del Libero mercato (al posto degli investimenti pubblici) [Probabile]",
+    fx: (m) => { m.g += 0.8; m.unempT -= 1.5; m.debtF += 1.0; } },
+  { id: "trainVouchers", cat: "economia", name: "Buoni formazione", desc: "Chi perde il lavoro riceve un buono per pagarsi un corso da una scuola privata a sua scelta.", scope: "region", cost: 3, upkeep: 1, T: 2, gov: "market",
+    pro: "Meno disoccupazione, costa meno dei corsi pubblici", con: "Funziona meno bene per chi ha studiato poco. Esclusivo del Libero mercato (al posto della riqualificazione)",
+    fx: (m) => { m.unempT -= 1.5; } },
+  { id: "startupLoans", cat: "economia", name: "Prestiti per aprire un'impresa", desc: "Prestiti garantiti a chi vuole mettersi in proprio dopo aver perso il lavoro.", scope: "region", cost: 3, T: 1, gov: "market",
+    pro: "Un po' meno disoccupazione e un po' più di crescita", con: "Molte nuove imprese falliscono: una parte dei prestiti è persa. Esclusivo del Libero mercato",
+    eff: { unemp: -0.6, g: 0.05, debt: 0.1 } },
+  { id: "charity", cat: "demografia", name: "Incentivi alla beneficenza", desc: "Chi dona a fondazioni, banchi alimentari e associazioni paga meno tasse.", scope: "region", cost: 0, upkeep: 1.5, T: 1, gov: "market",
+    pro: "Fondazioni e volontari aiutano chi resta indietro: meno malcontento", con: "Compensa solo in parte gli aiuti pubblici. Esclusivo del Libero mercato [Probabile]",
+    eff: { unrest: -2.5 } },
+  { id: "privHealth", cat: "demografia", name: "Sanità privata con pronto soccorso garantito", desc: "Ognuno sceglie se e come assicurarsi; gli ospedali devono comunque curare le emergenze.", scope: "region", cost: 2, upkeep: 1, T: 2, gov: "market",
+    pro: "Costa all'Autorità molto meno della sanità universale; cure veloci per chi è assicurato", con: "Circa una persona su sei resta senza copertura: vita media più bassa, famiglie rovinate dalle spese mediche, epidemie che si diffondono di più. Esclusivo del Libero mercato (al posto della sanità universale) [Certo: Stati Uniti prima del 2010]",
+    eff: { unrest: -2, life: 0.6, labor: 0.004, polar: 2 } },
+  { id: "healthAccounts", cat: "demografia", name: "Conti sanitari individuali", desc: "Ogni lavoratore versa una parte dello stipendio su un conto personale per pagarsi le cure.", scope: "region", cost: 1, T: 2, gov: "market",
+    pro: "Le persone spendono con più attenzione: un po' meno malcontento e pensioni un po' più leggere", con: "Chi guadagna poco mette da parte poco. Esclusivo del Libero mercato [Probabile: Singapore]",
+    eff: { unrest: -1, pension: -1, life: 0.3 } },
+  { id: "schoolVoucher", cat: "societa", name: "Buono scuola universale", desc: "Lo Stato paga una cifra per ogni studente e la famiglia sceglie la scuola, pubblica o privata.", scope: "region", cost: 4, upkeep: 1.8, T: 2, ramp: 18, gov: "market",
+    pro: "Più scelta e produttività un po' più alta quando gli studenti saranno al lavoro", con: "Le scuole pubbliche dei quartieri poveri chiudono: più divisioni tra ricchi e poveri. Esclusivo del Libero mercato (al posto della scuola per tutti) [Probabile: Cile e Svezia]",
+    fx: (m, s) => { m.g += 0.7 * s; m.polarT += 2 * s; m.fert -= 0.1 * s; } },
+  { id: "ets", cat: "energia", name: "Mercato dei permessi di emissione", desc: "Chi inquina deve comprare permessi, che si possono scambiare; ogni anno i permessi sono meno.", scope: "region", cost: 3, T: 2, gov: "market",
+    pro: "Le emissioni scendono al costo più basso possibile", con: "Il prezzo dei permessi oscilla molto: energia più cara e un po' di malcontento. Esclusivo del Libero mercato (al posto della legge sulle emissioni) [Certo: Unione europea]",
+    eff: { fossil: 0.35, energy: 3, unrest: 0.5 } },
+  { id: "carbonPrize", cat: "clima", name: "Premi per la cattura privata della CO₂", desc: "Un premio per ogni tonnellata di CO₂ tolta dall'aria e stoccata da un'impresa privata.", scope: "global", cost: 4, upkeep: 1, T: 3, gov: "market",
+    pro: "Le imprese inventano modi più economici per togliere CO₂: le emissioni nette scendono", con: "Costa ogni anno; i risultati arrivano piano. Esclusivo del Libero mercato [Ipotesi]",
+    geff: { co2: 0.6 } },
+  { id: "catInsurance", cat: "sicurezza", name: "Assicurazioni private contro le catastrofi", desc: "Incentivi a famiglie e imprese per assicurarsi contro alluvioni, tempeste e terremoti.", scope: "region", cost: 2, T: 1, gov: "market",
+    pro: "Dopo un disastro si ricostruisce prima: i danni pesano meno", con: "Nelle regioni povere quasi nessuno si assicura; con il clima peggiore i premi salgono. Esclusivo del Libero mercato [Probabile]",
+    fx: (m, s, r) => { m.dmg += (r.wealth > 50 ? 0.15 : 0.04) * s; } },
+  { id: "aiRace", cat: "ai", name: "Corsa privata all'AI senza freni", desc: "Nessun limite alle aziende che sviluppano le intelligenze artificiali più potenti.", scope: "global", cost: 2, T: 1, gov: "market",
+    pro: "Crescita fortissima: l'AI migliora molto più in fretta", con: "Rischio altissimo: la sicurezza resta indietro. Esclusivo del Libero mercato",
+    geff: { aiRate: 0.6, gAll: 0.15, safeRate: -0.2 } },
+  { id: "aiLiability", cat: "ai", name: "Responsabilità legale delle aziende dell'AI", desc: "Chi sviluppa un'intelligenza artificiale paga per intero i danni che causa: le aziende si assicurano e investono in sicurezza.", scope: "global", cost: 2, T: 2, gov: "market",
+    pro: "Le aziende investono da sole nella sicurezza: l'AI diventa più sicura senza regole dello Stato", con: "Le cause arrivano dopo i danni: contro un incidente davvero grave serve a poco. Esclusivo del Libero mercato (al posto delle regole sull'AI) [Ipotesi]",
+    geff: { safeRate: 0.5, aiRate: -0.05 } },
+  { id: "patentShort", cat: "genetica", name: "Brevetti più brevi sulle terapie", desc: "I brevetti su farmaci e terapie geniche durano meno: le copie economiche arrivano prima.", scope: "global", cost: 1, T: 2, gov: "market",
+    pro: "Le terapie costano meno prima: meno divisioni tra chi può pagarle e chi no", con: "Le aziende guadagnano meno e ricercano un po' meno. Esclusivo del Libero mercato",
+    geff: { polarAll: -1, biotech: -0.1 } },
+  // --- Repubblica del lavoro ---
+  { id: "greenJobs", cat: "energia", name: "Cantieri energetici ad alta occupazione", desc: "Isolamento degli edifici, pompe di calore e reti locali, con molti lavoratori e poche macchine.", scope: "region", cost: 6, upkeep: 2, T: 2, gov: "human",
+    pro: "Molto lavoro (tre volte e mezza quello dei fossili per ogni fondo speso) e consumi per il riscaldamento in calo", con: "Costa ogni anno. Esclusivo della Repubblica del lavoro [Certo]",
+    eff: { unemp: -0.8, fossil: 0.15, energy: -2 } },
+  { id: "shortWeek", cat: "economia", name: "Settimana corta a parità di stipendio", desc: "L'orario scende a 32-35 ore senza tagliare gli stipendi; lo Stato aiuta fabbriche e ospedali ad assumere.", scope: "region", cost: 2, upkeep: 1.5, T: 2, gov: "human",
+    pro: "Più persone occupate, meno stress e malattie: molto meno malcontento", con: "Negli uffici quasi gratis, ma in fabbriche e ospedali servono il 10-15% di persone in più: un po' meno crescita e una spesa ogni anno. Esclusivo della Repubblica del lavoro [Certo: Francia, Islanda, Regno Unito]",
+    eff: { unemp: -1.5, unrest: -4, g: -0.2 } },
+  { id: "coops", cat: "economia", name: "Cooperative di lavoratori", desc: "Incentivi a trasformare le imprese in cooperative di proprietà di chi ci lavora.", scope: "region", cost: 3, T: 2, ramp: 8, gov: "human",
+    pro: "Nelle crisi si tagliano gli stipendi invece dei posti; stipendi meno diseguali e produttività un po' più alta", con: "Crescono più piano nei settori ad alta tecnologia. Esclusivo della Repubblica del lavoro [Certo: Mondragon, Emilia-Romagna]",
+    eff: { polar: -2, unemp: -0.3, g: 0.03 } },
+  { id: "lifelong", cat: "demografia", name: "Formazione per tutta la vita", desc: "Ogni adulto ha diritto a corsi pagati e a un reddito mentre studia, per tutta la vita lavorativa.", scope: "region", cost: 4, upkeep: 2, T: 2, ramp: 4, gov: "human",
+    pro: "Dopo 2-5 anni più lavoro, salari più alti e produttività in crescita", con: "Costa ogni anno; il primo anno quasi nessun effetto. Esclusivo della Repubblica del lavoro [Certo: Danimarca, Singapore]",
+    eff: { g: 0.12, unemp: -0.6, labor: 0.01 } },
+  { id: "civicPlus", cat: "societa", name: "Servizio civile esteso", desc: "Un servizio civile pagato, aperto a tutte le età, per lavori utili alla comunità.", scope: "region", cost: 3, upkeep: 1.5, T: 2, gov: "human",
+    pro: "Meno divisioni e meno disoccupazione", con: "Costa ogni anno. Esclusivo della Repubblica del lavoro",
+    eff: { polar: -3, unemp: -0.5 } },
+  { id: "qualityAgri", cat: "clima", name: "Agricoltura di qualità ad alta occupazione", desc: "Aziende agricole più piccole e diversificate, con più lavoratori e meno chimica.", scope: "region", cost: 4, T: 3, gov: "human",
+    pro: "Più lavoro nelle campagne e raccolti che resistono meglio alla siccità", con: "Il cibo costa un po' di più. Esclusivo della Repubblica del lavoro",
+    eff: { unemp: -0.4, famine: 0.15, g: -0.02 } },
+  { id: "civilProt", cat: "sicurezza", name: "Protezione civile di volontari", desc: "Milioni di volontari formati per intervenire nelle alluvioni, nei terremoti e negli incendi.", scope: "region", cost: 2, upkeep: 0.5, T: 2, gov: "human",
+    pro: "I disastri fanno meno danni e la gente si sente più unita", con: "Costa ogni anno. Esclusivo della Repubblica del lavoro",
+    eff: { dmg: 0.1, polar: -1 } },
+  { id: "assistTech", cat: "ai", name: "Tecnologie che aiutano chi lavora", desc: "AI e macchine pensate per affiancare le persone, non per sostituirle.", scope: "region", cost: 4, T: 2, gov: "human",
+    pro: "Produttività più alta senza perdere posti di lavoro", con: "Cresce meno che con l'automazione vera. Esclusivo della Repubblica del lavoro",
+    eff: { g: 0.15, labor: 0.01 } },
+  // --- Tecnocrazia ---
+  { id: "worldGrid", cat: "energia", name: "Rete elettrica mondiale", desc: "Cavi ad altissima tensione collegano i continenti: il sole di un fuso orario alimenta la notte dell'altro.", scope: "region", cost: 10, T: 5, gov: "techno",
+    pro: "Le rinnovabili coprono molta più energia senza blackout, che costa meno", con: "Molto costosa; chi controlla i nodi può ricattare gli altri. Esclusivo della Tecnocrazia [Probabile]",
+    eff: { fossil: 0.3, energy: -4 } },
+  { id: "budgetOffice", cat: "economia", name: "Ufficio di bilancio indipendente", desc: "Esperti indipendenti controllano ogni legge di spesa e pubblicano previsioni senza trucchi.", scope: "region", cost: 1, T: 1, gov: "techno",
+    pro: "Deficit più bassi ogni anno", con: "Le spese elettorali diventano più difficili: un po' di malcontento. Esclusivo della Tecnocrazia [Certo]",
+    eff: { debt: -0.4, unrest: 0.5 } },
+  { id: "actuarial", cat: "demografia", name: "Bilancio attuariale delle pensioni", desc: "Ogni anno gli attuari ricalcolano contributi e assegni perché il sistema resti in equilibrio per cinquant'anni.", scope: "region", cost: 2, T: 2, gov: "techno",
+    pro: "Il peso delle pensioni scende", con: "Piccoli ritocchi ogni anno che nessuno ha votato: un po' di malcontento. Esclusivo della Tecnocrazia",
+    eff: { pension: -3, unrest: 1 } },
+  { id: "sciCouncil", cat: "societa", name: "Consulte scientifiche", desc: "Ogni decisione importante passa da comitati di scienziati indipendenti.", scope: "region", cost: 2, upkeep: 0.5, T: 1, gov: "techno",
+    pro: "Decisioni migliori: un po' più di crescita, crisi meno costose", con: "Quando impongono scelte impopolari nasce la rabbia contro gli esperti. Esclusivo della Tecnocrazia [Certo/Probabile]",
+    eff: { g: 0.05, debt: -0.2, polar: 1 } },
+  { id: "sciGeo", cat: "clima", name: "Geoingegneria sotto controllo scientifico", desc: "Gli aerosol riflettenti vengono rilasciati in modo graduale e uguale nei due emisferi, controllati da una rete di satelliti e palloni.", scope: "global", cost: 3, upkeep: 0.8, T: 2, gov: "techno", need: (st) => (built(st, "geoeng") ? null : "Richiede gli aerosol riflettenti"),
+    pro: "Le piogge e i monsoni cambiano molto meno, meno proteste contro gli aerosol", con: "Costa ogni anno; lo shock da interruzione resta. Esclusivo della Tecnocrazia [Probabile, da modelli climatici]",
+    evm: { geoBlockade: 0.4, thermostatWar: 0.4 } },
+  { id: "bsl4", cat: "salute", name: "Laboratori di massima sicurezza", desc: "I virus più pericolosi si studiano solo in pochi laboratori sigillati e controllati da ispettori mondiali.", scope: "global", cost: 5, upkeep: 1, T: 3, sys: "bio", gov: "techno",
+    pro: "Le fughe dai laboratori diventano molto più rare", con: "Costa ogni anno; la ricerca rallenta un po'. Esclusivo della Tecnocrazia",
+    geff: { bioRate: 0.8, biotech: -0.05 }, evm: { labLeak: 0.4 } },
+  { id: "redTeam", cat: "sicurezza", name: "Squadra mondiale di attacco controllato", desc: "Esperti attaccano di continuo AI, laboratori e reti per trovarne le falle prima di chiunque altro.", scope: "global", cost: 4, upkeep: 1, T: 2, gov: "techno",
+    pro: "Attacchi informatici e abusi molto più rari; un po' più di sicurezza dell'AI", con: "Contro un'AI fuori controllo serve poco: un'intelligenza molto avanzata può accorgersi del test. Esclusivo della Tecnocrazia [Certo/Probabile]",
+    geff: { safeRate: 0.25 }, evm: { cyberAttack: 0.3, terror: 0.7, stolenProtocol: 0.4 } },
+  { id: "aiSafetyProg", cat: "ai", name: "Programma mondiale di sicurezza dell'AI", desc: "Un'agenzia con propri supercomputer studia dall'interno come ragionano le intelligenze artificiali più potenti.", scope: "global", cost: 6, upkeep: 1.5, T: 3, gov: "techno",
+    pro: "La sicurezza dell'AI cresce molto più in fretta", con: "Costa ogni anno e rallenta un po' le nuove AI. Esclusivo della Tecnocrazia [Probabile]",
+    geff: { safeRate: 0.8, aiRate: -0.1 } },
+  { id: "geneProtocol", cat: "genetica", name: "Protocolli genetici rigorosi", desc: "Ogni modifica genetica segue protocolli scientifici fissi, verificati da laboratori indipendenti.", scope: "global", cost: 3, T: 2, gov: "techno",
+    pro: "La ricerca genetica è più sicura e più rapida", con: "Le decisioni sono degli esperti: un po' di divisioni. Esclusivo della Tecnocrazia",
+    geff: { biotech: 0.1, polarAll: 0.5 } },
   /* Privatizzazioni (riviste il 27 ottobre 2026): si incassa subito, ma si perdono per sempre i profitti delle aziende vendute
      e le tariffe dei servizi salgono. */
   /* Esclusivi dello Stato sociale (28 ottobre 2026). La patrimoniale sui grandi capitali si aggiunge a quella normale.
      I farmaci pubblici abbassano il costo dei programmi sanitari: le aziende guadagnano meno e la ricerca biotecnologica rallenta un po'. */
-  { id: "socWealth", cat: "economia", name: "Patrimoniale sui grandi capitali", desc: "Un'imposta progressiva su tutte le grandi fortune del mondo, registrate in un catasto patrimoniale unico.", scope: "region", cost: 2, T: 2, gov: "social",
+  { id: "socWealth", cat: "economia", name: "Patrimoniale sui grandi capitali", desc: "Un'imposta progressiva su tutte le grandi fortune del mondo, registrate in un catasto patrimoniale unico.", scope: "region", cost: 2, T: 2, gov: "_ritirata",
     pro: "Entrate più alte (circa un decimo in più, che si somma alla patrimoniale normale; di più quando i robot concentrano la ricchezza) e disuguaglianza molto più bassa", con: "Un po' meno investimenti e crescita; i grandi capitali si oppongono. Esclusivo dello Stato sociale",
     eff: { polar: -5, g: -0.15 }, gfx: (st, gm, k) => { gm.income += k * (0.08 + 0.2 * (st.robShareW || 0)) * (1 - anarchyShare(st)); } },
   { id: "pubDrugs", cat: "demografia", name: "Farmaci pubblici e prezzi calmierati", desc: "Farmaci essenziali e terapie prodotti da aziende pubbliche o venduti a prezzi fissati per legge, senza sovrapprofitti sui brevetti.", scope: "region", cost: 4, T: 2, gov: "social",
@@ -1691,7 +1865,7 @@ const PERMANENT = new Set(["renew", "grid", "efficiency", "nuclear", "nucPrivate
 for (const d of INTERVENTIONS) if (!d.fixed && !PERMANENT.has(d.id)) d.revocable = true;
 function available(st, d) {
   const G = st.G || GBY.base, L = st.L || LBY.l5;
-  if (d.gov) return d.gov === G.id;
+  if (d.gov && d.gov !== G.id) return false;
   if (G.ban && G.ban.includes(d.id)) return false;
   if (G.grant && G.grant.includes(d.id)) return true;
   if (d.sys && !L.sys.includes(d.sys)) return false;
@@ -1765,6 +1939,14 @@ function upkeepOf(st, d) {
   if (base < 0 && a) base *= 1 - 0.4 * clamp((st.year - (a.y0 || a.y) - 8) / 12, 0, 1);
   if (d.id === "dac" && built(st, "qComp")) base *= 0.85;
   if (d.id === "healthcare" && built(st, "bioprint")) base *= 0.92;
+  if (d.id === "healthcare") { // leve dello Stato sociale sulla spesa sanitaria (1 novembre 2026)
+    if (built(st, "healthBrake")) base *= 0.8;
+    const ta = st.acts.ticketAll;
+    if (ta && ta.n > 0) base *= st.year - (ta.y0 || ta.y) < 3 ? 0.82 : 0.97; // senza esenzioni: dopo 2-3 anni i ricoveri si mangiano il risparmio
+    else if (built(st, "ticketEx")) base *= 0.93;
+    const tm = st.acts.territorialMed;
+    if (tm && tm.n > 0 && st.year - (tm.y0 || tm.y) >= 5) base *= 0.9;
+  }
   if (HEALTH_COST.includes(d.id) && built(st, "pubDrugs")) base *= 0.8;
   return base * base0 * (k || 1) * (d.wasRegion && base > 0 ? ctrlShare(st) : 1) * (d.perUnit && a ? Math.max(1, a.n) : 1) * ((st.g && st.g.pl) || 1) * (WAGE.has(d.id) ? Math.pow(wageIdx(st), 0.6) : 1);
 }
@@ -1877,7 +2059,7 @@ function newGame(diffId, seed, levelId = "l5", govId = "base") {
     r.age = fAge(r);
     r.prod = r.pop * r.wealth / laborOf(r); r.gdp = r.pop * r.wealth; r.L = laborOf(r);
     r.gdp0 = r.gdp; r.pop0 = r.pop; r.prod0 = r.prod;
-    r.shadow = r.shadow0 = SHADOW0[R.id]; r.unrest0 = r.unrest; // economia sommersa, % del PIL
+    r.shadow = r.shadow0 = SHADOW0[R.id]; r.unrest0 = r.unrest; r.pension0 = r.pension; // economia sommersa, % del PIL
     regions[R.id] = r;
   }
   const st = {
@@ -1919,7 +2101,8 @@ function newGame(diffId, seed, levelId = "l5", govId = "base") {
   st.ec0 = Object.values(regions).reduce((a, r) => a + r.energyCost * r.gdp, 0) / st.gdpW0;
   st.pop0 = worldPop(st);
   st.income = BASE_INCOME * D.inc * (st.L.inc || 1) * (st.G.inc || 1); st.upkeep = 0;
-  for (const id of st.G.pre || []) if (available(st, IBY[id])) complete(st, IBY[id]); // per esempio la sanità universale dello Stato sociale
+  for (const id of st.G.pre || []) if (available(st, IBY[id])) complete(st, IBY[id]);
+  if (st.G.elections) Object.values(st.regions).forEach((r, i) => (r.elY = 2030 + (i % 5))); // elezioni sfalsate ogni 5 anni // per esempio la sanità universale dello Stato sociale
   logNews(st, "L'Autorità si insedia. Le nazioni hanno accettato di eseguire i suoi ordini.", "info");
   st.hist.push(histRow(st));
   return st;
@@ -2005,7 +2188,10 @@ const STAB_PARTS = [
   { id: "peace", name: "Pace sociale", w: 25, v: (r) => (70 - r.unrest) * 2, hint: "Il malcontento la abbassa" },
   { id: "cohesion", name: "Coesione", w: 15, v: (r) => (80 - r.polar) * 2, hint: "Polarizzazione e sfiducia nelle istituzioni" },
   { id: "debt", name: "Conti pubblici", w: 15, v: (r) => 100 - (r.debt - 50), hint: "Il debito pubblico oltre il 50% del prodotto" },
-  { id: "welfare", name: "Welfare sostenibile", w: 10, v: (r) => (85 - r.pension) / 0.45, hint: "Il peso di pensioni e welfare" },
+  /* Vittoria rivista il 1 novembre 2026 (richiesta di Guido): si vince solo con la stabilità, ma pensioni insostenibili e debiti
+     dell'Autorità la abbassano molto. Prima chi comprava solo misure sociali a debito vinceva prima di chi badava ai conti. */
+  { id: "welfare", name: "Welfare sostenibile", w: 20, v: (r) => (85 - r.pension) / 0.45 - Math.max(0, r.pension - Math.max(30, r.pension0 ?? r.pension)) * 5, hint: "Il peso di pensioni e welfare" },
+  { id: "auth", name: "Conti dell'Autorità", w: 20, v: (r, st) => 100 + 55 * Math.min(0, st.funds) / Math.max(10, st.income || 17), hint: "Il debito dell'Autorità mondiale: i mercati e gli stati smettono di fidarsi" },
   { id: "jobs", name: "Lavoro", w: 10, v: (r) => 100 - (unempPain(r) - 3) * 10, hint: "La disoccupazione" },
   { id: "energy", name: "Energia pulita", w: 10, v: (r) => (90 - r.fossil) * 1.25, hint: "La dipendenza dai combustibili fossili" },
   { id: "climate", name: "Sicurezza climatica", w: 10, v: (r, st) => 100 - Math.max(0, st.g.temp + st.g.geoOff - 1.1) / 1.6 * r.climate * 1.5, hint: "Riscaldamento globale ed esposizione della regione" },
@@ -2014,16 +2200,25 @@ const STAB_PARTS = [
 function stabParts(r, st) { return STAB_PARTS.map((p) => ({ ...p, val: clamp(p.v(r, st), 0, 100) })); }
 // scala allargata: il mondo del 2026 parte intorno a 45, un mondo davvero stabile supera 80
 const STAB_C = P.stabC, STAB_K = P.stabK;
+/* punto debole: una sola voce molto bassa abbassa tutta la stabilità (non si compensa con le altre). Energia e clima contano
+   solo negli scenari dove ci sono. */
+const WEAK_AT = 40, WEAK_K = 0.6;
+function stabWeak(r, st) {
+  const parts = stabParts(r, st).filter((p) => !((p.id === "energy" && !sysOn(st, "energia")) || (p.id === "climate" && !sysOn(st, "climate"))));
+  const w = parts.sort((a, b) => a.val - b.val)[0];
+  return { part: w, pen: Math.max(0, WEAK_AT - w.val) * WEAK_K };
+}
 function stabNow(r, st) {
-  if (!r.controlled) return 0;
+  if (!r.controlled && !r.exit) return 0;
   const parts = stabParts(r, st);
-  const raw = parts.reduce((s, p) => s + p.val * p.w, 0) / 100;
-  return clamp((raw - STAB_C) * STAB_K, 1, 100);
+  const raw = parts.reduce((s, p) => s + p.val * p.w, 0) / parts.reduce((s, p) => s + p.w, 0);
+  const v = clamp((raw - STAB_C) * STAB_K - stabWeak(r, st).pen, 1, 100);
+  return r.exit ? Math.min(v, 40) : v; // uscita dall'Autorità: l'ordine regge, ma per il mondo la regione conta poco
 }
 /* L'anarchia si diffonde: ogni regione vicina in anarchia porta profughi, violenza e commerci interrotti.
    In teoria una regione isolata può resistere; in pratica il crollo tende a propagarsi. */
 const ANARCHY_SPREAD = P.anarchySpread;
-function anarchyNear(st, r) { return RBY[r.id].nb.filter((n) => !st.regions[n].controlled).length; }
+function anarchyNear(st, r) { return RBY[r.id].nb.filter((n) => !st.regions[n].controlled && !st.regions[n].exit).length; }
 function worldStab(st) {
   const rs = Object.values(st.regions);
   return rs.reduce((s, r) => s + r.stab * r.pop, 0) / rs.reduce((s, r) => s + r.pop, 0);
@@ -2079,6 +2274,8 @@ function canStart(st, id) {
   if (st.over) return "Partita finita";
   if (!available(st, d)) return "Non disponibile a questo livello";
   if (d.bank) return "Sempre attiva";
+  if (st.G && st.G.auto && st.G.auto.includes(id) && !st._autoStart) return "Arriva da sola con il libero mercato";
+  if (st.refBan && st.refBan[id] > st.year) return "Referendum perso: si potrà riproporre dal " + st.refBan[id];
   if (d.from && st.year < d.from) return "Disponibile dal " + d.from;
   if (!parentOk(st, d)) return "Richiede: " + IBY[d.parent].name;
   if (d.need) { const w = d.need(st); if (w) return w; }
@@ -2097,6 +2294,7 @@ function canStart(st, id) {
 function startIntervention(st, id) {
   const why = canStart(st, id);
   if (why) return why;
+  if (needsRef(st, id) && !(st.paused && st.paused[id])) return "Serve un referendum";
   const d = IBY[id];
   const pz = st.paused && st.paused[id];
   if (pz) {
@@ -2254,7 +2452,7 @@ const GEN_CHAIN = ["genPatents", "genScandal", "genSchools", "genInsurance", "ge
 function genEv(id, after, title, text, choices) {
   const i = GEN_CHAIN.indexOf(id);
   return { id, scope: "global", cat: "Salute", title, once: true, text: () => text, choices,
-    p: (st) => (st.flags.genMkt != null && !st.flags.genBan && st.year - st.flags.genMkt >= after && (i === 0 || st.flags["done_" + GEN_CHAIN[i - 1]]) ? 0.5 : 0) };
+    p: (st) => (st.flags.genMkt != null && !st.flags.genBan && !st.G.noGenMarket && st.year - st.flags.genMkt >= after && (i === 0 || st.flags["done_" + GEN_CHAIN[i - 1]]) ? 0.5 : 0) };
 }
 const EVENTS = [
   { id: "debt", scope: "region", cat: "Economia", title: "Crisi del debito",
@@ -2753,7 +2951,7 @@ const EVENTS = [
       { label: "Andare avanti", cost: 0, out: "Divisioni e sospetti; un altro incidente diventa più probabile", fx: (st) => ctrlRegions(st).forEach((r) => (r.polar += 4)) },
     ] },
   { id: "designerBaby", scope: "region", cat: "Salute", title: "Il primo bambino su misura", once: true,
-    p: (st, r) => (st.g.biotech > 55 && !built(st, "embryoEdit") ? 0.01 : 0),
+    p: (st, r) => (st.g.biotech > 55 && !built(st, "embryoEdit") && !st.G.noGenMarket ? 0.01 : 0),
     text: (st, r) => `Una clinica privata in ${r.name} annuncia la nascita di due gemelli con il DNA modificato non per curare una malattia, ma per renderli "migliori".`,
     choices: [
       { label: "Chiudere la clinica e processare i responsabili", cost: 2, out: "Il divieto regge; un po' di polemiche", fx: (st, r) => { r.polar += 1; } },
@@ -2774,7 +2972,8 @@ const EVENTS = [
   genEv("genSchools", 9, "Scuole e sport divisi: potenziati contro naturali", "La prima generazione di bambini modificati entra a scuola e nello sport: imparano in metà del tempo e vincono ogni gara. Le famiglie dei bambini naturali chiedono scuole separate o quote protette.", [
     { label: "Accademie accelerate per i potenziati", cost: 0, out: "Più innovazione e produttività, ma la società si spacca", fx: (st) => { st.genShare += 0.035; st.genG = (st.genG || 0) + 0.1; ctrlRegions(st).forEach((r) => { r.polar += 12; r.shockU += 10; }); } },
     { label: "Quote riservate ai naturali nelle università e nel lavoro", cost: 0, out: "Pace sociale protetta, ma meno vantaggio economico", fx: (st) => { st.genShare = Math.max(0, st.genShare - 0.015); ctrlRegions(st).forEach((r) => { r.shockU -= 5; }); } },
-    { label: "Potenziamento genetico gratuito per tutti i neonati", cost: 12, out: "La disuguaglianza biologica sparisce per le nuove generazioni; costa ogni anno", fx: (st) => { st.genShare = Math.max(0, st.genShare - 0.03); ctrlRegions(st).forEach((r) => { r.polar -= 5; }); } },
+    { noGov: ["market"], label: "Potenziamento genetico gratuito per tutti i neonati", cost: 12, out: "La disuguaglianza biologica sparisce per le nuove generazioni; costa ogni anno", fx: (st) => { st.genShare = Math.max(0, st.genShare - 0.03); ctrlRegions(st).forEach((r) => { r.polar -= 5; }); } },
+    { gov: ["market"], label: "Donazioni delle grandi fondazioni", cost: 0, out: "Le fondazioni pagano una parte delle cure: effetto più piccolo e solo dove arrivano", fx: (st) => ctrlRegions(st).forEach((r) => { if (r.wealth < 50) r.shockU -= 2; }) },
   ]),
   genEv("genInsurance", 14, "Banche e assicurazioni leggono il DNA", "I giovani potenziati non si ammalano di infarto né di diabete: assicurazioni e banche offrono loro mutui scontati e rifiutano i contratti ai cittadini naturali.", [
     { label: "Permettere i contratti basati sul DNA", cost: 0, out: "Grande efficienza e risparmi sanitari, ma nasce un movimento radicale dei naturali", fx: (st) => { st.genShare += 0.045; ctrlRegions(st).forEach((r) => { r.shockU += 15; r.polar += 6; }); } },
@@ -2783,7 +2982,8 @@ const EVENTS = [
   genEv("genElite", 18, "La prima generazione adulta: una nuova élite", "I primi bambini su misura sono adulti: guidano laboratori, finanza e tecnologia, e tendono a sposarsi solo tra loro per conservare il proprio DNA potenziato.", [
     { label: "Assecondare la nuova élite biotecnologica", cost: 0, out: "Un boom economico e scientifico straordinario, ma la società si divide in due caste", fx: (st) => { st.genShare += 0.08; st.genG = (st.genG || 0) + 0.2; ctrlRegions(st).forEach((r) => { r.polar += 20; r.shockU += 10; }); } },
     { label: "Una tassa sul genoma per il welfare dei naturali", cost: 0, out: "Entrate un po' più alte e molta meno rabbia", fx: (st) => { st.genShare += 0.025; ctrlRegions(st).forEach((r) => { r.shockU -= 10; }); } },
-    { label: "Terapie geniche gratuite anche per gli adulti naturali", cost: 15, out: "Anche chi non è stato modificato riceve i geni che proteggono la salute: la frattura si ricuce", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockU -= 12; r.polar -= 8; }) },
+    { noGov: ["market"], label: "Terapie geniche gratuite anche per gli adulti naturali", cost: 15, out: "Anche chi non è stato modificato riceve i geni che proteggono la salute: la frattura si ricuce", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockU -= 12; r.polar -= 8; }) },
+    { gov: ["market"], label: "Donazioni delle grandi fondazioni", cost: 0, out: "Le fondazioni pagano una parte delle cure: effetto più piccolo e solo dove arrivano", fx: (st) => ctrlRegions(st).forEach((r) => { if (r.wealth < 50) r.shockU -= 2; }) },
   ]),
   { id: "mosquitoBorder", scope: "region", cat: "Salute", title: "Zanzare oltre il confine",
     p: (st, r) => (built(st, "geneDrive") && !TROPIC.includes(r.id) && RBY[r.id].nb.some((n) => TROPIC.includes(n)) ? 0.03 : 0),
@@ -2803,21 +3003,24 @@ const EVENTS = [
     p: (st) => { const a = st.acts.aiBio; return a && a.n > 0 && st.year - (a.y0 || a.y) >= 10 ? 0.3 : 0; },
     text: () => "Dieci anni di biologia guidata dall'AI danno il primo grande frutto: terapie in una sola dose per quasi tutti i tumori del sangue e per migliaia di malattie rare.",
     choices: [
-      { label: "Cure gratuite in tutto il mondo", cost: 8, out: "Un anno di vita in più in media, più fiducia ovunque", fx: (st) => { st.flags.gen1 = true; ctrlRegions(st).forEach((r) => (r.shockU -= 4)); } },
+      { noGov: ["market"], label: "Cure gratuite in tutto il mondo", cost: 8, out: "Un anno di vita in più in media, più fiducia ovunque", fx: (st) => { st.flags.gen1 = true; ctrlRegions(st).forEach((r) => (r.shockU -= 4)); } },
+      { gov: ["market"], label: "Donazioni delle grandi fondazioni", cost: 0, out: "Le fondazioni pagano le cure per una parte dei poveri: meno divisioni delle licenze", fx: (st) => { st.flags.gen1 = true; ctrlRegions(st).forEach((r) => (r.polar += 1)); } },
       { label: "Licenze alle aziende", cost: 0, out: "Un anno di vita in più, ma prima per chi può pagare", fx: (st) => { st.flags.gen1 = true; ctrlRegions(st).forEach((r) => (r.polar += 2)); } },
     ] },
   { id: "aiBio2", scope: "global", cat: "Salute", title: "Scoperta: il cuore e molti tumori", good: true, once: true,
     p: (st) => { const a = st.acts.aiBio; return a && a.n > 0 && st.flags.gen1 && st.year - (a.y0 || a.y) >= 20 ? 0.3 : 0; },
     text: () => "Vent'anni dopo: infarti e ictus diventano rari grazie a terapie geniche uniche, e molti tumori solidi si curano con cellule progettate dall'AI.",
     choices: [
-      { label: "Cure gratuite in tutto il mondo", cost: 12, out: "Molti anni di vita in più; più anziani da sostenere", fx: (st) => { st.flags.gen2 = true; ctrlRegions(st).forEach((r) => (r.shockU -= 4)); } },
+      { noGov: ["market"], label: "Cure gratuite in tutto il mondo", cost: 12, out: "Molti anni di vita in più; più anziani da sostenere", fx: (st) => { st.flags.gen2 = true; ctrlRegions(st).forEach((r) => (r.shockU -= 4)); } },
+      { gov: ["market"], label: "Donazioni delle grandi fondazioni", cost: 0, out: "Le fondazioni pagano le cure per una parte dei poveri: meno divisioni delle licenze", fx: (st) => { st.flags.gen2 = true; ctrlRegions(st).forEach((r) => (r.polar += 1)); } },
       { label: "Licenze alle aziende", cost: 0, out: "Vita più lunga, disuguaglianze più grandi", fx: (st) => { st.flags.gen2 = true; ctrlRegions(st).forEach((r) => (r.polar += 3)); } },
     ] },
   { id: "aiBio3", scope: "global", cat: "Salute", title: "Scoperta: la fine dell'Alzheimer", good: true, once: true,
     p: (st) => { const a = st.acts.aiBio; return a && a.n > 0 && st.flags.gen2 && st.year - (a.y0 || a.y) >= 30 ? 0.3 : 0; },
     text: () => "Trent'anni dopo: le malattie neurodegenerative, Alzheimer e Parkinson in testa, si possono prevenire e fermare. Per la prima volta invecchiare non significa perdere la mente.",
     choices: [
-      { label: "Cure gratuite in tutto il mondo", cost: 15, out: "La vecchiaia diventa molto più lunga e serena", fx: (st) => { st.flags.gen3 = true; ctrlRegions(st).forEach((r) => (r.shockU -= 5)); } },
+      { noGov: ["market"], label: "Cure gratuite in tutto il mondo", cost: 15, out: "La vecchiaia diventa molto più lunga e serena", fx: (st) => { st.flags.gen3 = true; ctrlRegions(st).forEach((r) => (r.shockU -= 5)); } },
+      { gov: ["market"], label: "Donazioni delle grandi fondazioni", cost: 0, out: "Le fondazioni pagano le cure per una parte dei poveri: meno divisioni delle licenze", fx: (st) => { st.flags.gen3 = true; ctrlRegions(st).forEach((r) => (r.polar += 1)); } },
       { label: "Licenze alle aziende", cost: 0, out: "Una vecchiaia lunga per chi può pagarla", fx: (st) => { st.flags.gen3 = true; ctrlRegions(st).forEach((r) => (r.polar += 3)); } },
     ] },
   { id: "promise", scope: "region", cat: "Istituzioni", title: (st, r) => (r && r.promise ? PROMISES[r.promise].t : "Promessa elettorale"),
@@ -2921,9 +3124,96 @@ const EVENTS = [
     p: (st) => built(st, "vaccines") ? 0.05 : 0,
     text: () => "Le piattaforme per vaccini rapidi hanno prodotto un vaccino efficace contro tutti i ceppi dell'influenza. Resta da decidere come distribuirlo.",
     choices: [
-      { label: "Distribuzione gratuita ovunque", cost: 6, out: "Pandemie meno letali; fiducia in aumento", fx: (st) => { st.flags.uniVax = true; ctrlRegions(st).forEach((r) => (r.polar -= 2)); } },
+      { noGov: ["market"], label: "Distribuzione gratuita ovunque", cost: 6, out: "Pandemie meno letali; fiducia in aumento", fx: (st) => { st.flags.uniVax = true; ctrlRegions(st).forEach((r) => (r.polar -= 2)); } },
+      { gov: ["market"], label: "Donazioni delle grandi fondazioni", cost: 0, out: "Le fondazioni pagano una parte delle cure: effetto più piccolo e solo dove arrivano", fx: (st) => ctrlRegions(st).forEach((r) => { if (r.wealth < 50) r.shockU -= 2; }) },
       { label: "Distribuzione a pagamento", cost: -3, out: "Entrate per l'Autorità; malumore nelle regioni povere", fx: (st) => { st.flags.uniVax = true; ctrlRegions(st).forEach((r) => { if (r.wealth < 40) r.shockU += 5; }); } },
       { label: "Rimandare", cost: 0, out: "Nessun effetto", fx: () => {} },
+    ] },  /* ===== Eventi propri dei governi (1 novembre 2026): nascono dalle loro scelte e dai rischi che comportano ===== */
+  // Democrazia liberale: elezioni con rischio di uscita
+  { id: "electionRisk", scope: "region", cat: "Istituzioni", title: "Elezioni a rischio",
+    p: (st, r) => (st.G.elections && r.elY === st.year + 1 && popRisk(st, r) >= 20 ? 3 : 0),
+    text: (st, r) => `L'anno prossimo si vota in ${r.name}. Nei sondaggi cresce un partito che promette di uscire dall'Autorità: oggi la probabilità che vinca è circa del ${Math.round(popRisk(st, r))}%. Debito, malcontento e disoccupazione lo spingono.`,
+    choices: [
+      { label: "Fondi di coesione per la regione", cost: 8, out: "Il rischio di uscita scende di circa 20 punti e il malcontento cala", fx: (st, r) => { r.popAid = (r.popAid || 0) + 20; r.shockU -= 5; } },
+      { label: "Finanziare di nascosto il partito favorevole all'Autorità", cost: 3, out: "Molto efficace, ma se si scopre (circa 1 volta su 3) l'uscita è sicura e le divisioni salgono ovunque", fx: (st, r) => {
+        if (rand() < 1 / 3) { r.popAid = -200; ctrlRegions(st).forEach((x) => (x.polar += 3)); logNews(st, `Scandalo: l'Autorità ha finanziato di nascosto un partito in ${r.name}.`, "bad"); }
+        else r.popAid = (r.popAid || 0) + 35; } },
+      { label: "Lasciare decidere gli elettori", cost: 0, out: "Nessuna spesa: decide il voto", fx: () => {} },
+    ] },
+  { id: "courtBlock", scope: "global", cat: "Istituzioni", title: "La Corte blocca una legge",
+    p: (st) => (st.govId === "liberal" && Object.keys(st.acts).some((id) => IBY[id] && IBY[id].revocable && st.acts[id].n > 0 && !(st.G.lock || []).includes(id)) ? 0.03 : 0),
+    onFire: (st) => { const ids = Object.keys(st.acts).filter((id) => IBY[id] && IBY[id].revocable && st.acts[id].n > 0); st.courtLaw = pick(ids); },
+    text: (st) => `La Corte suprema dell'Autorità dichiara illegittima una parte di «${IBY[st.courtLaw] ? IBY[st.courtLaw].name : "una legge"}»: viola i diritti di alcuni cittadini.`,
+    choices: [
+      { label: "Riscrivere la legge rispettando la sentenza", cost: 3, out: "La legge resta in vigore, riscritta", fx: () => {} },
+      { label: "Rispettare la sentenza e sospendere la legge", cost: 0, out: "La legge viene sospesa; la fiducia nelle istituzioni cresce", fx: (st) => { if (st.courtLaw) revoke(st, st.courtLaw); ctrlRegions(st).forEach((r) => (r.polar -= 1)); } },
+      { label: "Ignorare la Corte", cost: 0, out: "La legge resta, ma la fiducia crolla: più divisioni ovunque", fx: (st) => ctrlRegions(st).forEach((r) => { r.polar += 5; r.shockU += 3; }) },
+    ] },
+  // Stato sociale
+  { id: "debtMarkets", scope: "region", cat: "Economia", title: "Il debito spaventa i mercati",
+    p: (st, r) => (st.govId === "social" && r.debt > 100 ? 0.04 + (r.debt - 100) * 0.001 : 0),
+    text: (st, r) => `Gli investitori temono che la spesa sociale di ${r.name} non sia sostenibile: il debito è al ${Math.round(r.debt)}% del prodotto e gli interessi salgono.`,
+    choices: [
+      { label: "L'Autorità garantisce il debito", cost: 8, out: "Gli interessi tornano giù", fx: (st, r) => { r.debt -= 5; } },
+      { label: "Piano di rientro graduale", cost: 0, out: "Il debito scende, ma con qualche sacrificio: malcontento", fx: (st, r) => { r.debt -= 10; r.shockU += 8; } },
+      { label: "Non fare nulla", cost: 0, out: "Interessi più alti: il debito sale e la crescita rallenta", fx: (st, r) => { r.debt += 8; r.shockG -= 1; } },
+    ] },
+  { id: "waitList", scope: "region", cat: "Salute", title: "Lunghe liste d'attesa",
+    p: (st, r) => (st.govId === "social" && built(st, "healthcare") && r.age > 30 ? 0.02 : 0),
+    text: (st, r) => `In ${r.name} per una visita specialistica servono mesi e milioni di persone rinunciano a curarsi. Chi può paga la sanità privata.`,
+    choices: [
+      { label: "Piano straordinario di assunzioni", cost: 6, out: "Le liste si accorciano: molto meno malcontento", fx: (st, r) => { r.shockU -= 8; } },
+      { label: "Convenzioni con le cliniche private", cost: 2, out: "Le liste si accorciano, ma la sanità diventa più divisa", fx: (st, r) => { r.shockU -= 4; r.polar += 3; } },
+      { label: "Non fare nulla", cost: 0, out: "Rabbia crescente e salute peggiore", fx: (st, r) => { r.shockU += 10; } },
+    ] },
+  // Libero mercato
+  { id: "monopolyPress", scope: "global", cat: "Società", title: "I monopolisti comprano i giornali",
+    p: (st) => (st.govId === "market" && st.year > 2032 ? 0.03 : 0),
+    text: () => "Le tre aziende più grandi del mondo hanno comprato i principali giornali e televisioni. Le notizie sulle loro attività spariscono dalle prime pagine.",
+    choices: [
+      { label: "Fondi per i giornali indipendenti", cost: 4, out: "Il pluralismo resiste", fx: () => {} },
+      { label: "Lasciar fare al mercato", cost: 0, out: "Più sfiducia e divisioni ovunque", fx: (st) => ctrlRegions(st).forEach((r) => (r.polar += 4)) },
+    ] },
+  { id: "unionsBorn", scope: "region", cat: "Economia", title: "Nascono i sindacati",
+    p: (st, r) => (st.govId === "market" && r.unrest > 50 && r.unemp > 7 ? 0.05 : 0),
+    text: (st, r) => `In ${r.name} i lavoratori delle fabbriche e dei magazzini si organizzano: chiedono salari più alti e turni meno duri, e minacciano di scioperare.`,
+    choices: [
+      { label: "Riconoscerli e trattare", cost: 0, out: "Salari più alti e meno malcontento, ma il lavoro costa di più: le imprese automatizzano più in fretta", fx: (st, r) => { r.shockU -= 8; r.shockG -= 0.4; r.unemp += 0.8; } },
+      { label: "Limitare gli scioperi per legge", cost: 0, out: "Meno scioperi subito, ma più divisioni", fx: (st, r) => { r.shockU -= 3; r.polar += 6; } },
+      { label: "Ignorarli", cost: 0, out: "Scioperi e rabbia", fx: (st, r) => { r.shockU += 10; r.shockG -= 0.5; } },
+    ] },
+  // Repubblica del lavoro
+  { id: "secretRobots", scope: "region", cat: "Economia", title: "Robot clandestini",
+    p: (st, r) => (st.govId === "human" && r.shadow > 12 && st.year > 2030 ? 0.03 : 0),
+    text: (st, r) => `In ${r.name} si scoprono fabbriche che usano robot di nascosto: producono a metà prezzo e mettono fuori mercato chi rispetta la legge.`,
+    choices: [
+      { label: "Controlli severi", cost: 4, out: "Le fabbriche clandestine chiudono; l'economia sommersa cala", fx: (st, r) => { r.shadow = Math.max(2, r.shadow - 3); } },
+      { label: "Permetterli in alcuni settori", cost: 0, out: "Più crescita, ma più disoccupazione e divisioni", fx: (st, r) => { r.shockG += 0.6; r.unemp += 1.5; r.polar += 3; } },
+      { label: "Chiudere un occhio", cost: 0, out: "La regola perde credibilità: più economia sommersa", fx: (st, r) => { r.shadow += 2; r.shockG += 0.3; } },
+    ] },
+  { id: "laborShortage", scope: "region", cat: "Previdenza", title: "Mancano lavoratori",
+    p: (st, r) => (st.govId === "human" && r.tfr < 1.7 && r.age > 38 ? 0.04 : 0),
+    text: (st, r) => `In ${r.name} ci sono sempre meno giovani: fabbriche, ospedali e campi non trovano personale e senza robot la produzione cala.`,
+    choices: [
+      { label: "Aprire all'immigrazione", cost: 3, out: "Nuovi lavoratori subito; un po' di tensioni", fx: (st, r) => { r.shockG += 0.6; r.polar += 2; } },
+      { label: "Alzare l'età della pensione", cost: 0, out: "Più lavoratori e pensioni più leggere, ma molta rabbia", fx: (st, r) => { r.pension -= 5; r.shockU += 10; } },
+      { label: "Non fare nulla", cost: 0, out: "La produzione cala e le pensioni pesano di più", fx: (st, r) => { r.shockG -= 1; r.pension += 3; } },
+    ] },
+  // Tecnocrazia
+  { id: "expertsWrong", scope: "global", cat: "Istituzioni", title: "Gli esperti sbagliano",
+    p: (st) => (st.govId === "techno" && st.year > 2029 ? 0.025 : 0),
+    text: () => "Una previsione dei comitati scientifici si rivela sbagliata: una misura costosa non ha dato i risultati promessi. Chi governa senza essere eletto ora deve rendere conto.",
+    choices: [
+      { label: "Ammettere l'errore e cambiare rotta", cost: 2, out: "La fiducia regge", fx: (st) => ctrlRegions(st).forEach((r) => (r.polar += 1)) },
+      { label: "Difendere la decisione", cost: 0, out: "Cresce la rabbia contro gli esperti", fx: (st) => ctrlRegions(st).forEach((r) => { r.polar += 5; r.shockU += 3; }) },
+    ] },
+  { id: "peopleNoUnderstand", scope: "global", cat: "Società", title: "La gente non capisce",
+    p: (st) => (st.govId === "techno" && avgOf(st, "polar") > 45 ? 0.03 : 0),
+    text: () => "Nasce un movimento contro gli esperti: \"decidono loro, noi paghiamo\". Le scelte impopolari dei comitati scientifici vengono contestate in piazza.",
+    choices: [
+      { label: "Spiegare le decisioni con una grande campagna pubblica", cost: 3, out: "Divisioni in calo", fx: (st) => ctrlRegions(st).forEach((r) => (r.polar -= 3)) },
+      { label: "Ascoltare la piazza e rinviare le scelte più dure", cost: 0, out: "Meno malcontento, ma meno efficacia", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockU -= 4; r.shockG -= 0.2; }) },
+      { label: "Andare avanti", cost: 0, out: "Più divisioni e malcontento", fx: (st) => ctrlRegions(st).forEach((r) => { r.polar += 5; r.shockU += 4; }) },
     ] },
 ];
 const EBY = Object.fromEntries(EVENTS.map((e) => [e.id, e]));
@@ -2939,13 +3229,15 @@ function aiTerror(st) {
   const G = st.g, gap = G.aiCap - G.aiSafety;
   return 0.03 * clamp((G.aiCap - 35) / 40, 0, 1) * clamp((gap + 15) / 40, 0.1, 1) * (built(st, "aiOpen") ? 1.5 : 1) * (built(st, "cyber") ? 0.8 : 1);
 }
-function gmPmit(st) { return clamp((st.acts.vaccines ? 0.6 : 0) + (st.acts.amr ? 0.15 : 0) + (st.acts.surveil ? 0.1 : 0) + (st.flags.uniVax ? 0.1 : 0), 0, 0.9); }
+function gmPmit(st) { return clamp((st.acts.vaccines ? 0.6 : 0) + (st.acts.amr ? 0.15 : 0) + (st.acts.surveil ? 0.1 : 0) + (st.acts.volSurveil ? 0.06 : 0) + (st.flags.uniVax ? 0.1 : 0), 0, 0.9); }
 
-function eventCost(st, ev, i) { return priced(st, ev.choices[i].cost); }
+// scelte di un evento per il governo in carica: alcune esistono solo per certi governi (gov) o mancano per altri (noGov)
+function evChoices(st, E) { return E.choices.filter((c) => (!c.gov || c.gov.includes(st.govId)) && !(c.noGov && c.noGov.includes(st.govId))); }
+function eventCost(st, ev, i) { return priced(st, evChoices(st, ev)[i].cost); }
 const CRISIS_DEBT = { recession: 2, crash: 1.5, pandemic: 4, epidemic: 1, storm: 1.5, quake: 2, wildfire: 1, heat: 0.5, famine: 1, civilWar: 3, borderWar: 3, conflict: 2 };
 function resolveEvent(st, pending, i) {
   const ev = EBY[pending.id];
-  const c = ev.choices[Math.min(i, ev.choices.length - 1)]; // "non fare nulla" è sempre l'ultima scelta
+  const ch = evChoices(st, ev), c = ch[Math.min(i, ch.length - 1)]; // "non fare nulla" è sempre l'ultima scelta
   st.funds -= priced(st, c.cost);
   const r = pending.r ? st.regions[pending.r] : null;
   c.fx(st, r);
@@ -2953,7 +3245,7 @@ function resolveEvent(st, pending, i) {
   const cd = CRISIS_DEBT[ev.id];
   if (cd && !ev.good) { if (r) r.debt += cd; else ctrlRegions(st).forEach((x) => (x.debt += cd)); }
   if (ev.once) st.flags["done_" + ev.id] = true;
-  logNews(st, r && !evTitle(ev, st, r).includes(r.name) ? `${evTitle(ev, st, r)} (${r.name}). La tua decisione: «${c.label.replace(/\.$/, "")}».` : `${evTitle(ev, st, r)}. La tua decisione: «${c.label.replace(/\.$/, "")}».`, i === 2 && !ev.good ? "bad" : "info", true);
+  logNews(st, r && !evTitle(ev, st, r).includes(r.name) ? `${evTitle(ev, st, r)} (${r.name}). La tua decisione: «${c.label.replace(/\.$/, "")}».` : `${evTitle(ev, st, r)}. La tua decisione: «${c.label.replace(/\.$/, "")}».`, i === ch.length - 1 && ch.length > 2 && !ev.good ? "bad" : "info", true);
   if (st.comet) st.log[0].comet = true;
   return null;
 }
@@ -3017,6 +3309,7 @@ function reconChance(st, r) {
 function reconWhy(st, rid) {
   const r = st.regions[rid];
   if (r.controlled) return "La regione è sotto controllo";
+  if (r.exit) return "La regione è uscita con un voto: può rientrare solo con le elezioni";
   if ((st.recon || []).some((q) => q.r === rid)) return "Missione in corso";
   if (!reconBase(st, r).length && !reconFar(st).length) return "Serve almeno una regione sotto controllo con stabilità almeno 30 da cui far partire la missione";
   return null;
@@ -3028,6 +3321,110 @@ function reconquer(st, rid) {
   logNews(st, `Parte la missione di pace e ricostruzione in ${st.regions[rid].name}.`, "info");
   return null;
 }
+/* ---------- regole proprie dei governi (1 novembre 2026) ---------- */
+/* Referendum della Democrazia liberale: le riforme più dure passano solo se la gente le approva. La campagna costa; la
+   probabilità dipende da malcontento e divisioni (e per gli aerosol dalla paura del clima). Se si vince, la riforma provoca metà
+   del malcontento solito; se si perde, non si può riproporre per tre anni. [Probabile: Svizzera, Irlanda] */
+const REF_BASE = { retire: 0.45, cutServices: 0.35, taxRaise: 0.45, carbonLaw: 0.5, geoeng: 0.15, massRobots: 0.4, embryoEdit: 0.4 };
+const needsRef = (st, id) => !!(st.G && st.G.ref && st.G.ref.includes(id) && !(st.refOk && st.refOk[id]));
+function refInfo(st, id) {
+  const rs = ctrlRegions(st), n = Math.max(1, rs.length);
+  const u = rs.reduce((a, r) => a + r.unrest, 0) / n, pol = rs.reduce((a, r) => a + r.polar, 0) / n;
+  let p = (REF_BASE[id] || 0.4) - Math.max(0, u - 45) * 0.006 - Math.max(0, pol - 40) * 0.004;
+  if (id === "geoeng") p += Math.max(0, st.g.temp + st.g.geoOff - 1.6) * 0.25; // la gente accetta le soluzioni estreme solo quando ha paura
+  return { p: clamp(p, 0.05, 0.85), cost: priced(st, id === "geoeng" ? 12 : 3) };
+}
+function runReferendum(st, id) {
+  const ban = st.refBan && st.refBan[id];
+  if (ban && ban > st.year) return "Referendum perso: si potrà riproporre dal " + ban;
+  const { p, cost } = refInfo(st, id), d = IBY[id];
+  st.funds -= cost;
+  if (rand() < p) {
+    (st.refOk || (st.refOk = {}))[id] = true;
+    logNews(st, `Referendum: vince il sì. «${d.name}» parte con il consenso dei cittadini.`, "done");
+    const why = startIntervention(st, id);
+    if (why) logNews(st, `«${d.name}»: ${why}.`, "info");
+    return null;
+  }
+  (st.refBan || (st.refBan = {}))[id] = st.year + 3;
+  logNews(st, `Referendum: vince il no. «${d.name}» non si potrà riproporre prima del ${st.year + 3}.`, "bad");
+  return null;
+}
+
+/* Elezioni nella Democrazia liberale: ogni regione vota ogni 5 anni (date sfalsate). Con debito, malcontento, disoccupazione
+   e divisioni alti può vincere un partito che porta la regione fuori dall'Autorità: non è anarchia (l'ordine regge), ma la
+   regione smette di versare fondi e di seguire gli interventi. Può rientrare alle elezioni successive, soprattutto se fuori
+   le cose vanno male o se le si offre un accordo di rientro. [Probabile: Brexit; pochi casi di rientro] */
+function popRisk(st, r) {
+  return clamp(Math.max(0, r.unrest - 55) * 1.3 + Math.max(0, r.debt - 120) * 0.3 + Math.max(0, r.unemp - 10) * 2 + Math.max(0, r.polar - 55) * 0.6 - (r.popAid || 0), 0, 90);
+}
+function reentryChance(st, r) {
+  return clamp(15 + Math.max(0, r.unrest - 40) * 1 + Math.max(0, r.debt - 100) * 0.2 + (r.reentryOffer ? 40 : 0), 5, 90);
+}
+const REENTRY_COST = 15;
+function exitRegion(st, r) {
+  r.controlled = false; r.exit = true; r.anarchy = 0; r.reentryOffer = false;
+  st.prog = st.prog.filter((p) => p.r !== r.id);
+  logNews(st, `Elezioni in ${r.name}: vince il partito dell'uscita. La regione lascia l'Autorità: non versa più fondi e non segue più gli interventi.`, "bad");
+  note(st, "bad", "assemblies", `${r.name} esce dall'Autorità`, `Gli elettori di ${r.name} hanno scelto di uscire. L'ordine regge, ma la regione non versa più fondi e non segue più i tuoi interventi. Alle prossime elezioni, fra cinque anni, potrà votare per rientrare: tanto più facilmente quanto peggio andranno le cose fuori, o se le offri un accordo di rientro.`);
+}
+function elections(st) {
+  if (!st.G.elections) return;
+  for (const r of Object.values(st.regions)) {
+    if (r.elY == null || st.year < r.elY) continue;
+    r.elY += 5;
+    if (r.controlled) {
+      if (rand() * 100 < popRisk(st, r)) exitRegion(st, r);
+      else logNews(st, `Elezioni in ${r.name}: vincono i partiti che vogliono restare nell'Autorità.`, "info");
+      r.popAid = 0;
+    } else if (r.exit) {
+      if (rand() * 100 < reentryChance(st, r)) {
+        r.controlled = true; r.exit = false; r.unrest = Math.min(r.unrest, 70); r.reentryOffer = false;
+        logNews(st, `Elezioni in ${r.name}: vince chi vuole rientrare. La regione torna nell'Autorità.`, "done");
+        note(st, "good", "assemblies", `${r.name} rientra nell'Autorità`, `Dopo anni fuori, gli elettori di ${r.name} hanno scelto di tornare. La regione versa di nuovo i fondi e segue gli interventi.`);
+      } else { logNews(st, `Elezioni in ${r.name}: la regione resta fuori dall'Autorità.`, "info"); r.reentryOffer = false; }
+    }
+  }
+}
+function offerReentry(st, rid) {
+  const r = st.regions[rid];
+  if (!r.exit || r.reentryOffer) return "Accordo già offerto";
+  st.funds -= priced(st, REENTRY_COST);
+  r.reentryOffer = true; r.debt = Math.max(0, r.debt - 10);
+  logNews(st, `L'Autorità offre a ${r.name} un accordo di rientro: fondi e un taglio del debito se tornerà.`, "info");
+  return null;
+}
+
+/* Libero mercato: automazione, robot e robot pensanti arrivano da soli, quando convengono alle imprese (non li paga l'Autorità). */
+function marketAuto(st) {
+  if (!st.G.auto) return;
+  for (const id of st.G.auto) {
+    const d = IBY[id];
+    if (!d || !available(st, d) || st.acts[id] || st.prog.some((p) => p.id === id)) continue;
+    if (id === "automation" && st.year < 2029) continue;
+    st._autoStart = true; const why = canStart(st, id); st._autoStart = false;
+    if (why) continue;
+    const f = st.funds; st._autoStart = true; startIntervention(st, id); st._autoStart = false; st.funds = f;
+    logNews(st, `Le imprese adottano da sole: «${d.name}». L'Autorità non può fermarle né tassarle.`, "info");
+    break; // uno alla volta
+  }
+}
+
+/* Tecnocrazia: il progresso non si ferma. Ogni 7 anni la prossima tecnologia disponibile parte da sola e si paga. */
+const PROGRESS = ["aiPublic", "qComp", "qIndustry", "aiBio", "qAI", "somaticEdit", "embryoEdit"];
+function technoProgress(st) {
+  if (!st.G.progress) return;
+  if (st.nextProg == null) st.nextProg = 2031;
+  if (st.year < st.nextProg) return;
+  for (const id of PROGRESS) {
+    if (!IBY[id] || canStart(st, id)) continue;
+    startIntervention(st, id);
+    note(st, "info", id, "Il progresso non si ferma", `Gli esperti hanno avviato «${IBY[id].name}». In una tecnocrazia il progresso non si rimanda: è già pagato. Controlla che la sicurezza tenga il passo.`);
+    st.nextProg = st.year + 7;
+    return;
+  }
+}
+
 function gameOver(st, key) {
   if (st.over) return;
   st.over = key;
@@ -3098,6 +3495,7 @@ function tick(st) {
       const u0 = m.unrestT, p0 = m.polarT;
       if (d.eff) applyEff(d.eff, EFF_KEY, m, s);
       if (d.fx) d.fx(m, s, r, st, gm, st.acts[aid]);
+      if (st.refOk && st.refOk[aid] && m.unrestT > u0) m.unrestT = u0 + (m.unrestT - u0) * 0.5; // voluta dai cittadini con un referendum
       if ((d.upkeep || 0) < 0) fat += Math.min(3, 0.15 * (st.year - (st.acts[aid].y0 || st.acts[aid].y))); // più anni di tagli, più rabbia
       // la reazione ai lati negativi dei cambiamenti dipende dalla difficoltà
       const bl = (st.D && st.D.backlash) || 1;
@@ -3115,9 +3513,11 @@ function tick(st) {
       /* aerosol nella stratosfera (quarto rapporto, 31 ottobre 2026): ambientalisti e complottisti protestano ovunque (meno con
          l'osservatorio indipendente), piogge monsoniche più scarse in Asia meridionale e in Africa (meno con gli aiuti all'Asia meridionale) */
       if (built(st, "geoeng")) {
-        m.life -= 0.2; const k = st.flags.geoWatch ? 0.5 : 1;
+        // con il controllo scientifico della Tecnocrazia (rilascio graduale e simmetrico) i danni alle piogge calano del 65-80% [Probabile]
+        const sci = built(st, "sciGeo") ? 0.3 : 1;
+        m.life -= 0.2; const k = (st.flags.geoWatch ? 0.5 : 1) * (sci < 1 ? 0.6 : 1);
         m.unrestT += 3 * k; m.polarT += 4 * k;
-        if (MONSOON.includes(r.id)) { m.unrestT += r.id === "sa" && st.flags.thermoAid ? 2 : 5; m.g -= 0.15; }
+        if (MONSOON.includes(r.id)) { m.unrestT += (r.id === "sa" && st.flags.thermoAid ? 2 : 5) * sci; m.g -= 0.15 * sci; }
       }
       // dopo una missione di pace: cinque anni di transizione con i caschi blu, che tengono basso il malcontento
       if (r.peaceUntil > st.year) m.unrestT -= 15 * clamp((r.peaceUntil - st.year - st.month / 12) / 5, 0, 1);
@@ -3401,6 +3801,8 @@ function evMult(st, id) {
   if ((id === "protests" || id === "antiAuth") && built(st, "massSurveil")) k *= 0.3;
   if (id === "nucAccident" && built(st, "nucAgency")) k *= 0.35;
   if (id === "cyberAttack" && built(st, "qCrypto")) k *= 0.7;
+  if (id === "bubble" && st.govId === "market") k *= 1.5; // libero mercato: bolle finanziarie più frequenti [Probabile]
+  for (const a in st.acts) { const d = IBY[a]; if (d && d.evm && d.evm[id] != null && st.acts[a].n > 0) k *= d.evm[id]; } // eventi resi più rari o più frequenti da un intervento
   return k;
 }
 /* Ritmo degli eventi: dopo una crisi passano almeno 8 mesi prima della successiva (3 per gli eventi climatici,
@@ -3444,6 +3846,7 @@ function yearly(st) {
   if (st.over) return;
   cometYear(st);
   if (st.over) return;
+  elections(st); marketAuto(st); technoProgress(st);
   /* ricerca sull'invecchiamento: i primi farmaci contro le malattie dell'età sono plausibili in 7-10 anni di ricerca intensa
      [Probabile: studi TAME, rapamicina, GLP-1]. Prima del settimo anno quasi impossibile, poi l'8% l'anno (prima 2% fisso). */
   const ar = st.acts.agingResearch;
@@ -3636,8 +4039,8 @@ function loadState(txt) {
 
 if (typeof module !== "undefined") module.exports = {
   P, PROMISES, pensPoverty, polarCauses, budget, incomeGainOf, amnestyYield, incomeSupport, robotCapture, popLossAge, bioCover, aiTerror, privatePens, WAGE, wageIdx, SHADOW0, taxBase, shadowW, OLD_LEVEL, DISCOVERIES, evTitle, RPROF, priced, eventCost, authRate, maxSurplus, bankPreview, co2Gross, worldBirths, clampRate, snowball, regionRate, co2Gt, GDP_2026, CO2_2026, DIFF, LEVELS, LBY, GOVS, GBY, sysOn, REGIONS, RBY, INTERVENTIONS, IBY, CATS, EVENTS, EBY, ENDINGS, STABLE_YEARS, RISK_LABELS,
-  reconquer, reconWhy, reconChance, RECON_COST, RECON_T, LOW_STAB, LOW_YEARS, ANOMALY,
-  newGame, tick, EV_WARN, advise, preview, ctrlShare, available, anarchyNear, saveState, loadState, honors, endingText, costOf, upkeepOf, built, startIntervention, payoffNow, stabParts, stabNow, worldStab, unrestCauses, STAB_PARTS, WIN_WORLD, canStart, parentOk, TREE, resolveEvent, revoke, stability, riskBoard, risks, emissions, worldPop, lvl, setSeed, rand,
+  reconquer, reconWhy, reconChance, RECON_COST, RECON_T, needsRef, refInfo, runReferendum, popRisk, reentryChance, offerReentry, REENTRY_COST, evChoices, LOW_STAB, LOW_YEARS, ANOMALY,
+  newGame, tick, EV_WARN, advise, preview, ctrlShare, available, anarchyNear, saveState, loadState, honors, endingText, costOf, upkeepOf, built, startIntervention, payoffNow, stabParts, stabWeak, stabNow, worldStab, unrestCauses, STAB_PARTS, WIN_WORLD, canStart, parentOk, TREE, resolveEvent, revoke, stability, riskBoard, risks, emissions, worldPop, lvl, setSeed, rand,
 };
 
 </script>
@@ -4328,6 +4731,441 @@ Object.assign(LANG_EN, {
   "Rapidità": "Speed", "Vittoria entro {0} anni": "Victory within {0} years", "Nessuno lasciato indietro": "Nobody left behind", "Nessuna regione caduta nell'anarchia": "No region fell into anarchy",
   "Clima sotto controllo": "Climate under control", "Temperatura mai oltre +1,8 °C in tutta la partita": "Temperature never above +1.8 °C during the game",
   "Ponte verso le stelle": "Bridge to the stars", "Insediamento lunare permanente": "Permanent lunar settlement",
+});
+
+/* Traduzione inglese dei governi riprogettati (1 novembre 2026): azioni esclusive, referendum, elezioni, eventi propri. */
+Object.assign(LANG_EN, {
+  "Tutte le azioni normali": "All normal actions",
+  "Il governo per imparare": "The government for learning",
+  "Nessuna azione esclusiva": "No exclusive actions",
+  "Diritti, regole e consenso": "Rights, rules and consent",
+  "Le riforme più dure passano con un referendum: se vinci, metà del malcontento": "The toughest reforms pass by referendum: if you win, half the discontent",
+  "Esclusive: comunità energetiche, antitrust, patto sociale, stampa libera, tribunale del clima, ispezioni sulle armi, algoritmi trasparenti, comitato etico": "Exclusive: energy communities, antitrust, social pact, free press, climate court, weapons inspections, transparent algorithms, ethics committee",
+  "Elezioni in ogni regione ogni 5 anni: se il malcontento è alto può vincere chi vuole uscire dall'Autorità": "Elections in every region every 5 years: if discontent is high, those who want to leave the Authority can win",
+  "Niente ordine pubblico rafforzato, contrasto alla disinformazione, assunzioni pubbliche straordinarie, dazi; sorveglianza epidemiologica solo volontaria": "No reinforced public order, counter-disinformation, emergency public hiring or tariffs; epidemic surveillance only voluntary",
+  "Protezione garantita a tutti": "Protection guaranteed for all",
+  "Sanità universale e pensione minima garantita dal primo giorno (non si tolgono)": "Universal healthcare and a guaranteed minimum pension from day one (they cannot be removed)",
+  "Esclusive: tariffa sociale dell'energia, asili gratuiti, edilizia pubblica di massa, ticket, fondo pensione pubblico, contributi sulle macchine, imposta sulle eredità, medicina territoriale, terapie geniche pubbliche": "Exclusive: social energy tariff, free nurseries, mass public housing, health charges, public pension fund, social contributions on machines, inheritance tax, community healthcare, public gene therapies",
+  "Spese fisse alte che crescono con l'invecchiamento: vanno finanziate": "High fixed costs that grow with ageing: they must be funded",
+  "Niente tagli al personale e ai servizi, pensioni legate a stipendi e lavoratori, nucleare privato; la revisione della spesa taglia solo sprechi e sussidi; niente potenziamento genetico privato": "No cuts to staff and services, pensions tied to wages and workers, or private nuclear; the spending review only cuts waste and subsidies; no private genetic enhancement",
+  "Lo Stato si ritira": "The State steps back",
+  "L'automazione arriva da sola, senza spese per l'Autorità": "Automation arrives on its own, at no cost to the Authority",
+  "Esclusive: privatizzazioni, azionariato popolare, zone economiche speciali, opere in partenariato, permessi di emissione, sanità privata, buono scuola, corsa privata all'AI e altre": "Exclusive: privatisations, popular shareholding, special economic zones, public-private works, emission permits, private healthcare, school vouchers, private AI race and more",
+  "Niente reddito di base, sussidio di disoccupazione, salario minimo, investimenti e assunzioni pubbliche, sanità e scuola pubbliche, legge sulle emissioni, regole sull'AI": "No basic income, unemployment benefit, minimum wage, public investment and hiring, public healthcare and schools, emissions law or AI rules",
+  "L'automazione non si può fermare né tassare: la disoccupazione arriva a ondate": "Automation cannot be stopped or taxed: unemployment comes in waves",
+  "Ordine ed efficienza, ma fragile": "Order and efficiency, but fragile",
+  "Cantieri il 30% più rapidi: si decide senza discussioni": "Building works 30% faster: decisions without debate",
+  "Repubblica del lavoro": "Labour Republic",
+  "Il lavoro al centro, le macchine al suo servizio": "Work at the centre, machines at its service",
+  "Esclusive: settimana corta, cooperative, formazione per tutta la vita, cantieri energetici e agricoltura ad alta occupazione, servizio civile esteso, protezione civile di volontari, tecnologie che aiutano chi lavora": "Exclusive: shorter working week, cooperatives, lifelong learning, labour-intensive energy works and farming, extended civil service, volunteer civil protection, technologies that assist workers",
+  "Niente automazione, robot, AI negli uffici pubblici né biologia guidata dall'AI: con meno giovani mancano lavoratori e servono nascite, immigrazione e pensione più tardi": "No automation, robots, AI in public offices or AI-driven biology: with fewer young people workers run short, and births, immigration and later retirement are needed",
+  "Esclusive: rete elettrica mondiale, ufficio di bilancio indipendente, bilancio attuariale delle pensioni, consulte scientifiche, geoingegneria controllata, laboratori di massima sicurezza, programma di sicurezza dell'AI, squadra di attacco controllato, protocolli genetici": "Exclusive: global power grid, independent budget office, actuarial pension balance, scientific councils, controlled geoengineering, maximum-security labs, AI safety programme, red team, genetic protocols",
+  "Il progresso non si ferma: ogni 7 anni una nuova tecnologia parte da sola (e si paga), anche se la sicurezza non è pronta": "Progress does not stop: every 7 years a new technology starts on its own (and is paid for), even if safety is not ready",
+  "Niente assemblee di cittadini né incentivi senza controlli alle grandi aziende dell'AI": "No citizens' assemblies, and no unchecked incentives for big AI companies",
+  "Comunità energetiche": "Energy communities",
+  "Cittadini, comuni e piccole imprese producono e condividono la propria energia rinnovabile.": "Citizens, municipalities and small businesses produce and share their own renewable energy.",
+  "Molta meno opposizione alle nuove centrali, bollette più basse per chi partecipa, rinnovabili un po' più veloci": "Much less opposition to new power plants, lower bills for participants, renewables a little faster",
+  "Costa ogni anno; effetto graduale. Esclusivo della Democrazia liberale": "Costs every year; gradual effect. Exclusive to Liberal democracy",
+  "Autorità antitrust": "Antitrust authority",
+  "Un'autorità indipendente indaga sui monopoli e può dividere le aziende troppo grandi.": "An independent authority investigates monopolies and can break up companies that are too big.",
+  "Dopo qualche anno più concorrenza: prezzi più bassi, un po' più di crescita, meno disuguaglianza e potere meno concentrato; le corse tecnologiche rallentano un po' (meno rischi)": "After a few years more competition: lower prices, a little more growth, less inequality and less concentrated power; technology races slow a little (less risk)",
+  "Cause lunghe e care: nei primi 4-5 anni borse e investimenti scendono e le regioni ricche protestano. Esclusivo della Democrazia liberale [Probabile]": "Long, costly lawsuits: in the first 4-5 years stock markets and investment fall and rich regions protest. Exclusive to Liberal democracy [Probable]",
+  "Patto sociale": "Social pact",
+  "Sindacati e imprese firmano un accordo: aumenti graduali dei salari in cambio di pace sociale.": "Unions and businesses sign an agreement: gradual wage rises in exchange for social peace.",
+  "Scioperi molto più rari, meno malcontento, inflazione più tranquilla": "Strikes much rarer, less discontent, calmer inflation",
+  "Salari che crescono piano: un po' meno spinta ai consumi. Esclusivo della Democrazia liberale [Probabile]": "Wages grow slowly: a little less push to consumption. Exclusive to Liberal democracy [Probable]",
+  "Stampa libera e giornalismo indipendente": "Free press and independent journalism",
+  "Fondi pubblici senza condizioni ai giornali indipendenti, protezione delle fonti e dei giornalisti.": "Unconditional public funds for independent newspapers, protection of sources and journalists.",
+  "Le divisioni calano lentamente, la corruzione e l'economia sommersa scendono, gli scandali emergono prima e fanno meno danni": "Division falls slowly, corruption and the shadow economy decline, scandals surface earlier and do less damage",
+  "Costa ogni anno; effetto lento. Esclusivo della Democrazia liberale": "Costs every year; slow effect. Exclusive to Liberal democracy",
+  "Tribunale internazionale del clima": "International climate court",
+  "Gli impegni sulle emissioni diventano vincolanti: un tribunale può condannare chi non li rispetta.": "Emission commitments become binding: a court can sentence those who fail to meet them.",
+  "Le emissioni scendono più in fretta in tutte le regioni": "Emissions fall faster in all regions",
+  "Le industrie fossili protestano: un po' di malcontento. Esclusivo della Democrazia liberale [Ipotesi]": "Fossil industries protest: some discontent. Exclusive to Liberal democracy [Hypothesis]",
+  "Ispezioni aperte sugli arsenali": "Open inspections of arsenals",
+  "Ispettori internazionali possono visitare in ogni momento basi, depositi e laboratori militari.": "International inspectors can visit military bases, depots and laboratories at any time.",
+  "La tensione tra le potenze scende più in fretta": "Tension between the powers falls faster",
+  "Costa ogni anno. Esclusivo della Democrazia liberale": "Costs every year. Exclusive to Liberal democracy",
+  "Rete volontaria di allerta sanitaria": "Voluntary health alert network",
+  "Medici, ospedali e cittadini segnalano volontariamente i casi sospetti; i dati restano anonimi.": "Doctors, hospitals and citizens voluntarily report suspected cases; the data stay anonymous.",
+  "I nuovi virus si scoprono prima, senza sfiducia nelle istituzioni": "New viruses are detected earlier, without eroding trust in institutions",
+  "Meno efficace della sorveglianza obbligatoria. Esclusivo della Democrazia liberale (al posto della sorveglianza epidemiologica)": "Less effective than mandatory surveillance. Exclusive to Liberal democracy (instead of epidemic surveillance)",
+  "Algoritmi trasparenti": "Transparent algorithms",
+  "Chi usa un'intelligenza artificiale per decisioni importanti deve spiegare come funziona e farla controllare.": "Anyone using an artificial intelligence for important decisions must explain how it works and have it audited.",
+  "Più sicurezza e fiducia: gli incidenti con le intelligenze artificiali sono circa un quarto più rari": "More safety and trust: accidents with artificial intelligences are about a quarter rarer",
+  "Lo sviluppo dell'AI rallenta un po' per rispettare le regole. Esclusivo della Democrazia liberale [Ipotesi]": "AI development slows a little to comply with the rules. Exclusive to Liberal democracy [Hypothesis]",
+  "Comitato etico mondiale": "World ethics committee",
+  "Scienziati, filosofi e cittadini estratti a sorte valutano ogni nuova tecnica genetica prima che sia permessa.": "Scientists, philosophers and randomly selected citizens assess every new genetic technique before it is allowed.",
+  "Meno divisioni sulle scelte genetiche": "Less division over genetic choices",
+  "La ricerca rallenta un po'. Esclusivo della Democrazia liberale": "Research slows a little. Exclusive to Liberal democracy",
+  "Pensione minima garantita": "Guaranteed minimum pension",
+  "Nessun anziano sotto la soglia di povertà: lo Stato integra ogni pensione troppo bassa.": "No elderly person below the poverty line: the State tops up every pension that is too low.",
+  "La povertà degli anziani quasi sparisce: meno malcontento": "Poverty among the elderly almost disappears: less discontent",
+  "Una spesa fissa che cresce con l'invecchiamento e pesa sulle pensioni; non si può togliere. Esclusivo dello Stato sociale [Certo: costa dall'1 al 5% del PIL]": "A fixed cost that grows with ageing and adds to the pension burden; it cannot be removed. Exclusive to the Welfare state [Certain: costs 1 to 5% of GDP]",
+  "Revisione della spesa senza tagli ai servizi": "Spending review without service cuts",
+  "Si eliminano sprechi, doppioni e sussidi alle imprese, ma non si toccano personale e servizi.": "Waste, duplication and business subsidies are eliminated, but staff and services are not touched.",
+  "Un piccolo risparmio ogni anno con pochissimo malcontento": "A small saving every year with very little discontent",
+  "Risparmia circa la metà di una revisione normale. Esclusivo dello Stato sociale": "Saves about half as much as a normal review. Exclusive to the Welfare state",
+  "Contributi sociali sulle macchine": "Social contributions on machines",
+  "Le aziende pagano per ogni robot e programma che sostituisce un lavoratore i contributi per le pensioni.": "Companies pay pension contributions for every robot and program that replaces a worker.",
+  "Più robot ci sono, più le pensioni si reggono: il loro peso scende; meno rabbia contro i robot": "The more robots there are, the better pensions hold up: their burden falls; less anger against robots",
+  "L'automazione rallenta: crescita un po' più bassa. Esclusivo dello Stato sociale (al posto della tassa sui robot) [Ipotesi]": "Automation slows: slightly lower growth. Exclusive to the Welfare state (instead of the robot tax) [Hypothesis]",
+  "Imposta progressiva sulle eredità": "Progressive inheritance tax",
+  "Le grandi eredità pagano un'imposta che cresce con il loro valore; le piccole sono esenti.": "Large inheritances pay a tax that rises with their value; small ones are exempt.",
+  "Entrate più alte e meno disuguaglianza, quasi senza danni alla crescita": "Higher revenue and less inequality, with almost no harm to growth",
+  "Le grandi famiglie si oppongono. Esclusivo dello Stato sociale [Certo: è la tassa sul capitale che pesa meno sulla crescita]": "Wealthy families oppose it. Exclusive to the Welfare state [Certain: it is the capital tax that weighs least on growth]",
+  "Tariffa sociale dell'energia": "Social energy tariff",
+  "Un assegno fisso in bolletta per le famiglie povere, pagato con un piccolo rincaro a chi consuma molto.": "A fixed credit on the energy bill for poor families, paid for by a small surcharge on heavy consumers.",
+  "Nessuno resta al freddo: quando l'energia rincara, molto meno malcontento. Non pesa sui conti dell'Autorità": "Nobody is left in the cold: when energy prices rise, much less discontent. No cost to the Authority's budget",
+  "Le industrie pagano un po' di più: crescita un po' più bassa. Esclusivo dello Stato sociale [Certo]": "Industries pay a little more: slightly lower growth. Exclusive to the Welfare state [Certain]",
+  "Asili e servizi per l'infanzia gratuiti": "Free nurseries and childcare",
+  "Nidi e scuole dell'infanzia gratuiti per tutti i bambini da 0 a 6 anni.": "Free nurseries and preschools for all children aged 0 to 6.",
+  "Più madri al lavoro (circa metà del costo rientra con le loro tasse), un po' più di nascite, meno malcontento": "More mothers in work (about half the cost comes back through their taxes), slightly more births, less discontent",
+  "Costa ogni anno. Esclusivo dello Stato sociale [Certo; effetto sulle nascite Probabile]": "Costs every year. Exclusive to the Welfare state [Certain; effect on births Probable]",
+  "Edilizia pubblica di massa": "Mass public housing",
+  "Un piano decennale per costruire case pubbliche a canone basso per metà della popolazione, anche per il ceto medio.": "A ten-year plan to build low-rent public housing for half the population, including the middle class.",
+  "Durante i 10 anni di cantieri molto lavoro e crescita; poi affitti bassi: molto meno malcontento e divisioni, un po' più di nascite. Dopo 10 anni gli affitti restituiscono una parte della spesa": "During the 10 years of construction, lots of jobs and growth; then low rents: much less discontent and division, slightly more births. After 10 years rents return part of the spending",
+  "Costa circa 100 fondi in 10 anni: fa salire il debito. Esclusivo dello Stato sociale [Certo: Vienna e Singapore]": "Costs about 100 funds over 10 years: debt rises. Exclusive to the Welfare state [Certain: Vienna and Singapore]",
+  "Crescita frenata della spesa sanitaria": "Curbed growth of health spending",
+  "I servizi sanitari non crescono quanto gli anziani: la sanità resta gratuita, ma le liste d'attesa si allungano.": "Health services do not grow as fast as the elderly population: healthcare stays free, but waiting lists get longer.",
+  "La sanità universale costa un quinto in meno ogni anno": "Universal healthcare costs a fifth less every year",
+  "Il malcontento cresce anno dopo anno, chi può paga la sanità privata (più divisioni), le liste d'attesa diventano una crisi. Esclusivo dello Stato sociale [Certo: Regno Unito e Italia]": "Discontent grows year after year, those who can pay for private healthcare (more division), waiting lists become a crisis. Exclusive to the Welfare state [Certain: United Kingdom and Italy]",
+  "Ticket sanitari con esenzioni": "Health charges with exemptions",
+  "Una piccola quota per visite, esami e farmaci; ne sono esenti i redditi bassi, i malati cronici e gli anziani.": "A small fee for visits, tests and medicines; low incomes, the chronically ill and the elderly are exempt.",
+  "La sanità universale costa un po' meno e si fanno meno visite inutili": "Universal healthcare costs a little less and there are fewer unnecessary visits",
+  "Un po' di malcontento. Esclusivo dello Stato sociale [Certo]": "Some discontent. Exclusive to the Welfare state [Certain]",
+  "Ticket sanitari per tutti": "Health charges for everyone",
+  "Si tolgono le esenzioni: tutti pagano una quota per visite, esami e farmaci.": "Exemptions are removed: everyone pays a fee for visits, tests and medicines.",
+  "Nei primi anni la sanità costa molto meno": "In the first years healthcare costs much less",
+  "I poveri rinunciano alle cure: entro 2-3 anni più ricoveri gravi che si mangiano quasi tutto il risparmio, salute peggiore e molto malcontento. Esclusivo dello Stato sociale [Certo: esperimento RAND, Chandra 2010]": "The poor give up on care: within 2-3 years more serious hospital admissions eat up almost all the savings, worse health and much discontent. Exclusive to the Welfare state [Certain: RAND experiment, Chandra 2010]",
+  "Fondo pensione pubblico": "Public pension fund",
+  "Lo Stato mette da parte ogni anno una quota delle entrate e la investe: il fondo pagherà una parte delle pensioni quando arriverà l'ondata dei pensionati.": "Every year the State sets aside a share of revenue and invests it: the fund will pay part of the pensions when the wave of retirees arrives.",
+  "Dopo 15 anni il fondo paga circa un quinto delle pensioni: il loro peso scende molto e smette di costare": "After 15 years the fund pays about a fifth of pensions: their burden falls sharply and it stops costing",
+  "Per 15 anni costa senza dare niente. Esclusivo dello Stato sociale [Certo: Norvegia, Canada, Svezia]": "For 15 years it costs without giving anything back. Exclusive to the Welfare state [Certain: Norway, Canada, Sweden]",
+  "Transizione giusta": "Just transition",
+  "Chi perde il lavoro nelle miniere e nelle industrie fossili viene riqualificato e pagato finché non ne trova un altro.": "Those who lose their jobs in mines and fossil industries are retrained and paid until they find another.",
+  "Meno opposizione all'abbandono dei fossili e meno malcontento nelle regioni minerarie": "Less opposition to phasing out fossil fuels and less discontent in mining regions",
+  "Costa ogni anno. Esclusivo dello Stato sociale [Certo: Germania e Spagna]": "Costs every year. Exclusive to the Welfare state [Certain: Germany and Spain]",
+  "Medicina territoriale": "Community healthcare",
+  "Case della salute, medici di famiglia in squadra e infermieri di quartiere.": "Health centres, family doctors working in teams and neighbourhood nurses.",
+  "Dopo qualche anno meno ricoveri: la sanità universale costa un decimo in meno; vita in salute più lunga; le epidemie fanno meno danni": "After a few years fewer hospital admissions: universal healthcare costs a tenth less; longer healthy life; epidemics do less damage",
+  "Costa ogni anno e rende solo dopo 5-8 anni. Esclusivo dello Stato sociale [Probabile]": "Costs every year and pays off only after 5-8 years. Exclusive to the Welfare state [Probable]",
+  "Terapie geniche pubbliche e gratuite": "Free public gene therapies",
+  "Le terapie che correggono le malattie genetiche sono prodotte da laboratori pubblici e date gratis a chi ne ha bisogno.": "Therapies that correct genetic diseases are produced by public laboratories and given free to those who need them.",
+  "Nessuno resta escluso dalle cure genetiche: meno divisioni e meno malcontento": "Nobody is excluded from genetic treatments: less division and less discontent",
+  "Costa ogni anno. Esclusivo dello Stato sociale": "Costs every year. Exclusive to the Welfare state",
+  "Azionariato popolare": "Popular shareholding",
+  "Ogni cittadino riceve quote delle grandi aziende automatizzate e ne incassa i dividendi.": "Every citizen receives shares in the big automated companies and collects their dividends.",
+  "Più robot lavorano, più i cittadini guadagnano: chi perde il lavoro non resta senza niente e le divisioni calano": "The more robots work, the more citizens earn: those who lose their jobs are not left with nothing and division falls",
+  "All'inizio vale poco (come il dividendo dell'Alaska, 1.000-2.000 dollari l'anno): diventa importante solo con molta automazione. Esclusivo del Libero mercato [Certo/Ipotesi]": "At first it is worth little (like the Alaska dividend, 1,000-2,000 dollars a year): it only matters with a lot of automation. Exclusive to the Free market [Certain/Hypothesis]",
+  "Zone economiche speciali": "Special economic zones",
+  "Aree con tasse basse e poche regole per attirare imprese e investimenti dall'estero.": "Areas with low taxes and few rules to attract foreign businesses and investment.",
+  "Nelle regioni povere la crescita può accelerare molto": "In poor regions growth can speed up a lot",
+  "Più disuguaglianza; nelle regioni già ricche serve a poco. Esclusivo del Libero mercato [Probabile: Shenzhen sì, molte altre no]": "More inequality; in already rich regions it does little. Exclusive to the Free market [Probable: Shenzhen yes, many others no]",
+  "Opere in partenariato con i privati": "Public-private partnership works",
+  "I privati costruiscono strade, ferrovie e ospedali; lo Stato paga un canone per trent'anni.": "Private firms build roads, railways and hospitals; the State pays a fee for thirty years.",
+  "Più crescita e meno disoccupazione, con una spesa iniziale bassa": "More growth and less unemployment, with low upfront spending",
+  "Si paga per sempre e alla fine costa circa un quinto in più di un investimento pubblico. Esclusivo del Libero mercato (al posto degli investimenti pubblici) [Probabile]": "You pay forever and in the end it costs about a fifth more than public investment. Exclusive to the Free market (instead of public investment) [Probable]",
+  "Buoni formazione": "Training vouchers",
+  "Chi perde il lavoro riceve un buono per pagarsi un corso da una scuola privata a sua scelta.": "Those who lose their jobs receive a voucher to pay for a course at a private school of their choice.",
+  "Meno disoccupazione, costa meno dei corsi pubblici": "Less unemployment, costs less than public courses",
+  "Funziona meno bene per chi ha studiato poco. Esclusivo del Libero mercato (al posto della riqualificazione)": "Works less well for those with little education. Exclusive to the Free market (instead of retraining)",
+  "Prestiti per aprire un'impresa": "Start-up loans",
+  "Prestiti garantiti a chi vuole mettersi in proprio dopo aver perso il lavoro.": "Guaranteed loans for those who want to become self-employed after losing their job.",
+  "Un po' meno disoccupazione e un po' più di crescita": "Slightly less unemployment and slightly more growth",
+  "Molte nuove imprese falliscono: una parte dei prestiti è persa. Esclusivo del Libero mercato": "Many new businesses fail: part of the loans is lost. Exclusive to the Free market",
+  "Incentivi alla beneficenza": "Incentives for charity",
+  "Chi dona a fondazioni, banchi alimentari e associazioni paga meno tasse.": "Those who donate to foundations, food banks and associations pay less tax.",
+  "Fondazioni e volontari aiutano chi resta indietro: meno malcontento": "Foundations and volunteers help those left behind: less discontent",
+  "Compensa solo in parte gli aiuti pubblici. Esclusivo del Libero mercato [Probabile]": "Only partly makes up for public aid. Exclusive to the Free market [Probable]",
+  "Sanità privata con pronto soccorso garantito": "Private healthcare with guaranteed emergency care",
+  "Ognuno sceglie se e come assicurarsi; gli ospedali devono comunque curare le emergenze.": "Everyone chooses whether and how to insure themselves; hospitals must still treat emergencies.",
+  "Costa all'Autorità molto meno della sanità universale; cure veloci per chi è assicurato": "Costs the Authority much less than universal healthcare; fast care for the insured",
+  "Circa una persona su sei resta senza copertura: vita media più bassa, famiglie rovinate dalle spese mediche, epidemie che si diffondono di più. Esclusivo del Libero mercato (al posto della sanità universale) [Certo: Stati Uniti prima del 2010]": "About one person in six is left uncovered: lower life expectancy, families ruined by medical bills, epidemics spread further. Exclusive to the Free market (instead of universal healthcare) [Certain: United States before 2010]",
+  "Conti sanitari individuali": "Individual health accounts",
+  "Ogni lavoratore versa una parte dello stipendio su un conto personale per pagarsi le cure.": "Every worker pays part of their wage into a personal account to pay for their care.",
+  "Le persone spendono con più attenzione: un po' meno malcontento e pensioni un po' più leggere": "People spend more carefully: slightly less discontent and slightly lighter pensions",
+  "Chi guadagna poco mette da parte poco. Esclusivo del Libero mercato [Probabile: Singapore]": "Low earners save little. Exclusive to the Free market [Probable: Singapore]",
+  "Buono scuola universale": "Universal school voucher",
+  "Lo Stato paga una cifra per ogni studente e la famiglia sceglie la scuola, pubblica o privata.": "The State pays a sum for each student and the family chooses the school, public or private.",
+  "Più scelta e produttività un po' più alta quando gli studenti saranno al lavoro": "More choice and slightly higher productivity when students enter work",
+  "Le scuole pubbliche dei quartieri poveri chiudono: più divisioni tra ricchi e poveri. Esclusivo del Libero mercato (al posto della scuola per tutti) [Probabile: Cile e Svezia]": "Public schools in poor neighbourhoods close: more division between rich and poor. Exclusive to the Free market (instead of school for all) [Probable: Chile and Sweden]",
+  "Mercato dei permessi di emissione": "Emission permit market",
+  "Chi inquina deve comprare permessi, che si possono scambiare; ogni anno i permessi sono meno.": "Polluters must buy permits, which can be traded; each year there are fewer permits.",
+  "Le emissioni scendono al costo più basso possibile": "Emissions fall at the lowest possible cost",
+  "Il prezzo dei permessi oscilla molto: energia più cara e un po' di malcontento. Esclusivo del Libero mercato (al posto della legge sulle emissioni) [Certo: Unione europea]": "Permit prices swing widely: dearer energy and some discontent. Exclusive to the Free market (instead of the emissions law) [Certain: European Union]",
+  "Premi per la cattura privata della CO₂": "Prizes for private CO₂ capture",
+  "Un premio per ogni tonnellata di CO₂ tolta dall'aria e stoccata da un'impresa privata.": "A prize for every tonne of CO₂ removed from the air and stored by a private company.",
+  "Le imprese inventano modi più economici per togliere CO₂: le emissioni nette scendono": "Companies invent cheaper ways to remove CO₂: net emissions fall",
+  "Costa ogni anno; i risultati arrivano piano. Esclusivo del Libero mercato [Ipotesi]": "Costs every year; results come slowly. Exclusive to the Free market [Hypothesis]",
+  "Assicurazioni private contro le catastrofi": "Private disaster insurance",
+  "Incentivi a famiglie e imprese per assicurarsi contro alluvioni, tempeste e terremoti.": "Incentives for families and businesses to insure against floods, storms and earthquakes.",
+  "Dopo un disastro si ricostruisce prima: i danni pesano meno": "After a disaster rebuilding is faster: damage weighs less",
+  "Nelle regioni povere quasi nessuno si assicura; con il clima peggiore i premi salgono. Esclusivo del Libero mercato [Probabile]": "In poor regions almost nobody insures; as the climate worsens, premiums rise. Exclusive to the Free market [Probable]",
+  "Corsa privata all'AI senza freni": "Unrestrained private AI race",
+  "Nessun limite alle aziende che sviluppano le intelligenze artificiali più potenti.": "No limits on the companies developing the most powerful artificial intelligences.",
+  "Crescita fortissima: l'AI migliora molto più in fretta": "Very strong growth: AI improves much faster",
+  "Rischio altissimo: la sicurezza resta indietro. Esclusivo del Libero mercato": "Very high risk: safety falls behind. Exclusive to the Free market",
+  "Brevetti più brevi sulle terapie": "Shorter patents on therapies",
+  "I brevetti su farmaci e terapie geniche durano meno: le copie economiche arrivano prima.": "Patents on drugs and gene therapies last less: cheap copies arrive sooner.",
+  "Le terapie costano meno prima: meno divisioni tra chi può pagarle e chi no": "Therapies get cheaper sooner: less division between those who can afford them and those who cannot",
+  "Le aziende guadagnano meno e ricercano un po' meno. Esclusivo del Libero mercato": "Companies earn less and do a little less research. Exclusive to the Free market",
+  "Cantieri energetici ad alta occupazione": "Labour-intensive energy works",
+  "Isolamento degli edifici, pompe di calore e reti locali, con molti lavoratori e poche macchine.": "Building insulation, heat pumps and local grids, with many workers and few machines.",
+  "Molto lavoro (tre volte e mezza quello dei fossili per ogni fondo speso) e consumi per il riscaldamento in calo": "Lots of jobs (three and a half times as many as fossil fuels per fund spent) and lower heating consumption",
+  "Costa ogni anno. Esclusivo della Repubblica del lavoro [Certo]": "Costs every year. Exclusive to the Labour Republic [Certain]",
+  "Settimana corta a parità di stipendio": "Shorter working week on full pay",
+  "L'orario scende a 32-35 ore senza tagliare gli stipendi; lo Stato aiuta fabbriche e ospedali ad assumere.": "Working hours fall to 32-35 a week without cutting wages; the State helps factories and hospitals hire.",
+  "Più persone occupate, meno stress e malattie: molto meno malcontento": "More people in work, less stress and illness: much less discontent",
+  "Negli uffici quasi gratis, ma in fabbriche e ospedali servono il 10-15% di persone in più: un po' meno crescita e una spesa ogni anno. Esclusivo della Repubblica del lavoro [Certo: Francia, Islanda, Regno Unito]": "Almost free in offices, but factories and hospitals need 10-15% more staff: slightly less growth and a yearly cost. Exclusive to the Labour Republic [Certain: France, Iceland, United Kingdom]",
+  "Cooperative di lavoratori": "Worker cooperatives",
+  "Incentivi a trasformare le imprese in cooperative di proprietà di chi ci lavora.": "Incentives to turn businesses into cooperatives owned by those who work in them.",
+  "Nelle crisi si tagliano gli stipendi invece dei posti; stipendi meno diseguali e produttività un po' più alta": "In crises wages are cut instead of jobs; less unequal wages and slightly higher productivity",
+  "Crescono più piano nei settori ad alta tecnologia. Esclusivo della Repubblica del lavoro [Certo: Mondragon, Emilia-Romagna]": "They grow more slowly in high-tech sectors. Exclusive to the Labour Republic [Certain: Mondragon, Emilia-Romagna]",
+  "Formazione per tutta la vita": "Lifelong learning",
+  "Ogni adulto ha diritto a corsi pagati e a un reddito mentre studia, per tutta la vita lavorativa.": "Every adult is entitled to paid courses and an income while studying, throughout their working life.",
+  "Dopo 2-5 anni più lavoro, salari più alti e produttività in crescita": "After 2-5 years more jobs, higher wages and rising productivity",
+  "Costa ogni anno; il primo anno quasi nessun effetto. Esclusivo della Repubblica del lavoro [Certo: Danimarca, Singapore]": "Costs every year; almost no effect in the first year. Exclusive to the Labour Republic [Certain: Denmark, Singapore]",
+  "Servizio civile esteso": "Extended civil service",
+  "Un servizio civile pagato, aperto a tutte le età, per lavori utili alla comunità.": "A paid civil service, open to all ages, for work useful to the community.",
+  "Meno divisioni e meno disoccupazione": "Less division and less unemployment",
+  "Costa ogni anno. Esclusivo della Repubblica del lavoro": "Costs every year. Exclusive to the Labour Republic",
+  "Agricoltura di qualità ad alta occupazione": "Labour-intensive quality farming",
+  "Aziende agricole più piccole e diversificate, con più lavoratori e meno chimica.": "Smaller, more diversified farms, with more workers and fewer chemicals.",
+  "Più lavoro nelle campagne e raccolti che resistono meglio alla siccità": "More jobs in the countryside and harvests that withstand drought better",
+  "Il cibo costa un po' di più. Esclusivo della Repubblica del lavoro": "Food costs a little more. Exclusive to the Labour Republic",
+  "Protezione civile di volontari": "Volunteer civil protection",
+  "Milioni di volontari formati per intervenire nelle alluvioni, nei terremoti e negli incendi.": "Millions of trained volunteers ready to respond to floods, earthquakes and fires.",
+  "I disastri fanno meno danni e la gente si sente più unita": "Disasters do less damage and people feel more united",
+  "Tecnologie che aiutano chi lavora": "Technologies that assist workers",
+  "AI e macchine pensate per affiancare le persone, non per sostituirle.": "AI and machines designed to work alongside people, not to replace them.",
+  "Produttività più alta senza perdere posti di lavoro": "Higher productivity without losing jobs",
+  "Cresce meno che con l'automazione vera. Esclusivo della Repubblica del lavoro": "Grows less than with real automation. Exclusive to the Labour Republic",
+  "Rete elettrica mondiale": "Global power grid",
+  "Cavi ad altissima tensione collegano i continenti: il sole di un fuso orario alimenta la notte dell'altro.": "Ultra-high-voltage cables connect the continents: the sun in one time zone powers the night in another.",
+  "Le rinnovabili coprono molta più energia senza blackout, che costa meno": "Renewables cover much more energy without blackouts, and energy costs less",
+  "Molto costosa; chi controlla i nodi può ricattare gli altri. Esclusivo della Tecnocrazia [Probabile]": "Very expensive; whoever controls the nodes can blackmail the others. Exclusive to Technocracy [Probable]",
+  "Ufficio di bilancio indipendente": "Independent budget office",
+  "Esperti indipendenti controllano ogni legge di spesa e pubblicano previsioni senza trucchi.": "Independent experts check every spending law and publish forecasts without tricks.",
+  "Deficit più bassi ogni anno": "Lower deficits every year",
+  "Le spese elettorali diventano più difficili: un po' di malcontento. Esclusivo della Tecnocrazia [Certo]": "Election-driven spending becomes harder: some discontent. Exclusive to Technocracy [Certain]",
+  "Bilancio attuariale delle pensioni": "Actuarial pension balance",
+  "Ogni anno gli attuari ricalcolano contributi e assegni perché il sistema resti in equilibrio per cinquant'anni.": "Every year actuaries recalculate contributions and benefits so the system stays balanced for fifty years.",
+  "Il peso delle pensioni scende": "The pension burden falls",
+  "Piccoli ritocchi ogni anno che nessuno ha votato: un po' di malcontento. Esclusivo della Tecnocrazia": "Small yearly adjustments nobody voted for: some discontent. Exclusive to Technocracy",
+  "Consulte scientifiche": "Scientific councils",
+  "Ogni decisione importante passa da comitati di scienziati indipendenti.": "Every important decision goes through committees of independent scientists.",
+  "Decisioni migliori: un po' più di crescita, crisi meno costose": "Better decisions: slightly more growth, less costly crises",
+  "Quando impongono scelte impopolari nasce la rabbia contro gli esperti. Esclusivo della Tecnocrazia [Certo/Probabile]": "When they impose unpopular choices, anger against experts arises. Exclusive to Technocracy [Certain/Probable]",
+  "Geoingegneria sotto controllo scientifico": "Geoengineering under scientific control",
+  "Gli aerosol riflettenti vengono rilasciati in modo graduale e uguale nei due emisferi, controllati da una rete di satelliti e palloni.": "Reflective aerosols are released gradually and evenly in both hemispheres, monitored by a network of satellites and balloons.",
+  "Richiede gli aerosol riflettenti": "Requires reflective aerosols",
+  "Le piogge e i monsoni cambiano molto meno, meno proteste contro gli aerosol": "Rainfall and monsoons change much less, fewer protests against aerosols",
+  "Costa ogni anno; lo shock da interruzione resta. Esclusivo della Tecnocrazia [Probabile, da modelli climatici]": "Costs every year; the termination shock remains. Exclusive to Technocracy [Probable, from climate models]",
+  "Laboratori di massima sicurezza": "Maximum-security laboratories",
+  "I virus più pericolosi si studiano solo in pochi laboratori sigillati e controllati da ispettori mondiali.": "The most dangerous viruses are studied only in a few sealed laboratories monitored by global inspectors.",
+  "Le fughe dai laboratori diventano molto più rare": "Laboratory leaks become much rarer",
+  "Costa ogni anno; la ricerca rallenta un po'. Esclusivo della Tecnocrazia": "Costs every year; research slows a little. Exclusive to Technocracy",
+  "Squadra mondiale di attacco controllato": "Global red team",
+  "Esperti attaccano di continuo AI, laboratori e reti per trovarne le falle prima di chiunque altro.": "Experts constantly attack AIs, laboratories and networks to find their flaws before anyone else does.",
+  "Attacchi informatici e abusi molto più rari; un po' più di sicurezza dell'AI": "Cyberattacks and misuse much rarer; slightly more AI safety",
+  "Contro un'AI fuori controllo serve poco: un'intelligenza molto avanzata può accorgersi del test. Esclusivo della Tecnocrazia [Certo/Probabile]": "Of little use against a rogue AI: a very advanced intelligence can notice the test. Exclusive to Technocracy [Certain/Probable]",
+  "Programma mondiale di sicurezza dell'AI": "Global AI safety programme",
+  "Un'agenzia con propri supercomputer studia dall'interno come ragionano le intelligenze artificiali più potenti.": "An agency with its own supercomputers studies from the inside how the most powerful artificial intelligences reason.",
+  "La sicurezza dell'AI cresce molto più in fretta": "AI safety grows much faster",
+  "Costa ogni anno e rallenta un po' le nuove AI. Esclusivo della Tecnocrazia [Probabile]": "Costs every year and slows new AIs a little. Exclusive to Technocracy [Probable]",
+  "Protocolli genetici rigorosi": "Strict genetic protocols",
+  "Ogni modifica genetica segue protocolli scientifici fissi, verificati da laboratori indipendenti.": "Every genetic modification follows fixed scientific protocols, verified by independent laboratories.",
+  "La ricerca genetica è più sicura e più rapida": "Genetic research is safer and faster",
+  "Le decisioni sono degli esperti: un po' di divisioni. Esclusivo della Tecnocrazia": "Decisions belong to the experts: some division. Exclusive to Technocracy",
+  "Conti dell'Autorità": "Authority finances",
+  "Il debito dell'Autorità mondiale: i mercati e gli stati smettono di fidarsi": "The world Authority's debt: markets and states stop trusting it",
+  "Arriva da sola con il libero mercato": "Arrives on its own with the free market",
+  "Referendum perso: si potrà riproporre dal ": "Referendum lost: it can be proposed again from ",
+  "Serve un referendum": "A referendum is needed",
+  "Donazioni delle grandi fondazioni": "Donations from large foundations",
+  "Le fondazioni pagano una parte delle cure: effetto più piccolo e solo dove arrivano": "Foundations pay for part of the treatment: smaller effect, and only where they reach",
+  "Le fondazioni pagano le cure per una parte dei poveri: meno divisioni delle licenze": "Foundations pay for the treatment of some of the poor: less division than licences",
+  "Elezioni a rischio": "Elections at risk",
+  "L'anno prossimo si vota in {0}. Nei sondaggi cresce un partito che promette di uscire dall'Autorità: oggi la probabilità che vinca è circa del {1}%. Debito, malcontento e disoccupazione lo spingono.": "Next year {0} goes to the polls. A party promising to leave the Authority is rising in the polls: today its chance of winning is about {1}%. Debt, discontent and unemployment are driving it.",
+  "Fondi di coesione per la regione": "Cohesion funds for the region",
+  "Il rischio di uscita scende di circa 20 punti e il malcontento cala": "The risk of exit falls by about 20 points and discontent decreases",
+  "Finanziare di nascosto il partito favorevole all'Autorità": "Secretly fund the pro-Authority party",
+  "Molto efficace, ma se si scopre (circa 1 volta su 3) l'uscita è sicura e le divisioni salgono ovunque": "Very effective, but if discovered (about 1 time in 3) exit is certain and division rises everywhere",
+  "Scandalo: l'Autorità ha finanziato di nascosto un partito in {0}.": "Scandal: the Authority secretly funded a party in {0}.",
+  "Lasciare decidere gli elettori": "Let the voters decide",
+  "Nessuna spesa: decide il voto": "No cost: the vote decides",
+  "La Corte blocca una legge": "The Court blocks a law",
+  "una legge": "a law",
+  "La Corte suprema dell'Autorità dichiara illegittima una parte di «{0}»: viola i diritti di alcuni cittadini.": "The Authority's Supreme Court declares part of «{0}» unlawful: it violates the rights of some citizens.",
+  "Riscrivere la legge rispettando la sentenza": "Rewrite the law in line with the ruling",
+  "La legge resta in vigore, riscritta": "The law stays in force, rewritten",
+  "Rispettare la sentenza e sospendere la legge": "Respect the ruling and suspend the law",
+  "La legge viene sospesa; la fiducia nelle istituzioni cresce": "The law is suspended; trust in institutions grows",
+  "Ignorare la Corte": "Ignore the Court",
+  "La legge resta, ma la fiducia crolla: più divisioni ovunque": "The law stays, but trust collapses: more division everywhere",
+  "Il debito spaventa i mercati": "Debt scares the markets",
+  "Gli investitori temono che la spesa sociale di {0} non sia sostenibile: il debito è al {1}% del prodotto e gli interessi salgono.": "Investors fear that the social spending of {0} is unsustainable: debt is at {1}% of output and interest rates are rising.",
+  "L'Autorità garantisce il debito": "The Authority guarantees the debt",
+  "Gli interessi tornano giù": "Interest rates come back down",
+  "Piano di rientro graduale": "Gradual repayment plan",
+  "Il debito scende, ma con qualche sacrificio: malcontento": "Debt falls, but with some sacrifices: discontent",
+  "Interessi più alti: il debito sale e la crescita rallenta": "Higher interest rates: debt rises and growth slows",
+  "Lunghe liste d'attesa": "Long waiting lists",
+  "In {0} per una visita specialistica servono mesi e milioni di persone rinunciano a curarsi. Chi può paga la sanità privata.": "In {0} a specialist visit takes months and millions of people give up on care. Those who can pay for private healthcare.",
+  "Piano straordinario di assunzioni": "Emergency hiring plan",
+  "Le liste si accorciano: molto meno malcontento": "Waiting lists shorten: much less discontent",
+  "Convenzioni con le cliniche private": "Contracts with private clinics",
+  "Le liste si accorciano, ma la sanità diventa più divisa": "Waiting lists shorten, but healthcare becomes more divided",
+  "Rabbia crescente e salute peggiore": "Growing anger and worse health",
+  "I monopolisti comprano i giornali": "Monopolies buy the newspapers",
+  "Le tre aziende più grandi del mondo hanno comprato i principali giornali e televisioni. Le notizie sulle loro attività spariscono dalle prime pagine.": "The three largest companies in the world have bought the main newspapers and television channels. News about their activities vanishes from the front pages.",
+  "Fondi per i giornali indipendenti": "Funds for independent newspapers",
+  "Il pluralismo resiste": "Pluralism holds",
+  "Più sfiducia e divisioni ovunque": "More distrust and division everywhere",
+  "Nascono i sindacati": "Unions are born",
+  "In {0} i lavoratori delle fabbriche e dei magazzini si organizzano: chiedono salari più alti e turni meno duri, e minacciano di scioperare.": "In {0} factory and warehouse workers are organising: they demand higher wages and less gruelling shifts, and threaten to strike.",
+  "Riconoscerli e trattare": "Recognise them and negotiate",
+  "Salari più alti e meno malcontento, ma il lavoro costa di più: le imprese automatizzano più in fretta": "Higher wages and less discontent, but labour costs more: businesses automate faster",
+  "Limitare gli scioperi per legge": "Restrict strikes by law",
+  "Meno scioperi subito, ma più divisioni": "Fewer strikes right away, but more division",
+  "Ignorarli": "Ignore them",
+  "Scioperi e rabbia": "Strikes and anger",
+  "Robot clandestini": "Clandestine robots",
+  "In {0} si scoprono fabbriche che usano robot di nascosto: producono a metà prezzo e mettono fuori mercato chi rispetta la legge.": "In {0} factories are found secretly using robots: they produce at half price and drive law-abiding competitors out of the market.",
+  "Controlli severi": "Strict inspections",
+  "Le fabbriche clandestine chiudono; l'economia sommersa cala": "The clandestine factories close; the shadow economy shrinks",
+  "Permetterli in alcuni settori": "Allow them in some sectors",
+  "Più crescita, ma più disoccupazione e divisioni": "More growth, but more unemployment and division",
+  "Chiudere un occhio": "Turn a blind eye",
+  "La regola perde credibilità: più economia sommersa": "The rule loses credibility: more shadow economy",
+  "Mancano lavoratori": "Worker shortage",
+  "In {0} ci sono sempre meno giovani: fabbriche, ospedali e campi non trovano personale e senza robot la produzione cala.": "In {0} there are ever fewer young people: factories, hospitals and farms cannot find staff, and without robots production falls.",
+  "Aprire all'immigrazione": "Open up to immigration",
+  "Nuovi lavoratori subito; un po' di tensioni": "New workers right away; some tension",
+  "Alzare l'età della pensione": "Raise the retirement age",
+  "Più lavoratori e pensioni più leggere, ma molta rabbia": "More workers and lighter pensions, but a lot of anger",
+  "La produzione cala e le pensioni pesano di più": "Production falls and pensions weigh more",
+  "Gli esperti sbagliano": "The experts get it wrong",
+  "Una previsione dei comitati scientifici si rivela sbagliata: una misura costosa non ha dato i risultati promessi. Chi governa senza essere eletto ora deve rendere conto.": "A forecast by the scientific committees turns out to be wrong: a costly measure did not deliver the promised results. Those who govern without being elected must now answer for it.",
+  "Ammettere l'errore e cambiare rotta": "Admit the mistake and change course",
+  "La fiducia regge": "Trust holds",
+  "Difendere la decisione": "Defend the decision",
+  "Cresce la rabbia contro gli esperti": "Anger against experts grows",
+  "La gente non capisce": "People do not understand",
+  "Nasce un movimento contro gli esperti: \"decidono loro, noi paghiamo\". Le scelte impopolari dei comitati scientifici vengono contestate in piazza.": "A movement against experts is born: \"they decide, we pay\". The unpopular choices of the scientific committees are contested in the streets.",
+  "Spiegare le decisioni con una grande campagna pubblica": "Explain the decisions with a large public campaign",
+  "Divisioni in calo": "Division falling",
+  "Ascoltare la piazza e rinviare le scelte più dure": "Listen to the streets and postpone the toughest choices",
+  "Meno malcontento, ma meno efficacia": "Less discontent, but less effectiveness",
+  "Più divisioni e malcontento": "More division and discontent",
+  "La regione è uscita con un voto: può rientrare solo con le elezioni": "The region left by a vote: it can only return through elections",
+  "Referendum: vince il sì. «{0}» parte con il consenso dei cittadini.": "Referendum: yes wins. «{0}» starts with the citizens' consent.",
+  "Referendum: vince il no. «{0}» non si potrà riproporre prima del {1}.": "Referendum: no wins. «{0}» cannot be proposed again before {1}.",
+  "Elezioni in {0}: vince il partito dell'uscita. La regione lascia l'Autorità: non versa più fondi e non segue più gli interventi.": "Elections in {0}: the exit party wins. The region leaves the Authority: it no longer pays funds and no longer follows interventions.",
+  "{0} esce dall'Autorità": "{0} leaves the Authority",
+  "Gli elettori di {0} hanno scelto di uscire. L'ordine regge, ma la regione non versa più fondi e non segue più i tuoi interventi. Alle prossime elezioni, fra cinque anni, potrà votare per rientrare: tanto più facilmente quanto peggio andranno le cose fuori, o se le offri un accordo di rientro.": "The voters of {0} have chosen to leave. Order holds, but the region no longer pays funds and no longer follows your interventions. At the next elections, in five years, it may vote to return: all the more easily the worse things go outside, or if you offer it a return agreement.",
+  "Elezioni in {0}: vincono i partiti che vogliono restare nell'Autorità.": "Elections in {0}: the parties that want to stay in the Authority win.",
+  "Elezioni in {0}: vince chi vuole rientrare. La regione torna nell'Autorità.": "Elections in {0}: those who want to return win. The region rejoins the Authority.",
+  "{0} rientra nell'Autorità": "{0} rejoins the Authority",
+  "Dopo anni fuori, gli elettori di {0} hanno scelto di tornare. La regione versa di nuovo i fondi e segue gli interventi.": "After years outside, the voters of {0} have chosen to return. The region pays funds again and follows interventions.",
+  "Elezioni in {0}: la regione resta fuori dall'Autorità.": "Elections in {0}: the region stays outside the Authority.",
+  "Accordo già offerto": "Agreement already offered",
+  "L'Autorità offre a {0} un accordo di rientro: fondi e un taglio del debito se tornerà.": "The Authority offers {0} a return agreement: funds and a debt cut if it comes back.",
+  "Le imprese adottano da sole: «{0}». L'Autorità non può fermarle né tassarle.": "Businesses adopt it on their own: «{0}». The Authority can neither stop nor tax them.",
+  "Il progresso non si ferma": "Progress does not stop",
+  "Gli esperti hanno avviato «{0}». In una tecnocrazia il progresso non si rimanda: è già pagato. Controlla che la sicurezza tenga il passo.": "The experts have launched «{0}». In a technocracy progress is not postponed: it is already paid for. Make sure safety keeps pace.",
+  "Cittadini, comuni e piccole imprese producono e condividono la propria energia rinnovabile": "Citizens, municipalities and small businesses produce and share their own renewable energy",
+  "Un'autorità indipendente indaga sui monopoli e può dividere le aziende troppo grandi": "An independent authority investigates monopolies and can break up companies that are too big",
+  "Sindacati e imprese firmano un accordo: aumenti graduali dei salari in cambio di pace sociale": "Unions and businesses sign an agreement: gradual wage rises in exchange for social peace",
+  "Fondi pubblici senza condizioni ai giornali indipendenti, protezione delle fonti e dei giornalisti": "Unconditional public funds for independent newspapers, protection of sources and journalists",
+  "Gli impegni sulle emissioni diventano vincolanti: un tribunale può condannare chi non li rispetta": "Emission commitments become binding: a court can sentence those who fail to meet them",
+  "Ispettori internazionali possono visitare in ogni momento basi, depositi e laboratori militari": "International inspectors can visit military bases, depots and laboratories at any time",
+  "Medici, ospedali e cittadini segnalano volontariamente i casi sospetti; i dati restano anonimi": "Doctors, hospitals and citizens voluntarily report suspected cases; the data stay anonymous",
+  "Chi usa un'intelligenza artificiale per decisioni importanti deve spiegare come funziona e farla controllare": "Anyone using an artificial intelligence for important decisions must explain how it works and have it audited",
+  "Scienziati, filosofi e cittadini estratti a sorte valutano ogni nuova tecnica genetica prima che sia permessa": "Scientists, philosophers and randomly selected citizens assess every new genetic technique before it is allowed",
+  "Nessun anziano sotto la soglia di povertà: lo Stato integra ogni pensione troppo bassa": "No elderly person below the poverty line: the State tops up every pension that is too low",
+  "Si eliminano sprechi": "Waste is eliminated",
+  "doppioni e sussidi alle imprese": "duplication and business subsidies",
+  "ma non si toccano personale e servizi": "but staff and services are not touched",
+  "Le aziende pagano per ogni robot e programma che sostituisce un lavoratore i contributi per le pensioni": "Companies pay pension contributions for every robot and program that replaces a worker",
+  "Le grandi eredità pagano un'imposta che cresce con il loro valore; le piccole sono esenti": "Large inheritances pay a tax that rises with their value; small ones are exempt",
+  "Un assegno fisso in bolletta per le famiglie povere, pagato con un piccolo rincaro a chi consuma molto": "A fixed credit on the energy bill for poor families, paid for by a small surcharge on heavy consumers",
+  "Nidi e scuole dell'infanzia gratuiti per tutti i bambini da 0 a 6 anni": "Free nurseries and preschools for all children aged 0 to 6",
+  "Un piano decennale per costruire case pubbliche a canone basso per metà della popolazione, anche per il ceto medio": "A ten-year plan to build low-rent public housing for half the population, including the middle class",
+  "I servizi sanitari non crescono quanto gli anziani: la sanità resta gratuita, ma le liste d'attesa si allungano": "Health services do not grow as fast as the elderly population: healthcare stays free, but waiting lists get longer",
+  "Una piccola quota per visite": "A small fee for visits",
+  "esami e farmaci; ne sono esenti i redditi bassi": "tests and medicines; low incomes are exempt",
+  "i malati cronici e gli anziani": "the chronically ill and the elderly",
+  "Si tolgono le esenzioni: tutti pagano una quota per visite, esami e farmaci": "Exemptions are removed: everyone pays a fee for visits, tests and medicines",
+  "Lo Stato mette da parte ogni anno una quota delle entrate e la investe: il fondo pagherà una parte delle pensioni quando arriverà l'ondata dei pensionati": "Every year the State sets aside a share of revenue and invests it: the fund will pay part of the pensions when the wave of retirees arrives",
+  "Chi perde il lavoro nelle miniere e nelle industrie fossili viene riqualificato e pagato finché non ne trova un altro": "Those who lose their jobs in mines and fossil industries are retrained and paid until they find another",
+  "Case della salute, medici di famiglia in squadra e infermieri di quartiere": "Health centres, family doctors working in teams and neighbourhood nurses",
+  "Le terapie che correggono le malattie genetiche sono prodotte da laboratori pubblici e date gratis a chi ne ha bisogno": "Therapies that correct genetic diseases are produced by public laboratories and given free to those who need them",
+  "Ogni cittadino riceve quote delle grandi aziende automatizzate e ne incassa i dividendi": "Every citizen receives shares in the big automated companies and collects their dividends",
+  "Aree con tasse basse e poche regole per attirare imprese e investimenti dall'estero": "Areas with low taxes and few rules to attract foreign businesses and investment",
+  "I privati costruiscono strade, ferrovie e ospedali; lo Stato paga un canone per trent'anni": "Private firms build roads, railways and hospitals; the State pays a fee for thirty years",
+  "Chi perde il lavoro riceve un buono per pagarsi un corso da una scuola privata a sua scelta": "Those who lose their jobs receive a voucher to pay for a course at a private school of their choice",
+  "Prestiti garantiti a chi vuole mettersi in proprio dopo aver perso il lavoro": "Guaranteed loans for those who want to become self-employed after losing their job",
+  "Chi dona a fondazioni": "Those who donate to foundations",
+  "banchi alimentari e associazioni paga meno tasse": "food banks and associations pay less tax",
+  "Ognuno sceglie se e come assicurarsi; gli ospedali devono comunque curare le emergenze": "Everyone chooses whether and how to insure themselves; hospitals must still treat emergencies",
+  "Ogni lavoratore versa una parte dello stipendio su un conto personale per pagarsi le cure": "Every worker pays part of their wage into a personal account to pay for their care",
+  "Lo Stato paga una cifra per ogni studente e la famiglia sceglie la scuola, pubblica o privata": "The State pays a sum for each student and the family chooses the school, public or private",
+  "Chi inquina deve comprare permessi, che si possono scambiare; ogni anno i permessi sono meno": "Polluters must buy permits, which can be traded; each year there are fewer permits",
+  "Un premio per ogni tonnellata di CO₂ tolta dall'aria e stoccata da un'impresa privata": "A prize for every tonne of CO₂ removed from the air and stored by a private company",
+  "Incentivi a famiglie e imprese per assicurarsi contro alluvioni, tempeste e terremoti": "Incentives for families and businesses to insure against floods, storms and earthquakes",
+  "Nessun limite alle aziende che sviluppano le intelligenze artificiali più potenti": "No limits on the companies developing the most powerful artificial intelligences",
+  "I brevetti su farmaci e terapie geniche durano meno: le copie economiche arrivano prima": "Patents on drugs and gene therapies last less: cheap copies arrive sooner",
+  "Isolamento degli edifici": "Building insulation",
+  "pompe di calore e reti locali": "heat pumps and local grids",
+  "con molti lavoratori e poche macchine": "with many workers and few machines",
+  "L'orario scende a 32-35 ore senza tagliare gli stipendi; lo Stato aiuta fabbriche e ospedali ad assumere": "Working hours fall to 32-35 a week without cutting wages; the State helps factories and hospitals hire",
+  "Incentivi a trasformare le imprese in cooperative di proprietà di chi ci lavora": "Incentives to turn businesses into cooperatives owned by those who work in them",
+  "Ogni adulto ha diritto a corsi pagati e a un reddito mentre studia, per tutta la vita lavorativa": "Every adult is entitled to paid courses and an income while studying, throughout their working life",
+  "Un servizio civile pagato": "A paid civil service",
+  "aperto a tutte le età": "open to all ages",
+  "per lavori utili alla comunità": "for work useful to the community",
+  "Aziende agricole più piccole e diversificate": "Smaller, more diversified farms",
+  "con più lavoratori e meno chimica": "with more workers and fewer chemicals",
+  "Milioni di volontari formati per intervenire nelle alluvioni, nei terremoti e negli incendi": "Millions of trained volunteers ready to respond to floods, earthquakes and fires",
+  "AI e macchine pensate per affiancare le persone": "AI and machines designed to work alongside people",
+  "non per sostituirle": "not to replace them",
+  "Cavi ad altissima tensione collegano i continenti: il sole di un fuso orario alimenta la notte dell'altro": "Ultra-high-voltage cables connect the continents: the sun in one time zone powers the night in another",
+  "Esperti indipendenti controllano ogni legge di spesa e pubblicano previsioni senza trucchi": "Independent experts check every spending law and publish forecasts without tricks",
+  "Ogni anno gli attuari ricalcolano contributi e assegni perché il sistema resti in equilibrio per cinquant'anni": "Every year actuaries recalculate contributions and benefits so the system stays balanced for fifty years",
+  "Ogni decisione importante passa da comitati di scienziati indipendenti": "Every important decision goes through committees of independent scientists",
+  "Gli aerosol riflettenti vengono rilasciati in modo graduale e uguale nei due emisferi, controllati da una rete di satelliti e palloni": "Reflective aerosols are released gradually and evenly in both hemispheres, monitored by a network of satellites and balloons",
+  "I virus più pericolosi si studiano solo in pochi laboratori sigillati e controllati da ispettori mondiali": "The most dangerous viruses are studied only in a few sealed laboratories monitored by global inspectors",
+  "Esperti attaccano di continuo AI, laboratori e reti per trovarne le falle prima di chiunque altro": "Experts constantly attack AIs, laboratories and networks to find their flaws before anyone else does",
+  "Un'agenzia con propri supercomputer studia dall'interno come ragionano le intelligenze artificiali più potenti": "An agency with its own supercomputers studies from the inside how the most powerful artificial intelligences reason",
+  "Ogni modifica genetica segue protocolli scientifici fissi, verificati da laboratori indipendenti": "Every genetic modification follows fixed scientific protocols, verified by independent laboratories",
+  "Punto debole «{x}»: toglie {n} punti di stabilità. Una voce molto bassa non si compensa con le altre": "Weak point «{x}»: takes away {n} stability points. A very low score cannot be offset by the others",
+  "Referendum: «{x}»": "Referendum: «{x}»",
+  "Questa riforma passa solo se la approvano i cittadini. Se vince il sì parte subito e provoca metà del malcontento solito; se vince il no non si può riproporre per tre anni": "This reform passes only if citizens approve it. If yes wins it starts at once and causes half the usual discontent; if no wins it cannot be proposed again for three years",
+  "Probabilità di vincere oggi: circa <b>{p}%</b>. Scende con il malcontento e le divisioni": "Chance of winning today: about <b>{p}%</b>. It falls with discontent and division",
+  "Fai la campagna": "Campaign",
+  "Rinuncia": "Give up",
+  "Elezioni nel {y}: rischio che vinca chi vuole uscire dall'Autorità circa {p}%": "Elections in {y}: risk that those who want to leave the Authority win about {p}%",
+  "La regione è uscita dall'Autorità con un voto: l'ordine regge, ma non versa fondi e non segue gli interventi": "The region left the Authority by a vote: order holds, but it pays no funds and does not follow interventions",
+  "Accordo di rientro": "Return agreement",
+  "Alle prossime elezioni ({y}) la regione può votare per rientrare: oggi circa <em>{p}%</em>. Sale se fuori le cose vanno male; un accordo con fondi e meno debito la alza molto": "At the next elections ({y}) the region can vote to return: today about <em>{p}%</em>. It rises if things go badly outside; an agreement with funds and less debt raises it a lot",
+  "Offri l'accordo": "Offer the agreement",
+  "Uscita dall'Autorità con un voto": "Left the Authority by a vote",
+  "L'anno prossimo si vota in Asia meridionale. Nei sondaggi cresce un partito che promette di uscire dall'Autorità: oggi la probabilità che vinca è circa del 13%. Debito, malcontento e disoccupazione lo spingono": "Next year South Asia goes to the polls. A party promising to leave the Authority is rising in the polls: today its chance of winning is about 13%. Debt, discontent and unemployment are driving it",
+  "La Corte suprema dell'Autorità dichiara illegittima una parte di «una legge»: viola i diritti di alcuni cittadini": "The Authority's Supreme Court declares part of «a law» unlawful: it violates the rights of some citizens",
+  "Gli investitori temono che la spesa sociale di Asia meridionale non sia sostenibile: il debito è al 83% del prodotto e gli interessi salgono": "Investors fear that the social spending of South Asia is unsustainable: debt is at 83% of output and interest rates are rising",
+  "In Asia meridionale per una visita specialistica servono mesi e milioni di persone rinunciano a curarsi. Chi può paga la sanità privata": "In South Asia a specialist visit takes months and millions of people give up on care. Those who can pay for private healthcare",
+  "Le tre aziende più grandi del mondo hanno comprato i principali giornali e televisioni. Le notizie sulle loro attività spariscono dalle prime pagine": "The three largest companies in the world have bought the main newspapers and television channels. News about their activities vanishes from the front pages",
+  "In Asia meridionale i lavoratori delle fabbriche e dei magazzini si organizzano: chiedono salari più alti e turni meno duri, e minacciano di scioperare": "In South Asia factory and warehouse workers are organising: they demand higher wages and less gruelling shifts, and threaten to strike",
+  "In Asia meridionale si scoprono fabbriche che usano robot di nascosto: producono a metà prezzo e mettono fuori mercato chi rispetta la legge": "In South Asia factories are found secretly using robots: they produce at half price and drive law-abiding competitors out of the market",
+  "In Asia meridionale ci sono sempre meno giovani: fabbriche, ospedali e campi non trovano personale e senza robot la produzione cala": "In South Asia there are ever fewer young people: factories, hospitals and farms cannot find staff, and without robots production falls",
+  "Una previsione dei comitati scientifici si rivela sbagliata: una misura costosa non ha dato i risultati promessi. Chi governa senza essere eletto ora deve rendere conto": "A forecast by the scientific committees turns out to be wrong: a costly measure did not deliver the promised results. Those who govern without being elected must now answer for it",
+  "Nasce un movimento contro gli esperti: \"decidono loro, noi paghiamo\". Le scelte impopolari dei comitati scientifici vengono contestate in piazza": "A movement against experts is born: \"they decide, we pay\". The unpopular choices of the scientific committees are contested in the streets",
+  "Responsabilità legale delle aziende dell'AI": "Legal liability for AI companies",
+  "Chi sviluppa un'intelligenza artificiale paga per intero i danni che causa: le aziende si assicurano e investono in sicurezza.": "Whoever develops an artificial intelligence pays in full for the damage it causes: companies take out insurance and invest in safety.",
+  "Le aziende investono da sole nella sicurezza: l'AI diventa più sicura senza regole dello Stato": "Companies invest in safety on their own: AI becomes safer without state rules",
+  "Le cause arrivano dopo i danni: contro un incidente davvero grave serve a poco. Esclusivo del Libero mercato (al posto delle regole sull'AI) [Ipotesi]": "Lawsuits come after the damage: against a truly serious accident it does little. Exclusive to the Free market (instead of AI rules) [Hypothesis]",
 });
 
 /* Traduzione inglese della guida "Come si gioca" (tappa 4, 1 novembre 2026): la versione intera, in HTML. */
@@ -5379,6 +6217,12 @@ const ICON_OF = {
   adapt: "waves", agri: "wheat", reforest: "tree", dac: "fan", geoeng: "cloud", foodReserve: "silo", forestProtect: "pine",
   surveil: "virus", vaccines: "syringe", labRules: "flask", amr: "pill", arms: "missile", fissile: "radiation", mediation: "dove", cyber: "chipShield", massSurveil: "cctv",
   socWealth: "diamond", pubDrugs: "pill",
+  // azioni esclusive dei governi (1 novembre 2026): icone riusate
+  energyComm: "roofSun", antitrust: "scale", socialPact: "handshake", freePress: "newspaper", climCourt: "gavel", armsInspect: "magnifier", volSurveil: "virus", algoTransp: "eye", ethicsCom: "people",
+  pensionFloor: "piggy", spendReview: "scissors", machineContrib: "robotCoin", inheritTax: "diamond", socTariff: "plug", childcare: "stroller", massHousing: "buildings", healthBrake: "hospital", ticketEx: "percent", ticketAll: "percent", pubPensionFund: "vault", justTransition: "hardhat", territorialMed: "heart", pubGene: "dna",
+  popShares: "pie", sez: "crate", ppp: "bridge", trainVouchers: "wrench", startupLoans: "wallet", charity: "gift", privHealth: "i-salute", healthAccounts: "card", schoolVoucher: "school", ets: "smoke", carbonPrize: "fan", catInsurance: "umbrella", aiRace: "i-ai", aiLiability: "contract", patentShort: "tag",
+  greenJobs: "hardhat", shortWeek: "clock", coops: "hands", lifelong: "cap", civicPlus: "hands", qualityAgri: "wheat", civilProt: "waves", assistTech: "gear",
+  worldGrid: "battery", budgetOffice: "chartUp", actuarial: "seesaw", sciCouncil: "microscope", sciGeo: "cloud", bsl4: "flask", redTeam: "chipShield", aiSafetyProg: "target", geneProtocol: "dna",
   qCrypto: "lock", qComp: "qubit", qIndustry: "qfactory", qAI: "qbrain", phage: "phage", cellAg: "cellMeat", plasticBugs: "recycle", bioprint: "organ",
   robotTax: "robotCoin", sovFund: "pie", ubiMid: "coinHalf", childIncome: "babyCoin", teacherEval: "teacherStar", rooftop: "roofSun", stratoPlanes: "jet",
   massRobots: "humanoid", ubiPlus: "coinPlus", screening: "baby", rareTherapy: "syringe", somaticEdit: "dna", gmCrops: "wheat", agingResearch: "clock", embryoEdit: "stroller", geneDrive: "virus", dnaControl: "flask", aiBio: "chipShield", aiCap: "i-ai", aiOpen: "puzzle", aiPublic: "gear", align: "target", align2: "magnifier", align3: "cctv", aiReg: "scale", launch: "i-spazio", orbital: "satellite", pdef: "comet", pdefWatch: "telescope", moon: "moon", moonFast: "rocket", lunarArchive: "book", he3: "atom", lunarSci: "telescope", lunarIce: "drop", lunarCity: "dome", lunarMining: "pick",
@@ -5643,9 +6487,9 @@ function hud() {
   const s = $("regStrip");
   if (!sel) { s.innerHTML = `<span class="stripe"></span><span class="nm">${tr("Nessuna regione")}</span><span class="st">${tr("Tocca una regione sulla mappa")}</span>`; layoutMap(); return; }
   const r = st.regions[sel];
-  const weak = r.controlled ? stabParts(r, st).sort((a, b) => a.val - b.val)[0] : null;
+  const weak = r.controlled ? stabWeak(r, st).part : null;
   s.innerHTML = `<span class="stripe" style="background:${stabColor(r.stab)}"></span><span class="nm">${esc(tr(RBY[sel].name))} · <span style="color:${stabColor(r.stab)}">${Math.round(r.stab)}</span></span>
-    <span class="st">${weak ? tr("Punto debole: {x}", { x: tr(weak.name).toLowerCase() }) : tr("In anarchia: non esegue più gli ordini")}</span><span class="go">${tr("Cosa fare ›")}</span>`;
+    <span class="st">${weak ? tr("Punto debole: {x}", { x: tr(weak.name).toLowerCase() }) : tr(r.exit ? "Uscita dall'Autorità con un voto" : "In anarchia: non esegue più gli ordini")}</span><span class="go">${tr("Cosa fare ›")}</span>`;
   layoutMap();
 }
 function refresh() {
@@ -6122,7 +6966,7 @@ function renderDetail() {
   $("dFunds").classList.toggle("up", !!oneOff);
   $("dNet").textContent = dN && !s.why ? sign(dN) : ""; $("dNet").classList.toggle("up", dN > 0);
   const slow = d.ramp && d.ramp >= 5 ? " " + (d.ramp >= 15 ? tr("L'effetto pieno arriva dopo molti anni.") : tr("L'effetto pieno arriva in alcuni anni.")) : "";
-  const buyLabel = d.gain && !done ? tr("Avvia e incassa +{x}", { x: fmt(d.gain(st), 1) }) : tr(done ? "Già attivo" : st.paused && st.paused[d.id] ? "Riattiva" : (active && d.stack) ? "Costruisci ancora" : s.prog.length && !d.stack ? "In corso" : st.funds - c0 < 0 ? "Avvia a debito" : "Avvia");
+  const buyLabel = needsRef(st, d.id) && !done && !active ? tr("Indici un referendum") : d.gain && !done ? tr("Avvia e incassa +{x}", { x: fmt(d.gain(st), 1) }) : tr(done ? "Già attivo" : st.paused && st.paused[d.id] ? "Riattiva" : (active && d.stack) ? "Costruisci ancora" : s.prog.length && !d.stack ? "In corso" : st.funds - c0 < 0 ? "Avvia a debito" : "Avvia");
   const priceTxt = c0 && !done && !d.gain ? ` – ${fmt(c0, c0 % 1 ? 1 : 0)}` : "";
   const showWhy = s.why && !done && s.why !== "In corso" && !s.why.startsWith("Richiede") && !s.why.startsWith("Disponibile");
   const pillar = st.G && st.G.lock && st.G.lock.includes(d.id); // pilastro del governo scelto (la sanità dello Stato sociale)
@@ -6147,7 +6991,7 @@ function renderDetail() {
     </div>
     <button type="button" class="buy" id="dBuy" ${s.why ? "disabled" : ""}>${buyLabel}${priceTxt}</button>
     ${canStop ? `<button type="button" class="buy alt" id="dRev">${tr(d.toggle || (d.upkeep > 0 ? "Smetti di finanziare" : "Revoca"))}</button>` : ""}`;
-  $("dBuy").onclick = () => { if (!startIntervention(st, d.id)) { renderActs(); hud(); paint(); save(); } };
+  $("dBuy").onclick = () => { if (needsRef(st, d.id) && !(st.paused && st.paused[d.id])) { showReferendum(d); return; } if (!startIntervention(st, d.id)) { renderActs(); hud(); paint(); save(); } };
   if ($("prevBox")) setTimeout(() => showPreview(d), 0);
   if ($("dRev")) $("dRev").onclick = () => { revoke(st, d.id); renderActs(); hud(); paint(); };
 }
@@ -6220,6 +7064,14 @@ function regionAdvice(rid) {
 }
 // regione in anarchia: missione di pace e ricostruzione per riportarla sotto l'Autorità
 function reconHTML(r) {
+  if (r.exit) {
+    const c = priced(st, REENTRY_COST);
+    setTimeout(() => { const b = $("bReentry"); if (b) b.onclick = () => { if (!offerReentry(st, r.id)) { save(); renderRegion(); hud(); } }; }, 0);
+    return `<p class="note" style="margin:0 0 6px">${tr("La regione è uscita dall'Autorità con un voto: l'ordine regge, ma non versa fondi e non segue gli interventi.")}</p>
+    <div class="advice"><span class="eyebrow">${tr("Accordo di rientro")}</span>
+    <span class="gain">${tr("Alle prossime elezioni ({y}) la regione può votare per rientrare: oggi circa <em>{p}%</em>. Sale se fuori le cose vanno male; un accordo con fondi e meno debito la alza molto.", { y: r.elY, p: Math.round(reentryChance(st, r)) })}</span>
+    ${r.reentryOffer ? `<p class="why">${tr("Accordo offerto: vale fino alle prossime elezioni.")}</p>` : `<button type="button" class="buy" id="bReentry">${st.funds < c ? tr("Offri a debito") : tr("Offri l'accordo")} – ${fmt(c, 0)} ${tr("fondi")}</button>`}</div>`;
+  }
   const why = reconWhy(st, r.id), q = (st.recon || []).find((x) => x.r === r.id), c = priced(st, RECON_COST);
   return `<p class="note" style="margin:0 0 6px">${tr("La regione è in anarchia: non esegue più gli ordini, non versa fondi e spinge verso il caos le regioni vicine.")}</p>
     <div class="advice"><span class="eyebrow">${tr("Missione di pace e ricostruzione")}</span>
@@ -6256,13 +7108,13 @@ function renderRegion() {
       <section class="sec"><h3>${tr("Stabilità")}</h3>
         <div class="score"><span class="big" style="color:${col}">${Math.round(r.stab)}</span>
           <div class="gauge" style="flex:1;margin:0"><i style="left:${pos(r.stab)}%"></i></div></div>
-        <div class="parts">${parts.map((p) => p.id === "peace"
+        ${st.G.elections && r.controlled && r.elY ? `<p class="note" style="margin:0 0 6px">${tr("Elezioni nel {y}: rischio che vinca chi vuole uscire dall'Autorità circa {p}%.", { y: r.elY, p: Math.round(popRisk(st, r)) })}</p>` : ""}<div class="parts">${parts.map((p) => p.id === "peace"
           ? `<button type="button" class="k kbtn" id="whyBtn" aria-expanded="${causesOpen}">${tr(p.name)}<small>${tr("Malcontento")} ${Math.round(r.unrest)} · ${causesOpen ? tr("nascondi le cause ▴") : tr("tocca per le cause ▾")}</small></button><span class="meter"><i style="width:${p.val.toFixed(0)}%;background:${heat(1 - p.val / 100)}"></i></span><span class="v">${Math.round(p.val)}</span>
              ${causesOpen ? `<ul class="causes" style="grid-column:1/-1">${causes.map((c) => `<li><span>${tr(c.name)}</span><span>+${Math.round(c.v)}</span></li>`).join("") || `<li><span>${tr("Nessuna causa rilevante")}</span><span></span></li>`}</ul>` : ""}`
           : p.id === "cohesion"
           ? `<button type="button" class="k kbtn" id="whyBtn2" aria-expanded="${causesOpen}">${tr(p.name)}<small>${tr("Polarizzazione")} ${Math.round(r.polar)} · ${causesOpen ? tr("nascondi le cause ▴") : tr("tocca per le cause ▾")}</small></button><span class="meter"><i style="width:${p.val.toFixed(0)}%;background:${heat(1 - p.val / 100)}"></i></span><span class="v">${Math.round(p.val)}</span>
              ${causesOpen ? `<ul class="causes" style="grid-column:1/-1">${polarCauses(r, st).map((c) => `<li><span>${tr(c.name)}</span><span>${c.v >= 0 ? "+" : "−"}${Math.round(Math.abs(c.v))}</span></li>`).join("")}</ul>` : ""}`
-          : `<span class="k">${tr(p.name)}<small>${tr(p.hint)}</small></span><span class="meter"><i style="width:${p.val.toFixed(0)}%;background:${heat(1 - p.val / 100)}"></i></span><span class="v">${Math.round(p.val)}</span>`).join("")}</div></section>
+          : `<span class="k">${tr(p.name)}<small>${tr(p.hint)}</small></span><span class="meter"><i style="width:${p.val.toFixed(0)}%;background:${heat(1 - p.val / 100)}"></i></span><span class="v">${Math.round(p.val)}</span>`).join("")}</div>${(() => { const w = r.controlled ? stabWeak(r, st) : null; return w && w.pen >= 1 ? `<p class="note" style="margin:6px 0 0">${tr("Punto debole «{x}»: toglie {n} punti di stabilità. Una voce molto bassa non si compensa con le altre.", { x: tr(w.part.name), n: Math.round(w.pen) })}</p>` : ""; })()}</section>
       <section class="sec"><h3>${tr("Cosa fare")}</h3>${advHTML}</section>
       <section class="sec"><h3>${tr("Popolazione ed economia")}</h3><div class="kv">
         <span>${tr("Abitanti")}</span><span>${fmt(r.pop, 0)} ${tr("mln")}</span>
@@ -6329,7 +7181,7 @@ function worldKV(extra) {
       ${row("Fondi in cassa", fmt(st.funds, 1))}
       ${row("Programma lunare", tr(lunarStatus()))}</div>`;
 }
-const rankHTML = () => `<ul class="rank">${Object.values(st.regions).sort((a, b) => a.stab - b.stab).map((r) => `<li><span>${esc(tr(r.name))}${r.controlled ? "" : " (" + tr("anarchia") + ")"}</span><b style="background:${stabColor(r.stab)}">${Math.round(r.stab)}</b></li>`).join("")}</ul>`;
+const rankHTML = () => `<ul class="rank">${Object.values(st.regions).sort((a, b) => a.stab - b.stab).map((r) => `<li><span>${esc(tr(r.name))}${r.controlled ? "" : " (" + tr(r.exit ? "uscita" : "anarchia") + ")"}</span><b style="background:${stabColor(r.stab)}">${Math.round(r.stab)}</b></li>`).join("")}</ul>`;
 function wireWorldTabs(root) { for (const b of root.querySelectorAll("[data-wt]")) b.onclick = () => { worldTab = b.dataset.wt; renderWorld(); }; }
 function lunarStatus() {
   if (st.lunarCity) return "insediamento permanente";
@@ -6645,7 +7497,7 @@ function showEvent(ev) {
   const canWait = ev.due != null;
   c.innerHTML = `<div class="eyebrow">${E.good ? tr("Opportunità") + " · " : ""}${esc(tr(E.cat))}${r ? " · " + esc(tr(r.name)) : " · " + tr("Tutto il mondo")} · ${MONTHS[st.month]} ${st.year}</div><h2>${esc(tr(evTitle(E, st, r)))}</h2><p>${esc(tr(ev.txt))}</p>
     ${r ? evDataHTML(ev, r) : ""}
-    <div class="choices">${E.choices.map((ch, i) => { const cost = eventCost(st, E, i), debt = cost > 0 && st.funds < cost;
+    <div class="choices">${evChoices(st, E).map((ch, i) => { const cost = eventCost(st, E, i), debt = cost > 0 && st.funds < cost;
       return `<button type="button" class="choice" data-i="${i}"><b>${esc(tr(ch.label))}</b><span class="c">${cost > 0 ? fmt(cost, cost % 1 ? 1 : 0) + " " + tr("fondi") : cost < 0 ? "+" + fmt(-cost, 0) + " " + tr("fondi") : tr("gratis")}</span><small>${esc(tr(ch.out))}${debt ? " · " + tr("a debito: i fondi andranno sotto zero") : ""}</small></button>`; }).join("")}</div>
     ${canWait ? `<button type="button" class="x evx" id="evLater" aria-label="${tr("Chiudi e decidi più tardi")}">×</button>` : ""}`;
   $("modal").hidden = false;
@@ -6898,9 +7750,24 @@ const TIPS = [
     text: "Una base lunare costruita insieme dalle potenze riduce la tensione tra loro e la polarizzazione. Si parte dai Lanciatori, nella scheda Tecnologia." },
   { id: "stable", when: (s) => s.stable >= 1, title: "Obiettivo raggiunto",
     text: (s) => `Ce l'hai fatta: ora tieni la stabilità mondiale almeno a ${s.L.win} per ${s.L.years} anni di fila. Se scende anche per poco, il conteggio riparte.` },
-  { id: "lost", when: (s) => ctrlRegions(s).length < 11, title: "Una regione nell'anarchia",
+  { id: "lost", when: (s) => Object.values(s.regions).some((r) => !r.controlled && !r.exit), title: "Una regione nell'anarchia",
     text: "Una regione in anarchia non versa più fondi, vale zero nella stabilità mondiale e spinge verso il caos le vicine. Aiuta subito le regioni intorno." },
 ];
+/* referendum della Democrazia liberale: campagna a pagamento, probabilità visibile prima di decidere */
+function showReferendum(d) {
+  const { p, cost } = refInfo(st, d.id);
+  savedSpeed = speed || savedSpeed || 1; speed = 0; pending = { pause: true }; hud();
+  const c = $("modalCard");
+  c.innerHTML = `<div class="eyebrow">${tr("Democrazia liberale")} · ${MONTHS[st.month]} ${st.year}</div><h2>${tr("Referendum: «{x}»", { x: esc(tr(d.name)) })}</h2>
+    <p>${tr("Questa riforma passa solo se la approvano i cittadini. Se vince il sì parte subito e provoca metà del malcontento solito; se vince il no non si può riproporre per tre anni.")}</p>
+    <p>${tr("Probabilità di vincere oggi: circa <b>{p}%</b>. Scende con il malcontento e le divisioni.", { p: Math.round(p * 100) })}</p>
+    <div class="choices"><button type="button" class="buy" id="refGo" style="margin:0">${tr("Fai la campagna")} – ${fmt(cost, 0)} ${tr("fondi")}</button><button type="button" class="buy alt" id="refNo" style="margin:0">${tr("Rinuncia")}</button></div>`;
+  $("modal").hidden = false;
+  const close = () => { pending = null; $("modal").hidden = true; speed = savedSpeed || 1; renderActs(); hud(); paint(); save(); refresh(); };
+  $("refGo").onclick = () => { runReferendum(st, d.id); close(); };
+  $("refNo").onclick = close;
+  $("refGo").focus();
+}
 /* buone notizie e scoperte: una scheda a tutto schermo che ferma il tempo, con un solo pulsante */
 function showNote() {
   const n = st.notes.shift();
