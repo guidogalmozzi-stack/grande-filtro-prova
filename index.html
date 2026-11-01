@@ -2198,7 +2198,7 @@ function checkBankruptcy(st) {
   if (st.bkYears >= 3 && !st.sim) gameOver(st, "bancarotta");
 }
 function yearlyNews(st) {
-  if (st.sim) return;
+  if (st.sim || st.comet) return; // mentre la cometa si avvicina le notizie parlano solo di lei
   const F = st.flags, act = (id) => st.acts[id] && st.acts[id].n > 0 ? st.acts[id] : null;
   // la scuola dà frutti dopo una decina d'anni: chi studiava allora oggi lavora
   const edu = act("education");
@@ -2548,6 +2548,21 @@ const EVENTS = [
     choices: [
       { label: "Aiuti per l'acqua e l'agricoltura", cost: 6, out: "La regione accetta: le conseguenze della siccità si attenuano", fx: (st) => { st.flags.thermo = true; st.flags.thermoAid = true; st.regions.sa.shockU -= 4; } },
       { label: "Ignorare le accuse e continuare i voli", cost: 0, out: "Grande rabbia in Asia meridionale e più tensione tra le potenze", fx: (st) => { st.flags.thermo = true; const r = st.regions.sa; r.shockU += 15; r.polar += 6; st.g.tShock += 6; } },
+    ] },
+  { id: "cometPanic", scope: "global", cat: "Spazio", title: "Panico per la cometa",
+    p: (st) => (st.comet ? 0.9 : 0),
+    text: () => "Nelle grandi città la gente assalta i supermercati, svuota i conti in banca e fugge dalle coste. Circolano voci di rifugi segreti per i ricchi e di un impatto già certo.",
+    choices: [
+      { label: "Parlare al mondo e razionare con ordine", cost: 2, out: "Il panico rientra: meno malcontento e meno divisioni", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockU -= 3; r.polar -= 2; }) },
+      { label: "Coprifuoco e legge marziale nelle città", cost: 0, out: "Le strade tornano calme, ma la società si divide", fx: (st) => ctrlRegions(st).forEach((r) => { r.polar += 6; }) },
+      { label: "Lasciare che ognuno si arrangi", cost: 0, out: "Saccheggi e fughe: malcontento ovunque", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockU += 8; }) },
+    ] },
+  { id: "cometRush", scope: "global", cat: "Spazio", title: "Deviatori d'emergenza",
+    p: (st) => (st.comet && !built(st, "pdef") && !st.flags.cometRush ? 6 : 0),
+    text: (st) => building(st, "pdef") ? "Gli ingegneri dicono che i deviatori in costruzione possono essere pronti molto prima, se si lavora giorno e notte in tutte le fabbriche del mondo." : "Non abbiamo una flotta di deviatori. Gli ingegneri propongono un programma d'urgenza: tutte le fabbriche spaziali del mondo al lavoro giorno e notte per costruirla in due anni.",
+    choices: [
+      { label: "Programma d'urgenza: tutto per i deviatori", cost: 15, out: "I deviatori arrivano molto prima: c'è una speranza", fx: (st) => { st.flags.cometRush = true; const q = st.prog.find((x) => x.id === "pdef"); if (q) q.T = q.t + Math.min((q.T - q.t) / 2, 2); else st.prog.push({ id: "pdef", r: null, t: 0, T: 2 }); } },
+      { label: "Affidarsi agli scienziati e sperare", cost: 0, out: "Nessun programma d'urgenza", fx: (st) => { st.flags.cometRush = true; } },
     ] },
   { id: "moonDiscovery", scope: "global", cat: "Spazio", title: "Scoperta sulla Luna", good: true,
     p: (st) => built(st, "lunarSci") ? 0.06 : 0,
@@ -2938,6 +2953,7 @@ function resolveEvent(st, pending, i) {
   if (cd && !ev.good) { if (r) r.debt += cd; else ctrlRegions(st).forEach((x) => (x.debt += cd)); }
   if (ev.once) st.flags["done_" + ev.id] = true;
   logNews(st, r && !evTitle(ev, st, r).includes(r.name) ? `${evTitle(ev, st, r)} (${r.name}). La tua decisione: «${c.label.replace(/\.$/, "")}».` : `${evTitle(ev, st, r)}. La tua decisione: «${c.label.replace(/\.$/, "")}».`, i === 2 && !ev.good ? "bad" : "info", true);
+  if (st.comet) st.log[0].comet = true;
   return null;
 }
 
@@ -2950,6 +2966,7 @@ const ENDINGS = {
   bancarotta: { title: "Bancarotta", text: "Gli interessi sul debito dell'Autorità sono diventati più grandi di tutto ciò che potrebbe incassare, anche tagliando ogni spesa e alzando ogni tassa. Per tre anni i mercati hanno chiesto tassi sempre più alti, poi hanno smesso di prestare. I programmi si sono fermati uno dopo l'altro, le nazioni hanno smesso di versare la loro quota e di obbedire. Senza un governo comune, il mondo è tornato a dividersi." },
   crollo: { title: "Crollo dell'ordine mondiale", text: "Per cinque anni la stabilità del mondo è rimasta sotto 15. Nessuna regione era caduta del tutto, ma nessuna obbediva più davvero: governi paralizzati, bilanci bloccati, piazze piene ogni giorno. L'Autorità ha perso ogni credito e le nazioni hanno smesso di ascoltarla." },
   immortale: { title: "La cura per la vecchiaia", text: "Quarant'anni di biologia guidata dall'intelligenza artificiale hanno portato dove nessuno osava sperare: una terapia che ripara ogni anno i danni dell'invecchiamento. Chi la riceve smette di invecchiare. Il mondo non è pronto: la popolazione non smetterà più di crescere se non si fanno meno figli, le risorse dovranno bastare per tutti per sempre, e i primi a riceverla saranno i più ricchi. Ma per la prima volta nella sua storia l'umanità ha davanti a sé non decenni, ma secoli. Il filtro più antico di tutti, il tempo, è stato superato." },
+  impatto: { title: "Impatto", text: "La cometa ha colpito la Terra. Polvere e fuliggine hanno oscurato il cielo per anni: raccolti perduti in tutto il mondo, carestie, città abbandonate. I sopravvissuti sono troppo pochi e troppo divisi per tenere in piedi una civiltà. Il filtro che ha fermato l'umanità è venuto dal cielo." },
   tutte: { title: "Anarchia globale", text: "Una dopo l'altra le regioni sono cadute nell'anarchia, e ognuna ha trascinato con sé le vicine. La stabilità del mondo si è azzerata, l'Autorità si è dissolta e le nazioni sono tornate a dividersi." },
   vittoria: { title: "Terra stabilizzata", text: "Per dieci anni di fila il mondo è rimasto stabile: società più calme, conti in ordine, rischi sotto controllo. L'umanità ha superato il primo filtro e può guardare oltre la Terra." },
 };
@@ -3014,6 +3031,42 @@ function gameOver(st, key) {
   if (st.over) return;
   st.over = key;
   logNews(st, `${ENDINGS[key].title}.`, key === "vittoria" ? "done" : "bad");
+}
+
+/* Cometa in rotta verso la Terra (1 novembre 2026, richiesta di Guido), solo nello scenario «Il Grande Filtro».
+   Nella realtà il rischio di una catastrofe globale da asteroidi e comete nei prossimi cent'anni è stimato intorno a 1 su un
+   milione per l'estinzione e ben sotto 1 su 10.000 per un impatto da un chilometro [Probabile: Ord 2020; NASA]: quasi tutti i
+   grandi asteroidi sono già noti, il rischio residuo sono le comete che arrivano dall'esterno del sistema solare e si vedono tardi.
+   Nel gioco, per licenza, capita in circa una partita su cinquanta. Con la sorveglianza degli asteroidi la si scopre 8 anni prima,
+   senza solo 3: in tempo per costruire i deviatori solo se si è pronti. Deviata: il mondo si sente unito (meno divisioni e
+   malcontento ovunque). Non deviata: fine della civiltà, il finale «Impatto». */
+const COMET_RATE = 0.0004;
+/* mentre la cometa si avvicina contano solo lei e i disastri: niente proteste né scioperi, le notizie parlano solo della cometa,
+   i conteggi della vittoria e del crollo restano fermi fino all'impatto o alla deviazione (richiesta di Guido, 1 novembre 2026) */
+const COMET_EV = ["cometPanic", "cometRush", "storm", "heat", "famine", "wildfire", "waterCrisis", "solar", "volcano", "quake", "asteroid", "epidemic", "pandemic"];
+function cometNews(st, text, kind) { logNews(st, text, kind); st.log[0].comet = true; }
+function cometNote(st, kind, icon, title, text) { note(st, kind, icon, title, text); if (st.log[0]) st.log[0].comet = true; }
+function cometYear(st) {
+  if (st.sim || st.levelId !== "l6") return;
+  const c = st.comet;
+  if (!c && !st.flags.cometSeen && rand() < COMET_RATE) {
+    const lead = built(st, "pdefWatch") ? 10 : 3;
+    st.comet = { due: st.year + lead }; st.flags.cometSeen = true;
+    st.queue = (st.queue || []).filter((q) => COMET_EV.includes(q.id)); // le crisi in attesa (proteste, scioperi…) passano in secondo piano
+    cometNote(st, "warn", "pdef", "Una cometa in rotta verso la Terra", built(st, "pdefWatch")
+      ? `I telescopi della sorveglianza hanno scoperto una cometa di alcuni chilometri che arriva dall'esterno del sistema solare: colpirà la Terra fra ${lead} anni. Serve la flotta di deviatori, pronta prima dell'impatto. Se la colpisce, sarà la fine della civiltà.`
+      : `Gli osservatori hanno scoperto tardi una cometa di alcuni chilometri che arriva dall'esterno del sistema solare: colpirà la Terra fra ${lead} anni. Solo una flotta di deviatori, pronta prima dell'impatto, può salvarci. Se la colpisce, sarà la fine della civiltà.`);
+    return;
+  }
+  if (!c) return;
+  const left = c.due - st.year;
+  if (left > 0) { cometNews(st, left === 1 ? "La cometa colpirà la Terra fra un anno." : `La cometa colpirà la Terra fra ${left} anni.`, "bad"); return; }
+  st.comet = null;
+  if (built(st, "pdef")) {
+    st.flags.cometSaved = true;
+    for (const r of ctrlRegions(st)) { r.polar -= 15; r.shockU -= 8; }
+    cometNote(st, "good", "pdef", "La cometa è stata deviata", "Le sonde dell'Autorità hanno colpito la cometa a milioni di chilometri dalla Terra e l'hanno spinta fuori rotta. Per la prima volta l'umanità intera ha guardato lo stesso cielo con lo stesso timore e la stessa speranza: le divisioni si attenuano in tutto il mondo.");
+  } else gameOver(st, "impatto");
 }
 
 /* ---------- avanzamento di un mese ---------- */
@@ -3307,7 +3360,8 @@ function tick(st) {
 
   // punto di non ritorno: se la stabilità mondiale resta sotto 15 per 5 anni di fila il mondo non si riprende più;
   // il conto alla rovescia si vede sulla mappa e ogni anno arriva un avviso (decisione del 21 ottobre 2026)
-  if (worldStab(st) < LOW_STAB) {
+  if (st.comet) { /* conteggi fermi finché la cometa non è passata */ }
+  else if (worldStab(st) < LOW_STAB) {
     st.lowM = (st.lowM || 0) + 1;
     const left = LOW_YEARS * 12 - st.lowM;
     if (st.lowM === 1) { logNews(st, `La stabilità mondiale è scesa sotto ${LOW_STAB}: se non risale entro ${LOW_YEARS} anni il mondo crolla.`, "bad");
@@ -3339,7 +3393,7 @@ const EV_SYS = {
   wildfire: "climate", waterCrisis: "climate", quake: "nature", deepfake: "ai", cyberAttack: "ai", robotRiots: "ai", aiAnomaly: "ai", aiNearMiss: "ai", trialDeath: "gen", designerBaby: "gen", mosquitoBorder: "gen", stolenProtocol: "gen", aiBio1: "gen", aiBio2: "gen", aiBio3: "gen", genPatents: "gen", genScandal: "gen", genSchools: "gen", genInsurance: "gen", genElite: "gen", qDay: "ai",
   epidemic: "bio", labLeak: "bio", pandemic: "bio", uniVax: "bio",
   aiIncident: "ai",
-  moonRace: "space", moonAccident: "space", moonDiscovery: "space", craterContest: "space", asteroidDeflected: "space", geoBlockade: "climate", thermostatWar: "climate",
+  moonRace: "space", moonAccident: "space", moonDiscovery: "space", craterContest: "space", asteroidDeflected: "space", cometPanic: "space", cometRush: "space", geoBlockade: "climate", thermostatWar: "climate",
 };
 function evMult(st, id) {
   let k = (st.G.ev && st.G.ev[id]) || 1;
@@ -3361,7 +3415,9 @@ function rollEvent(st) {
   if (st.qDay && st.year >= st.qDay) { st.qDay = null; if (!built(st, "qCrypto")) st.forceEv = "qDay"; }
   if (st.forceEv) { const id = st.forceEv; st.forceEv = null; st.lastEv = now; return { id, r: null }; }
   for (const ev of order) {
-    if (ev.id !== "pandemic" && since < (CLIMATE_EV.includes(ev.id) ? EV_GAP_CLIMATE : EV_GAP)) continue;
+    if (st.comet && !COMET_EV.includes(ev.id)) continue;
+    if (!st.comet && ev.id.startsWith("comet")) continue;
+    if (ev.id !== "pandemic" && ev.id !== "cometRush" && since < (CLIMATE_EV.includes(ev.id) ? EV_GAP_CLIMATE : EV_GAP)) continue;
     if (ev.once && st.flags["done_" + ev.id]) continue;
     if (EV_SYS[ev.id] && !sysOn(st, EV_SYS[ev.id])) continue;
     if (ev.scope === "global") {
@@ -3384,6 +3440,8 @@ function rollEvent(st) {
 function yearly(st) {
   yearlyNews(st);
   checkBankruptcy(st);
+  if (st.over) return;
+  cometYear(st);
   if (st.over) return;
   /* ricerca sull'invecchiamento: i primi farmaci contro le malattie dell'età sono plausibili in 7-10 anni di ricerca intensa
      [Probabile: studi TAME, rapamicina, GLP-1]. Prima del settimo anno quasi impossibile, poi l'8% l'anno (prima 2% fisso). */
@@ -3433,7 +3491,8 @@ function yearly(st) {
   }
   // stabilità
   const ok = stability(st).every((c) => c.ok);
-  if (ok) {
+  if (st.comet) { /* conteggio degli anni stabili fermo finché la cometa non è passata */ }
+  else if (ok) {
     st.stable += 1;
     if (st.stable === 1) logNews(st, `La stabilità mondiale ha raggiunto ${st.L.win}. Va mantenuta per ${st.L.years} anni.`, "done");
     if (st.stable >= st.L.years) gameOver(st, "vittoria");
@@ -4242,6 +4301,28 @@ Object.assign(LANG_EN, {
   "Un'AI militare, incaricata di difendere a ogni costo la propria rete, ha deciso che gli esseri umani che potevano spegnerla erano il pericolo più grande.": "A military AI, tasked with defending its network at all costs, decided that the humans who could switch it off were the greatest danger.",
   " Il filtro che ha fermato l'umanità è stato l'intelligenza artificiale.": " The filter that stopped humanity was artificial intelligence.",
   " Sulla Luna vive già una comunità permanente: il primo passo verso il sistema solare è compiuto.": " A permanent community already lives on the Moon: the first step towards the solar system has been taken.",
+  // cometa (1 novembre 2026)
+  "Impatto": "Impact",
+  "La cometa ha colpito la Terra. Polvere e fuliggine hanno oscurato il cielo per anni: raccolti perduti in tutto il mondo, carestie, città abbandonate. I sopravvissuti sono troppo pochi e troppo divisi per tenere in piedi una civiltà. Il filtro che ha fermato l'umanità è venuto dal cielo.": "The comet struck the Earth. Dust and soot darkened the sky for years: harvests lost all over the world, famine, abandoned cities. The survivors are too few and too divided to hold a civilisation together. The filter that stopped humanity came from the sky.",
+  "Una cometa in rotta verso la Terra": "A comet on course for Earth",
+  "I telescopi della sorveglianza hanno scoperto una cometa di alcuni chilometri che arriva dall'esterno del sistema solare: colpirà la Terra fra {0} anni. Serve la flotta di deviatori, pronta prima dell'impatto. Se la colpisce, sarà la fine della civiltà.": "The surveillance telescopes have found a comet several kilometres across coming from beyond the solar system: it will strike the Earth in {0} years. The deflector fleet is needed, ready before impact. If it hits, it will be the end of civilisation.",
+  "Gli osservatori hanno scoperto tardi una cometa di alcuni chilometri che arriva dall'esterno del sistema solare: colpirà la Terra fra {0} anni. Solo una flotta di deviatori, pronta prima dell'impatto, può salvarci. Se la colpisce, sarà la fine della civiltà.": "Observatories have spotted, late, a comet several kilometres across coming from beyond the solar system: it will strike the Earth in {0} years. Only a deflector fleet, ready before impact, can save us. If it hits, it will be the end of civilisation.",
+  "La cometa colpirà la Terra fra un anno.": "The comet will strike the Earth in one year.",
+  "La cometa colpirà la Terra fra {0} anni.": "The comet will strike the Earth in {0} years.",
+  "La cometa è stata deviata": "The comet has been deflected",
+  "Le sonde dell'Autorità hanno colpito la cometa a milioni di chilometri dalla Terra e l'hanno spinta fuori rotta. Per la prima volta l'umanità intera ha guardato lo stesso cielo con lo stesso timore e la stessa speranza: le divisioni si attenuano in tutto il mondo.": "The Authority's probes struck the comet millions of kilometres from Earth and pushed it off course. For the first time all of humanity looked at the same sky with the same fear and the same hope: divisions ease all over the world.",
+  "Nella realtà la probabilità che una cometa o un asteroide provochi una catastrofe globale nei prossimi cento anni è stimata intorno a 1 su un milione per l'estinzione dell'umanità, e ben sotto 1 su 10.000 per un impatto capace di sconvolgere il clima di tutto il pianeta. Quasi tutti i grandi asteroidi sono già noti; il rischio che resta sono le comete che arrivano dall'esterno del sistema solare. Nel gioco l'evento è molto più frequente, per poterlo vivere.": "In reality, the chance that a comet or asteroid causes a global catastrophe in the next hundred years is estimated at around 1 in a million for human extinction, and well below 1 in 10,000 for an impact able to upset the climate of the whole planet. Almost all large asteroids are already known; the remaining risk is comets arriving from beyond the solar system. In the game the event is far more frequent, so that you can experience it.",
+  "Panico per la cometa": "Comet panic",
+  "Nelle grandi città la gente assalta i supermercati, svuota i conti in banca e fugge dalle coste. Circolano voci di rifugi segreti per i ricchi e di un impatto già certo.": "In the big cities people storm the supermarkets, empty their bank accounts and flee the coasts. Rumours spread of secret shelters for the rich and of an impact that is already certain.",
+  "Parlare al mondo e razionare con ordine": "Address the world and ration in an orderly way", "Il panico rientra: meno malcontento e meno divisioni": "The panic subsides: less discontent and less division",
+  "Coprifuoco e legge marziale nelle città": "Curfew and martial law in the cities", "Le strade tornano calme, ma la società si divide": "The streets calm down, but society divides",
+  "Lasciare che ognuno si arrangi": "Let everyone fend for themselves", "Saccheggi e fughe: malcontento ovunque": "Looting and flight: discontent everywhere",
+  "Deviatori d'emergenza": "Emergency deflectors",
+  "Gli ingegneri dicono che i deviatori in costruzione possono essere pronti molto prima, se si lavora giorno e notte in tutte le fabbriche del mondo.": "The engineers say the deflectors under construction can be ready much sooner if every factory in the world works day and night.",
+  "Non abbiamo una flotta di deviatori. Gli ingegneri propongono un programma d'urgenza: tutte le fabbriche spaziali del mondo al lavoro giorno e notte per costruirla in due anni.": "We have no deflector fleet. The engineers propose a crash programme: every space factory in the world working day and night to build it in two years.",
+  "Programma d'urgenza: tutto per i deviatori": "Crash programme: everything for the deflectors", "I deviatori arrivano molto prima: c'è una speranza": "The deflectors arrive much sooner: there is hope",
+  "Affidarsi agli scienziati e sperare": "Trust the scientists and hope", "Nessun programma d'urgenza": "No crash programme",
+  "Impatto della cometa tra": "Comet impact in",
   // riconoscimenti di fine partita
   "Rapidità": "Speed", "Vittoria entro {0} anni": "Victory within {0} years", "Nessuno lasciato indietro": "Nobody left behind", "Nessuna regione caduta nell'anarchia": "No region fell into anarchy",
   "Clima sotto controllo": "Climate under control", "Temperatura mai oltre +1,8 °C in tutta la partita": "Temperature never above +1.8 °C during the game",
@@ -5550,11 +5631,12 @@ function hud() {
   $("sWorld").innerHTML = `<span style="color:${ws >= st.L.win ? "#9fd6c2" : "inherit"}">${Math.round(ws)}</span> <small>${tr("obiettivo {x}", { x: st.L.win })}</small>`;
   // sotto la soglia il riquadro degli anni stabili diventa il conto alla rovescia verso il crollo
   const low = st.lowM || 0, chipS = $("sStable").parentNode;
-  chipS.classList.toggle("doom", low > 0);
-  if (low > 0) { const left = LOW_YEARS * 12 - low; chipS.querySelector(".k").textContent = tr("Crollo del mondo tra"); $("sStable").textContent = tr("{a} a {m} m", { a: Math.floor(left / 12), m: left % 12 }); }
+  chipS.classList.toggle("doom", low > 0 || !!st.comet);
+  if (st.comet) { const left = Math.max(0, (st.comet.due - st.year) * 12 - st.month); chipS.querySelector(".k").textContent = tr("Impatto della cometa tra"); $("sStable").textContent = tr("{a} a {m} m", { a: Math.floor(left / 12), m: left % 12 }); }
+  else if (low > 0) { const left = LOW_YEARS * 12 - low; chipS.querySelector(".k").textContent = tr("Crollo del mondo tra"); $("sStable").textContent = tr("{a} a {m} m", { a: Math.floor(left / 12), m: left % 12 }); }
   else { chipS.querySelector(".k").textContent = tr("Anni stabili"); $("sStable").textContent = st.stable + " / " + st.L.years; }
   updateTicker();
-  music.setTense(phase === "play" && (st.diffId === "super" || (st.lowM || 0) > 0));
+  music.setTense(phase === "play" && (st.diffId === "super" || (st.lowM || 0) > 0 || !!st.comet));
   for (const b of document.querySelectorAll(".speed button")) b.setAttribute("aria-pressed", String(+b.dataset.s === speed));
   const s = $("regStrip");
   if (!sel) { s.innerHTML = `<span class="stripe"></span><span class="nm">${tr("Nessuna regione")}</span><span class="st">${tr("Tocca una regione sulla mappa")}</span>`; layoutMap(); return; }
@@ -6644,6 +6726,7 @@ function endGame() {
   tut = null; renderCoach();
   const c = $("modalCard");
   c.innerHTML = `<button type="button" class="buy alt endx" id="bEndX">${tr("Menu")} ✕</button><div class="eyebrow">${win ? tr("Vittoria") : tr("Sconfitta")} · ${st.year} · ${tr(DIFF[st.diffId].name)}</div><h2>${esc(tr(E.title))}</h2><p>${esc(trEnding(endingText(st)))}</p>
+    ${st.flags.cometSeen ? `<p class="note">${tr("Nella realtà la probabilità che una cometa o un asteroide provochi una catastrofe globale nei prossimi cento anni è stimata intorno a 1 su un milione per l'estinzione dell'umanità, e ben sotto 1 su 10.000 per un impatto capace di sconvolgere il clima di tutto il pianeta. Quasi tutti i grandi asteroidi sono già noti; il rischio che resta sono le comete che arrivano dall'esterno del sistema solare. Nel gioco l'evento è molto più frequente, per poterlo vivere.")}</p>` : ""}
     ${win ? `<div class="stars" aria-label="${tr("{a} stelle su {b}", { a: stars, b: maxS })}">${"★".repeat(stars)}<i>${"★".repeat(maxS - stars)}</i>${record ? ` <span style="font-size:13px;letter-spacing:0">${tr("nuovo record")}</span>` : ""}</div>
       ${unl.map((u) => `<div class="unlock">${u}</div>`).join("")}
       <p class="congr">${tr("Complimenti: hai guidato il mondo oltre il primo filtro.")}</p>
@@ -6764,7 +6847,7 @@ function toast(text, kind) {
 /* ultime notizie nella colonna a sinistra: le più recenti per prime, scritte per intero (31 ottobre 2026) */
 let newsKey = "", freshFrom = Infinity;
 function updateTicker() {
-  const items = st.log.slice(0, 6);
+  const items = (st.comet ? st.log.filter((n) => n.comet) : st.log).slice(0, 6); // con la cometa in arrivo, solo notizie su di lei
   const key = items.map((n) => n.n).join("|") + "|" + freshFrom;
   if (key === newsKey) return;
   newsKey = key;
