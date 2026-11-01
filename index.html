@@ -12,6 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
+<script>window.GF_MUSIC = "music/";</script>
 <style>html{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);background:#0f1d29;color-scheme:dark}body{margin:0;font-family:system-ui,-apple-system,sans-serif;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -5636,7 +5637,8 @@ function hud() {
   else if (low > 0) { const left = LOW_YEARS * 12 - low; chipS.querySelector(".k").textContent = tr("Crollo del mondo tra"); $("sStable").textContent = tr("{a} a {m} m", { a: Math.floor(left / 12), m: left % 12 }); }
   else { chipS.querySelector(".k").textContent = tr("Anni stabili"); $("sStable").textContent = st.stable + " / " + st.L.years; }
   updateTicker();
-  music.setTense(phase === "play" && (st.diffId === "super" || (st.lowM || 0) > 0 || !!st.comet));
+  music.setMood(phase !== "play" ? (phase === "over" ? (st.over === "vittoria" || st.over === "immortale" ? "win" : "lose") : "menu")
+    : st.comet || riskBoard(st).some((x) => x.lv >= 3) ? "crisis" : st.diffId === "super" || (st.lowM || 0) > 0 ? "tense" : "calm");
   for (const b of document.querySelectorAll(".speed button")) b.setAttribute("aria-pressed", String(+b.dataset.s === speed));
   const s = $("regStrip");
   if (!sel) { s.innerHTML = `<span class="stripe"></span><span class="nm">${tr("Nessuna regione")}</span><span class="st">${tr("Tocca una regione sulla mappa")}</span>`; layoutMap(); return; }
@@ -5665,6 +5667,7 @@ $("viewBtn").onclick = () => { $("views").hidden = !$("views").hidden; };
 /* ---------- menu iniziale ---------- */
 function showPhase(p) {
   phase = p;
+  if (p !== "play" && p !== "over" && typeof music !== "undefined") music.setMood("menu");
   $("menuTitle").hidden = p !== "title";
   if (p === "title") $("crownAll").hidden = !LEVELS.filter((l) => !l.tutorial).every((l) => crowned(l.id));
   if (p === "title") { const sv = peekSave(); $("mCont").hidden = !sv; if (sv) $("mCont").textContent = tr("Continua · {y} · {d}", { y: sv.year, d: tr(DIFF[sv.diffId].name) }); }
@@ -7182,7 +7185,7 @@ $("bPause").onclick = () => {
     $("modal").hidden = true; closeScreensQuiet(); zoomMap(null);
     globeOn = false; moonMode = false; showGlobe();
     st = null; sel = null; tut = null; renderCoach(); $("bubbles").innerHTML = "";
-    music.setTense(false); showPhase("title");
+    music.setMood("menu"); showPhase("title");
   };
   $("pResume").focus();
 };
@@ -7305,15 +7308,54 @@ const music = (() => {
   /* musica accesa: sessione "playback", sull'iPhone si sente anche in modalità silenziosa (ma ferma la musica di altre app e le
      registrazioni); musica spenta: l'audio si chiude e la sessione torna "ambient", così il gioco non disturba nulla */
   function mediaSession(t) { try { if (navigator.audioSession) navigator.audioSession.type = t || "playback"; } catch (e) {} }
+  /* Brani veri (1 novembre 2026, generati con Suno): ci sono solo nel sito, nella cartella music/; dove mancano (anteprima su
+     claude.ai) resta il motivo generato dal codice. Ogni atmosfera ha la sua scaletta: i brani calmi si alternano a caso con
+     qualche silenzio, gli altri si ripetono. Passaggi morbidi di tre secondi tra un brano e l'altro. */
+  const FILES = typeof window.GF_MUSIC === "string" ? window.GF_MUSIC : null;
+  const TRACKS = { menu: ["gf1-menu"], calm: ["gf1-calma-1", "gf1-calma-2", "gf1-calma-3"], tense: ["gf1-tesa-1"], crisis: ["gf1-crisi"], win: ["gf1-vittoria"], lose: [] };
+  let mode = "menu", deck = [], live = null, gapT = null, lastName = "";
+  // due lettori sbloccati al primo tocco (sull'iPhone ogni lettore va avviato la prima volta da un tocco), poi si alternano
+  function makeDeck() {
+    deck = [0, 1].map(() => { const a = new Audio(); a.preload = "auto"; a.playsInline = true; const g = ctx.createGain(); g.gain.value = 0; ctx.createMediaElementSource(a).connect(g); g.connect(ctx.destination); return { a, g }; });
+    for (const d of deck) { d.a.src = FILES + TRACKS.menu[0] + ".mp3"; const p = d.a.play(); if (p && p.then) p.then(() => { if (d !== live) d.a.pause(); }).catch(() => {}); }
+  }
+  function fade(d, to, sec) { const t = ctx.currentTime; d.g.gain.cancelScheduledValues(t); d.g.gain.setValueAtTime(d.g.gain.value, t); d.g.gain.linearRampToValueAtTime(to, t + sec); }
+  function nextTrack() {
+    clearTimeout(gapT); gapT = null;
+    if (!ctx || !deck.length) return;
+    const list = TRACKS[mode] || [], old = live;
+    if (old) { fade(old, 0, 3); const a = old.a; setTimeout(() => { if (live !== old) a.pause(); }, 3200); }
+    if (!list.length) { live = null; return; }
+    const pool = list.length > 1 ? list.filter((x) => x !== lastName) : list, name = pool[Math.floor(Math.random() * pool.length)];
+    const d = deck[0] === old ? deck[1] : deck[0];
+    lastName = name; live = d;
+    d.a.src = FILES + name + ".mp3"; d.a.currentTime = 0;
+    d.a.onended = () => {
+      if (live !== d) return;
+      if (mode === "win") return; // la vittoria si sente una volta
+      if (mode === "calm") { live = null; gapT = setTimeout(nextTrack, 20000 + Math.random() * 40000); } else nextTrack(); // un po' di silenzio tra i brani calmi
+    };
+    fade(d, 0.85, old ? 3 : 1.5);
+    const p = d.a.play(); if (p && p.catch) p.catch(() => {});
+  }
+  function setMode(m) {
+    if (m === mode) return; mode = m;
+    if (FILES && ctx && on && !away) nextTrack();
+    tense = m === "tense" || m === "crisis";
+  }
   function play() {
     mediaSession();
     if (!ctx && !setup()) return;
     if (ctx.resume) ctx.resume().catch(() => {});
+    if (FILES) { if (!deck.length) makeDeck(); if (!live && !gapT) nextTrack(); return; }
     master.gain.cancelScheduledValues(ctx.currentTime); master.gain.linearRampToValueAtTime(0.5, ctx.currentTime + 1.5);
     if (!timer) { pad(ctx.currentTime + 0.05); timer = setInterval(() => pad(ctx.currentTime + 0.05), BAR() * 1000); }
   }
   function stop() {
     clearInterval(timer); timer = null;
+    clearTimeout(gapT); gapT = null;
+    for (const d of deck) { try { d.a.pause(); d.a.removeAttribute("src"); d.a.load(); } catch (e) {} }
+    deck = []; live = null;
     if (!ctx) return;
     const c = ctx; ctx = null; master = null; // si chiude davvero: l'iPhone libera l'audio
     try { c.close(); } catch (e) {}
@@ -7358,7 +7400,9 @@ const music = (() => {
     if (v === tense) return; tense = v;
     if (timer) { clearInterval(timer); timer = setInterval(() => pad(ctx.currentTime + 0.05), BAR() * 1000); }
   }
-  return { start() { if (on) play(); }, leave, back, setTense };
+  // atmosfera: menu, calma, tesa, crisi (catastrofe vicina o cometa), vittoria, sconfitta
+  function setMood(m) { if (FILES) setMode(m); else setTense(m === "tense" || m === "crisis" || m === "lose"); }
+  return { start() { if (on) play(); }, leave, back, setTense, setMood };
 })();
 
 tStatic(document.body); paintLang(); document.documentElement.lang = LANG;
