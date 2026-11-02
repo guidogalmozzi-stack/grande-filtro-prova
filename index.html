@@ -748,6 +748,8 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
       <h3>Impostazioni</h3>
       <div class="setrow"><span>Musica</span><button type="button" class="switch" id="musicSwitch" role="switch" aria-checked="true"><i></i></button></div>
       <p class="setnote" id="musicNote" data-dyn></p>
+      <div class="setrow" id="statsRow"><span>Dati anonimi delle partite</span><button type="button" class="switch" id="statsSwitch" role="switch" aria-checked="true"><i></i></button></div>
+      <p class="setnote" id="statsNote">Aiutano a capire se gli scenari sono troppo facili o difficili: anno, stabilità, esito. Nessun dato personale.</p>
       <div class="setrow" id="langRow"><span>Lingua</span><span class="langs" id="langBtns" data-dyn></span></div>
       <p class="setnote" id="langNote" data-dyn></p>
       <button type="button" class="mbtn" id="settingsOk">Chiudi</button>
@@ -6717,7 +6719,7 @@ function fitBrief() {
   // sotto questa misura il testo diventa illeggibile: meglio far scorrere la pagina (terzo rapporto, 28 ottobre 2026)
 }
 window.addEventListener("resize", () => { if (phase === "brief") fitBrief(); });
-function beginPlay() { zoomMap(null); showPhase("play"); refresh(); save(); rotateHint(); renderCoach(); }
+function beginPlay() { if (st && !st.gid) { st.gid = Math.random().toString(36).slice(2, 10); TELE.send("inizio"); } zoomMap(null); showPhase("play"); refresh(); save(); rotateHint(); renderCoach(); }
 function rotateHint() {
   // il gioco girato dal codice funziona, ma solo con il telefono davvero in orizzontale spariscono ora e batteria
   if (!$("app").classList.contains("turned")) return;
@@ -7627,6 +7629,7 @@ function endGame() {
   const E = ENDINGS[st.over], win = st.over === "vittoria" || st.over === "immortale"; // la cura per la vecchiaia è una vittoria speciale
   clearSave();
   const hon = honors(st), stars = hon.filter((h) => h.ok).length, maxS = hon.length;
+  TELE.send("fine", { esito: st.over, stelle: stars, interventi: Object.keys(st.acts), crisi: st.log.filter((x) => /La tua decisione/.test(x.text)).length });
   const li = LEVELS.findIndex((l) => l.id === st.levelId), next = LEVELS[li + 1];
   let record = false, unl = [];
   if (win) {
@@ -7674,18 +7677,44 @@ function endGame() {
 }
 function closeScreensQuiet() { $("scrActs").hidden = $("scrReg").hidden = $("scrWorld").hidden = true; openScreen = null; }
 
+/* ---------- dati anonimi delle partite (2 novembre 2026, richiesta di Guido) ----------
+   Solo sul sito (window.GF_STATS è l'indirizzo del foglio Google che li raccoglie, messo da build.js). Nessun dato personale:
+   un codice a caso per il telefono e uno per la partita. Si spengono dalle Impostazioni. */
+const TELE = (() => {
+  const URL = typeof window.GF_STATS === "string" && window.GF_STATS ? window.GF_STATS : null;
+  const rid = () => Math.random().toString(36).slice(2, 10);
+  let player = null; try { player = localStorage.getItem("gf-player") || (localStorage.setItem("gf-player", rid()), localStorage.getItem("gf-player")); } catch (e) { player = rid(); }
+  const on = () => { try { return localStorage.getItem("gf-stats") !== "off"; } catch (e) { return true; } };
+  let lastPause = 0;
+  function send(type, extra) {
+    if (!URL || !st || !on()) return;
+    if (!st.gid) st.gid = rid();
+    const rs = Object.values(st.regions);
+    const d = { t: type, p: player, g: st.gid, sc: st.levelId, diff: st.diffId, gov: st.govId, anno: st.year, stab: Math.round(worldStab(st)),
+      fondi: Math.round(st.funds), int: Object.keys(st.acts).length, anarchia: rs.filter((r) => !r.controlled && !r.exit).length,
+      uscite: rs.filter((r) => r.exit).length, min: Math.round((st.rt || 0) / 60000), x: extra || {} };
+    try { fetch(URL, { method: "POST", mode: "no-cors", keepalive: true, headers: { "Content-Type": "text/plain" }, body: JSON.stringify(d) }); } catch (e) {}
+  }
+  document.addEventListener("visibilitychange", () => {
+    // il telefono chiude o cambia app durante una partita: dice dove si è fermato (al massimo una volta ogni 10 minuti)
+    if (document.hidden && phase === "play" && st && !st.over && Date.now() - lastPause > 600000) { lastPause = Date.now(); send("pausa"); }
+  });
+  return { send, on, available: !!URL, set: (v) => { try { localStorage.setItem("gf-stats", v ? "on" : "off"); } catch (e) {} } };
+})();
+
 /* ---------- ciclo del tempo ---------- */
 let last = performance.now(), acc = 0;
 function loop(now) {
   const dtms = Math.min(250, now - last); last = now;
   if (phase === "play" && speed > 0 && !pending && !st.over && !tutHold() && !expiredEv()) {
     acc += dtms * speed;
+    st.rt = (st.rt || 0) + dtms; // tempo reale di gioco
     let changed = false;
     while (acc >= MONTH_MS) {
       acc -= MONTH_MS;
       const ev = tick(st);
       changed = true;
-      if (st.month === 0) save();
+      if (st.month === 0) { save(); if (st.year % 5 === 0) TELE.send("anno"); }
       if (st.over) { endGame(); break; }
       if (ev) queueEvent(ev);
       // nel tutorial la prima crisi arriva sempre, pochi mesi dopo l'avvio del tempo
@@ -8107,7 +8136,7 @@ $("bPause").onclick = () => {
   $("modal").hidden = false;
   $("pResume").onclick = () => { pending = null; $("modal").hidden = true; speed = savedSpeed || 1; refresh(); };
   $("pExit").onclick = () => {
-    pending = null; save();
+    pending = null; save(); TELE.send("uscita");
     $("modal").hidden = true; closeScreensQuiet(); zoomMap(null);
     globeOn = false; moonMode = false; showGlobe();
     st = null; sel = null; tut = null; renderCoach(); $("bubbles").innerHTML = "";
@@ -8306,6 +8335,10 @@ const music = (() => {
       : tr("Spenta: il gioco resta muto e non disturba la musica di altre app né le registrazioni vocali.");
   }
   sw.addEventListener("click", (e) => { e.stopPropagation(); setOn(!on); paintSettings(); });
+  const ssw = $("statsSwitch");
+  $("statsRow").hidden = $("statsNote").hidden = !TELE.available;
+  ssw.setAttribute("aria-checked", String(TELE.on()));
+  ssw.addEventListener("click", (e) => { e.stopPropagation(); TELE.set(!TELE.on()); ssw.setAttribute("aria-checked", String(TELE.on())); });
   $("bSettings").addEventListener("click", (e) => { e.stopPropagation(); paintSettings(); $("settings").hidden = !$("settings").hidden; });
   $("settingsOk").addEventListener("click", (e) => { e.stopPropagation(); $("settings").hidden = true; });
   $("settings").addEventListener("click", (e) => e.stopPropagation());
