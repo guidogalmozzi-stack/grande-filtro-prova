@@ -1368,8 +1368,8 @@ const INTERVENTIONS = [
      miliardi di dollari l'anno (Smith e Wagner 2018; NASEM 2021), ma prima vanno progettati aerei capaci di volare a 20 km (7-10 anni).
      Il limite vero non sono i soldi ma i rischi: piogge monsoniche −5-15% in Asia meridionale e Sahel, ozono, tensioni tra le potenze.
      Se si smette, gli aerosol cadono in 1-2 anni e la temperatura recupera il 70-80% del caldo nascosto in 10-15 anni. */
-  { id: "stratoPlanes", cat: "clima", name: "Aerei stratosferici", desc: "Progettazione e costruzione di una flotta di alcune centinaia di aerei speciali, capaci di portare carichi pesanti a 20 km di quota, dove gli aerei di oggi non arrivano.", scope: "global", cost: 3, T: 8, from: 2030,
-    pro: "Rendono possibili gli aerosol riflettenti nella stratosfera", con: "Servono circa otto anni di sviluppo; da soli non fanno niente" },
+  { id: "stratoPlanes", cat: "clima", name: "Aerei stratosferici", desc: "Progettazione e costruzione di una flotta di alcune centinaia di aerei speciali, capaci di portare carichi pesanti a 20 km di quota, dove gli aerei di oggi non arrivano.", scope: "global", cost: 3, T: 8,
+    pro: "Rendono possibili gli aerosol riflettenti nella stratosfera", con: "Servono circa otto anni di sviluppo; da soli non fanno niente. Dove non c'è ancora stato nessun disastro climatico la gente è molto contraria: proteste e divisioni (meno dove il clima ha già colpito)" },
   { id: "geoeng", cat: "clima", name: "Aerosol riflettenti nella stratosfera", desc: "Aerei ad alta quota iniettano ogni anno a circa 20 km di altezza biossido di zolfo, che forma minuscole goccioline di solfato capaci di riflettere una parte della luce del Sole, come accade dopo le grandi eruzioni vulcaniche. È l'idea più studiata dagli scienziati; in alternativa si studia la polvere finissima di carbonato di calcio, che danneggerebbe meno lo strato di ozono.", scope: "global", cost: 3, upkeepFn: (st) => 0.5 + 0.6 * Math.max(0, st.g.temp), T: 2, revocable: true, toggle: "Interrompi",
     pro: "Riporta la temperatura ai livelli preindustriali in pochi anni, finché si continua; costa relativamente poco", con: "Non toglie CO₂: la CO₂ continua ad accumularsi e il costo annuo cresce. Proteste in tutto il mondo (ambientalisti e complottisti) e più divisioni. Piogge monsoniche più scarse: carestie e malcontento in Asia meridionale e in Africa. Indebolisce lo strato di ozono e aumenta le tensioni tra le potenze. Se si interrompe prima che le emissioni siano quasi a zero, il caldo nascosto torna in pochi anni: raccolti perduti, danni e malcontento ovunque (shock da interruzione)",
     fx: (m, s, r, st, gm) => { gm.geo -= st.g.temp * (st.flags.geoHalf ? 0.5 : 1); gm.tensionT += 6; } },
@@ -3286,6 +3286,7 @@ function resolveEvent(st, pending, i) {
   const r = pending.r ? st.regions[pending.r] : null;
   c.fx(st, r);
   // le crisi costano anche agli stati, qualunque cosa si scelga: soccorsi, sussidi, entrate perse (punti di debito sul PIL)
+  if (r && CLIMATE_EV.includes(ev.id)) r.climEv = (r.climEv || 0) + 1; // ricordo del disastro: la geoingegneria spaventa meno
   const cd = CRISIS_DEBT[ev.id];
   if (cd && !ev.good) { if (r) r.debt += cd; else ctrlRegions(st).forEach((x) => (x.debt += cd)); }
   if (ev.once) st.flags["done_" + ev.id] = true;
@@ -3375,7 +3376,7 @@ function refInfo(st, id) {
   const rs = ctrlRegions(st), n = Math.max(1, rs.length);
   const u = rs.reduce((a, r) => a + r.unrest, 0) / n, pol = rs.reduce((a, r) => a + r.polar, 0) / n;
   let p = (REF_BASE[id] || 0.4) - Math.max(0, u - 45) * 0.006 - Math.max(0, pol - 40) * 0.004;
-  if (id === "geoeng") p += Math.max(0, st.g.temp + st.g.geoOff - 1.6) * 0.25; // la gente accetta le soluzioni estreme solo quando ha paura
+  if (id === "geoeng") p += Math.max(0, st.g.temp + st.g.geoOff - 1.6) * 0.25 + rs.reduce((a, r) => a + (r.climEv || 0), 0) / n * 0.03; // la gente accetta le soluzioni estreme solo quando ha paura
   return { p: clamp(p, 0.05, 0.85), cost: priced(st, id === "geoeng" ? 12 : 3) };
 }
 function runReferendum(st, id) {
@@ -3556,10 +3557,14 @@ function tick(st) {
       // aerosol riflettenti: piogge monsoniche più scarse nelle regioni tropicali, un po' meno ozono ovunque [Probabile]
       /* aerosol nella stratosfera (quarto rapporto, 31 ottobre 2026): ambientalisti e complottisti protestano ovunque (meno con
          l'osservatorio indipendente), piogge monsoniche più scarse in Asia meridionale e in Africa (meno con gli aiuti all'Asia meridionale) */
+      if (!built(st, "geoeng") && (built(st, "stratoPlanes") || st.prog.some((p) => p.id === "stratoPlanes"))) {
+        // il solo programma degli aerei fa già discutere, soprattutto dove il clima non ha ancora colpito
+        m.unrestT += 1.5 * geoOpp(r); m.polarT += 1.5 * geoOpp(r);
+      }
       if (built(st, "geoeng")) {
         // con il controllo scientifico della Tecnocrazia (rilascio graduale e simmetrico) i danni alle piogge calano del 65-80% [Probabile]
         const sci = built(st, "sciGeo") ? 0.3 : 1;
-        m.life -= 0.2; const k = (st.flags.geoWatch ? 0.5 : 1) * (sci < 1 ? 0.6 : 1);
+        m.life -= 0.2; const k = (st.flags.geoWatch ? 0.5 : 1) * (sci < 1 ? 0.6 : 1) * geoOpp(r);
         m.unrestT += 3 * k; m.polarT += 4 * k;
         if (MONSOON.includes(r.id)) { m.unrestT += (r.id === "sa" && st.flags.thermoAid ? 2 : 5) * sci; m.g -= 0.15 * sci; }
       }
@@ -3854,6 +3859,10 @@ function evMult(st, id) {
    (6 anni per quelli mondiali). Meno interruzioni, ognuna più importante. */
 const EV_GAP = P.evGap, EV_GAP_CLIMATE = P.evGapClimate, EV_CD_REGION = P.evCdRegion, EV_CD_GLOBAL = P.evCdGlobal;
 const CLIMATE_EV = ["storm", "heat", "famine", "wildfire", "waterCrisis"];
+/* Opposizione alla geoingegneria (decisione di Guido del 2 novembre 2026): si può avviare subito, ma dove il clima non ha ancora
+   colpito la gente la vede molto male. Ogni disastro climatico vissuto in una regione la rende più accettabile lì; le altre
+   regioni restano contrarie. 1,5 senza disastri, poi −0,25 per disastro, fino a 0,3. [Probabile] */
+const geoOpp = (r) => clamp(1.5 - 0.25 * (r.climEv || 0), 0.3, 1.5);
 const WEAK_EV = ["conflict", "borderWar", "civilWar", "terror"]; // più probabili dove gli eserciti sono stati tagliati
 function rollEvent(st) {
   const now = st.year * 12 + st.month, since = now - (st.lastEv || -99);
@@ -7157,7 +7166,7 @@ function renderRegion() {
       <section class="sec"><h3>${tr("Stabilità")}</h3>
         <div class="score"><span class="big" style="color:${col}">${Math.round(r.stab)}</span>
           <div class="gauge" style="flex:1;margin:0"><i style="left:${pos(r.stab)}%"></i></div></div>
-        ${st.G.elections && r.controlled && r.elY ? `<p class="note" style="margin:0 0 6px">${tr("Elezioni nel {y}: rischio che vinca chi vuole uscire dall'Autorità circa {p}%.", { y: r.elY, p: Math.round(popRisk(st, r)) })}</p>` : ""}<div class="parts">${parts.map((p) => p.id === "peace"
+        ${r.controlled && (built(st, "geoeng") || built(st, "stratoPlanes") || st.prog.some((q) => q.id === "stratoPlanes")) ? `<p class="note" style="margin:0 0 6px">${tr("Geoingegneria: qui la gente è {x} ({n} disastri climatici vissuti).", { x: geoOpp(r) >= 1.25 ? "molto contraria" : geoOpp(r) >= 0.75 ? "divisa" : "abbastanza favorevole", n: r.climEv || 0 })}</p>` : ""}${st.G.elections && r.controlled && r.elY ? `<p class="note" style="margin:0 0 6px">${tr("Elezioni nel {y}: rischio che vinca chi vuole uscire dall'Autorità circa {p}%.", { y: r.elY, p: Math.round(popRisk(st, r)) })}</p>` : ""}<div class="parts">${parts.map((p) => p.id === "peace"
           ? `<button type="button" class="k kbtn" id="whyBtn" aria-expanded="${causesOpen}">${tr(p.name)}<small>${tr("Malcontento")} ${Math.round(r.unrest)} · ${causesOpen ? tr("nascondi le cause ▴") : tr("tocca per le cause ▾")}</small></button><span class="meter"><i style="width:${p.val.toFixed(0)}%;background:${heat(1 - p.val / 100)}"></i></span><span class="v">${Math.round(p.val)}</span>
              ${causesOpen ? `<ul class="causes" style="grid-column:1/-1">${causes.map((c) => `<li><span>${tr(c.name)}</span><span>+${Math.round(c.v)}</span></li>`).join("") || `<li><span>${tr("Nessuna causa rilevante")}</span><span></span></li>`}</ul>` : ""}`
           : p.id === "cohesion"
