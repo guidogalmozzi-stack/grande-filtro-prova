@@ -1118,6 +1118,11 @@ const lifeOld = (r, m) => 12 + 10 * r.wealth / 100 + (m ? m.life : 0); // anni d
 /* Calore della terra per regione (3 novembre 2026): 1 = media. Più alto lungo le faglie e i vulcani (Rift africano, Indonesia e
    Filippine, ovest del Nord America, Ande, Nuova Zelanda, Islanda e Italia, Turchia, Giappone). La nuova geotermia funziona anche
    altrove, perciò le differenze sono più piccole di quelle della geotermia tradizionale. [Probabile] */
+// sole, vento, fiumi ancora liberi e vulcani per regione (1 = media) [Probabile]
+const SUN_POT = { na: 1.0, latam: 1.1, eu: 0.7, ru: 0.5, mena: 1.4, wca: 1.2, esa: 1.2, sa: 1.2, ea: 0.9, sea: 0.9, oce: 1.3 };
+const WIND_POT = { na: 1.2, latam: 1.0, eu: 1.2, ru: 1.1, mena: 0.8, wca: 0.5, esa: 0.8, sa: 0.7, ea: 1.0, sea: 0.5, oce: 1.3 };
+const HYDRO_POT = { na: 0.4, latam: 1.0, eu: 0.3, ru: 0.8, mena: 0.2, wca: 1.3, esa: 1.2, sa: 1.0, ea: 0.6, sea: 1.1, oce: 0.5 };
+const GEO_CONV = { na: 0.6, latam: 0.9, eu: 0.5, ru: 0.3, mena: 0.5, wca: 0.1, esa: 1.5, sa: 0.1, ea: 0.6, sea: 1.5, oce: 1.2 };
 const GEO_POT = { na: 1.2, latam: 1.0, eu: 0.8, ru: 0.6, mena: 0.8, wca: 0.5, esa: 1.3, sa: 0.5, ea: 0.9, sea: 1.3, oce: 1.1 };
 const incomeSupport = (r) => {
   if (!r.acts) return 0;
@@ -1149,9 +1154,27 @@ const INTERVENTIONS = [
   { id: "carbonTax", cat: "energia", name: "Tassa sul carbonio", desc: "Chi brucia petrolio, gas o carbone paga una tassa per ogni tonnellata di CO₂ che emette.", scope: "region", cost: 3, T: 2,
     pro: "Le emissioni calano; il gettito riduce il debito", con: "Energia più cara e malcontento, soprattutto nelle regioni povere",
     fx: (m, s, r) => { m.fossilShift += 0.9; m.energyCost += 8; m.unrestT += r.wealth < 40 ? 8 : 4; m.debtF -= 0.5; } },
-  { id: "renew", cat: "energia", name: "Parchi solari ed eolici", desc: "Grandi impianti solari ed eolici che prendono il posto delle centrali a carbone e a gas.", scope: "region", cost: 15, T: 4, spread: true, stack: 3,
-    pro: "Meno combustibili fossili, energia più economica nel lungo periodo", con: "Oltre il 45% di rinnovabili servono reti e accumuli",
-    fx: (m, s, r) => { const cap = lvl(r, "grid") >= 1 ? 85 : 45; if (r.renew < cap) m.fossilShift += 1.1 * s; m.energyCost -= 1.5 * s; } },
+  /* Solare ed eolico separati (3 novembre 2026, richiesta di Guido): ognuno rende di più dove c'è più sole o più vento
+     (SUN_POT, WIND_POT). Insieme, senza reti e accumuli, non superano il 45% dell'energia perché dipendono dal tempo. [Probabile] */
+  { id: "renew", cat: "energia", name: "Parchi solari", desc: "Grandi impianti fotovoltaici che prendono il posto delle centrali a carbone e a gas.", scope: "region", cost: 10, T: 3, spread: true, stack: 3,
+    pro: "Il modo più economico di produrre elettricità pulita, soprattutto dove c'è molto sole (Medio Oriente, Africa, Oceania, America Latina, Asia meridionale)", con: "Producono solo di giorno: oltre il 45% di rinnovabili servono reti e accumuli",
+    fx: (m, s, r) => { const cap = lvl(r, "grid") >= 1 ? 85 : 45; if (r.renew < cap) m.fossilShift += 0.75 * (SUN_POT[r.id] || 1) * s; m.energyCost -= 1.2 * s; } },
+  { id: "wind", cat: "energia", name: "Parchi eolici", desc: "Turbine eoliche a terra e in mare, dove il vento è forte e costante.", scope: "region", cost: 12, T: 4, spread: true, stack: 3,
+    pro: "Energia pulita anche di notte e d'inverno, quando il sole manca; rende di più dove c'è più vento (Europa del Nord, Nord America, Russia, Oceania)", con: "Il vento non è sempre costante: oltre il 45% di rinnovabili servono reti e accumuli; qualche protesta per il paesaggio",
+    fx: (m, s, r) => { const cap = lvl(r, "grid") >= 1 ? 85 : 45; if (r.renew < cap) m.fossilShift += 0.75 * (WIND_POT[r.id] || 1) * s; m.energyCost -= 1.2 * s; m.resistT += 1 * s; } },
+  /* Nuove dighe [Certo/Probabile]: l'idroelettrico dà già circa il 15% dell'elettricità del mondo; i siti migliori in Europa e Nord
+     America sono già usati, il potenziale libero è in Africa, Asia e America Latina. Le grandi dighe spostano intere comunità
+     (milioni di persone nel mondo) e con siccità sempre più frequenti producono meno. */
+  { id: "hydro", cat: "energia", name: "Nuove dighe idroelettriche", desc: "Grandi dighe sui fiumi che ancora non ne hanno, soprattutto in Africa, Asia e America Latina.", scope: "region", cost: 20, T: 8,
+    pro: "Energia pulita e regolabile, che fa anche da accumulo per sole e vento; molto utile dove i fiumi sono ancora liberi (Africa, Sud-est asiatico, America Latina, Asia meridionale)", con: "Cantieri lunghi; intere comunità vanno spostate (malcontento per alcuni anni); dove i fiumi sono già sfruttati serve a poco; con le siccità produce meno. [Certo]",
+    fx: (m, s, r, st, gm, a) => { if (st.year - (a.y0 || a.y) < 5) m.unrestT += 2 * (HYDRO_POT[r.id] || 1) * s; m.energyCost -= 1 * s; },
+    once: (r) => { shiftClean(r, 5 * (HYDRO_POT[r.id] || 1), "renew"); } },
+  /* Geotermia tradizionale [Certo]: vapore e acqua calda che salgono da soli dove la terra è calda vicino alla superficie (Kenya circa
+     il 45% dell'elettricità, Islanda, Indonesia, Filippine, Nuova Zelanda, Italia). Costa poco ma funziona solo in pochi posti. */
+  { id: "geoConv", cat: "energia", name: "Geotermia tradizionale", desc: "Centrali che usano il vapore che sale da solo dalle zone vulcaniche.", scope: "region", cost: 8, T: 4,
+    pro: "Energia pulita continua a basso costo, ma solo nelle zone vulcaniche: Africa orientale, Sud-est asiatico, Oceania, Ande e America centrale", con: "Altrove serve quasi a niente. [Certo]",
+    fx: (m, s, r) => { m.energyCost -= 0.8 * (GEO_CONV[r.id] || 0) * s; },
+    once: (r) => { shiftClean(r, 4 * (GEO_CONV[r.id] || 0), "renew"); } },
   /* Fotovoltaico sui tetti (decisione del 25 ottobre 2026): sul tetto di una casa l'energia costa 2,5-4 volte quella di un grande
      impianto e gli incentivi costano 150-450 € per tonnellata di CO₂ evitata, contro 60-90 € del prezzo della CO₂ in Europa [Certo:
      Lazard 2024, Fraunhofer ISE]. Molto popolare, crea lavoro locale, ma premia chi ha casa e reddito e scarica i costi della rete
@@ -1903,23 +1926,35 @@ for (const d of INTERVENTIONS) {
   delete d.spread; delete d.req;
 }
 // famiglia (icona e colore) e scheda in cui compare ogni intervento
+/* Costruzioni ripetute (3 novembre 2026, richiesta di Guido): invece di toccare più volte la stessa icona, ogni costruzione è
+   un nodo a sé con il numero nel nome («Parchi solari 1», «Parchi solari 2»…) e un'icona diversa; ognuno si sblocca dopo il
+   precedente. Le copie ricordano l'intervento di partenza in "base". */
+const STACKED = INTERVENTIONS.filter((d) => d.stack > 1);
+for (const d of STACKED) {
+  const n = d.stack; d.name = d.name + " 1"; delete d.stack;
+  for (let k = 2; k <= n; k++) {
+    const c = { ...d, id: d.id + k, name: d.name.replace(/ 1$/, " " + k), base: d.id, after: k === 2 ? d.id : d.id + (k - 1) };
+    INTERVENTIONS.splice(INTERVENTIONS.indexOf(d) + k - 1, 0, c);
+  }
+}
+const baseOf = (id) => (IBY[id] && IBY[id].base) || id;
 const TAB_OF = { genetica: "genetica", energia: "energia", nucleare: "energia", economia: "economia", demografia: "welfare", societa: "societa", clima: "clima", salute: "sicurezza", sicurezza: "sicurezza", ai: "tecnologia", spazio: "tecnologia" };
 for (const d of INTERVENTIONS) { d.fam = d.cat; d.cat = TAB_OF[d.cat]; }
 /* livello di complessità: 1 facile, 2 medio, 3 difficile e super difficile */
 const TIER2 = ["qCrypto", "qComp", "qIndustry", "phage", "cellAg", "plasticBugs", "bioprint", "robotTax", "sovFund", "ubiMid", "childIncome", "teacherEval", "rooftop", "stratoPlanes", "screening", "rareTherapy", "somaticEdit", "gmCrops", "dnaControl", "geneDrive", "eInvoice", "dataMatch", "receiptLottery", "taxHavens", "amnesty", "eProcure", "assetsPublic", "whistle", "fastCourts", "civilPay", "carbonLaw", "geoeng", "ubiPlus", "pensionIndex", "cashless", "centralBank", "university", "research", "cutStaff", "cutSubsidies", "cutDefense", "cutServices", "robots", "fossilSub", "ubi", "taxRaise", "taxEvasion", "unempBenefit", "housing", "pensionFunds", "socialHousing", "wealthTax", "minWage", "publicJobs", "tariffs", "priceCap", "evCars", "parentalLeave", "ivf", "pensionTax", "birthDowry", "healthcare", "civicService", "cyber", "foodReserve", "forestProtect", "efficiency", "nucInfo", "smr", "automation", "retrain", "family", "natality", "integration", "healthyAging", "surveil", "vaccines", "amr", "dac", "aiCap", "aiOpen", "aiPublic", "align2", "align3", "orbital", "pdef", "pdefWatch", "moonFast", "lunarArchive", "lunarIce", "lunarMining", "police", "disinfo"];
 const TIER3 = ["superhotRock", "he3", "qAI", "fusionResearch", "fusion", "massRobots", "agingResearch", "embryoEdit", "aiBio"]; // particelle riflettenti e legge sulle emissioni ci sono da quando c'è il clima (19 ottobre 2026) // reddito di base e sussidi fossili ora già dal livello 2
-for (const d of INTERVENTIONS) d.tier = TIER3.includes(d.id) ? 3 : TIER2.includes(d.id) ? 2 : 1;
+for (const d of INTERVENTIONS) { const b = d.base || d.id; d.tier = TIER3.includes(b) ? 3 : TIER2.includes(b) ? 2 : 1; }
 const IBY = Object.fromEntries(INTERVENTIONS.map((d) => [d.id, d]));
 /* Si può annullare quasi tutto, per qualsiasi ragione (decisione del 25 ottobre 2026): leggi, riforme e programmi. Restano
    per sempre solo le opere costruite (impianti, centrali, foreste, strutture spaziali), le zanzare liberate, i trattati già
    eseguiti e le misure che agiscono una volta sola. */
-const PERMANENT = new Set(["geothermal", "superhotRock", "renew", "grid", "efficiency", "nuclear", "nucPrivate", "smr", "fusion", "fusionResearch", "adapt", "agri", "reforest", "evCars", "socialHousing",
+const PERMANENT = new Set(["wind", "hydro", "geoConv", "geothermal", "superhotRock", "renew", "grid", "efficiency", "nuclear", "nucPrivate", "smr", "fusion", "fusionResearch", "adapt", "agri", "reforest", "evCars", "socialHousing",
   "automation", "robots", "massRobots", "geneDrive", "arms", "debtRestr", "amnesty", "privat", "launch", "orbital", "pdef", "stratoPlanes", "centralBank"]);
-for (const d of INTERVENTIONS) if (!d.fixed && !PERMANENT.has(d.id)) d.revocable = true;
+for (const d of INTERVENTIONS) if (!d.fixed && !PERMANENT.has(d.base || d.id)) d.revocable = true;
 function available(st, d) {
   const G = st.G || GBY.base, L = st.L || LBY.l5;
   if (d.gov && d.gov !== G.id) return false;
-  if (G.ban && G.ban.includes(d.id)) return false;
+  if (G.ban && G.ban.includes(d.base || d.id)) return false;
   if (G.grant && G.grant.includes(d.id)) return true;
   if (d.sys && !L.sys.includes(d.sys)) return false;
   return L.cats.includes(d.cat) && d.tier <= L.tier;
@@ -1927,7 +1962,7 @@ function available(st, d) {
 /* ---------- alberi degli interventi: nodo padre di ogni intervento ----------
    Un intervento si sblocca quando il padre è completato. La disposizione grafica è calcolata dall'interfaccia. */
 const TREE = {
-  fossilSub: null, carbonTax: null, renew: null, grid: "renew", efficiency: "carbonTax", nuclear: null, nucInfo: "nuclear", smr: "nuclear", nucAgency: null, nucPrivate: "nucAgency", fusionResearch: null, fusion: "fusionResearch", geoResearch: null, geothermal: "geoResearch", superhotRock: "geothermal",
+  fossilSub: null, carbonTax: null, renew: null, grid: "renew", efficiency: "carbonTax", nuclear: null, nucInfo: "nuclear", smr: "nuclear", nucAgency: null, nucPrivate: "nucAgency", fusionResearch: null, fusion: "fusionResearch", wind: null, hydro: null, geoConv: null, geoResearch: null, geothermal: "geoResearch", superhotRock: "geothermal",
   invest: null, automation: "invest", retrain: "automation", ubi: "unempBenefit", ubiMid: "ubi", ubiPlus: "ubiMid", childIncome: "ubiPlus", robotTax: "robots", sovFund: "robotTax", develop: "invest", austerity: null, debtRestr: "austerity",
   taxRaise: null, wealthTax: "taxRaise", taxEvasion: null, unempBenefit: null, minWage: "unempBenefit", publicJobs: "unempBenefit", tariffs: null,
   priceCap: "fossilSub", evCars: "renew", rooftop: "renew", carbonLaw: "dac", cashless: "eInvoice", eInvoice: "taxEvasion", dataMatch: "taxEvasion", receiptLottery: "cashless", taxHavens: "dataMatch", amnesty: null, cutStaff: "austerity", cutSubsidies: "austerity", cutDefense: "austerity", cutServices: "austerity", robots: "automation", massRobots: "robots",
@@ -1943,6 +1978,7 @@ const TREE = {
   screening: null, rareTherapy: "screening", somaticEdit: "rareTherapy", agingResearch: "somaticEdit", embryoEdit: "screening", gmCrops: null, geneDrive: null, dnaControl: null, aiBio: null,
   launch: null, orbital: "launch", pdefWatch: "orbital", pdef: "pdefWatch", moon: "launch", moonFast: "launch", lunarSci: "moon", lunarArchive: "moon", lunarCity: "lunarSci", lunarIce: "moon", lunarMining: "lunarIce", he3: "lunarMining",
 };
+for (const d of INTERVENTIONS) if (d.after) TREE[d.id] = d.after; // le copie numerate dopo la precedente
 for (const id in TREE) { IBY[id].parent = TREE[id] || undefined; delete IBY[id].needs; }
 // il sussidio di disoccupazione assorbito dal reddito di base conta come attivo per i rami che ne dipendono
 function parentOk(st, d) { return !d.parent || !!(st.acts[d.parent] && st.acts[d.parent].n > 0) || (d.parent === "unempBenefit" && built(st, "ubi")) || (d.parent === "moon" && built(st, "moonFast")); }
@@ -1962,7 +1998,7 @@ function costOf(st, d) {
   if (st.paused && st.paused[d.id]) return 0; // un programma sospeso si riattiva senza pagare di nuovo la costruzione
   let c = d.id === "moon" && st.flags.moonPartners ? d.cost - 4 : d.cost;
   if (LUNAR_HALF.includes(d.id) && built(st, "lunarIce")) c /= 2; // propellente e materiali prodotti sulla Luna
-  if (d.id === "geothermal" && st.year >= 2035) c *= 0.6; // pozzi sempre più rapidi ed economici [Probabile: IEA 2024]
+  if ((d.base || d.id) === "geothermal" && st.year >= 2035) c *= 0.6; // pozzi sempre più rapidi ed economici [Probabile: IEA 2024]
   return priced(st, st.G && st.G.cheap && st.G.cheap.includes(d.id) ? Math.ceil(c / 2) : c);
 }
 /* Effetto Baumol [Probabile]: i programmi fatti di lavoro umano (sanità, scuola, sussidi, pensioni, stipendi pubblici, ricerca)
@@ -2401,7 +2437,9 @@ const COMPLETE_NOTE = {
   fusionResearch: { title: "La fusione funziona", text: () => "Il reattore sperimentale ha prodotto più energia di quanta ne consumi, per mesi di fila. Ora si possono costruire le prime centrali a fusione." },
   geoResearch: { title: "I pozzi pilota funzionano", text: () => "I pozzi pilota nella roccia calda producono energia senza sosta. Ora si possono costruire centrali geotermiche di nuova generazione in ogni regione, più convenienti dove la terra è più calda." },
   geothermal: { title: "Accese le centrali geotermiche di nuova generazione", text: (st, ec0) => `Le nuove centrali geotermiche producono energia pulita giorno e notte. L'energia pulita è salita ${ilPct(100 - avgShare(st, "fossil")).replace("il ", "al ").replace("l'", "all'")}.` },
-  renew: { title: "Accesi i nuovi parchi solari ed eolici", text: (st, ec0) => `I nuovi parchi solari ed eolici sono collegati alla rete. L'energia pulita è salita ${ilPct(100 - avgShare(st, "fossil")).replace("il ", "al ").replace("l'", "all'")} e il costo dell'energia è sceso di circa ${ilPct(Math.max(1, pct(ec0, avgEc(st))))}.` },
+  wind: { title: "Accesi i nuovi parchi eolici", text: () => "Le prime turbine eoliche dei nuovi parchi girano: energia pulita anche di notte e d'inverno, quando il sole manca." },
+  hydro: { title: "Le nuove dighe producono energia", text: () => "Le nuove dighe sono riempite e le turbine girano: energia pulita e regolabile, che aiuta anche quando sole e vento mancano." },
+  renew: { title: "Accesi i nuovi parchi solari", text: (st, ec0) => `I nuovi parchi solari sono collegati alla rete. L'energia pulita è salita ${ilPct(100 - avgShare(st, "fossil")).replace("il ", "al ").replace("l'", "all'")} e il costo dell'energia è sceso di circa ${ilPct(Math.max(1, pct(ec0, avgEc(st))))}.` },
   smr: { title: "In funzione i primi reattori modulari", text: (st) => `I reattori costruiti in fabbrica sono già al lavoro: il nucleare copre ${ilPct(avgShare(st, "nuclear"))} dell'energia.` },
   dac: { title: "Gli impianti di cattura della CO₂ funzionano", text: () => "I primi grandi impianti tolgono ogni anno milioni di tonnellate di CO₂ dall'aria e le chiudono sottoterra." },
 };
@@ -3803,9 +3841,9 @@ function tick(st) {
   const speed = (1 + st.axis / 400) * (st.G.build || 1);
   for (const p of st.prog) {
     let k = speed;
-    if ((p.id === "nuclear" || p.id === "nucPrivate") && avgOf(st, "resist") > 60) k *= 0.6;
+    if ((baseOf(p.id) === "nuclear" || baseOf(p.id) === "nucPrivate") && avgOf(st, "resist") > 60) k *= 0.6;
     if (NUC_BUILD.includes(p.id) && built(st, "nucAgency")) k *= 1.25;
-    if (p.id === "nucPrivate" && !st.sim && rand() < 0.012 * dt) { p.failed = true; logNews(st, "Nucleare privato: un'impresa è fallita a metà cantiere. Il programma si ferma.", "bad"); }
+    if (baseOf(p.id) === "nucPrivate" && !st.sim && rand() < 0.012 * dt) { p.failed = true; logNews(st, "Nucleare privato: un'impresa è fallita a metà cantiere. Il programma si ferma.", "bad"); }
     if (FRONTIER.includes(p.id)) k *= 1 + gm.frontier;
     if (p.id === "fusionResearch" && built(st, "qIndustry")) k *= 1.25; // circa tre anni prima
     if (IBY[p.id].fam === "spazio" && (built(st, "robots") || st.g.aiCap >= 60)) k *= 1.3; // robot e AI avanzati costruiscono più in fretta sulla Luna
@@ -6272,6 +6310,13 @@ const GLYPH = {
   atom: `<circle cx="5" cy="5" r="1" ${F}/><ellipse cx="5" cy="5" rx="4" ry="1.6"/><ellipse cx="5" cy="5" rx="4" ry="1.6" transform="rotate(60 5 5)"/><ellipse cx="5" cy="5" rx="4" ry="1.6" transform="rotate(-60 5 5)"/>`,
   telescope: `<path d="M1.2 5.8 7.6 2.4l.8 1.6L2 7.4zM4.6 5.6l-1.4 3.6M5 5.4l1.4 3.8"/>`,
   drop: `<path d="M5 1.2C3.6 3.4 2.4 4.8 2.4 6.2a2.6 2.6 0 0 0 5.2 0C7.6 4.8 6.4 3.4 5 1.2z"/>`,
+  wind: `<path d="M5 5v4.5M3.5 9.5h3"/><circle cx="5" cy="4.6" r=".6"/><path d="M5 4.6V.9M5 4.6 1.8 6.4M5 4.6l3.2 1.8"/>`,
+  windSea: `<path d="M5 5v3M5 4.6V1.2M5 4.6 2.2 6.2M5 4.6l2.8 1.6"/><path d="M1 8.6c.8-.6 1.6-.6 2.4 0s1.6.6 2.4 0 1.6-.6 2.4 0"/>`,
+  windFarm: `<path d="M3 5v4.4M3 4.6V2M3 4.6 1 5.8M3 4.6l2 1.2M7.2 6v3.4M7.2 5.6V3.6M7.2 5.6 5.7 6.5M7.2 5.6l1.5.9"/>`,
+  panel: `<path d="M1.5 7 3 2.5h5.5L7 7z"/><path d="M2.3 4.8h5.5M5 2.5 4.5 7"/><path d="M4.4 7v2M3 9.2h3"/>`,
+  panels: `<path d="M.8 5.5 1.8 2.5h3.4l-1 3zM4.8 9 5.8 6h3.4l-1 3z"/><path d="M1.3 4h3.4M5.3 7.5h3.4"/>`,
+  dam: `<path d="M1 2.5h8M2 2.5 3 9h4l1-6.5"/><path d="M3.6 5h2.8M3.8 7h2.4"/>`,
+  steam: `<path d="M1.5 9h7l-2-3h-3z"/><path d="M4 4.8c-.6-.6.6-1.2 0-1.8s.6-1.2 0-1.8M6 4.8c-.6-.6.6-1.2 0-1.8"/>`,
   geo: `<path d="M1 4.2h8M5 4.2v4.6"/><path d="M3.6 4.2 5 1.4l1.4 2.8"/><path d="M2.6 7.2c.6-.5 1.2-.5 1.8 0M5.6 7.2c.6-.5 1.2-.5 1.8 0M3.6 9c.6-.5 1.2-.5 1.8 0"/>`,
   dome: `<path d="M1 8.2h8M1.8 8.2a3.2 3.2 0 0 1 6.4 0M3.4 8.2a1.6 1.6 0 0 1 3.2 0"/>`,
   pick: `<path d="M1.4 3.4c2.2-1.8 5-1.8 7.2 0M5 2.2l-2.8 7.2"/>`,
@@ -6305,7 +6350,9 @@ const GLYPH = {
   jet: `<path d="M1 5.6h3l2.6-3.8h1L6.4 5.6h1.8l.9-1h.8l-.5 1.6.5 1.6h-.8l-.9-1H6.4l1.2 3.8h-1L4 6.8H1z"/>`,
 };
 const ICON_OF = {
-  geoResearch: "geo", geothermal: "geo", superhotRock: "geo",
+  geoResearch: "flask", geothermal: "geo", geothermal2: "steam", geothermal3: "pick", superhotRock: "fusion", geoConv: "steam", hydro: "dam",
+  renew2: "panel", renew3: "panels", wind: "wind", wind2: "windSea", wind3: "windFarm", nuclear2: "tower", nuclear3: "atom",
+  nucPrivate2: "tower", nucPrivate3: "atom", fusion2: "torus", dac2: "recycle",
   fossilSub: "fuel", carbonTax: "smoke", renew: "sun", grid: "battery", efficiency: "bulb", nuclear: "i-nucleare", nucInfo: "megaphone", carbonLaw: "treeTech", cashless: "card", pensionIndex: "seesaw", smr: "tower", nucAgency: "shieldAtom", nucPrivate: "contract", fusionResearch: "torus", fusion: "fusion", priceCap: "plug", evCars: "car",
   centralBank: "rateCoin", university: "cap", research: "microscope", invest: "bridge", austerity: "scissors", cutStaff: "personMinus", cutSubsidies: "factoryDown", cutDefense: "shieldMinus", cutServices: "hospital", automation: "gear", robots: "robot", retrain: "wrench", ubi: "coins", debtRestr: "handshake", develop: "sprout",
   taxRaise: "percent", wealthTax: "diamond", taxEvasion: "magnifier", eInvoice: "newspaper", dataMatch: "puzzle", receiptLottery: "gift", taxHavens: "vault", amnesty: "dollarCut", eProcure: "contract", assetsPublic: "house", whistle: "megaphone", fastCourts: "gavel", civilPay: "coins", unempBenefit: "umbrella", minWage: "wallet", publicJobs: "hardhat", tariffs: "crate", privat: "tag",
