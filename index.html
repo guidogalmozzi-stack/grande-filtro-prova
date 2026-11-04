@@ -1122,6 +1122,13 @@ const lifeOld = (r, m) => 12 + 10 * r.wealth / 100 + (m ? m.life : 0); // anni d
 const SUN_POT = { na: 1.0, latam: 1.1, eu: 0.7, ru: 0.5, mena: 1.4, wca: 1.2, esa: 1.2, sa: 1.2, ea: 0.9, sea: 0.9, oce: 1.3 };
 const WIND_POT = { na: 1.2, latam: 1.0, eu: 1.2, ru: 1.1, mena: 0.8, wca: 0.5, esa: 0.8, sa: 0.7, ea: 1.0, sea: 0.5, oce: 1.3 };
 const HYDRO_POT = { na: 0.4, latam: 1.0, eu: 0.3, ru: 0.8, mena: 0.2, wca: 1.3, esa: 1.2, sa: 1.0, ea: 0.6, sea: 1.1, oce: 0.5 };
+/* Proteste locali contro eolico (e un po' solare) [Certo/Probabile]: nei sondaggi oltre l'80% è favorevole, ma circa un progetto
+   su cinque in Nord America incontra opposizione locale e a fine 2025 circa un quarto delle contee degli Stati Uniti aveva
+   qualche limite a nuovi impianti; molti rifiuti nel Regno Unito e in Irlanda, ricorsi di massa in Germania; nei paesi in via di
+   sviluppo l'opposizione è simile, spesso per le terre di popoli indigeni (Messico, Kenya, Norvegia). Più alta dove si è ricchi e
+   la terra è densamente abitata. Si dimezza con i benefici per i territori o le comunità energetiche. */
+const WIND_OPP = { na: 1.0, latam: 0.8, eu: 1.2, ru: 0.3, mena: 0.3, wca: 0.4, esa: 0.7, sa: 0.6, ea: 0.6, sea: 0.5, oce: 0.9 };
+const localOpp = (st, r) => (WIND_OPP[r.id] || 0.6) * (st && (built(st, "localBenefits") || built(st, "energyComm")) ? 0.4 : 1);
 const GEO_CONV = { na: 0.6, latam: 0.9, eu: 0.5, ru: 0.3, mena: 0.5, wca: 0.1, esa: 1.5, sa: 0.1, ea: 0.6, sea: 1.5, oce: 1.2 };
 const GEO_POT = { na: 1.2, latam: 1.0, eu: 0.8, ru: 0.6, mena: 0.8, wca: 0.5, esa: 1.3, sa: 0.5, ea: 0.9, sea: 1.3, oce: 1.1 };
 const incomeSupport = (r) => {
@@ -1158,10 +1165,12 @@ const INTERVENTIONS = [
      (SUN_POT, WIND_POT). Insieme, senza reti e accumuli, non superano il 45% dell'energia perché dipendono dal tempo. [Probabile] */
   { id: "renew", cat: "energia", name: "Parchi solari", desc: "Grandi impianti fotovoltaici che prendono il posto delle centrali a carbone e a gas.", scope: "region", cost: 10, T: 3, spread: true, stack: 3,
     pro: "Il modo più economico di produrre elettricità pulita, soprattutto dove c'è molto sole (Medio Oriente, Africa, Oceania, America Latina, Asia meridionale)", con: "Producono solo di giorno: oltre il 45% di rinnovabili servono reti e accumuli",
-    fx: (m, s, r) => { const cap = lvl(r, "grid") >= 1 ? 85 : 45; if (r.renew < cap) m.fossilShift += 0.75 * (SUN_POT[r.id] || 1) * s; m.energyCost -= 1.2 * s; } },
+    fx: (m, s, r, st) => { const cap = lvl(r, "grid") >= 1 ? 85 : 45; if (r.renew < cap) m.fossilShift += 0.75 * (SUN_POT[r.id] || 1) * s; m.energyCost -= 1.2 * s; m.unrestT += 0.5 * localOpp(st, r) * s; } },
   { id: "wind", cat: "energia", name: "Parchi eolici", desc: "Turbine eoliche a terra e in mare, dove il vento è forte e costante.", scope: "region", cost: 12, T: 4, spread: true, stack: 3,
-    pro: "Energia pulita anche di notte e d'inverno, quando il sole manca; rende di più dove c'è più vento (Europa del Nord, Nord America, Russia, Oceania)", con: "Il vento non è sempre costante: oltre il 45% di rinnovabili servono reti e accumuli; qualche protesta per il paesaggio",
-    fx: (m, s, r) => { const cap = lvl(r, "grid") >= 1 ? 85 : 45; if (r.renew < cap) m.fossilShift += 0.75 * (WIND_POT[r.id] || 1) * s; m.energyCost -= 1.2 * s; m.resistT += 1 * s; } },
+    pro: "Energia pulita anche di notte e d'inverno, quando il sole manca; rende di più dove c'è più vento (Europa del Nord, Nord America, Russia, Oceania)", con: "Il vento non è sempre costante: oltre il 45% di rinnovabili servono reti e accumuli. Quasi tutti sono favorevoli all'eolico, ma non vicino a casa: proteste locali per paesaggio, rumore e terre, forti nelle regioni ricche e dense (Europa, Nord America) e dove si toccano terre di popoli indigeni. Meno con i benefici per i territori. [Certo]",
+    fx: (m, s, r, st) => { const cap = lvl(r, "grid") >= 1 ? 85 : 45; if (r.renew < cap) m.fossilShift += 0.75 * (WIND_POT[r.id] || 1) * s; m.energyCost -= 1.2 * s; m.unrestT += 1.8 * localOpp(st, r) * s; m.polarT += 1 * localOpp(st, r) * s; } },
+  { id: "localBenefits", cat: "energia", name: "Benefici per i territori", desc: "Chi vive vicino a un parco eolico o solare riceve una parte dei guadagni: tasse ai comuni, bollette scontate, quote dell'impianto per i residenti.", scope: "region", cost: 2, upkeep: 0.8, T: 1,
+    pro: "Le proteste locali contro eolico e solare calano di più della metà", con: "Costa ogni anno. [Probabile: in Danimarca dal 2009 i residenti possono comprare almeno il 20% di ogni nuovo parco; negli Stati Uniti i parchi eolici sono tra i maggiori contribuenti di molte contee rurali]" },
   /* Nuove dighe [Certo/Probabile]: l'idroelettrico dà già circa il 15% dell'elettricità del mondo; i siti migliori in Europa e Nord
      America sono già usati, il potenziale libero è in Africa, Asia e America Latina. Le grandi dighe spostano intere comunità
      (milioni di persone nel mondo) e con siccità sempre più frequenti producono meno. */
@@ -1962,7 +1971,7 @@ function available(st, d) {
 /* ---------- alberi degli interventi: nodo padre di ogni intervento ----------
    Un intervento si sblocca quando il padre è completato. La disposizione grafica è calcolata dall'interfaccia. */
 const TREE = {
-  fossilSub: null, carbonTax: null, renew: null, grid: "renew", efficiency: "carbonTax", nuclear: null, nucInfo: "nuclear", smr: "nuclear", nucAgency: null, nucPrivate: "nucAgency", fusionResearch: null, fusion: "fusionResearch", wind: null, hydro: null, geoConv: null, geoResearch: null, geothermal: "geoResearch", superhotRock: "geothermal",
+  fossilSub: null, carbonTax: null, renew: null, grid: "renew", efficiency: "carbonTax", nuclear: null, nucInfo: "nuclear", smr: "nuclear", nucAgency: null, nucPrivate: "nucAgency", fusionResearch: null, fusion: "fusionResearch", wind: null, localBenefits: "wind", hydro: null, geoConv: null, geoResearch: null, geothermal: "geoResearch", superhotRock: "geothermal",
   invest: null, automation: "invest", retrain: "automation", ubi: "unempBenefit", ubiMid: "ubi", ubiPlus: "ubiMid", childIncome: "ubiPlus", robotTax: "robots", sovFund: "robotTax", develop: "invest", austerity: null, debtRestr: "austerity",
   taxRaise: null, wealthTax: "taxRaise", taxEvasion: null, unempBenefit: null, minWage: "unempBenefit", publicJobs: "unempBenefit", tariffs: null,
   priceCap: "fossilSub", evCars: "renew", rooftop: "renew", carbonLaw: "dac", cashless: "eInvoice", eInvoice: "taxEvasion", dataMatch: "taxEvasion", receiptLottery: "cashless", taxHavens: "dataMatch", amnesty: null, cutStaff: "austerity", cutSubsidies: "austerity", cutDefense: "austerity", cutServices: "austerity", robots: "automation", massRobots: "robots",
@@ -6310,9 +6319,9 @@ const GLYPH = {
   atom: `<circle cx="5" cy="5" r="1" ${F}/><ellipse cx="5" cy="5" rx="4" ry="1.6"/><ellipse cx="5" cy="5" rx="4" ry="1.6" transform="rotate(60 5 5)"/><ellipse cx="5" cy="5" rx="4" ry="1.6" transform="rotate(-60 5 5)"/>`,
   telescope: `<path d="M1.2 5.8 7.6 2.4l.8 1.6L2 7.4zM4.6 5.6l-1.4 3.6M5 5.4l1.4 3.8"/>`,
   drop: `<path d="M5 1.2C3.6 3.4 2.4 4.8 2.4 6.2a2.6 2.6 0 0 0 5.2 0C7.6 4.8 6.4 3.4 5 1.2z"/>`,
-  wind: `<path d="M5 5v4.5M3.5 9.5h3"/><circle cx="5" cy="4.6" r=".6"/><path d="M5 4.6V.9M5 4.6 1.8 6.4M5 4.6l3.2 1.8"/>`,
-  windSea: `<path d="M5 5v3M5 4.6V1.2M5 4.6 2.2 6.2M5 4.6l2.8 1.6"/><path d="M1 8.6c.8-.6 1.6-.6 2.4 0s1.6.6 2.4 0 1.6-.6 2.4 0"/>`,
-  windFarm: `<path d="M3 5v4.4M3 4.6V2M3 4.6 1 5.8M3 4.6l2 1.2M7.2 6v3.4M7.2 5.6V3.6M7.2 5.6 5.7 6.5M7.2 5.6l1.5.9"/>`,
+  wind: `<path d="M5.00 3.60V9.4"/><path d="M5.00 3.60L3.91 0.59M5.00 3.60L2.94 6.05M5.00 3.60L8.15 4.16"/><path d="M3.2 9.4h3.6"/>`,
+  windSea: `<path d="M5.00 3.40V7.6"/><path d="M5.00 3.40L4.01 0.67M5.00 3.40L3.14 5.62M5.00 3.40L7.86 3.90"/><path d="M1 8.6c.8-.6 1.6-.6 2.4 0s1.6.6 2.4 0 1.6-.6 2.4 0"/>`,
+  windFarm: `<path d="M3.00 3.60V9.4"/><path d="M3.00 3.60L2.25 1.53M3.00 3.60L1.59 5.29M3.00 3.60L5.17 3.98"/><path d="M7.20 5.40V9.4"/><path d="M7.20 5.40L6.62 3.80M7.20 5.40L6.11 6.70M7.20 5.40L8.87 5.70"/>`,
   panel: `<path d="M1.5 7 3 2.5h5.5L7 7z"/><path d="M2.3 4.8h5.5M5 2.5 4.5 7"/><path d="M4.4 7v2M3 9.2h3"/>`,
   panels: `<path d="M.8 5.5 1.8 2.5h3.4l-1 3zM4.8 9 5.8 6h3.4l-1 3z"/><path d="M1.3 4h3.4M5.3 7.5h3.4"/>`,
   dam: `<path d="M1 2.5h8M2 2.5 3 9h4l1-6.5"/><path d="M3.6 5h2.8M3.8 7h2.4"/>`,
@@ -6351,7 +6360,7 @@ const GLYPH = {
 };
 const ICON_OF = {
   geoResearch: "flask", geothermal: "geo", geothermal2: "steam", geothermal3: "pick", superhotRock: "fusion", geoConv: "steam", hydro: "dam",
-  renew2: "panel", renew3: "panels", wind: "wind", wind2: "windSea", wind3: "windFarm", nuclear2: "tower", nuclear3: "atom",
+  localBenefits: "coins", renew2: "panel", renew3: "panels", wind: "wind", wind2: "windSea", wind3: "windFarm", nuclear2: "tower", nuclear3: "atom",
   nucPrivate2: "tower", nucPrivate3: "atom", fusion2: "torus", dac2: "recycle",
   fossilSub: "fuel", carbonTax: "smoke", renew: "sun", grid: "battery", efficiency: "bulb", nuclear: "i-nucleare", nucInfo: "megaphone", carbonLaw: "treeTech", cashless: "card", pensionIndex: "seesaw", smr: "tower", nucAgency: "shieldAtom", nucPrivate: "contract", fusionResearch: "torus", fusion: "fusion", priceCap: "plug", evCars: "car",
   centralBank: "rateCoin", university: "cap", research: "microscope", invest: "bridge", austerity: "scissors", cutStaff: "personMinus", cutSubsidies: "factoryDown", cutDefense: "shieldMinus", cutServices: "hospital", automation: "gear", robots: "robot", retrain: "wrench", ubi: "coins", debtRestr: "handshake", develop: "sprout",
