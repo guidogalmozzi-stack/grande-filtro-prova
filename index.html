@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
-<script>window.GF_MUSIC = "music/";</script>
+<script>window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";</script>
 <style>html{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);background:#0f1d29;color-scheme:dark}body{margin:0;font-family:system-ui,-apple-system,sans-serif;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -8474,11 +8474,30 @@ const music = (() => {
      qualche silenzio, gli altri si ripetono. Passaggi morbidi di tre secondi tra un brano e l'altro. */
   const FILES = typeof window.GF_MUSIC === "string" ? window.GF_MUSIC : null;
   const TRACKS = { menu: ["gf1-menu"], calm: ["gf1-calma-1", "gf1-calma-2", "gf1-calma-3"], tense: ["gf1-tesa-1"], crisis: ["gf1-crisi"], win: ["gf1-vittoria"], lose: [] };
-  let mode = "menu", deck = [], live = null, gapT = null, lastName = "";
+  let mode = "menu", deck = [], live = null, gapT = null, lastName = "", started = false;
+  /* Musica conservata sul telefono (4 novembre 2026): prima a ogni apertura il brano del menu si riscaricava da internet e partiva
+     dopo circa 10 secondi. Ora i brani si scaricano appena si apre il gioco, si conservano (Cache Storage) e si suonano dal
+     telefono: il menu parte al primo tocco (prima l'iPhone non permette l'audio). */
+  const CACHE = "gf-music-" + (window.GF_MUSIC_V || "1"), blobURL = {}, loading = {};
+  const trackURL = (name) => blobURL[name] || FILES + name + ".mp3";
+  function cacheTrack(name) {
+    if (!FILES || blobURL[name] || loading[name] || typeof caches === "undefined") return loading[name] || Promise.resolve();
+    const url = FILES + name + ".mp3";
+    return (loading[name] = caches.open(CACHE).then(async (c) => {
+      let res = await c.match(url);
+      if (!res) { res = await fetch(url); if (res.ok) await c.put(url, res.clone()); }
+      if (res.ok) blobURL[name] = URL.createObjectURL(await res.blob());
+    }).catch(() => {}));
+  }
+  if (FILES) {
+    // il brano del menu subito, poi con calma gli altri; si cancellano le versioni vecchie dei brani
+    cacheTrack("gf1-menu").then(() => setTimeout(() => Object.values(TRACKS).flat().reduce((p, n) => p.then(() => cacheTrack(n)), Promise.resolve()), 15000));
+    if (typeof caches !== "undefined") caches.keys().then((ks) => ks.filter((k) => k.startsWith("gf-music-") && k !== CACHE).forEach((k) => caches.delete(k))).catch(() => {});
+  }
   // due lettori sbloccati al primo tocco (sull'iPhone ogni lettore va avviato la prima volta da un tocco), poi si alternano
   function makeDeck() {
     deck = [0, 1].map(() => { const a = new Audio(); a.preload = "auto"; a.playsInline = true; const g = ctx.createGain(); g.gain.value = 0; ctx.createMediaElementSource(a).connect(g); g.connect(ctx.destination); return { a, g }; });
-    for (const d of deck) { d.a.src = FILES + TRACKS.menu[0] + ".mp3"; const p = d.a.play(); if (p && p.then) p.then(() => { if (d !== live) d.a.pause(); }).catch(() => {}); }
+    for (const d of deck) { d.a.src = trackURL(TRACKS.menu[0]); const p = d.a.play(); if (p && p.then) p.then(() => { if (d !== live) d.a.pause(); }).catch(() => {}); }
   }
   function fade(d, to, sec) { const t = ctx.currentTime; d.g.gain.cancelScheduledValues(t); d.g.gain.setValueAtTime(d.g.gain.value, t); d.g.gain.linearRampToValueAtTime(to, t + sec); }
   function nextTrack() {
@@ -8490,13 +8509,14 @@ const music = (() => {
     const pool = list.length > 1 ? list.filter((x) => x !== lastName) : list, name = pool[Math.floor(Math.random() * pool.length)];
     const d = deck[0] === old ? deck[1] : deck[0];
     lastName = name; live = d;
-    d.a.src = FILES + name + ".mp3"; d.a.currentTime = 0;
+    d.a.src = trackURL(name); d.a.currentTime = 0; cacheTrack(name);
     d.a.onended = () => {
       if (live !== d) return;
       if (mode === "win") return; // la vittoria si sente una volta
       if (mode === "calm") { live = null; gapT = setTimeout(nextTrack, 20000 + Math.random() * 40000); } else nextTrack(); // un po' di silenzio tra i brani calmi
     };
-    fade(d, 0.85, old ? 3 : 1.5);
+    // il primo brano parte subito a volume basso e sale in pochi secondi (niente silenzio, niente botto)
+    if (!started) { started = true; const t = ctx.currentTime; d.g.gain.cancelScheduledValues(t); d.g.gain.setValueAtTime(0.25, t); d.g.gain.linearRampToValueAtTime(0.85, t + 5); } else fade(d, 0.85, old ? 3 : 1.5);
     const p = d.a.play(); if (p && p.catch) p.catch(() => {});
   }
   function setMode(m) {
