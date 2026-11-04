@@ -75,6 +75,7 @@ button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); o
 .night .reg path.shape { fill-opacity: .8; }
 .reg.sel path.shape { stroke: var(--accent); stroke-width: 1.5; }
 .reg.lost path.shape { fill: url(#hatch) !important; }
+.reg.out path.shape { fill: url(#outdots) !important; fill-opacity: .95; } /* regione uscita dall'Autorità con un voto: puntini azzurri, diversa dal tratteggio dell'anarchia */
 .picking .reg:hover path.shape { stroke: var(--accent); stroke-width: 1; }
 .lbl text { font-family: var(--font-d); font-weight: 600; font-size: 8.5px; fill: var(--fg); paint-order: stroke; stroke: rgba(8,16,22,.85); stroke-width: 2.4px; letter-spacing: .03em; pointer-events: none; }
 .lbl .num { font-family: var(--font-m); font-weight: 500; font-size: 8px; fill: var(--fg); stroke: none; }
@@ -654,6 +655,9 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
       <pattern id="hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
         <rect width="4" height="4" fill="#2a1d1d"></rect><line x1="0" y1="0" x2="0" y2="4" stroke="#6b3a34" stroke-width="1.6"></line>
       </pattern>
+      <pattern id="outdots" width="3.2" height="3.2" patternUnits="userSpaceOnUse">
+        <rect width="3.2" height="3.2" fill="#3c4f66"></rect><circle cx="1.6" cy="1.6" r=".75" fill="#9fb6cf"></circle>
+      </pattern>
       <clipPath id="earth"><path id="outlinePath"></path></clipPath>
       <clipPath id="landClip"><path id="landPath"></path></clipPath>
       <radialGradient id="oceanGrad" cx="50%" cy="42%" r="65%"><stop offset="0" stop-color="#15304a"/><stop offset=".6" stop-color="#0f2234"/><stop offset="1" stop-color="#0a1724"/></radialGradient>
@@ -775,7 +779,7 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
       <h3>Obiettivo</h3>
       <p>Vinci quando la stabilità mondiale resta almeno a 80 per 10 anni di fila. Clima, debito, rischi tecnologici e tensioni tra le potenze non sono obiettivi in sé: sono i problemi che ti impediscono di arrivarci.</p>
       <h3>Sconfitta</h3>
-      <p>Perdi se la stabilità mondiale scende a zero o resta sotto 15 per 5 anni di fila, oppure se l'Autorità fa bancarotta. Una regione in anarchia vale zero e spinge verso il caos le regioni vicine. Per riprenderla tocca la regione e avvia una missione di pace e ricostruzione: parte da una regione stabile (meglio se vicina), dura due anni e può fallire. Se riesce, per cinque anni i caschi blu tengono basso il malcontento: in quel tempo va risolto ciò che aveva fatto crollare la regione (lavoro, reddito, servizi), altrimenti ricade. Una catastrofe globale, come una guerra nucleare, un'intelligenza artificiale fuori controllo o una pandemia ingegnerizzata, azzera tutto di colpo: per questo i rischi vanno tenuti bassi.</p>
+      <p>Perdi se la stabilità mondiale scende a zero o resta sotto 15 per 5 anni di fila, oppure se l'Autorità fa bancarotta. Una regione in anarchia vale zero e spinge verso il caos le regioni vicine; finché una regione è fuori dall'Autorità (in anarchia o uscita con un voto) non si può vincere. Negli scenari senza la scheda Sicurezza una regione nell'anarchia fa perdere la partita. Negli altri compare l'esercito comune dell'Autorità: con quello tocchi la regione e avvii una missione di pace e ricostruzione, che parte da una regione stabile (meglio se vicina), dura due anni con due decisioni da prendere e può fallire. Se riesce, per cinque anni i caschi blu tengono basso il malcontento: in quel tempo va risolto ciò che aveva fatto crollare la regione (lavoro, reddito, servizi), altrimenti ricade. Una catastrofe globale, come una guerra nucleare, un'intelligenza artificiale fuori controllo o una pandemia ingegnerizzata, azzera tutto di colpo: per questo i rischi vanno tenuti bassi.</p>
       <h3>Interventi</h3>
       <p>Con i fondi avvii interventi che valgono per tutto il mondo; ogni regione ne risente in base alle sue condizioni. La schermata degli interventi si apre sulla <b>Panoramica</b>: una riga per settore, con quanti interventi hai avviato e come va il mondo in quel campo (barra piena è buono, vuota è grave). Ogni settore ha un albero di esagoni: quelli nuovi compaiono man mano che li sblocchi. Toccando un esagono vedi a destra che cos'è e, nelle barre, in verde a righe quello che migliorerebbe e in rosso a righe quello che peggiorerebbe; in basso vedi quanto costa subito e come cambia il saldo annuo. Leggi e opere si pagano una volta; i programmi continui costano ogni anno e si fermano se smetti di finanziarli. Leggi, riforme e programmi si possono annullare quando vuoi, per qualsiasi ragione; restano per sempre solo le opere costruite (centrali, impianti, foreste, basi spaziali) e le scelte irreversibili. Toccando il saldo, in basso, vedi entrate e spese dalla più grande alla più piccola: quando i conti vanno in rosso capisci subito dove tagliare.</p>
       <h3>Difficoltà</h3>
@@ -871,7 +875,7 @@ const DIFF = {
   facile:    { name: "Facile",          inc: 1.1,  ev: 1, funds: 0, risk: 0.8,  adopt: 1.6, backlash: 0.6 },
   medio:     { name: "Medio",           inc: 1.0,  ev: 1, funds: 0, risk: 1.0,  adopt: 1.0, backlash: 1.0 },
   difficile: { name: "Difficile",       inc: 0.98, ev: 1, funds: 0, risk: 1.1,  adopt: 0.85, backlash: 1.08 },
-  super:     { name: "Super difficile", inc: 0.924, ev: 1, funds: 0, risk: 1.262, adopt: 0.678, backlash: 1.312, anarchyAt: 88 }, // il giocatore automatico vince circa 1 volta su 20 (6 su 100 nello scenario 5, 5 su 60 nel 6) e in circa 85 partite su 100 almeno una regione cade nell'anarchia (ritarato il 2 novembre 2026)
+  super:     { name: "Super difficile", inc: 0.92, ev: 1, funds: 0, risk: 1.27, adopt: 0.68, backlash: 1.32, anarchyAt: 88 }, // il giocatore automatico vince circa 1 volta su 20 (5 su 100 nello scenario 5, 2 su 60 nel 6) e in circa metà delle partite una regione cade nell'anarchia; ritarato il 4 novembre 2026
 };
 
 /* ---------- scenari ----------
@@ -1134,7 +1138,7 @@ const GEO_POT = { na: 1.2, latam: 1.0, eu: 0.8, ru: 0.6, mena: 0.8, wca: 0.5, es
 const incomeSupport = (r) => {
   if (!r.acts) return 0;
   const on = (id) => (lvl(r, id) > 0 ? 1 : 0);
-  return Math.min(0.97, 0.25 * Math.max(on("unempBenefit"), on("ubi")) + 0.45 * on("ubi") + 0.2 * on("ubiMid") + 0.25 * on("ubiPlus") + 0.15 * on("sovFund") + on("popShares") * Math.min(0.6, 0.05 + 1.5 * (r.robShare || 0)));
+  return Math.min(0.97, 0.25 * Math.max(on("unempBenefit"), on("ubi")) + 0.45 * on("ubi") + 0.2 * on("ubiMid") + 0.25 * on("ubiPlus") + 0.15 * on("sovFund") + on("popShares") * Math.min(0.97, 0.1 + 2 * (r.robShare || 0)));
 };
 const unempPain = (r) => Math.min(r.unemp, 6) + Math.max(0, r.unemp - 6) * (1 - incomeSupport(r));
 const fEnergyCost = (r) => 40 + 0.15 * r.fossil;
@@ -1155,6 +1159,13 @@ const CATS = [
 ];
 const INTERVENTIONS = [
   // Energia
+  /* Alberi con poche radici (4 novembre 2026, richiesta di Guido): nell'energia si parte da quattro icone (fossili, rinnovabili,
+     nucleare, fusione) che aprono le altre scelte. */
+  { id: "fossilPlan", cat: "energia", name: "Registro dei combustibili fossili", desc: "Si misura quanto petrolio, gas e carbone usa e sovvenziona ogni paese: la base di ogni politica sui fossili.", scope: "global", cost: 1, T: 1,
+    pro: "Apre le scelte sui combustibili fossili: sussidi, tassa sul carbonio e le loro conseguenze", con: "Da solo non cambia quasi niente" },
+  { id: "renewPlan", cat: "energia", name: "Piano per le rinnovabili", desc: "Aste pubbliche, permessi più rapidi e terreni individuati per i nuovi impianti puliti.", scope: "global", cost: 2, T: 1,
+    pro: "Apre le scelte sulle rinnovabili: solare, eolico, dighe, geotermia; un piccolo passo avanti dell'energia pulita ovunque", con: "Da solo cambia poco",
+    gfx: () => {}, fx: (m, s) => { if (m) m.fossilShift += 0.1 * s; } },
   { id: "fossilSub", cat: "energia", name: "Sussidi ai combustibili fossili", desc: "Lo Stato paga una parte del prezzo di benzina, gasolio, gas e carbone.", scope: "region", cost: 0, upkeep: 6, T: 0,
     pro: "Energia meno cara, più crescita, meno malcontento", con: "Più emissioni; costa fondi ogni anno; toglierli fa arrabbiare",
     fx: (m) => { m.energyCost -= 12; m.g += 0.3; m.unrestT -= 4; m.fossilShift -= 0.6; } },
@@ -1165,10 +1176,10 @@ const INTERVENTIONS = [
      (SUN_POT, WIND_POT). Insieme, senza reti e accumuli, non superano il 45% dell'energia perché dipendono dal tempo. [Probabile] */
   { id: "renew", cat: "energia", name: "Parchi solari", desc: "Grandi impianti fotovoltaici che prendono il posto delle centrali a carbone e a gas.", scope: "region", cost: 10, T: 3, spread: true, stack: 3,
     pro: "Il modo più economico di produrre elettricità pulita, soprattutto dove c'è molto sole (Medio Oriente, Africa, Oceania, America Latina, Asia meridionale)", con: "Producono solo di giorno: oltre il 45% di rinnovabili servono reti e accumuli",
-    fx: (m, s, r, st) => { const cap = lvl(r, "grid") >= 1 ? 85 : 45; if (r.renew < cap) m.fossilShift += 0.75 * (SUN_POT[r.id] || 1) * s; m.energyCost -= 1.2 * s; m.unrestT += 0.5 * localOpp(st, r) * s; } },
+    fx: (m, s, r, st) => { const cap = lvl(r, "grid") >= 1 ? 85 : 45; if (r.renew < cap) m.fossilShift += 1.05 * (SUN_POT[r.id] || 1) * s; m.energyCost -= 1.2 * s; m.unrestT += 0.3 * localOpp(st, r) * s; } },
   { id: "wind", cat: "energia", name: "Parchi eolici", desc: "Turbine eoliche a terra e in mare, dove il vento è forte e costante.", scope: "region", cost: 12, T: 4, spread: true, stack: 3,
     pro: "Energia pulita anche di notte e d'inverno, quando il sole manca; rende di più dove c'è più vento (Europa del Nord, Nord America, Russia, Oceania)", con: "Il vento non è sempre costante: oltre il 45% di rinnovabili servono reti e accumuli. Quasi tutti sono favorevoli all'eolico, ma non vicino a casa: proteste locali per paesaggio, rumore e terre, forti nelle regioni ricche e dense (Europa, Nord America) e dove si toccano terre di popoli indigeni. Meno con i benefici per i territori. [Certo]",
-    fx: (m, s, r, st) => { const cap = lvl(r, "grid") >= 1 ? 85 : 45; if (r.renew < cap) m.fossilShift += 0.75 * (WIND_POT[r.id] || 1) * s; m.energyCost -= 1.2 * s; m.unrestT += 1.8 * localOpp(st, r) * s; m.polarT += 1 * localOpp(st, r) * s; } },
+    fx: (m, s, r, st) => { const cap = lvl(r, "grid") >= 1 ? 85 : 45; if (r.renew < cap) m.fossilShift += 1.05 * (WIND_POT[r.id] || 1) * s; m.energyCost -= 1.2 * s; m.unrestT += 1.0 * localOpp(st, r) * s; m.polarT += 0.6 * localOpp(st, r) * s; } },
   { id: "localBenefits", cat: "energia", name: "Benefici per i territori", desc: "Chi vive vicino a un parco eolico o solare riceve una parte dei guadagni: tasse ai comuni, bollette scontate, quote dell'impianto per i residenti.", scope: "region", cost: 2, upkeep: 0.8, T: 1,
     pro: "Le proteste locali contro eolico e solare calano di più della metà", con: "Costa ogni anno. [Probabile: in Danimarca dal 2009 i residenti possono comprare almeno il 20% di ogni nuovo parco; negli Stati Uniti i parchi eolici sono tra i maggiori contribuenti di molte contee rurali]" },
   /* Nuove dighe [Certo/Probabile]: l'idroelettrico dà già circa il 15% dell'elettricità del mondo; i siti migliori in Europa e Nord
@@ -1377,6 +1388,10 @@ const INTERVENTIONS = [
   { id: "disinfo", cat: "societa", name: "Contrasto alla disinformazione", desc: "Verifica dei fatti e rimozione dei contenuti falsi dalle piattaforme online.", scope: "region", cost: 3, upkeep: 1, T: 1, axis: 6,
     pro: "Meno polarizzazione", con: "Dove la società è già molto divisa viene vissuto come censura",
     fx: (m, s, r) => { m.polarT += r.polar > 70 ? 2 : -6; } },
+  /* Esercito comune dell'Autorità (4 novembre 2026): compare solo quando una regione cade nell'anarchia; serve per le missioni di pace. */
+  { id: "authArmy", cat: "sicurezza", name: "Esercito comune dell'Autorità", desc: "Una forza di pace permanente con soldati di tutte le regioni, addestrata e pagata dall'Autorità.", scope: "global", cost: 8, upkeep: 1, T: 1, onlyAnarchy: true,
+    pro: "Rende possibili le missioni di pace nelle regioni cadute nell'anarchia", con: "Costa molto e ogni anno; un esercito comune preoccupa le potenze: la tensione sale un po'",
+    geff: { tension: 2 } },
   { id: "police", cat: "sicurezza", name: "Ordine pubblico rafforzato", desc: "Più agenti e poteri speciali per sciogliere manifestazioni e disordini.", scope: "region", cost: 5, upkeep: 2, T: 0, axis: 10,
     pro: "I disordini calano subito", con: "Dopo tre anni il malcontento torna più alto di prima",
     fx: (m, s, r, st, gm, a) => { m.unrestT += st.year - a.y < 3 ? -14 : 5; } },
@@ -1669,8 +1684,8 @@ const INTERVENTIONS = [
     geff: { polarAll: -2 } },
   // --- Libero mercato ---
   { id: "popShares", cat: "economia", name: "Azionariato popolare", desc: "Ogni cittadino riceve quote delle grandi aziende automatizzate e ne incassa i dividendi.", scope: "region", cost: 3, T: 2, gov: "market",
-    pro: "Più robot lavorano, più i cittadini guadagnano: chi perde il lavoro non resta senza niente e le divisioni calano", con: "All'inizio vale poco (come il dividendo dell'Alaska, 1.000-2.000 dollari l'anno): diventa importante solo con molta automazione. Esclusivo del Libero mercato [Certo/Ipotesi]",
-    fx: (m, s, r) => { m.polarT -= (1 + 8 * (r.robShare || 0)) * s; } },
+    pro: "Più robot lavorano, più i cittadini guadagnano: chi perde il lavoro non resta senza niente, i dividendi alleggeriscono le pensioni e le divisioni calano", con: "All'inizio vale poco (come il dividendo dell'Alaska, 1.000-2.000 dollari l'anno): diventa importante solo con molta automazione. Esclusivo del Libero mercato [Certo/Ipotesi]",
+    fx: (m, s, r) => { m.polarT -= (1 + 8 * (r.robShare || 0)) * s; m.pensT -= 25 * (r.robShare || 0) * s; m.unrestT -= 6 * (r.robShare || 0) * s; } }, // i dividendi arrivano anche ai pensionati
   { id: "sez", cat: "economia", name: "Zone economiche speciali", desc: "Aree con tasse basse e poche regole per attirare imprese e investimenti dall'estero.", scope: "region", cost: 5, T: 3, gov: "market",
     pro: "Nelle regioni povere la crescita può accelerare molto", con: "Più disuguaglianza; nelle regioni già ricche serve a poco. Esclusivo del Libero mercato [Probabile: Shenzhen sì, molte altre no]",
     fx: (m, s, r) => { m.g += (r.wealth < 45 ? 0.5 : 0.1) * s; m.polarT += 3 * s; } },
@@ -1953,6 +1968,10 @@ for (const d of INTERVENTIONS) { d.fam = d.cat; d.cat = TAB_OF[d.cat]; }
 const TIER2 = ["qCrypto", "qComp", "qIndustry", "phage", "cellAg", "plasticBugs", "bioprint", "robotTax", "sovFund", "ubiMid", "childIncome", "teacherEval", "rooftop", "stratoPlanes", "screening", "rareTherapy", "somaticEdit", "gmCrops", "dnaControl", "geneDrive", "eInvoice", "dataMatch", "receiptLottery", "taxHavens", "amnesty", "eProcure", "assetsPublic", "whistle", "fastCourts", "civilPay", "carbonLaw", "geoeng", "ubiPlus", "pensionIndex", "cashless", "centralBank", "university", "research", "cutStaff", "cutSubsidies", "cutDefense", "cutServices", "robots", "fossilSub", "ubi", "taxRaise", "taxEvasion", "unempBenefit", "housing", "pensionFunds", "socialHousing", "wealthTax", "minWage", "publicJobs", "tariffs", "priceCap", "evCars", "parentalLeave", "ivf", "pensionTax", "birthDowry", "healthcare", "civicService", "cyber", "foodReserve", "forestProtect", "efficiency", "nucInfo", "smr", "automation", "retrain", "family", "natality", "integration", "healthyAging", "surveil", "vaccines", "amr", "dac", "aiCap", "aiOpen", "aiPublic", "align2", "align3", "orbital", "pdef", "pdefWatch", "moonFast", "lunarArchive", "lunarIce", "lunarMining", "police", "disinfo"];
 const TIER3 = ["superhotRock", "he3", "qAI", "fusionResearch", "fusion", "massRobots", "agingResearch", "embryoEdit", "aiBio"]; // particelle riflettenti e legge sulle emissioni ci sono da quando c'è il clima (19 ottobre 2026) // reddito di base e sussidi fossili ora già dal livello 2
 for (const d of INTERVENTIONS) { const b = d.base || d.id; d.tier = TIER3.includes(b) ? 3 : TIER2.includes(b) ? 2 : 1; }
+/* Le etichette scientifiche [Certo], [Probabile], [Ipotesi] servono solo nei commenti e nei documenti: nei testi del gioco si
+   tolgono (richiesta di Guido del 4 novembre 2026). */
+const noTag = (t) => (typeof t === "string" ? t.replace(/\s*\[(Certo|Probabile|Ipotesi)[^\]]*\]/g, "").replace(/\s+\./g, ".").replace(/\(\s*\)/g, "").trim() : t);
+for (const d of INTERVENTIONS) for (const k of ["name", "desc", "pro", "con"]) d[k] = noTag(d[k]);
 const IBY = Object.fromEntries(INTERVENTIONS.map((d) => [d.id, d]));
 /* Si può annullare quasi tutto, per qualsiasi ragione (decisione del 25 ottobre 2026): leggi, riforme e programmi. Restano
    per sempre solo le opere costruite (impianti, centrali, foreste, strutture spaziali), le zanzare liberate, i trattati già
@@ -1963,6 +1982,7 @@ for (const d of INTERVENTIONS) if (!d.fixed && !PERMANENT.has(d.base || d.id)) d
 function available(st, d) {
   const G = st.G || GBY.base, L = st.L || LBY.l5;
   if (d.gov && d.gov !== G.id) return false;
+  if (d.onlyAnarchy && !(st.acts && st.acts[d.id]) && !(st.prog || []).some((p) => p.id === d.id) && !(st.regions && Object.values(st.regions).some((r) => !r.controlled && !r.exit))) return false; // nascosto finché non serve
   if (G.ban && G.ban.includes(d.base || d.id)) return false;
   if (G.grant && G.grant.includes(d.id)) return true;
   if (d.sys && !L.sys.includes(d.sys)) return false;
@@ -1971,7 +1991,8 @@ function available(st, d) {
 /* ---------- alberi degli interventi: nodo padre di ogni intervento ----------
    Un intervento si sblocca quando il padre è completato. La disposizione grafica è calcolata dall'interfaccia. */
 const TREE = {
-  fossilSub: null, carbonTax: null, renew: null, grid: "renew", efficiency: "carbonTax", nuclear: null, nucInfo: "nuclear", smr: "nuclear", nucAgency: null, nucPrivate: "nucAgency", fusionResearch: null, fusion: "fusionResearch", wind: null, localBenefits: "wind", hydro: null, geoConv: null, geoResearch: null, geothermal: "geoResearch", superhotRock: "geothermal",
+  fossilPlan: null, renewPlan: null, fossilSub: "fossilPlan", carbonTax: "fossilPlan", renew: "renewPlan", grid: "renew", efficiency: "carbonTax", nuclear: "nucInfo", nucInfo: null, smr: "nuclear", nucAgency: "nucInfo", nucPrivate: "nucAgency", fusionResearch: null, fusion: "fusionResearch", wind: "renewPlan", localBenefits: "wind", hydro: "renewPlan", geoConv: "renewPlan", geoResearch: "renewPlan",
+  energyComm: "renewPlan", greenJobs: "renewPlan", worldGrid: "renewPlan", stateEnergy: "renewPlan", socTariff: "fossilPlan", ets: "fossilPlan", geothermal: "geoResearch", superhotRock: "geothermal",
   invest: null, automation: "invest", retrain: "automation", ubi: "unempBenefit", ubiMid: "ubi", ubiPlus: "ubiMid", childIncome: "ubiPlus", robotTax: "robots", sovFund: "robotTax", develop: "invest", austerity: null, debtRestr: "austerity",
   taxRaise: null, wealthTax: "taxRaise", taxEvasion: null, unempBenefit: null, minWage: "unempBenefit", publicJobs: "unempBenefit", tariffs: null,
   priceCap: "fossilSub", evCars: "renew", rooftop: "renew", carbonLaw: "dac", cashless: "eInvoice", eInvoice: "taxEvasion", dataMatch: "taxEvasion", receiptLottery: "cashless", taxHavens: "dataMatch", amnesty: null, cutStaff: "austerity", cutSubsidies: "austerity", cutDefense: "austerity", cutServices: "austerity", robots: "automation", massRobots: "robots",
@@ -1987,10 +2008,13 @@ const TREE = {
   screening: null, rareTherapy: "screening", somaticEdit: "rareTherapy", agingResearch: "somaticEdit", embryoEdit: "screening", gmCrops: null, geneDrive: null, dnaControl: null, aiBio: null,
   launch: null, orbital: "launch", pdefWatch: "orbital", pdef: "pdefWatch", moon: "launch", moonFast: "launch", lunarSci: "moon", lunarArchive: "moon", lunarCity: "lunarSci", lunarIce: "moon", lunarMining: "lunarIce", he3: "lunarMining",
 };
+// meno radici nelle altre schede (4 novembre 2026): le scelte vicine si aprono da una sola icona
+Object.assign(TREE, { taxRaise: "taxEvasion", amnesty: "taxEvasion", tariffs: "invest", fissile: "mediation", aiOpen: "aiCap", aiPublic: "aiCap", qCrypto: "qComp", phage: "screening", geneDrive: "gmCrops" });
 for (const d of INTERVENTIONS) if (d.after) TREE[d.id] = d.after; // le copie numerate dopo la precedente
 for (const id in TREE) { IBY[id].parent = TREE[id] || undefined; delete IBY[id].needs; }
 // il sussidio di disoccupazione assorbito dal reddito di base conta come attivo per i rami che ne dipendono
-function parentOk(st, d) { return !d.parent || !!(st.acts[d.parent] && st.acts[d.parent].n > 0) || (d.parent === "unempBenefit" && built(st, "ubi")) || (d.parent === "moon" && built(st, "moonFast")); }
+// se il governo vieta il nodo padre, il figlio diventa una radice (non resta bloccato per sempre)
+function parentOk(st, d) { return !d.parent || !available(st, IBY[d.parent]) || !!(st.acts[d.parent] && st.acts[d.parent].n > 0) || (d.parent === "unempBenefit" && built(st, "ubi")) || (d.parent === "moon" && built(st, "moonFast")); }
 // la base lunare, condivisa o costruita per blocchi
 const moonBuilt = (st) => built(st, "moon") || built(st, "moonFast");
 // ritorno economico di un intervento: nullo per "after" anni dal completamento, poi cresce fino al massimo in "ramp" anni
@@ -2363,6 +2387,8 @@ function stability(st) {
   const ws = worldStab(st), minR = Math.min(...ctrl.map((r) => r.stab));
   return [
     { id: "world", label: `Stabilità mondiale almeno ${st.L.win}`, ok: ws >= st.L.win, val: Math.round(ws) + " su 100" },
+    // nessuna regione fuori (anarchia o uscita con un voto): finché manca una regione gli anni stabili non contano (4 novembre 2026)
+    { id: "all", label: "Tutte le regioni dentro l'Autorità", ok: rs.every((r) => r.controlled), val: rs.filter((r) => !r.controlled).length + " fuori" },
   ];
 }
 
@@ -3242,15 +3268,69 @@ const EVENTS = [
     ] },
   /* ===== Eventi propri dei governi (1 novembre 2026): nascono dalle loro scelte e dai rischi che comportano ===== */
   // Democrazia liberale: elezioni con rischio di uscita
-  { id: "electionRisk", scope: "region", cat: "Istituzioni", title: "Elezioni a rischio",
-    p: (st, r) => (st.G.elections && r.elY === st.year + 1 && popRisk(st, r) >= 20 ? 3 : 0),
-    text: (st, r) => `L'anno prossimo si vota in ${r.name}. Nei sondaggi cresce un partito che promette di uscire dall'Autorità: oggi la probabilità che vinca è circa del ${Math.round(popRisk(st, r))}%. Debito, malcontento e disoccupazione lo spingono.`,
+  { id: "electionRisk", scope: "region", cat: "Istituzioni", title: "Elezioni in arrivo",
+    p: (st, r) => (st.G.elections && r.elY === st.year + 1 && popRisk(st, r) >= 5 ? 3 : 0),
+    onFire: (st, r) => { r.popPromise = popPromise(st); },
+    text: (st, r) => { const pr = r.popPromise && IBY[r.popPromise];
+      return `L'anno prossimo si vota in ${r.name}. Cresce un partito che vuole uscire dall'Autorità e promette ${pr ? `di cancellare «${pr.name}», imposto dall'Autorità` : "di riprendersi tutte le decisioni"}. Oggi la probabilità che vinca è circa del ${Math.round(popRisk(st, r))}%: la spingono malcontento, debito, disoccupazione e divisioni.`; },
     choices: [
-      { label: "Fondi di coesione per la regione", cost: 8, out: "Il rischio di uscita scende di circa 20 punti e il malcontento cala", fx: (st, r) => { r.popAid = (r.popAid || 0) + 20; r.shockU -= 5; } },
+      { label: "Finanziare la campagna del fronte favorevole all'Autorità", cost: 4, out: "Il rischio scende di circa 15 punti, ma non sparisce", fx: (st, r) => { r.popAid = (r.popAid || 0) + 15; } },
       { label: "Finanziare di nascosto il partito favorevole all'Autorità", cost: 3, out: "Molto efficace, ma se si scopre (circa 1 volta su 3) l'uscita è sicura e le divisioni salgono ovunque", fx: (st, r) => {
         if (rand() < 1 / 3) { r.popAid = -200; ctrlRegions(st).forEach((x) => (x.polar += 3)); logNews(st, `Scandalo: l'Autorità ha finanziato di nascosto un partito in ${r.name}.`, "bad"); }
         else r.popAid = (r.popAid || 0) + 35; } },
       { label: "Lasciare decidere gli elettori", cost: 0, out: "Nessuna spesa: decide il voto", fx: () => {} },
+    ] },
+  // regione uscita dall'Autorità: prima promette tutto, poi i conti non tornano
+  { id: "exitSpend", scope: "region", exitOnly: true, cat: "Istituzioni", title: "Fuori dall'Autorità: promesse per tutti",
+    p: (st, r) => (st.year - (r.exitY || st.year) < 3 ? 0.4 : 0),
+    text: (st, r) => `Il nuovo governo di ${r.name} dice sì a quasi tutte le richieste: pensioni più alte, tasse più basse, sussidi. Per ora la gente è contenta, ma il debito sale in fretta.`,
+    choices: [
+      { label: "Offrire un prestito a condizioni ragionevoli", cost: 4, out: "Il debito cresce meno e la regione si fida di più dell'Autorità", fx: (st, r) => { r.debt -= 5; r.reMood = (r.reMood || 0) + 10; } },
+      { label: "Avvertire pubblicamente dei rischi", cost: 0, out: "Qualcuno ascolta, molti si arrabbiano", fx: (st, r) => { r.reMood = (r.reMood || 0) + 3; r.polar += 2; } },
+      { label: "Lasciar fare", cost: 0, out: "Nessun effetto per ora", fx: () => {} },
+    ] },
+  { id: "exitCrisis", scope: "region", exitOnly: true, cat: "Economia", title: "Fuori dall'Autorità: i conti non tornano",
+    p: (st, r) => (st.year - (r.exitY || st.year) >= 3 && (r.debt > 110 || r.unrest > 60) ? 0.3 : 0),
+    text: (st, r) => `In ${r.name} il debito è al ${Math.round(r.debt)}% del prodotto, i prezzi salgono e le imprese rinviano gli investimenti. Nelle piazze qualcuno comincia a dire che fuori dall'Autorità si sta peggio.`,
+    choices: [
+      { label: "Aiuti umanitari alle famiglie", cost: 3, out: "La gente ricorda chi l'ha aiutata: la voglia di rientrare cresce molto", fx: (st, r) => { r.shockU -= 4; r.reMood = (r.reMood || 0) + 15; } },
+      { label: "Tendere la mano: proporre un negoziato", cost: 0, out: "Se la regione accetta, comincia il negoziato per il rientro", fx: (st, r) => { if (!r.nego && r.unrest > 50) startNego(st, r); else r.reMood = (r.reMood || 0) + 8; } },
+      { label: "Nessun aiuto", cost: 0, out: "La crisi peggiora: più malcontento lì, e prima o poi chiederanno di tornare", fx: (st, r) => { r.shockU += 5; r.reMood = (r.reMood || 0) + 5; } },
+    ] },
+  { id: "exitProposal", scope: "region", exitOnly: true, cat: "Istituzioni", title: "Chiedono di rientrare",
+    p: (st, r) => (!r.nego && (r.reMood || 0) >= 45 ? 1 : 0),
+    text: (st, r) => `Dopo ${st.year - (r.exitY || st.year)} anni fuori, il governo di ${r.name} chiede ufficialmente di rientrare nell'Autorità. Vuole però discutere le condizioni.`,
+    choices: [
+      { label: "Aprire il negoziato", cost: 0, out: "Arriveranno tre richieste da discutere", fx: (st, r) => startNego(st, r) },
+      { label: "Non ancora", cost: 0, out: "La regione resta fuori: richiederà più avanti", fx: (st, r) => { r.reMood = (r.reMood || 0) - 25; } },
+    ] },
+  /* negoziato per il rientro: tre richieste, ognuna con tre risposte. Accettare tutto costa, rifiutare allunga i tempi. */
+  { id: "negoDemand", scope: "region", exitOnly: true, cat: "Istituzioni", title: (st, r) => `Negoziato con ${r ? r.name : "la regione"}: richiesta ${(r && r.negoAsk) || 1} di 3`,
+    p: () => 0,
+    text: (st, r) => ["Chiedono che l'Autorità si faccia carico di una parte del debito accumulato mentre erano fuori.",
+      "Chiedono fondi per rimettere in piedi scuole, ospedali e trasporti, trascurati negli ultimi anni.",
+      "Chiedono di non applicare per qualche anno, da loro, le misure dell'Autorità più impopolari."][Math.min(2, ((r && r.negoAsk) || 1) - 1)],
+    choices: [
+      { label: "Accettare tutto", cost: 8, out: "Il negoziato avanza subito", fx: (st, r) => { r.debt -= 10; r.shockU -= 5; negoStep(st, r, 1); } },
+      { label: "Accettare in parte", cost: 4, out: "Il negoziato avanza, ma più lentamente", fx: (st, r) => { r.debt -= 4; negoStep(st, r, 2); } },
+      { label: "Rifiutare", cost: 0, out: "Nessuna spesa, ma ci vorranno anni prima della prossima richiesta e la gente si arrabbia", fx: (st, r) => { r.shockU += 6; negoStep(st, r, 4); } },
+    ] },
+  // missione di pace in una regione in anarchia: due decisioni durante la missione
+  { id: "missionWar", scope: "region", exitOnly: false, cat: "Sicurezza", title: (st, r) => `Missione in ${r ? r.name : "corso"}: le milizie`,
+    p: () => 0,
+    text: (st, r) => `Le truppe dell'Autorità sono entrate in ${r.name}. Le milizie controllano ancora le città principali e le strade dei rifornimenti.`,
+    choices: [
+      { label: "Offensiva per riprendere le città", cost: 4, out: "Più probabilità di riuscita, ma vittime e rabbia nelle regioni vicine", fx: (st, r) => { missionBonus(st, r, 0.15); RBY[r.id].nb.forEach((n) => (st.regions[n].shockU += 3)); } },
+      { label: "Trattare con i capi locali", cost: 2, out: "Più probabilità di riuscita, senza combattere", fx: (st, r) => missionBonus(st, r, 0.1) },
+      { label: "Proteggere solo i civili", cost: 0, out: "Poche vittime, la missione resta difficile", fx: (st, r) => missionBonus(st, r, 0.03) },
+    ] },
+  { id: "missionRebuild", scope: "region", cat: "Sicurezza", title: (st, r) => `Missione in ${r ? r.name : "corso"}: dopo i combattimenti`,
+    p: () => 0,
+    text: (st, r) => `In ${r.name} le armi tacciono quasi ovunque. Ora bisogna decidere come tornare a una vita normale.`,
+    choices: [
+      { label: "Lavoro e stipendi per chi ha combattuto", cost: 5, out: "Molti lasciano le armi: probabilità di riuscita molto più alta", fx: (st, r) => missionBonus(st, r, 0.15) },
+      { label: "Un governo di transizione per qualche anno", cost: 2, out: "Più ordine, riuscita più probabile", fx: (st, r) => missionBonus(st, r, 0.08) },
+      { label: "Elezioni subito", cost: 0, out: "Rischioso: le fazioni possono non accettare il risultato", fx: (st, r) => missionBonus(st, r, rand() < 0.5 ? 0.1 : -0.1) },
     ] },
   { id: "courtBlock", scope: "global", cat: "Istituzioni", title: "La Corte blocca una legge",
     p: (st) => (st.govId === "liberal" && Object.keys(st.acts).some((id) => IBY[id] && IBY[id].revocable && st.acts[id].n > 0 && !(st.G.lock || []).includes(id)) ? 0.03 : 0),
@@ -3387,6 +3467,7 @@ const ENDINGS = {
   pandemia: { title: "Pandemia ingegnerizzata", text: "Un patogeno costruito in laboratorio ha superato ogni barriera. I sopravvissuti sono troppo pochi e troppo dispersi per mantenere una civiltà tecnologica. Il filtro che ha fermato l'umanità è stato la biologia." },
   clima: { title: "Collasso climatico", text: "Raccolti falliti, città costiere abbandonate e migrazioni di massa hanno travolto una regione dopo l'altra, finché la stabilità del mondo si è azzerata. Il filtro che ha fermato l'umanità è stato il clima." },
   bancarotta: { title: "Bancarotta", text: "Gli interessi sul debito dell'Autorità sono diventati più grandi di tutto ciò che potrebbe incassare, anche tagliando ogni spesa e alzando ogni tassa. Per tre anni i mercati hanno chiesto tassi sempre più alti, poi hanno smesso di prestare. I programmi si sono fermati uno dopo l'altro, le nazioni hanno smesso di versare la loro quota e di obbedire. Senza un governo comune, il mondo è tornato a dividersi." },
+  regionePersa: { title: "Una regione perduta", text: "Una regione è precipitata nell'anarchia: i governi non controllano più il territorio, le milizie si dividono città e strade. L'Autorità non ha un esercito per riportare l'ordine, e senza quella regione il mondo non può dirsi stabile. Negli scenari con la sicurezza si potrà creare un esercito comune." },
   crollo: { title: "Crollo dell'ordine mondiale", text: "Per cinque anni la stabilità del mondo è rimasta sotto 15. Nessuna regione era caduta del tutto, ma nessuna obbediva più davvero: governi paralizzati, bilanci bloccati, piazze piene ogni giorno. L'Autorità ha perso ogni credito e le nazioni hanno smesso di ascoltarla." },
   immortale: { title: "La cura per la vecchiaia", text: "Quarant'anni di biologia guidata dall'intelligenza artificiale hanno portato dove nessuno osava sperare: una terapia che ripara ogni anno i danni dell'invecchiamento. Chi la riceve smette di invecchiare. Il mondo non è pronto: la popolazione non smetterà più di crescere se non si fanno meno figli, le risorse dovranno bastare per tutti per sempre, e i primi a riceverla saranno i più ricchi. Ma per la prima volta nella sua storia l'umanità ha davanti a sé non decenni, ma secoli. Il filtro più antico di tutti, il tempo, è stato superato." },
   impatto: { title: "Impatto", text: "La cometa ha colpito la Terra. Polvere e fuliggine hanno oscurato il cielo per anni: raccolti perduti in tutto il mondo, carestie, città abbandonate. I sopravvissuti sono troppo pochi e troppo divisi per tenere in piedi una civiltà. Il filtro che ha fermato l'umanità è venuto dal cielo." },
@@ -3434,12 +3515,14 @@ const reconFar = (st) => ctrlRegions(st).filter((x) => x.stab >= 30);
 function reconChance(st, r) {
   const b = RBY[r.id].nb.map((n) => st.regions[n]).filter((x) => x.controlled);
   const avg = b.length ? b.reduce((a, x) => a + x.stab, 0) / b.length : 0;
-  return clamp(0.25 + avg / 100 - anarchyNear(st, r) * 0.1 - (reconBase(st, r).length ? 0 : 0.1), 0.15, 0.9);
+  const q = (st.recon || []).find((x) => x.r === r.id);
+  return clamp(0.25 + ((q && q.bonus) || 0) + avg / 100 - anarchyNear(st, r) * 0.1 - (reconBase(st, r).length ? 0 : 0.1), 0.15, 0.9);
 }
 function reconWhy(st, rid) {
   const r = st.regions[rid];
   if (r.controlled) return "La regione è sotto controllo";
-  if (r.exit) return "La regione è uscita con un voto: può rientrare solo con le elezioni";
+  if (r.exit) return "La regione è uscita con un voto: rientra con un negoziato";
+  if (st.L.cats.includes("sicurezza") && !built(st, "authArmy")) return "Serve prima l'esercito comune dell'Autorità (scheda Sicurezza)";
   if ((st.recon || []).some((q) => q.r === rid)) return "Missione in corso";
   if (!reconBase(st, r).length && !reconFar(st).length) return "Serve almeno una regione sotto controllo con stabilità almeno 30 da cui far partire la missione";
   return null;
@@ -3486,43 +3569,59 @@ function runReferendum(st, id) {
    regione smette di versare fondi e di seguire gli interventi. Può rientrare alle elezioni successive, soprattutto se fuori
    le cose vanno male o se le si offre un accordo di rientro. [Probabile: Brexit; pochi casi di rientro] */
 function popRisk(st, r) {
-  return clamp(Math.max(0, r.unrest - 55) * 1.3 + Math.max(0, r.debt - 120) * 0.3 + Math.max(0, r.unemp - 10) * 2 + Math.max(0, r.polar - 55) * 0.6 - (r.popAid || 0), 0, 90);
+  // un'uscita vera è rara (Brexit): serve una regione davvero in crisi. Ritarato il 4 novembre 2026 (prima circa 2-3 uscite a partita)
+  return clamp((Math.max(0, r.unrest - 60) * 1.2 + Math.max(0, r.debt - 130) * 0.25 + Math.max(0, r.unemp - 12) * 1.5 + Math.max(0, r.polar - 60) * 0.5) * 0.6 - (r.popAid || 0), 0, 80);
 }
-function reentryChance(st, r) {
-  return clamp(15 + Math.max(0, r.unrest - 40) * 1 + Math.max(0, r.debt - 100) * 0.2 + (r.reentryOffer ? 40 : 0), 5, 90);
-}
-const REENTRY_COST = 15;
+/* Promessa del partito dell'uscita (4 novembre 2026, richiesta di Guido): cancellare una misura impopolare dell'Autorità. */
+const POP_PROMISE = ["taxRaise", "carbonTax", "carbonLaw", "retire", "cutServices", "cutStaff", "austerity", "cutSubsidies", "contrib", "wealthTax", "migration", "massSurveil", "priceControl", "ets", "wind"];
+function popPromise(st) { const ids = POP_PROMISE.filter((id) => IBY[id] && built(st, id)); return ids.length ? pick(ids) : null; }
+const MEDIATION_COST = 5;
 function exitRegion(st, r) {
-  r.controlled = false; r.exit = true; r.anarchy = 0; r.reentryOffer = false;
+  r.controlled = false; r.exit = true; r.anarchy = 0; r.exitY = st.year; r.reMood = 0; r.nego = null;
   st.prog = st.prog.filter((p) => p.r !== r.id);
-  logNews(st, `Elezioni in ${r.name}: vince il partito dell'uscita. La regione lascia l'Autorità: non versa più fondi e non segue più gli interventi.`, "bad");
-  note(st, "bad", "assemblies", `${r.name} esce dall'Autorità`, `Gli elettori di ${r.name} hanno scelto di uscire. L'ordine regge, ma la regione non versa più fondi e non segue più i tuoi interventi. Alle prossime elezioni, fra cinque anni, potrà votare per rientrare: tanto più facilmente quanto peggio andranno le cose fuori, o se le offri un accordo di rientro.`);
+  const pr = r.popPromise && IBY[r.popPromise];
+  if (pr) (r.off || (r.off = {}))[r.popPromise] = true; // la misura promessa viene cancellata lì
+  logNews(st, `Elezioni in ${r.name}: vince il partito dell'uscita${pr ? `, che aveva promesso di cancellare «${pr.name}»` : ""}. La regione lascia l'Autorità.`, "bad");
+  note(st, "bad", "assemblies", `${r.name} esce dall'Autorità`, `Gli elettori di ${r.name} hanno scelto di uscire${pr ? ` e di cancellare «${pr.name}»` : ""}. L'ordine regge, ma la regione non versa più fondi, non segue più i tuoi interventi e fa da sola: all'inizio dirà sì a molte richieste della popolazione, poi debito e crescita più bassa porteranno problemi. Finché resta fuori la vittoria non è possibile. Puoi avviare una mediazione toccando la regione, oppure aspettare che sia lei a chiedere di rientrare.`);
 }
 function elections(st) {
-  if (!st.G.elections) return;
   for (const r of Object.values(st.regions)) {
-    if (r.elY == null || st.year < r.elY) continue;
+    // regione fuori: prima promette tutto, poi debito e crescita bassa; cresce la voglia di rientrare
+    if (r.exit) {
+      const y = st.year - (r.exitY || st.year);
+      r.debt += 4; r.shockG -= 0.4;
+      if (y < 2) r.shockU -= 6; else r.shockU += 4;
+      r.reMood = (r.reMood || 0) + 3 + Math.max(0, r.unrest - 50) * 0.5 + Math.max(0, r.debt - 100) * 0.2;
+      if (r.nego && st.year >= r.nego.next && !st.forceEv) { r.negoAsk = r.nego.step + 1; st.forceEv = { id: "negoDemand", r: r.id }; }
+    }
+    if (!st.G.elections || r.elY == null || st.year < r.elY) continue;
     r.elY += 5;
     if (r.controlled) {
       if (rand() * 100 < popRisk(st, r)) exitRegion(st, r);
       else logNews(st, `Elezioni in ${r.name}: vincono i partiti che vogliono restare nell'Autorità.`, "info");
-      r.popAid = 0;
-    } else if (r.exit) {
-      if (rand() * 100 < reentryChance(st, r)) {
-        r.controlled = true; r.exit = false; r.unrest = Math.min(r.unrest, 70); r.reentryOffer = false;
-        logNews(st, `Elezioni in ${r.name}: vince chi vuole rientrare. La regione torna nell'Autorità.`, "done");
-        note(st, "good", "assemblies", `${r.name} rientra nell'Autorità`, `Dopo anni fuori, gli elettori di ${r.name} hanno scelto di tornare. La regione versa di nuovo i fondi e segue gli interventi.`);
-      } else { logNews(st, `Elezioni in ${r.name}: la regione resta fuori dall'Autorità.`, "info"); r.reentryOffer = false; }
+      r.popAid = 0; r.popPromise = null;
     }
   }
 }
-function offerReentry(st, rid) {
+function startNego(st, r) { r.nego = { step: 0, next: st.year + 1 }; logNews(st, `Comincia il negoziato per il rientro di ${r.name}.`, "info"); }
+function negoStep(st, r, wait) {
+  if (!r.nego) return;
+  r.nego.step++; r.nego.next = st.year + wait;
+  if (r.nego.step >= 3) rejoin(st, r);
+}
+function missionBonus(st, r, b) { const q = (st.recon || []).find((x) => x.r === r.id); if (q) q.bonus = (q.bonus || 0) + b; }
+function mediate(st, rid) {
   const r = st.regions[rid];
-  if (!r.exit || r.reentryOffer) return "Accordo già offerto";
-  st.funds -= priced(st, REENTRY_COST);
-  r.reentryOffer = true; r.debt = Math.max(0, r.debt - 10);
-  logNews(st, `L'Autorità offre a ${r.name} un accordo di rientro: fondi e un taglio del debito se tornerà.`, "info");
+  if (!r.exit) return "La regione è dentro l'Autorità";
+  if (r.nego) return "Negoziato già in corso";
+  st.funds -= priced(st, MEDIATION_COST);
+  startNego(st, r);
   return null;
+}
+function rejoin(st, r) {
+  r.controlled = true; r.exit = false; r.nego = null; r.unrest = Math.min(r.unrest, 70);
+  logNews(st, `${r.name} rientra nell'Autorità dopo il negoziato.`, "done");
+  note(st, "good", "assemblies", `${r.name} rientra nell'Autorità`, `L'accordo è firmato: ${r.name} versa di nuovo i fondi e segue gli interventi. Le misure che aveva cancellato restano sospese lì: puoi riattivarle dalla scheda della regione.`);
 }
 
 /* Libero mercato: automazione, robot e robot pensanti arrivano da soli, quando convengono alle imprese (non li paga l'Autorità). */
@@ -3823,6 +3922,8 @@ function tick(st) {
       if (r.anarchy >= 2) {
         r.controlled = false; r.stab = 0;
         logNews(st, `${r.name} è precipitata nell'anarchia. Le regioni vicine ne risentono.`, "bad");
+        // negli scenari senza la scheda Sicurezza non c'è un esercito per riprenderla: la partita è persa (4 novembre 2026)
+        if (!st.L.cats.includes("sicurezza")) { st.lostRegion = r.name; gameOver(st, "regionePersa"); }
         st.prog = st.prog.filter((p) => p.r !== r.id);
       }
     }
@@ -3831,6 +3932,9 @@ function tick(st) {
   // missioni per riportare l'ordine nelle regioni in anarchia
   for (const q of st.recon || []) {
     q.t += dt;
+    // due decisioni durante la missione (4 novembre 2026)
+    if (!st.sim && q.t >= 0.5 && !q.e1 && !st.forceEv) { q.e1 = true; st.forceEv = { id: "missionWar", r: q.r }; }
+    else if (!st.sim && q.t >= 1.3 && !q.e2 && !st.forceEv) { q.e2 = true; st.forceEv = { id: "missionRebuild", r: q.r }; }
     if (q.t < RECON_T) continue;
     const r = st.regions[q.r];
     if (rand() < reconChance(st, r)) {
@@ -3954,7 +4058,7 @@ function rollEvent(st) {
   const order = EVENTS.slice().sort(() => rand() - 0.5);
   if (st.flags.pandemic) order.unshift(EBY.pandemic);
   if (st.qDay && st.year >= st.qDay) { st.qDay = null; if (!built(st, "qCrypto")) st.forceEv = "qDay"; }
-  if (st.forceEv) { const id = st.forceEv; st.forceEv = null; st.lastEv = now; return { id, r: null }; }
+  if (st.forceEv) { const f = st.forceEv; st.forceEv = null; st.lastEv = now; return typeof f === "string" ? { id: f, r: null } : f; }
   for (const ev of order) {
     if (st.comet && !COMET_EV.includes(ev.id)) continue;
     if (!st.comet && ev.id.startsWith("comet")) continue;
@@ -3967,7 +4071,7 @@ function rollEvent(st) {
       const p = ev.p(st) * (ev.id === "pandemic" ? 1 : st.D.ev * evMult(st, ev.id));
       if (rand() < p / 12) { st.cd[key] = st.year + EV_CD_GLOBAL; st.lastEv = now; if (ev.onFire) ev.onFire(st, null); return { id: ev.id, r: null }; }
     } else {
-      for (const r of ctrlRegions(st)) {
+      for (const r of ev.exitOnly ? Object.values(st.regions).filter((x) => x.exit) : ctrlRegions(st)) {
         const key = ev.id + ":" + r.id;
         if ((st.cd[key] || 0) > st.year) continue;
         const p = ev.p(st, r) * st.D.ev * evMult(st, ev.id) * (WEAK_EV.includes(ev.id) ? 1 + r.m.weak : 1);
@@ -4038,9 +4142,16 @@ function yearly(st) {
     st.stable += 1;
     if (st.stable === 1) logNews(st, `La stabilità mondiale ha raggiunto ${st.L.win}. Va mantenuta per ${st.L.years} anni.`, "done");
     if (st.stable >= st.L.years) gameOver(st, "vittoria");
-  } else if (st.stable > 0) {
-    st.stable = 0;
-    logNews(st, "La stabilità mondiale è scesa sotto l'obiettivo: il conteggio degli anni stabili riparte da zero.", "bad");
+  } else {
+    const out = Object.values(st.regions).filter((r) => !r.controlled);
+    if (out.length && worldStab(st) >= st.L.win && (st.outWarn || 0) <= st.year) {
+      st.outWarn = st.year + 3;
+      logNews(st, `Il mondo sarebbe abbastanza stabile, ma ${out.map((r) => r.name).join(", ")} ${out.length > 1 ? "sono" : "è"} fuori dall'Autorità: finché non ${out.length > 1 ? "rientrano" : "rientra"} gli anni stabili non contano.`, "bad");
+    }
+    if (st.stable > 0) {
+      st.stable = 0;
+      logNews(st, out.length ? "Una regione è fuori dall'Autorità: il conteggio degli anni stabili riparte da zero." : "La stabilità mondiale è scesa sotto l'obiettivo: il conteggio degli anni stabili riparte da zero.", "bad");
+    }
   }
 }
 
@@ -4177,7 +4288,7 @@ function loadState(txt) {
 
 if (typeof module !== "undefined") module.exports = {
   P, PROMISES, pensPoverty, polarCauses, budget, incomeGainOf, amnestyYield, incomeSupport, robotCapture, popLossAge, bioCover, aiTerror, privatePens, WAGE, wageIdx, SHADOW0, taxBase, shadowW, OLD_LEVEL, DISCOVERIES, evTitle, RPROF, priced, eventCost, authRate, maxSurplus, bankPreview, co2Gross, worldBirths, clampRate, snowball, regionRate, co2Gt, GDP_2026, CO2_2026, DIFF, LEVELS, LBY, GOVS, GBY, sysOn, REGIONS, RBY, INTERVENTIONS, IBY, CATS, EVENTS, EBY, ENDINGS, STABLE_YEARS, RISK_LABELS,
-  reconquer, reconWhy, reconChance, RECON_COST, RECON_T, needsRef, refInfo, runReferendum, popRisk, reentryChance, offerReentry, REENTRY_COST, evChoices, LOW_STAB, LOW_YEARS, ANOMALY,
+  reconquer, reconWhy, reconChance, RECON_COST, RECON_T, needsRef, refInfo, runReferendum, popRisk, mediate, MEDIATION_COST, evChoices, LOW_STAB, LOW_YEARS, ANOMALY,
   newGame, tick, EV_WARN, advise, preview, ctrlShare, available, anarchyNear, saveState, loadState, honors, endingText, costOf, upkeepOf, built, startIntervention, payoffNow, stabParts, stabWeak, stabNow, worldStab, unrestCauses, STAB_PARTS, WIN_WORLD, canStart, parentOk, TREE, resolveEvent, revoke, stability, riskBoard, risks, emissions, worldPop, lvl, setSeed, rand,
 };
 
@@ -6359,7 +6470,7 @@ const GLYPH = {
   jet: `<path d="M1 5.6h3l2.6-3.8h1L6.4 5.6h1.8l.9-1h.8l-.5 1.6.5 1.6h-.8l-.9-1H6.4l1.2 3.8h-1L4 6.8H1z"/>`,
 };
 const ICON_OF = {
-  geoResearch: "flask", geothermal: "geo", geothermal2: "steam", geothermal3: "pick", superhotRock: "fusion", geoConv: "steam", hydro: "dam",
+  authArmy: "shieldMinus", fossilPlan: "book", renewPlan: "sprout", geoResearch: "flask", geothermal: "geo", geothermal2: "steam", geothermal3: "pick", superhotRock: "fusion", geoConv: "steam", hydro: "dam",
   localBenefits: "coins", renew2: "panel", renew3: "panels", wind: "wind", wind2: "windSea", wind3: "windFarm", nuclear2: "tower", nuclear3: "atom",
   nucPrivate2: "tower", nucPrivate3: "atom", fusion2: "torus", dac2: "recycle",
   fossilSub: "fuel", carbonTax: "smoke", renew: "sun", grid: "battery", efficiency: "bulb", nuclear: "i-nucleare", nucInfo: "megaphone", carbonLaw: "treeTech", cashless: "card", pensionIndex: "seesaw", smr: "tower", nucAgency: "shieldAtom", nucPrivate: "contract", fusionResearch: "torus", fusion: "fusion", priceCap: "plug", evCars: "car",
@@ -6598,12 +6709,13 @@ function paint() {
     const shape = el.firstChild;
     shape.setAttribute("fill", r ? L.col(r) : "var(--land)");
     el.classList.toggle("sel", sel === R.id);
-    el.classList.toggle("lost", !!(r && !r.controlled));
+    el.classList.toggle("lost", !!(r && !r.controlled && !r.exit));
+    el.classList.toggle("out", !!(r && r.exit)); // uscita con un voto: non è anarchia
     const lb = labelEls[R.id];
     const show = !!r;
     lb.pill.style.display = lb.num.style.display = show ? "" : "none";
     if (show) {
-      const txt = r.controlled ? String(L.num(r)) : "—";
+      const txt = r.controlled ? String(L.num(r)) : r.exit ? "fuori" : "—";
       lb.num.textContent = txt;
       const w = Math.max(16, txt.length * 5.2 + 7);
       lb.pill.setAttribute("x", -w / 2); lb.pill.setAttribute("width", w);
@@ -7219,12 +7331,12 @@ function regionAdvice(rid) {
 // regione in anarchia: missione di pace e ricostruzione per riportarla sotto l'Autorità
 function reconHTML(r) {
   if (r.exit) {
-    const c = priced(st, REENTRY_COST);
-    setTimeout(() => { const b = $("bReentry"); if (b) b.onclick = () => { if (!offerReentry(st, r.id)) { save(); renderRegion(); hud(); } }; }, 0);
-    return `<p class="note" style="margin:0 0 6px">${tr("La regione è uscita dall'Autorità con un voto: l'ordine regge, ma non versa fondi e non segue gli interventi.")}</p>
-    <div class="advice"><span class="eyebrow">${tr("Accordo di rientro")}</span>
-    <span class="gain">${tr("Alle prossime elezioni ({y}) la regione può votare per rientrare: oggi circa <em>{p}%</em>. Sale se fuori le cose vanno male; un accordo con fondi e meno debito la alza molto.", { y: r.elY, p: Math.round(reentryChance(st, r)) })}</span>
-    ${r.reentryOffer ? `<p class="why">${tr("Accordo offerto: vale fino alle prossime elezioni.")}</p>` : `<button type="button" class="buy" id="bReentry">${st.funds < c ? tr("Offri a debito") : tr("Offri l'accordo")} – ${fmt(c, 0)} ${tr("fondi")}</button>`}</div>`;
+    const c = priced(st, MEDIATION_COST);
+    setTimeout(() => { const b = $("bMediate"); if (b) b.onclick = () => { if (!mediate(st, r.id)) { save(); renderRegion(); hud(); } }; }, 0);
+    return `<p class="note" style="margin:0 0 6px">${tr("La regione è uscita dall'Autorità con un voto: l'ordine regge, ma non versa fondi, non segue gli interventi e fa da sola. Finché resta fuori non si può vincere.")}</p>
+    <div class="advice"><span class="eyebrow">${tr("Rientro nell'Autorità")}</span>
+    <span class="gain">${r.nego ? tr("Negoziato in corso: richiesta {n} di 3. Le richieste arrivano come decisioni da prendere.", { n: r.nego.step + 1 }) : tr("Puoi avviare una mediazione adesso, oppure aspettare: quando debito e malcontento cresceranno, sarà la regione a chiedere di rientrare.")}</span>
+    ${r.nego ? "" : `<button type="button" class="buy" id="bMediate">${st.funds < c ? tr("Avvia a debito") : tr("Avvia una mediazione")} – ${fmt(c, 0)} ${tr("fondi")}</button>`}</div>`;
   }
   const why = reconWhy(st, r.id), q = (st.recon || []).find((x) => x.r === r.id), c = priced(st, RECON_COST);
   return `<p class="note" style="margin:0 0 6px">${tr("La regione è in anarchia: non esegue più gli ordini, non versa fondi e spinge verso il caos le regioni vicine.")}</p>
