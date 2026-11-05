@@ -3269,8 +3269,7 @@ const EVENTS = [
   /* ===== Eventi propri dei governi (1 novembre 2026): nascono dalle loro scelte e dai rischi che comportano ===== */
   // Democrazia liberale: elezioni con rischio di uscita
   { id: "electionRisk", scope: "region", cat: "Istituzioni", title: "Elezioni in arrivo",
-    p: (st, r) => (st.G.elections && r.elY === st.year + 1 && popRisk(st, r) >= 5 ? 3 : 0),
-    onFire: (st, r) => { r.popPromise = popPromise(st); },
+    p: () => 0, // arriva sempre, forzato un anno prima del voto (vedi tick)
     text: (st, r) => { const pr = r.popPromise && IBY[r.popPromise];
       return `L'anno prossimo si vota in ${r.name}. Cresce un partito che vuole uscire dall'Autorità e promette ${pr ? `di cancellare «${pr.name}», imposto dall'Autorità` : "di riprendersi tutte le decisioni"}. Oggi la probabilità che vinca è circa del ${Math.round(popRisk(st, r))}%: la spingono malcontento, debito, disoccupazione e divisioni.`; },
     choices: [
@@ -3631,7 +3630,7 @@ function elections(st) {
     if (!st.G.elections || r.elY == null || st.year < r.elY) continue;
     r.elY += 5;
     if (r.controlled) {
-      if (rand() * 100 < popRisk(st, r)) exitRegion(st, r);
+      if (r.warnY === st.year && rand() * 100 < popRisk(st, r)) exitRegion(st, r); // si esce solo dopo l'avviso
       else logNews(st, `Elezioni in ${r.name}: vincono i partiti che vogliono restare nell'Autorità.`, "info");
       r.popAid = 0; r.popPromise = null;
     }
@@ -4057,6 +4056,11 @@ function tick(st) {
   if (sysOn(st, "ai") && rand() < k.ai * dt) { st.aiEnd = Math.floor(rand() * AI_ENDS.length); gameOver(st, "ai"); return null; }
   if (sysOn(st, "bio") && rand() < k.bio * dt) st.flags.pandemic = true;
 
+  /* Avviso elettorale obbligatorio (6 novembre 2026, richiesta di Guido): nessuna regione può uscire senza che il giocatore
+     abbia potuto scegliere se finanziare la campagna. L'avviso arriva sempre nell'anno prima del voto se c'è un rischio. */
+  if (st.G.elections && !st.forceEv && !st.over) for (const r of ctrlRegions(st)) {
+    if (r.elY === st.year + 1 && r.warnY !== r.elY && popRisk(st, r) >= 10) { r.warnY = r.elY; r.popPromise = popPromise(st); st.forceEv = { id: "electionRisk", r: r.id }; break; }
+  }
   return rollEvent(st);
 }
 
