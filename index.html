@@ -1954,10 +1954,20 @@ for (const d of INTERVENTIONS) {
    un nodo a sé con il numero nel nome («Parchi solari 1», «Parchi solari 2»…) e un'icona diversa; ognuno si sblocca dopo il
    precedente. Le copie ricordano l'intervento di partenza in "base". */
 const STACKED = INTERVENTIONS.filter((d) => d.stack > 1);
+/* Che cosa aggiunge la seconda o la terza costruzione (richiesta di Guido del 5 novembre 2026) */
+const STACK_MORE = {
+  renew: "Altri parchi solari in nuove zone. Rendono meno dei primi: i posti più soleggiati sono già occupati e nelle ore di sole c'è già più elettricità di quanta ne serve.",
+  wind: "Altri parchi eolici in nuove zone, meno ventose delle prime: rendono un po' meno.",
+  geothermal: "Altre centrali geotermiche in nuovi pozzi. Le rocce più calde e vicine sono già usate: le nuove rendono un po' meno.",
+  nuclear: "Altre centrali nucleari pubbliche in più regioni: producono quanto le prime, giorno e notte.",
+  nucPrivate: "Altri reattori privati a prezzo garantito, in più regioni: producono quanto i primi.",
+  fusion: "Altre centrali a fusione in più regioni: ancora più energia pulita, quasi quanto le prime.",
+  dac: "Altri impianti per catturare la CO2 dall'aria, come i primi.",
+};
 for (const d of STACKED) {
   const n = d.stack; d.name = d.name + " 1"; delete d.stack;
   for (let k = 2; k <= n; k++) {
-    const c = { ...d, id: d.id + k, name: d.name.replace(/ 1$/, " " + k), base: d.id, after: k === 2 ? d.id : d.id + (k - 1) };
+    const c = { ...d, id: d.id + k, name: d.name.replace(/ 1$/, " " + k), base: d.id, after: k === 2 ? d.id : d.id + (k - 1), desc: (STACK_MORE[d.id] || "Altri impianti come i primi.") + " " + d.desc };
     INTERVENTIONS.splice(INTERVENTIONS.indexOf(d) + k - 1, 0, c);
   }
 }
@@ -3082,8 +3092,8 @@ const EVENTS = [
     p: (st, r) => (st.g.biotech > 55 && !built(st, "embryoEdit") && !st.G.noGenMarket ? 0.01 : 0),
     text: (st, r) => `Una clinica privata in ${r.name} annuncia la nascita di due gemelli con il DNA modificato non per curare una malattia, ma per renderli "migliori".`,
     choices: [
-      { label: "Chiudere la clinica e processare i responsabili", cost: 2, out: "Il divieto regge; un po' di polemiche", fx: (st, r) => { r.polar += 1; } },
-      { label: "Regolare la correzione degli embrioni solo per le malattie", cost: 4, out: "Nasce una legge mondiale: più divisioni", fx: (st, r) => { ctrlRegions(st).forEach((x) => (x.polar += 2)); } },
+      { label: "Chiudere la clinica e processare i responsabili", cost: 2, out: "Il divieto regge; un po' di polemiche", fx: (st, r) => { r.polar += 1; st.flags.designerBaby = true; } },
+      { label: "Regolare la correzione degli embrioni solo per le malattie", cost: 4, out: "Nasce una legge mondiale: la correzione genetica degli embrioni diventa legale nei centri controllati. Più divisioni", fx: (st, r) => { ctrlRegions(st).forEach((x) => (x.polar += 2)); (st.refOk || (st.refOk = {})).embryoEdit = true; if (!built(st, "embryoEdit")) complete(st, IBY.embryoEdit); } },
       { label: "Aprire il mercato del potenziamento genetico", cost: -4, out: "Nasce un ricchissimo settore biotech: entrate subito e ogni anno, ma più divisioni e malcontento. Da qui una lunga catena di conseguenze", fx: (st) => { st.flags.genMkt = st.year; st.genShare = (st.genShare || 0) + 0.03; ctrlRegions(st).forEach((x) => { x.polar += 8; x.shockU += 4; }); } },
     ] },
   /* Catena del potenziamento genetico (proposta del 27 ottobre 2026): cinque eventi nei vent'anni dopo l'apertura del mercato.
@@ -3260,9 +3270,9 @@ const EVENTS = [
      (si riduce o si ferma l'iniezione d'acqua appena i sensori registrano piccole scosse) diventano molto più rari [Probabile]. */
   { id: "inducedQuake", scope: "region", cat: "Energia", title: "Un terremoto causato dai pozzi geotermici",
     p: (st, r) => (lvl(r, "geothermal") > 0 ? (0.015 + (built(st, "superhotRock") ? 0.01 : 0)) * (st.flags.geoTraffic ? 0.25 : 1) : 0),
-    text: (st, r) => `In ${r.name} una scossa di magnitudo 5 colpisce una città vicina a una centrale geotermica: crepe nelle case, decine di feriti. Gli esperti collegano il terremoto all'acqua pompata nei pozzi.`,
+    text: (st, r) => (st.flags.geoTraffic ? "Il semaforo sismico è già in vigore in tutto il mondo, ma questa volta non è bastato. " : "") + `In ${r.name} una scossa di magnitudo 5 colpisce una città vicina a una centrale geotermica: crepe nelle case, decine di feriti. Gli esperti collegano il terremoto all'acqua pompata nei pozzi.`,
     choices: [
-      { label: "Semaforo sismico obbligatorio in tutto il mondo", cost: 3, out: "Sensori su ogni pozzo: se la terra trema si riduce subito l'iniezione d'acqua. Scosse molto più rare", fx: (st, r) => { st.flags.geoTraffic = true; r.shockU += 3; } },
+      { label: "Semaforo sismico obbligatorio in tutto il mondo", cost: 3, ok: (st) => !st.flags.geoTraffic, out: "Sensori su ogni pozzo: se la terra trema si riduce subito l'iniezione d'acqua. Scosse molto più rare", fx: (st, r) => { st.flags.geoTraffic = true; r.shockU += 3; } },
       { label: "Risarcire i danni e andare avanti", cost: 2, out: "La rabbia resta: più opposizione e malcontento", fx: (st, r) => { r.shockU += 6; r.polar += 2; } },
       { label: "Chiudere i pozzi della zona", cost: 0, out: "Niente più scosse, ma una parte dell'energia pulita torna ai fossili", fx: (st, r) => { const p = Math.min(4, r.renew); r.renew -= p; r.fossil += p; r.shockU += 2; } },
     ] },
@@ -3440,7 +3450,7 @@ function aiTerror(st) {
 function gmPmit(st) { return clamp((st.acts.vaccines ? 0.6 : 0) + (st.acts.amr ? 0.15 : 0) + (st.acts.surveil ? 0.1 : 0) + (st.acts.volSurveil ? 0.06 : 0) + (st.flags.uniVax ? 0.1 : 0), 0, 0.9); }
 
 // scelte di un evento per il governo in carica: alcune esistono solo per certi governi (gov) o mancano per altri (noGov)
-function evChoices(st, E) { return E.choices.filter((c) => (!c.gov || c.gov.includes(st.govId)) && !(c.noGov && c.noGov.includes(st.govId))); }
+function evChoices(st, E) { return E.choices.filter((c) => (!c.gov || c.gov.includes(st.govId)) && !(c.noGov && c.noGov.includes(st.govId)) && !(c.ok && !c.ok(st))); }
 function eventCost(st, ev, i) { return priced(st, evChoices(st, ev)[i].cost); }
 const CRISIS_DEBT = { recession: 2, crash: 1.5, pandemic: 4, epidemic: 1, storm: 1.5, quake: 2, wildfire: 1, heat: 0.5, famine: 1, civilWar: 3, borderWar: 3, conflict: 2 };
 function resolveEvent(st, pending, i) {
@@ -3469,7 +3479,7 @@ const ENDINGS = {
   bancarotta: { title: "Bancarotta", text: "Gli interessi sul debito dell'Autorità sono diventati più grandi di tutto ciò che potrebbe incassare, anche tagliando ogni spesa e alzando ogni tassa. Per tre anni i mercati hanno chiesto tassi sempre più alti, poi hanno smesso di prestare. I programmi si sono fermati uno dopo l'altro, le nazioni hanno smesso di versare la loro quota e di obbedire. Senza un governo comune, il mondo è tornato a dividersi." },
   regionePersa: { title: "Una regione perduta", text: "Una regione è precipitata nell'anarchia: i governi non controllano più il territorio, le milizie si dividono città e strade. L'Autorità non ha un esercito per riportare l'ordine, e senza quella regione il mondo non può dirsi stabile. Negli scenari con la sicurezza si potrà creare un esercito comune." },
   crollo: { title: "Crollo dell'ordine mondiale", text: "Per cinque anni la stabilità del mondo è rimasta sotto 15. Nessuna regione era caduta del tutto, ma nessuna obbediva più davvero: governi paralizzati, bilanci bloccati, piazze piene ogni giorno. L'Autorità ha perso ogni credito e le nazioni hanno smesso di ascoltarla." },
-  immortale: { title: "La cura per la vecchiaia", text: "Quarant'anni di biologia guidata dall'intelligenza artificiale hanno portato dove nessuno osava sperare: una terapia che ripara ogni anno i danni dell'invecchiamento. Chi la riceve smette di invecchiare. Il mondo non è pronto: la popolazione non smetterà più di crescere se non si fanno meno figli, le risorse dovranno bastare per tutti per sempre, e i primi a riceverla saranno i più ricchi. Ma per la prima volta nella sua storia l'umanità ha davanti a sé non decenni, ma secoli. Il filtro più antico di tutti, il tempo, è stato superato." },
+  immortale: { title: "Vittoria speciale: la cura per la vecchiaia", text: "Il compito era tenere il mondo stabile; la ricerca è arrivata ancora più lontano. Quarant'anni di biologia guidata dall'intelligenza artificiale hanno portato dove nessuno osava sperare: una terapia che ripara ogni anno i danni dell'invecchiamento. Chi la riceve smette di invecchiare. Il mondo non è pronto: la popolazione non smetterà più di crescere se non si fanno meno figli, le risorse dovranno bastare per tutti per sempre, e i primi a riceverla saranno i più ricchi. Ma per la prima volta nella sua storia l'umanità ha davanti a sé non decenni, ma secoli. Il filtro più antico di tutti, il tempo, è stato superato." },
   impatto: { title: "Impatto", text: "La cometa ha colpito la Terra. Polvere e fuliggine hanno oscurato il cielo per anni: raccolti perduti in tutto il mondo, carestie, città abbandonate. I sopravvissuti sono troppo pochi e troppo divisi per tenere in piedi una civiltà. Il filtro che ha fermato l'umanità è venuto dal cielo." },
   tutte: { title: "Anarchia globale", text: "Una dopo l'altra le regioni sono cadute nell'anarchia, e ognuna ha trascinato con sé le vicine. La stabilità del mondo si è azzerata, l'Autorità si è dissolta e le nazioni sono tornate a dividersi." },
   vittoria: { title: "Terra stabilizzata", text: "Per dieci anni di fila il mondo è rimasto stabile: società più calme, conti in ordine, rischi sotto controllo. L'umanità ha superato il primo filtro e può guardare oltre la Terra." },
@@ -3490,6 +3500,8 @@ function endingText(st) {
   if (!E) return "";
   if (st.over === "ai") return AI_ENDS[st.aiEnd || 0] + " Il filtro che ha fermato l'umanità è stato l'intelligenza artificiale." + (st.lunarArchive || st.lunarCity ? " " + ARCHIVE_EPILOGUE : st.moon ? " " + SEP_EPILOGUE : "");
   if (st.over === "vittoria") return E.text + (st.lunarCity ? " Sulla Luna vive già una comunità permanente: il primo passo verso il sistema solare è compiuto." : "");
+  // vittoria speciale: niente epilogo da catastrofe (richiesta di Guido del 5 novembre 2026)
+  if (st.over === "immortale") return E.text + (st.lunarCity ? " Sulla Luna vive già una comunità permanente: il primo passo verso il sistema solare è compiuto." : st.lunarArchive ? " Sulla Luna l'archivio dell'umanità custodisce i saperi e i genomi della Terra: una copia di sicurezza per i secoli che verranno." : "");
   return E.text + (st.lunarArchive || st.lunarCity ? " " + ARCHIVE_EPILOGUE : st.moon ? " " + SEP_EPILOGUE : "");
 }
 /* riconoscimenti di fine partita: ognuno vale una stella */
@@ -3543,7 +3555,9 @@ function reconquer(st, rid) {
 const REF_BASE = { retire: 39, cutServices: 30, taxRaise: 37, carbonLaw: 44, geoeng: 20, massRobots: 36, embryoEdit: 40 };
 const REF_CAMPAIGNS = [{ cost: 3, gain: 5, name: "Campagna informativa" }, { cost: 10, gain: 10, name: "Grande campagna in tutto il mondo" }];
 const REF_NOISE = 4; // incertezza del voto, in punti
-const needsRef = (st, id) => !!(st.G && st.G.ref && st.G.ref.includes(id) && !(st.refOk && st.refOk[id]));
+/* La correzione degli embrioni non chiede un referendum se le cliniche del potenziamento sono già aperte: il mercato dei
+   bambini su misura esiste già e curare le malattie è molto meno (richiesta di Guido del 5 novembre 2026). */
+const needsRef = (st, id) => !!(st.G && st.G.ref && st.G.ref.includes(id) && !(st.refOk && st.refOk[id]) && !(id === "embryoEdit" && st.flags && st.flags.genMkt));
 /* Che cosa fa cambiare idea ai cittadini su ogni referendum (6 novembre 2026, richiesta di Guido) [Probabile]:
    le riforme dure passano quando la gente vede il problema che risolvono. Malcontento e divisioni tolgono favorevoli a tutti. */
 function refDrivers(st, id) {
@@ -3560,7 +3574,7 @@ function refDrivers(st, id) {
   if (id === "carbonLaw") { add("Caldo già visibile", Math.max(0, temp - 1.3) * 15); add("Disastri climatici vissuti", ev * 2); add("Economia ancora legata ai fossili", -Math.max(0, fos - 60) * 0.15); add("Energia cara", -Math.max(0, ec - 70) * 0.15); }
   if (id === "geoeng") { add("Caldo già visibile", Math.max(0, temp - 1.5) * 20); add("Disastri climatici vissuti", ev * 3); }
   if (id === "massRobots") { add("Mancano lavoratori", Math.max(0, oldRatio(st) - 0.25) * 60); add("Un reddito per chi perde il lavoro", sup * 15); add("Disoccupazione", -Math.max(0, un - 6) * 1.5); }
-  if (id === "embryoEdit") { add("Le diagnosi genetiche sono già diffuse", built(st, "screening") ? 5 : 0); add("Un comitato etico garantisce", built(st, "ethicsCom") ? 6 : 0); add("Divisioni sui temi della vita", -Math.max(0, pol - 40) * 0.2); }
+  if (id === "embryoEdit") { add("Le diagnosi genetiche sono già diffuse", built(st, "screening") ? 5 : 0); add("Il primo bambino su misura è già nato: la gente si è abituata all'idea", st.flags && st.flags.designerBaby ? 8 : 0); add("Un comitato etico garantisce", built(st, "ethicsCom") ? 6 : 0); add("Divisioni sui temi della vita", -Math.max(0, pol - 40) * 0.2); }
   return out;
 }
 function refSupport(st, id) { return clamp((REF_BASE[id] || 33) + refDrivers(st, id).reduce((a, d) => a + d.v, 0), 3, 85); }
@@ -7909,7 +7923,7 @@ function endGame() {
   }
   tut = null; renderCoach();
   const c = $("modalCard");
-  c.innerHTML = `<button type="button" class="buy alt endx" id="bEndX">${tr("Menu")} ✕</button><div class="eyebrow">${win ? tr("Vittoria") : tr("Sconfitta")} · ${st.year} · ${tr(DIFF[st.diffId].name)}</div><h2>${esc(tr(E.title))}</h2><p>${esc(trEnding(endingText(st)))}</p>
+  c.innerHTML = `<button type="button" class="buy alt endx" id="bEndX">${tr("Menu")} ✕</button><div class="eyebrow">${st.over === "immortale" ? tr("Vittoria speciale") : win ? tr("Vittoria") : tr("Sconfitta")} · ${st.year} · ${tr(DIFF[st.diffId].name)}</div><h2>${esc(tr(E.title))}</h2><p>${esc(trEnding(endingText(st)))}</p>
     ${st.flags.cometSeen ? `<p class="note">${tr("Nella realtà la probabilità che una cometa o un asteroide provochi una catastrofe globale nei prossimi cento anni è stimata intorno a 1 su un milione per l'estinzione dell'umanità, e ben sotto 1 su 10.000 per un impatto capace di sconvolgere il clima di tutto il pianeta. Quasi tutti i grandi asteroidi sono già noti; il rischio che resta sono le comete che arrivano dall'esterno del sistema solare. Nel gioco l'evento è molto più frequente, per poterlo vivere.")}</p>` : ""}
     ${win ? `<div class="stars" aria-label="${tr("{a} stelle su {b}", { a: stars, b: maxS })}">${"★".repeat(stars)}<i>${"★".repeat(maxS - stars)}</i>${record ? ` <span style="font-size:13px;letter-spacing:0">${tr("nuovo record")}</span>` : ""}</div>
       ${unl.map((u) => `<div class="unlock">${u}</div>`).join("")}
