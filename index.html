@@ -1619,9 +1619,9 @@ const INTERVENTIONS = [
   { id: "antitrust", cat: "economia", name: "Autorità antitrust", desc: "Un'autorità indipendente indaga sui monopoli e può dividere le aziende troppo grandi.", scope: "region", cost: 4, upkeep: 0.5, T: 3, gov: "liberal",
     pro: "Dopo qualche anno più concorrenza: prezzi più bassi, un po' più di crescita, meno disuguaglianza e potere meno concentrato; le corse tecnologiche rallentano un po' (meno rischi)", con: "Cause lunghe e care: nei primi 4-5 anni borse e investimenti scendono e le regioni ricche protestano. Esclusivo della Democrazia liberale [Probabile]",
     fx: (m, s, r, st, gm, a) => { const y = st.year - (a.y0 || a.y); if (y < 5) { m.g -= 0.15 * s; if (r.wealth > 60) m.unrestT += 2 * s; } else { m.g += 0.2 * s; m.polarT -= 2 * s; } gm.aiRate -= 0.05 * s / 13; } },
-  { id: "socialPact", cat: "economia", name: "Patto sociale", desc: "Sindacati e imprese firmano un accordo: aumenti graduali dei salari in cambio di pace sociale.", scope: "region", cost: 2, T: 1, gov: "liberal",
+  { id: "socialPact", cat: "economia", name: "Patto sociale", desc: "Sindacati e imprese firmano un accordo: aumenti graduali dei salari in cambio di pace sociale.", scope: "region", cost: 4, upkeep: 0.8, T: 2, gov: "liberal",
     pro: "Scioperi molto più rari, meno malcontento, inflazione più tranquilla", con: "Salari che crescono piano: un po' meno spinta ai consumi. Esclusivo della Democrazia liberale [Probabile]",
-    eff: { unrest: -3, g: -0.03 }, evm: { strike: 0.25, teacherStrike: 0.4 } },
+    eff: { unrest: -1.5, g: -0.03 }, evm: { strike: 0.25, teacherStrike: 0.4 } }, // ridotto il 5 novembre 2026: era troppo forte per il suo costo
   { id: "freePress", cat: "societa", name: "Stampa libera e giornalismo indipendente", desc: "Fondi pubblici senza condizioni ai giornali indipendenti, protezione delle fonti e dei giornalisti.", scope: "region", cost: 3, upkeep: 1, T: 2, ramp: 8, gov: "liberal",
     pro: "Le divisioni calano lentamente, la corruzione e l'economia sommersa scendono, gli scandali emergono prima e fanno meno danni", con: "Costa ogni anno; effetto lento. Esclusivo della Democrazia liberale",
     eff: { polar: -3, shadow: -1 }, evm: { scandal: 0.5, deepfake: 0.6 } },
@@ -3128,24 +3128,24 @@ const EVENTS = [
       { label: "Nessuna censura della scienza", cost: 0, out: "Il rischio di pandemia ingegnerizzata sale", fx: (st) => { st.g.biotech += 3; } },
     ] },
   { id: "aiBio1", scope: "global", cat: "Salute", title: "Scoperta: cure per i tumori del sangue e le malattie rare", good: true, once: true,
-    p: (st) => { const a = st.acts.aiBio; return a && a.n > 0 && st.year - (a.y0 || a.y) >= 7 ? 0.3 : 0; },
-    text: () => "Sette anni di biologia guidata dall'AI danno il primo grande frutto: terapie in una sola dose per quasi tutti i tumori del sangue e per migliaia di malattie rare.",
+    p: (st) => { const a = st.acts.aiBio; return a && a.n > 0 && st.year - (a.y0 || a.y) >= 10 ? 0.3 : 0; },
+    text: () => "Dieci anni di biologia guidata dall'AI danno il primo grande frutto: terapie in una sola dose per quasi tutti i tumori del sangue e per migliaia di malattie rare.",
     choices: [
       { noGov: ["market"], label: "Cure gratuite in tutto il mondo", cost: 8, out: "Un anno di vita in più in media, più fiducia ovunque", fx: (st) => { st.flags.gen1 = true; ctrlRegions(st).forEach((r) => (r.shockU -= 4)); } },
       { gov: ["market"], label: "Donazioni delle grandi fondazioni", cost: 0, out: "Le fondazioni pagano le cure per una parte dei poveri: meno divisioni delle licenze", fx: (st) => { st.flags.gen1 = true; ctrlRegions(st).forEach((r) => (r.polar += 1)); } },
       { label: "Licenze alle aziende", cost: 0, out: "Un anno di vita in più, ma prima per chi può pagare", fx: (st) => { st.flags.gen1 = true; ctrlRegions(st).forEach((r) => (r.polar += 2)); } },
     ] },
   { id: "aiBio2", scope: "global", cat: "Salute", title: "Scoperta: il cuore e molti tumori", good: true, once: true,
-    p: (st) => { const a = st.acts.aiBio; return a && a.n > 0 && st.flags.gen1 && st.year - (a.y0 || a.y) >= 14 ? 0.3 : 0; },
-    text: () => "Quattordici anni dopo: infarti e ictus diventano rari grazie a terapie geniche uniche, e molti tumori solidi si curano con cellule progettate dall'AI.",
+    p: (st) => { const a = st.acts.aiBio; return a && a.n > 0 && st.flags.gen1 && st.year - (a.y0 || a.y) >= 20 ? 0.3 : 0; },
+    text: () => "Vent'anni dopo: infarti e ictus diventano rari grazie a terapie geniche uniche, e molti tumori solidi si curano con cellule progettate dall'AI.",
     choices: [
       { noGov: ["market"], label: "Cure gratuite in tutto il mondo", cost: 12, out: "Molti anni di vita in più; più anziani da sostenere", fx: (st) => { st.flags.gen2 = true; ctrlRegions(st).forEach((r) => (r.shockU -= 4)); } },
       { gov: ["market"], label: "Donazioni delle grandi fondazioni", cost: 0, out: "Le fondazioni pagano le cure per una parte dei poveri: meno divisioni delle licenze", fx: (st) => { st.flags.gen2 = true; ctrlRegions(st).forEach((r) => (r.polar += 1)); } },
       { label: "Licenze alle aziende", cost: 0, out: "Vita più lunga, disuguaglianze più grandi", fx: (st) => { st.flags.gen2 = true; ctrlRegions(st).forEach((r) => (r.polar += 3)); } },
     ] },
   { id: "aiBio3", scope: "global", cat: "Salute", title: "Scoperta: la fine dell'Alzheimer", good: true, once: true,
-    p: (st) => { const a = st.acts.aiBio; return a && a.n > 0 && st.flags.gen2 && st.year - (a.y0 || a.y) >= 21 ? 0.3 : 0; },
-    text: () => "Ventun anni dopo: le malattie neurodegenerative, Alzheimer e Parkinson in testa, si possono prevenire e fermare. Per la prima volta invecchiare non significa perdere la mente.",
+    p: (st) => { const a = st.acts.aiBio; return a && a.n > 0 && st.flags.gen2 && st.year - (a.y0 || a.y) >= 30 ? 0.3 : 0; },
+    text: () => "Trent'anni dopo: le malattie neurodegenerative, Alzheimer e Parkinson in testa, si possono prevenire e fermare. Per la prima volta invecchiare non significa perdere la mente.",
     choices: [
       { noGov: ["market"], label: "Cure gratuite in tutto il mondo", cost: 15, out: "La vecchiaia diventa molto più lunga e serena", fx: (st) => { st.flags.gen3 = true; ctrlRegions(st).forEach((r) => (r.shockU -= 5)); } },
       { gov: ["market"], label: "Donazioni delle grandi fondazioni", cost: 0, out: "Le fondazioni pagano le cure per una parte dei poveri: meno divisioni delle licenze", fx: (st) => { st.flags.gen3 = true; ctrlRegions(st).forEach((r) => (r.polar += 1)); } },
@@ -3470,7 +3470,7 @@ const ENDINGS = {
   bancarotta: { title: "Bancarotta", text: "Gli interessi sul debito dell'Autorità sono diventati più grandi di tutto ciò che potrebbe incassare, anche tagliando ogni spesa e alzando ogni tassa. Per tre anni i mercati hanno chiesto tassi sempre più alti, poi hanno smesso di prestare. I programmi si sono fermati uno dopo l'altro, le nazioni hanno smesso di versare la loro quota e di obbedire. Senza un governo comune, il mondo è tornato a dividersi." },
   regionePersa: { title: "Una regione perduta", text: "Una regione è precipitata nell'anarchia: i governi non controllano più il territorio, le milizie si dividono città e strade. L'Autorità non ha un esercito per riportare l'ordine, e senza quella regione il mondo non può dirsi stabile. Negli scenari con la sicurezza si potrà creare un esercito comune." },
   crollo: { title: "Crollo dell'ordine mondiale", text: "Per cinque anni la stabilità del mondo è rimasta sotto 15. Nessuna regione era caduta del tutto, ma nessuna obbediva più davvero: governi paralizzati, bilanci bloccati, piazze piene ogni giorno. L'Autorità ha perso ogni credito e le nazioni hanno smesso di ascoltarla." },
-  immortale: { title: "La cura per la vecchiaia", text: "Trent'anni di biologia guidata dall'intelligenza artificiale hanno portato dove nessuno osava sperare: una terapia che ripara ogni anno i danni dell'invecchiamento. Chi la riceve smette di invecchiare. Il mondo non è pronto: la popolazione non smetterà più di crescere se non si fanno meno figli, le risorse dovranno bastare per tutti per sempre, e i primi a riceverla saranno i più ricchi. Ma per la prima volta nella sua storia l'umanità ha davanti a sé non decenni, ma secoli. Il filtro più antico di tutti, il tempo, è stato superato." },
+  immortale: { title: "La cura per la vecchiaia", text: "Quarant'anni di biologia guidata dall'intelligenza artificiale hanno portato dove nessuno osava sperare: una terapia che ripara ogni anno i danni dell'invecchiamento. Chi la riceve smette di invecchiare. Il mondo non è pronto: la popolazione non smetterà più di crescere se non si fanno meno figli, le risorse dovranno bastare per tutti per sempre, e i primi a riceverla saranno i più ricchi. Ma per la prima volta nella sua storia l'umanità ha davanti a sé non decenni, ma secoli. Il filtro più antico di tutti, il tempo, è stato superato." },
   impatto: { title: "Impatto", text: "La cometa ha colpito la Terra. Polvere e fuliggine hanno oscurato il cielo per anni: raccolti perduti in tutto il mondo, carestie, città abbandonate. I sopravvissuti sono troppo pochi e troppo divisi per tenere in piedi una civiltà. Il filtro che ha fermato l'umanità è venuto dal cielo." },
   tutte: { title: "Anarchia globale", text: "Una dopo l'altra le regioni sono cadute nell'anarchia, e ognuna ha trascinato con sé le vicine. La stabilità del mondo si è azzerata, l'Autorità si è dissolta e le nazioni sono tornate a dividersi." },
   vittoria: { title: "Terra stabilizzata", text: "Per dieci anni di fila il mondo è rimasto stabile: società più calme, conti in ordine, rischi sotto controllo. L'umanità ha superato il primo filtro e può guardare oltre la Terra." },
@@ -3536,32 +3536,43 @@ function reconquer(st, rid) {
   return null;
 }
 /* ---------- regole proprie dei governi (1 novembre 2026) ---------- */
-/* Referendum della Democrazia liberale: le riforme più dure passano solo se la gente le approva. La campagna costa; la
-   probabilità dipende da malcontento e divisioni (e per gli aerosol dalla paura del clima). Se si vince, la riforma provoca metà
-   del malcontento solito; se si perde, non si può riproporre per tre anni. [Probabile: Svizzera, Irlanda] */
-const REF_BASE = { retire: 0.45, cutServices: 0.35, taxRaise: 0.45, carbonLaw: 0.5, geoeng: 0.15, massRobots: 0.4, embryoEdit: 0.4 };
+/* Referendum (rivisto il 5 novembre 2026, richiesta di Guido): la percentuale che si vede è quella dei cittadini favorevoli.
+   Si vince se il giorno del voto i favorevoli superano il 50%. La campagna convince qualcuno in più (più spendi, più convinci),
+   ma se i favorevoli sono troppo pochi nessuna campagna basta: bisogna aspettare che cambi il clima nel paese. Il voto ha un
+   margine di incertezza di qualche punto, come i sondaggi. Più malcontento e divisioni, meno
+   favorevoli (per questo a super difficile vincere è più difficile). Se vince il sì la riforma provoca metà del malcontento; se vince il no non si ripropone per tre anni. */
+const REF_BASE = { retire: 40, cutServices: 33, taxRaise: 38, carbonLaw: 45, geoeng: 25, massRobots: 38, embryoEdit: 40 };
+const REF_CAMPAIGNS = [{ cost: 3, gain: 5, name: "Campagna informativa" }, { cost: 10, gain: 10, name: "Grande campagna in tutto il mondo" }];
+const REF_NOISE = 4; // incertezza del voto, in punti
 const needsRef = (st, id) => !!(st.G && st.G.ref && st.G.ref.includes(id) && !(st.refOk && st.refOk[id]));
-function refInfo(st, id) {
+function refSupport(st, id) {
   const rs = ctrlRegions(st), n = Math.max(1, rs.length);
-  const u = rs.reduce((a, r) => a + r.unrest, 0) / n, pol = rs.reduce((a, r) => a + r.polar, 0) / n;
-  let p = (REF_BASE[id] || 0.4) - Math.max(0, u - 45) * 0.006 - Math.max(0, pol - 40) * 0.004;
-  if (id === "geoeng") p += Math.max(0, st.g.temp + st.g.geoOff - 1.6) * 0.25 + rs.reduce((a, r) => a + (r.climEv || 0), 0) / n * 0.03; // la gente accetta le soluzioni estreme solo quando ha paura
-  return { p: clamp(p, 0.05, 0.85), cost: priced(st, id === "geoeng" ? 12 : 3) };
+  const u = rs.reduce((a, r) => a + r.unrest, 0) / n, pol = rs.reduce((a, r) => a + r.polar, 0) / n, ev = rs.reduce((a, r) => a + (r.climEv || 0), 0) / n;
+  let v = (REF_BASE[id] || 38) - Math.max(0, u - 45) * 0.5 - Math.max(0, pol - 40) * 0.3;
+  if (id === "geoeng" || id === "carbonLaw") v += Math.max(0, st.g.temp + st.g.geoOff - 1.4) * 12 + ev * 2; // la paura del clima convince
+  return clamp(v, 5, 80);
 }
-function runReferendum(st, id) {
+// probabilità di vincere con una certa campagna (0 = nessuna): favorevoli + campagna, con l'incertezza del voto
+function refChance(st, id, k) {
+  const v = refSupport(st, id) + (k ? REF_CAMPAIGNS[k - 1].gain : 0);
+  return clamp((v + REF_NOISE - 50) / (2 * REF_NOISE), 0, 1);
+}
+function refInfo(st, id) { return { support: refSupport(st, id), chances: REF_CAMPAIGNS.map((c, i) => ({ ...c, cost: priced(st, c.cost), p: refChance(st, id, i + 1) })) }; }
+function runReferendum(st, id, k = 1) {
   const ban = st.refBan && st.refBan[id];
   if (ban && ban > st.year) return "Referendum perso: si potrà riproporre dal " + ban;
-  const { p, cost } = refInfo(st, id), d = IBY[id];
-  st.funds -= cost;
-  if (rand() < p) {
+  const c = REF_CAMPAIGNS[k - 1], d = IBY[id];
+  st.funds -= priced(st, c.cost);
+  const vote = refSupport(st, id) + c.gain + (rand() * 2 - 1) * REF_NOISE;
+  if (vote > 50) {
     (st.refOk || (st.refOk = {}))[id] = true;
-    logNews(st, `Referendum: vince il sì. «${d.name}» parte con il consenso dei cittadini.`, "done");
+    logNews(st, `Referendum: vince il sì con il ${Math.round(vote)}%. «${d.name}» parte con il consenso dei cittadini.`, "done");
     const why = startIntervention(st, id);
     if (why) logNews(st, `«${d.name}»: ${why}.`, "info");
     return null;
   }
   (st.refBan || (st.refBan = {}))[id] = st.year + 3;
-  logNews(st, `Referendum: vince il no. «${d.name}» non si potrà riproporre prima del ${st.year + 3}.`, "bad");
+  logNews(st, `Referendum: vince il no, il sì si ferma al ${Math.round(vote)}%. «${d.name}» non si potrà riproporre prima del ${st.year + 3}.`, "bad");
   return null;
 }
 
@@ -4118,9 +4129,8 @@ function yearly(st) {
   const ab = st.acts.aiBio;
   if (ab && ab.n > 0 && st.flags.gen3 && built(st, "agingResearch") && !st.sim) {
     const yrs = st.year - (ab.y0 || ab.y);
-    // tempi accorciati il 5 novembre 2026 (prima 40 anni: non arrivava mai in tempo): scoperte a 7, 14 e 21 anni, cura da 28
-    if (yrs >= 24 && !st.flags.n_imm) { st.flags.n_imm = true; note(st, "discovery", "agingResearch", "La cura per la vecchiaia è vicina", "I laboratori guidati dall'AI riescono a ringiovanire tessuti e organi negli animali. Se la biologia guidata dall'AI e la ricerca sull'invecchiamento continuano, entro pochi anni potrebbe arrivare una terapia che ferma l'invecchiamento."); }
-    if (yrs >= 28 && rand() < 0.25) { gameOver(st, "immortale"); return; }
+    if (yrs >= 35 && !st.flags.n_imm) { st.flags.n_imm = true; note(st, "discovery", "agingResearch", "La cura per la vecchiaia è vicina", "I laboratori guidati dall'AI riescono a ringiovanire tessuti e organi negli animali. Se la biologia guidata dall'AI e la ricerca sull'invecchiamento continuano, entro pochi anni potrebbe arrivare una terapia che ferma l'invecchiamento."); }
+    if (yrs >= 40 && rand() < 0.25) { gameOver(st, "immortale"); return; }
   }
   // disoccupazione di massa senza un reddito: un avviso chiaro prima che le regioni crollino (al massimo ogni dieci anni)
   { const r = ctrlRegions(st).filter((x) => x.unemp > 18 && incomeSupport(x) < 0.6).sort((a, b) => b.unemp - a.unemp)[0];
@@ -4304,7 +4314,7 @@ function loadState(txt) {
 
 if (typeof module !== "undefined") module.exports = {
   P, PROMISES, pensPoverty, polarCauses, budget, incomeGainOf, amnestyYield, incomeSupport, robotCapture, popLossAge, bioCover, aiTerror, privatePens, WAGE, wageIdx, SHADOW0, taxBase, shadowW, OLD_LEVEL, DISCOVERIES, evTitle, RPROF, priced, eventCost, authRate, maxSurplus, bankPreview, co2Gross, worldBirths, clampRate, snowball, regionRate, co2Gt, GDP_2026, CO2_2026, DIFF, LEVELS, LBY, GOVS, GBY, sysOn, REGIONS, RBY, INTERVENTIONS, IBY, CATS, EVENTS, EBY, ENDINGS, STABLE_YEARS, RISK_LABELS,
-  reconquer, reconWhy, reconChance, RECON_COST, RECON_T, needsRef, refInfo, runReferendum, popRisk, mediate, MEDIATION_COST, evChoices, LOW_STAB, LOW_YEARS, ANOMALY,
+  reconquer, reconWhy, reconChance, RECON_COST, RECON_T, needsRef, refInfo, refSupport, refChance, runReferendum, popRisk, mediate, MEDIATION_COST, evChoices, LOW_STAB, LOW_YEARS, ANOMALY,
   newGame, tick, EV_WARN, advise, preview, ctrlShare, available, anarchyNear, saveState, loadState, honors, endingText, costOf, upkeepOf, built, startIntervention, payoffNow, stabParts, stabWeak, stabNow, worldStab, unrestCauses, STAB_PARTS, WIN_WORLD, canStart, parentOk, TREE, resolveEvent, revoke, stability, riskBoard, risks, emissions, worldPop, lvl, setSeed, rand,
 };
 
@@ -7622,7 +7632,10 @@ function queueEvent(ev) {
   const E = EBY[ev.id], n = EV_WARN[ev.id] || 12;
   // due segnaposto non scadono mai nello stesso mese: ce n'è sempre uno più urgente degli altri
   const q0 = st.queue || (st.queue = []), lastDue = q0.reduce((a, q) => Math.max(a, q.due), -1);
-  q0.push({ id: ev.id, r: ev.r, due: Math.max(absMonth() + n, lastDue + 1), start: absMonth() });
+  let due = Math.max(absMonth() + n, lastDue + 1);
+  // l'avviso elettorale va deciso prima del voto (gennaio dell'anno delle elezioni): non può scadere dopo (5 novembre 2026)
+  if (ev.id === "electionRisk" && ev.r && st.regions[ev.r].elY) due = Math.min(due, st.regions[ev.r].elY * 12 - 1);
+  q0.push({ id: ev.id, r: ev.r, due, start: absMonth() });
   // i segnali stanno sul planisfero: dal globo si torna alla cartina
   if (globeOn) { globeOn = false; moonMode = false; showGlobe(); }
   if (ev.r) pingRegion(ev.r);
@@ -8066,18 +8079,18 @@ const TIPS = [
 ];
 /* referendum della Democrazia liberale: campagna a pagamento, probabilità visibile prima di decidere */
 function showReferendum(d) {
-  const { p, cost } = refInfo(st, d.id);
+  const { support, chances } = refInfo(st, d.id), best = Math.max(...chances.map((c) => c.p));
   savedSpeed = speed || savedSpeed || 1; speed = 0; pending = { pause: true }; hud();
   const c = $("modalCard");
   c.innerHTML = `<div class="eyebrow">${tr("Democrazia liberale")} · ${MONTHS[st.month]} ${st.year}</div><h2>${tr("Referendum: «{x}»", { x: esc(tr(d.name)) })}</h2>
-    <p>${tr("Questa riforma passa solo se la approvano i cittadini. Se vince il sì parte subito e provoca metà del malcontento solito; se vince il no non si può riproporre per tre anni.")}</p>
-    <p>${tr("Probabilità di vincere oggi: circa <b>{p}%</b>. Scende con il malcontento e le divisioni.", { p: Math.round(p * 100) })}</p>
-    <div class="choices"><button type="button" class="buy" id="refGo" style="margin:0">${tr("Fai la campagna")} – ${fmt(cost, 0)} ${tr("fondi")}</button><button type="button" class="buy alt" id="refNo" style="margin:0">${tr("Rinuncia")}</button></div>`;
+    <p>${tr("Oggi è favorevole circa il <b>{p}%</b> dei cittadini: per vincere serve più del 50% il giorno del voto. La campagna convince qualcuno in più; i favorevoli crescono se cala il malcontento e se si riducono le divisioni.", { p: Math.round(support) })}</p>
+    <p>${best <= 0 ? tr("Oggi i favorevoli sono troppo pochi: nessuna campagna basta. Conviene aspettare che cambi il clima nel paese.") : tr("Se vince il sì la riforma parte subito e provoca metà del malcontento solito; se vince il no non si può riproporre per tre anni.")}</p>
+    <div class="choices">${chances.map((ch, i) => `<button type="button" class="choice" data-k="${i + 1}" ${ch.p <= 0 ? "disabled" : ""}><b>${tr(ch.name)}</b><span class="c">${fmt(ch.cost, 0)} ${tr("fondi")}</span><small>${tr("Probabilità di vincere: circa {p}%", { p: Math.round(ch.p * 100) })}</small></button>`).join("")}
+    <button type="button" class="choice" id="refNo"><b>${tr("Rinuncia")}</b><span class="c">${tr("gratis")}</span><small>${tr("Si può indire più avanti")}</small></button></div>`;
   $("modal").hidden = false;
   const close = () => { pending = null; $("modal").hidden = true; speed = savedSpeed || 1; renderActs(); hud(); paint(); save(); refresh(); };
-  $("refGo").onclick = () => { runReferendum(st, d.id); close(); };
+  for (const b of c.querySelectorAll("[data-k]")) b.onclick = () => { runReferendum(st, d.id, +b.dataset.k); close(); };
   $("refNo").onclick = close;
-  $("refGo").focus();
 }
 /* buone notizie e scoperte: una scheda a tutto schermo che ferma il tempo, con un solo pulsante */
 function showNote() {
