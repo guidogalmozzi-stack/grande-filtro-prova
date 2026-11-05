@@ -1228,12 +1228,12 @@ const INTERVENTIONS = [
   { id: "efficiency", cat: "energia", name: "Efficienza energetica", desc: "Incentivi per isolare gli edifici e sostituire motori ed elettrodomestici con modelli che consumano meno.", scope: "region", cost: 10, T: 3, spread: true,
     pro: "Serve meno energia e le bollette scendono", con: "Una parte del risparmio si perde perché si consuma di più",
     fx: (m, s) => { m.eff -= 0.1 * s; m.energyCost -= 3 * s; } },
-  { id: "nuclear", cat: "nucleare", name: "Centrali nucleari pubbliche", desc: "Lo Stato costruisce e paga nuove centrali nucleari, con molti anni di cantiere.", scope: "region", cost: 25, T: 12, stack: 3,
+  { id: "nuclear", cat: "nucleare", name: "Centrali nucleari pubbliche", desc: "Lo Stato costruisce e paga nuove centrali nucleari, con molti anni di cantiere.", scope: "region", cost: 25, T: 10, stack: 3, // cantiere 10 anni (5 novembre 2026): oggi 5-7 in Asia, 10-15 in Europa e Stati Uniti
     pro: "Energia stabile e senza emissioni", con: "Parte della popolazione si oppone e il malcontento cresce, soprattutto dove l'opposizione è forte; cantieri lunghi, più lenti se l'opposizione è alta; piccolo rischio di incidenti",
     fx: (m, s, r) => { m.energyCost -= 2 * s; m.unrestT += r.resist * 0.05 * s; },
     once: (r) => { shiftClean(r, 8, "nuclear"); r.resist = clamp(r.resist + 5, 0, 100); } },
-  { id: "nucInfo", cat: "nucleare", name: "Informazione sul nucleare", desc: "Campagne pubbliche e visite alle centrali che spiegano rischi e vantaggi dell'energia nucleare.", scope: "region", cost: 3, upkeep: 1, T: 2,
-    pro: "Meno opposizione al nucleare", con: "Un po' più di polarizzazione; funziona finché la campagna continua",
+  { id: "nucInfo", cat: "nucleare", name: "Informazione sul nucleare", desc: "Campagne pubbliche e visite alle centrali che spiegano rischi e vantaggi dell'energia nucleare.", scope: "region", cost: 3, upkeep: 1, upkeepYears: 10, T: 2,
+    pro: "Meno opposizione al nucleare; dopo 10 anni la gente si è abituata e la campagna non costa più", con: "Un po' più di polarizzazione",
     fx: (m) => { m.resistT -= 25; m.polarT += 2; } },
   /* Nucleare privato (decisione del 18 ottobre 2026): costo iniziale basso, ma l'Autorità garantisce ai privati un prezzo
      minimo dell'energia per trent'anni; cantieri più rapidi, con un piccolo rischio che l'impresa fallisca a metà. */
