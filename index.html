@@ -8051,12 +8051,11 @@ const PIN_D = "M0 0C-2.6-4.4-8-8.2-8-13.6a8 8 0 1 1 16 0C8-8.2 2.6-4.4 0 0z";
 function drawBubbles() {
   const g = $("bubbles"); g.innerHTML = "";
   if (!st || phase !== "play") return;
-  let gi = 0;
   // ogni segnaposto tiene il suo posto finché resta sulla mappa: il secondo evento in una regione si mette di fianco al primo senza spostarlo
   const used = {};
   for (const q of (st.queue || []).slice().sort((a, b) => a.start - b.start)) {
-    if (!q.r) continue;
-    const u = used[q.r] || (used[q.r] = new Set());
+    // anche gli eventi mondiali tengono il loro posto: il nuovo arrivato va in un posto libero (7 novembre 2026)
+    const u = used[q.r || "_g"] || (used[q.r || "_g"] = new Set());
     if (q.slot == null || u.has(q.slot)) { let k = 0; while (u.has(k)) k++; q.slot = k; }
     u.add(q.slot);
   }
@@ -8066,7 +8065,7 @@ function drawBubbles() {
     const E = EBY[q.id];
     let x, y;
     if (q.r) { const R = RBY[q.r], at = PIN_AT[q.r] || [R.label[0], R.label[1], -9]; [x, y] = ee(at[0], at[1]); y += at[2]; x += [0, 22, -22, 44, -44][q.slot % 5]; }
-    else { [x, y] = ee(...GLOBAL_SPOTS[gi++ % GLOBAL_SPOTS.length]); }
+    else { [x, y] = ee(...GLOBAL_SPOTS[q.slot % GLOBAL_SPOTS.length]); }
     q.x = x; q.y = y;
     const left = Math.max(0, q.due - absMonth()), frac = Math.min(1, (absMonth() - q.start) / Math.max(1, q.due - q.start));
     const sc = left <= 0 ? 1.55 : 1 + 0.45 * frac;
