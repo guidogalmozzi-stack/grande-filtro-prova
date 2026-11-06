@@ -852,7 +852,8 @@ const pick = (arr) => arr[Math.floor(rand() * arr.length)];
    Tutti i numeri generali del gioco stanno qui: per ritoccarne uno basta cambiarlo in questa tabella
    e rilanciare node tools/tune.js. I numeri dei singoli interventi stanno nella tabella degli interventi (eff/geff). */
 const P = {
-  baseIncome: 17,        // fondi l'anno nel 2026 nello scenario completo, livello medio; crescono con l'economia
+  baseIncome: 25,        // fondi l'anno nel 2026 nello scenario completo, livello medio; crescono con l'economia
+  growCost: 1, growTech: 0.3, aiRelief: 0.25, // i costi crescono con l'economia mondiale (vedi priced); la tecnologia in serie molto meno
   // debito dell'Autorità: nessun tetto; paga il tasso a lungo termine più uno spread che dipende da debito / entrate (vedi authRate)
   stabC: 47.1, stabK: 3.8, // scala dell'indice di stabilità (mondo del 2026 ≈ 45)
   anarchySpread: 12,     // malcontento portato da ogni regione vicina in anarchia
@@ -864,7 +865,7 @@ const P = {
   /* Tasse e contributi sul lavoro: circa metà delle entrate pubbliche (media OCSE 2023: contributi 25,5%, imposta sui redditi
      23,7%) [Certo]. Quando i robot fanno il lavoro delle persone, questa parte delle entrate sparisce, a meno di tassare i robot
      o di possedere una quota delle aziende che li usano (decisione del 25 ottobre 2026). */
-  laborTax: 0.5,
+  laborTax: 0.5, capBase: 0.4,
 };
 
 /* ---------- difficoltà ---------- */
@@ -1956,13 +1957,13 @@ for (const d of INTERVENTIONS) {
 const STACKED = INTERVENTIONS.filter((d) => d.stack > 1);
 /* Che cosa aggiunge la seconda o la terza costruzione (richiesta di Guido del 5 novembre 2026) */
 const STACK_MORE = {
-  renew: "Altri parchi solari in nuove zone. Rendono meno dei primi: i posti più soleggiati sono già occupati e nelle ore di sole c'è già più elettricità di quanta ne serve.",
-  wind: "Altri parchi eolici in nuove zone, meno ventose delle prime: rendono un po' meno.",
-  geothermal: "Altre centrali geotermiche in nuovi pozzi. Le rocce più calde e vicine sono già usate: le nuove rendono un po' meno.",
-  nuclear: "Altre centrali nucleari pubbliche in più regioni: producono quanto le prime, giorno e notte.",
-  nucPrivate: "Altri reattori privati a prezzo garantito, in più regioni: producono quanto i primi.",
-  fusion: "Altre centrali a fusione in più regioni: ancora più energia pulita, quasi quanto le prime.",
-  dac: "Altri impianti per catturare la CO2 dall'aria, come i primi.",
+  renew: "Rende meno dei parchi solari precedenti: le zone più soleggiate sono già occupate e, senza «Reti e accumuli», nelle ore di sole c'è già più elettricità di quanta se ne riesce a usare. Conviene prima costruire le reti.",
+  wind: "Rende meno dei parchi eolici precedenti: le zone più ventose sono già occupate e, senza «Reti e accumuli», quando soffia il vento l'elettricità in più va sprecata. Conviene prima costruire le reti.",
+  geothermal: "Rende circa quanto le centrali precedenti finché restano centrali a carbone e a gas da sostituire; la terza rende meno, perché le rocce più calde e vicine sono già usate e resta meno energia fossile da sostituire.",
+  nuclear: "Rende quanto le centrali precedenti: il nucleare produce giorno e notte e non dipende dal sole o dal vento.",
+  nucPrivate: "Rende quanto i reattori precedenti, con lo stesso prezzo garantito da pagare ogni anno.",
+  fusion: "Rende un po' meno delle centrali precedenti: resta meno energia fossile da sostituire.",
+  dac: "Rende quanto il primo programma e costa altrettanto ogni anno.",
 };
 for (const d of STACKED) {
   const n = d.stack; d.name = d.name + " 1"; delete d.stack;
@@ -2036,13 +2037,32 @@ function payoffNow(d, a, st) {
 }
 // costo e gestione effettivi: alcuni dipendono da scelte precedenti
 // prezzi correnti: i costi di partenza crescono con l'inflazione accumulata
-const priced = (st, c) => (c ? Math.round(c * ((st.g && st.g.pl) || 1) * 10) / 10 : 0);
+/* Costi che crescono con l'economia (6 novembre 2026, richiesta di Guido) [Probabile]: nella realtà la spesa pubblica resta una
+   fetta più o meno fissa dell'economia. Stipendi, sussidi, cantieri e grandi opere costano di più quando il mondo si arricchisce
+   (effetto Baumol: un insegnante deve guadagnare come gli altri lavoratori). La tecnologia prodotta in serie (pannelli, batterie,
+   robot, chip, razzi riutilizzabili, sequenziamento) invece costa sempre meno rispetto ai redditi: cresce molto più piano.
+   Prima i costi seguivano solo i prezzi: dopo il 2100 l'economia era 25 volte più grande e i fondi esplodevano.
+   Indice = prodotto mondiale reale rispetto al 2026, elevato a P.growCost (P.growTech per la tecnologia). */
+function econIdx(st) {
+  if (!st || !st.regions) return 1;
+  let g = 0, g0 = 0;
+  for (const id in st.regions) { const r = st.regions[id]; g += r.gdp; g0 += r.gdp0 || r.gdp; }
+  return g0 ? Math.max(0.5, g / g0) : 1;
+}
+const TECH_FAM = ["ai", "spazio", "genetica"];
+const TECH_IDS = new Set(["renew", "wind", "rooftop", "grid", "evCars", "geothermal", "superhotRock", "automation", "robots", "massRobots", "dac", "smr", "worldGrid"]);
+const isTech = (d) => !!d && (TECH_FAM.includes(d.fam) || TECH_IDS.has(d.base || d.id));
+/* Quando l'AI entra nei servizi (diagnosi, sportelli pubblici, tutor scolastici) anche il lavoro pubblico diventa più produttivo
+   e l'effetto Baumol si attenua [Probabile]: con un'AI molto capace i costi del lavoro crescono un po' meno dell'economia. */
+const aiRelief = (st) => P.aiRelief * clamp(((st.g && st.g.aiCap) || 0) - 60, 0, 100) / 100;
+const growK = (st, d) => Math.pow(econIdx(st), isTech(d) ? P.growTech : P.growCost - aiRelief(st));
+const priced = (st, c, d) => (c ? Math.round(c * ((st.g && st.g.pl) || 1) * growK(st, d) * 10) / 10 : 0);
 function costOf(st, d) {
   if (st.paused && st.paused[d.id]) return 0; // un programma sospeso si riattiva senza pagare di nuovo la costruzione
   let c = d.id === "moon" && st.flags.moonPartners ? d.cost - 4 : d.cost;
   if (LUNAR_HALF.includes(d.id) && built(st, "lunarIce")) c /= 2; // propellente e materiali prodotti sulla Luna
   if ((d.base || d.id) === "geothermal" && st.year >= 2035) c *= 0.6; // pozzi sempre più rapidi ed economici [Probabile: IEA 2024]
-  return priced(st, st.G && st.G.cheap && st.G.cheap.includes(d.id) ? Math.ceil(c / 2) : c);
+  return priced(st, st.G && st.G.cheap && st.G.cheap.includes(d.id) ? Math.ceil(c / 2) : c, d);
 }
 /* Effetto Baumol [Probabile]: i programmi fatti di lavoro umano (sanità, scuola, sussidi, pensioni, stipendi pubblici, ricerca)
    costano di più quando crescono i redditi, non solo i prezzi: un infermiere deve guadagnare come gli altri lavoratori, ma non
@@ -2081,7 +2101,7 @@ function upkeepOf(st, d) {
     if (tm && tm.n > 0 && st.year - (tm.y0 || tm.y) >= 5) base *= 0.9;
   }
   if (HEALTH_COST.includes(d.id) && built(st, "pubDrugs")) base *= 0.8;
-  return base * base0 * (k || 1) * (d.wasRegion && base > 0 ? ctrlShare(st) : 1) * (d.perUnit && a ? Math.max(1, a.n) : 1) * ((st.g && st.g.pl) || 1) * (WAGE.has(d.id) ? Math.pow(wageIdx(st), 0.6) : 1);
+  return base * base0 * (k || 1) * (d.wasRegion && base > 0 ? ctrlShare(st) : 1) * (d.perUnit && a ? Math.max(1, a.n) : 1) * ((st.g && st.g.pl) || 1) * (WAGE.has(d.id) ? Math.max(Math.pow(wageIdx(st), 0.6), growK(st, d)) : growK(st, d));
 }
 const worldDebt = (st) => { const rs = ctrlRegions(st), t = rs.reduce((a, r) => a + r.gdp, 0) || 1; return rs.reduce((a, r) => a + r.debt * r.gdp, 0) / t; };
 const worldSnow = (st) => { const rs = ctrlRegions(st), t = rs.reduce((a, r) => a + r.gdp, 0) || 1; return rs.reduce((a, r) => a + snowball(r, st) * r.gdp, 0) / t; };
@@ -2098,7 +2118,10 @@ const amnestyYield = (st) => Math.round(st.income * 0.36 * (shadowW(st) / 20) * 
    10% con la patrimoniale, al massimo tutto (a regime) */
 function robotCapture(st) {
   const k = (id) => (built(st, id) ? rampK(IBY[id], st.acts[id], st) : 0);
-  return Math.min(1, 0.6 * k("robotTax") + 0.4 * k("sovFund") + 0.1 * k("wealthTax"));
+  // anche senza leggi apposite i profitti delle imprese che usano i robot pagano le tasse sulle società e sui dividendi, ma meno
+  // del lavoro che sostituiscono (6 novembre 2026) [Probabile: nei paesi OCSE il capitale paga in media circa la metà del lavoro]
+  const b = P.capBase;
+  return b + (1 - b) * Math.min(1, 0.6 * k("robotTax") + 0.4 * k("sovFund") + 0.1 * k("wealthTax"));
 }
 const NUC_BUILD = ["nuclear", "nucPrivate", "smr", "fusion"];
 const FRONTIER = ["fusionResearch", "fusion", "smr", "dac", "launch", "orbital", "pdef", "pdefWatch", "moon", "moonFast", "he3", "lunarArchive", "lunarIce", "lunarCity", "lunarMining"];
@@ -2166,7 +2189,7 @@ function econMass(st, controlledOnly) {
   return s;
 }
 
-const BASE_INCOME = P.baseIncome;
+const BASE_INCOME = P.baseIncome; // (letto anche da P durante le prove di taratura)
 // scenari rinumerati il 18 ottobre 2026 (aggiunto «Energia per tutti»): vecchio l2 → l3, l3 → l4, l4 → l5
 const OLD_LEVEL = { l2: "l3", l3: "l4", l4: "l5" };
 function newGame(diffId, seed, levelId = "l5", govId = "base") {
@@ -2233,7 +2256,7 @@ function newGame(diffId, seed, levelId = "l5", govId = "base") {
   st.gdpW0 = Object.values(regions).reduce((a, r) => a + r.gdp, 0);
   st.ec0 = Object.values(regions).reduce((a, r) => a + r.energyCost * r.gdp, 0) / st.gdpW0;
   st.pop0 = worldPop(st);
-  st.income = BASE_INCOME * D.inc * (st.L.inc || 1) * (st.G.inc || 1); st.upkeep = 0;
+  st.income = P.baseIncome * D.inc * (st.L.inc || 1) * (st.G.inc || 1); st.upkeep = 0;
   for (const id of st.G.pre || []) if (available(st, IBY[id])) complete(st, IBY[id]);
   if (st.G.elections) Object.values(st.regions).forEach((r, i) => (r.elY = 2030 + (i % 5))); // elezioni sfalsate ogni 5 anni // per esempio la sanità universale dello Stato sociale
   logNews(st, "L'Autorità si insedia. Le nazioni hanno accettato di eseguire i suoi ordini.", "info");
@@ -4025,7 +4048,7 @@ function tick(st) {
   // tasse sul lavoro perse per i robot: la parte non recuperata con la tassa sui robot o con il fondo sovrano (decisione del 25 ottobre 2026)
   { const rs = ctrlRegions(st), t = rs.reduce((a, r) => a + r.gdp, 0) || 1; st.robShareW = rs.reduce((a, r) => a + (r.robShare || 0) * r.gdp, 0) / t; }
   st.robLoss = P.laborTax * st.robShareW * (1 - (st.robCap || 0));
-  st.income = BASE_INCOME * D.inc * (st.L.inc || 1) * (st.G.inc || 1) * econMass(st, true) / st.I0 * (taxBase(st) / (st.TB0 || taxBase(st))) * (1 + gm.income + (st.genShare || 0)) * (G.plLag || 1) * (1 - st.robLoss);
+  st.income = P.baseIncome * D.inc * (st.L.inc || 1) * (st.G.inc || 1) * econMass(st, true) / st.I0 * (taxBase(st) / (st.TB0 || taxBase(st))) * (1 + gm.income + (st.genShare || 0)) * (G.plLag || 1) * (1 - st.robLoss);
   st.payoff = 0;
   for (const aid in st.acts) { const d = IBY[aid]; if (d.payoff && st.acts[aid].n > 0) st.payoff += payoffNow(d, st.acts[aid], st); }
   st.income += st.payoff;
