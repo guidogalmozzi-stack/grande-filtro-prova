@@ -1166,6 +1166,13 @@ const INTERVENTIONS = [
   // Energia
   /* Alberi con poche radici (4 novembre 2026, richiesta di Guido): nell'energia si parte da quattro icone (fossili, rinnovabili,
      nucleare, fusione) che aprono le altre scelte. */
+  /* porte d'ingresso dell'Economia (7 novembre 2026): costano poco e da sole cambiano poco, ma aprono le scelte */
+  { id: "fiscalPlan", cat: "economia", name: "Riforma dei conti pubblici", desc: "Un ufficio comune raccoglie i bilanci di tutti gli stati e prepara le riforme di spese, tasse e controlli.", scope: "global", cost: 1, T: 1,
+    pro: "Apre le scelte su spese, tasse, evasione e banche", con: "Da solo non cambia quasi niente" },
+  { id: "growthPlan", cat: "economia", name: "Piano per la crescita", desc: "Economisti e imprese studiano dove investire e quali regole cambiare per far crescere l'economia.", scope: "global", cost: 1, T: 1,
+    pro: "Apre le scelte su investimenti, concorrenza e imprese", con: "Da solo non cambia quasi niente" },
+  { id: "laborPlan", cat: "economia", name: "Piano per il lavoro", desc: "Governi, imprese e sindacati si siedono allo stesso tavolo per rivedere salari, tutele e sussidi.", scope: "global", cost: 1, T: 1,
+    pro: "Apre le scelte su sussidi, salari e accordi tra imprese e lavoratori", con: "Da solo non cambia quasi niente" },
   { id: "fossilPlan", cat: "energia", name: "Registro dei combustibili fossili", desc: "Si misura quanto petrolio, gas e carbone usa e sovvenziona ogni paese: la base di ogni politica sui fossili.", scope: "global", cost: 1, T: 1,
     pro: "Apre le scelte sui combustibili fossili: sussidi, tassa sul carbonio e le loro conseguenze", con: "Da solo non cambia quasi niente" },
   { id: "renewPlan", cat: "energia", name: "Piano per le rinnovabili", desc: "Aste pubbliche, permessi più rapidi e terreni individuati per i nuovi impianti puliti.", scope: "global", cost: 2, T: 1,
@@ -2031,6 +2038,14 @@ const TREE = {
 // meno radici nelle altre schede (4 novembre 2026): le scelte vicine si aprono da una sola icona
 Object.assign(TREE, { taxRaise: "taxEvasion", amnesty: "taxEvasion", tariffs: "invest", fissile: "mediation", aiOpen: "aiCap", aiPublic: "aiCap", qCrypto: "qComp", phage: "screening", geneDrive: "gmCrops" });
 for (const d of INTERVENTIONS) if (d.after) TREE[d.id] = d.after; // le copie numerate dopo la precedente
+/* Economia con poche porte d'ingresso (7 novembre 2026, richiesta di Guido: troppe icone nella schermata iniziale), come per
+   l'energia: conti pubblici, crescita e lavoro. Gli interventi esclusivi dei governi stanno dentro questi tre alberi. */
+Object.assign(TREE, {
+  fiscalPlan: null, growthPlan: null, laborPlan: null,
+  austerity: "fiscalPlan", taxEvasion: "fiscalPlan", creditRules: "fiscalPlan", spendReview: "fiscalPlan", inheritTax: "fiscalPlan", budgetOffice: "fiscalPlan", machineContrib: "fiscalPlan", privat: "fiscalPlan", socWealth: "fiscalPlan",
+  invest: "growthPlan", antitrust: "growthPlan", sez: "growthPlan", ppp: "growthPlan", startupLoans: "growthPlan", popShares: "growthPlan", stateChampions: "growthPlan",
+  unempBenefit: "laborPlan", socialPact: "laborPlan", shortWeek: "laborPlan", coops: "laborPlan", trainVouchers: "laborPlan", priceControl: "laborPlan",
+});
 for (const id in TREE) { IBY[id].parent = TREE[id] || undefined; delete IBY[id].needs; }
 // il sussidio di disoccupazione assorbito dal reddito di base conta come attivo per i rami che ne dipendono
 // se il governo vieta il nodo padre, il figlio diventa una radice (non resta bloccato per sempre)
@@ -6728,7 +6743,7 @@ const ICON_OF = {
   nucPrivate2: "tower", nucPrivate3: "atom", fusion2: "torus", dac2: "recycle",
   fossilSub: "fuel", carbonTax: "smoke", renew: "sun", grid: "battery", efficiency: "bulb", nuclear: "i-nucleare", nucInfo: "megaphone", carbonLaw: "treeTech", cashless: "card", pensionIndex: "seesaw", smr: "tower", nucAgency: "shieldAtom", nucPrivate: "contract", fusionResearch: "torus", fusion: "fusion", priceCap: "plug", evCars: "car",
   centralBank: "rateCoin", university: "cap", research: "microscope", invest: "bridge", austerity: "scissors", cutStaff: "personMinus", cutSubsidies: "factoryDown", cutDefense: "shieldMinus", cutServices: "hospital", automation: "gear", robots: "robot", retrain: "wrench", ubi: "coins", debtRestr: "handshake", develop: "sprout",
-  taxRaise: "percent", wealthTax: "diamond", taxEvasion: "magnifier", eInvoice: "newspaper", dataMatch: "puzzle", receiptLottery: "gift", taxHavens: "vault", creditRules: "lock", amnesty: "dollarCut", eProcure: "contract", assetsPublic: "house", whistle: "megaphone", fastCourts: "gavel", civilPay: "coins", unempBenefit: "umbrella", minWage: "wallet", publicJobs: "hardhat", tariffs: "crate", privat: "tag",
+  taxRaise: "percent", wealthTax: "diamond", taxEvasion: "magnifier", eInvoice: "newspaper", dataMatch: "puzzle", receiptLottery: "gift", taxHavens: "vault", creditRules: "lock", fiscalPlan: "piggy", growthPlan: "chartUp", laborPlan: "hardhat", amnesty: "dollarCut", eProcure: "contract", assetsPublic: "house", whistle: "megaphone", fastCourts: "gavel", civilPay: "coins", unempBenefit: "umbrella", minWage: "wallet", publicJobs: "hardhat", tariffs: "crate", privat: "tag",
   retire: "clock", contrib: "piggy", natality: "baby", family: "family", migration: "plane", integration: "puzzle", healthyAging: "heart", housing: "house", parentalLeave: "stroller", ivf: "dna", pensionFunds: "vault", pensionTax: "chartUp", birthDowry: "gift", healthcare: "i-salute",
   transparency: "eye", anticorr: "gavel", assemblies: "people", disinfo: "newspaper", police: "badge", education: "school", socialHousing: "buildings", civicService: "hands",
   adapt: "waves", agri: "wheat", reforest: "tree", dac: "fan", geoeng: "cloud", foodReserve: "silo", forestProtect: "pine",
@@ -7364,7 +7379,8 @@ const sectorDone = (tab) => { const l = sectorList(tab); return { n: l.length ||
    Le posizioni si calcolano su una griglia esagonale con tutti gli interventi, così non cambiano quando se ne sbloccano altri;
    si disegnano solo quelli già sbloccati. */
 const HR = 20, HEXD = [[1, 0], [1, -1], [0, -1], [-1, 0], [-1, 1], [0, 1]];
-const hexXY = (q, r) => [HR * 1.5 * q, HR * Math.sqrt(3) * (r + q / 2)];
+// le caselle sono un po' più larghe delle icone: tra due icone vicine resta sempre uno spazio (7 novembre 2026)
+const HS = HR * 1.18, hexXY = (q, r) => [HS * 1.5 * q, HS * Math.sqrt(3) * (r + q / 2)];
 const layoutCache = {};
 function layoutTree(list) {
   const key = list.map((d) => d.id).join() + "|" + (($("tree") && $("tree").clientWidth) || 0);
@@ -7397,11 +7413,12 @@ function layoutTree(list) {
   /* alberi disposti a scaffale: si provano tutte le larghezze di riga possibili e si sceglie quella che, nella forma vera del
      pannello, dà le icone più grandi (6 novembre 2026: prima restava molto spazio vuoto e le icone erano piccole) */
   const box = $("tree"), bw = (box && box.clientWidth) || 600, bh = (box && box.clientHeight) || 300, pad = HR * 1.6;
-  const GAPC = 1.4 * HR;
+  // distanza tra due alberi vicini: più di un'icona intera (prima 1,4 raggi: le icone di alberi diversi si sovrapponevano)
+  const GAPC = 2.6 * HR, GAPR = 2.4 * HR;
   const shelf = (rowW) => {
     const pos = {}; let x = 0, y = 0, rowH = 0, W = 0;
     for (const c of clusters) {
-      if (x > 0 && x + c.w > rowW + 0.01) { x = 0; y += rowH + GAPC; rowH = 0; }
+      if (x > 0 && x + c.w > rowW + 0.01) { x = 0; y += rowH + GAPR; rowH = 0; }
       for (const [id, px, py] of c.pts) pos[id] = [x + px - c.x0, y + py - c.y0];
       x += c.w + GAPC; rowH = Math.max(rowH, c.h); W = Math.max(W, x - GAPC);
     }
@@ -7422,7 +7439,7 @@ function drawTree() {
   const states = Object.fromEntries(list.map((d) => [d.id, nodeState(d)]));
   const vis = list.filter((d) => nodeVisible(d, states[d.id]));
   if (!actNode || !vis.some((d) => d.id === actNode)) actNode = vis[0].id;
-  const { pos, W, H } = layoutTree(list);
+  const { pos, W, H } = layoutTree(vis); // si dispongono solo le icone visibili: niente buchi per quelle ancora bloccate
   const svg = $("tree"), pad = HR * 1.6;
   svg.setAttribute("viewBox", `${-pad} ${-pad} ${W + 2 * pad} ${H + 2 * pad}`);
   svg.innerHTML = "";
