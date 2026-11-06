@@ -215,6 +215,8 @@ button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); o
 .buy.autob { width: 100%; box-sizing: border-box; margin: 6px 0; font-size: 14px; padding: 8px 4px; white-space: normal; } .buy.autob.on { border-color: var(--accent); color: var(--accent); }
 .bankprev > div { display: grid; grid-template-columns: 1.3fr 1fr 1fr 1fr; gap: 6px; align-items: center; }
 .bankprev b { font-family: var(--font-m); font-weight: 500; text-align: right; } .bankprev .bph span { font-size: 11.5px; color: var(--muted); text-align: right; }
+.trow { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; padding: 8px 0; border-top: 1px solid var(--line); }
+.trow p { margin: 2px 0; font-size: 13px; } .trow small { color: var(--muted); } .trow .buy { margin: 0; }
 .bank { display: grid; grid-template-columns: 56px 1fr 56px; gap: 8px; align-items: center; text-align: center; }
 .bank .buy { margin: 0; font-size: 26px; padding: 4px; }
 .bank b { display: block; font-family: var(--font-m); font-size: 26px; color: var(--accent); }
@@ -783,9 +785,10 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
       <h3>Interventi</h3>
       <p>Con i fondi avvii interventi che valgono per tutto il mondo; ogni regione ne risente in base alle sue condizioni. La schermata degli interventi si apre sulla <b>Panoramica</b>: una riga per settore, con quanti interventi hai avviato e come va il mondo in quel campo (barra piena è buono, vuota è grave). Ogni settore ha un albero di esagoni: quelli nuovi compaiono man mano che li sblocchi. Toccando un esagono vedi a destra che cos'è e, nelle barre, in verde a righe quello che migliorerebbe e in rosso a righe quello che peggiorerebbe; in basso vedi quanto costa subito e come cambia il saldo annuo. Leggi e opere si pagano una volta; i programmi continui costano ogni anno e si fermano se smetti di finanziarli. Leggi, riforme e programmi si possono annullare quando vuoi, per qualsiasi ragione; restano per sempre solo le opere costruite (centrali, impianti, foreste, basi spaziali) e le scelte irreversibili. Toccando il saldo, in basso, vedi entrate e spese dalla più grande alla più piccola: quando i conti vanno in rosso capisci subito dove tagliare.</p>
       <h3>Difficoltà</h3>
+      <p>Le crisi economiche seguono la realtà: una recessione mondiale arriva in media ogni 15-20 anni e un crollo di borsa ogni 10-12, anche insieme ad altre crisi. Ognuna ha una causa (una bolla finanziaria, il prezzo del petrolio, tassi alti contro l'inflazione, il debito degli stati, i disoccupati dei robot senza reddito, una pandemia o una guerra) e la risposta giusta dipende dalla causa: lo stimolo funziona bene dopo una bolla o una pandemia, ma con il petrolio alle stelle fa salire soprattutto i prezzi. Nella schermata Mondo vedi il rischio e le sue cause.</p>
       <p>Le crisi sono le stesse a ogni livello. Cambia quanto in fretta la popolazione accetta le riforme e quanto reagisce male ai sacrifici: a livello facile gli interventi entrano a regime prima e fanno meno malcontento.</p>
       <h3>Fondi e debito</h3>
-      <p>Ogni regione versa all'Autorità una piccola parte della sua ricchezza, circa lo 0,15% del PIL: all'inizio 17 fondi l'anno. Quei soldi escono dai bilanci degli stati, quindi il loro debito sale un poco. Un fondo vale circa 10 miliardi di dollari del 2026. Per le grandi politiche (sanità, energia, reddito di base) l'Autorità paga la sua quota per lanciarle e coordinarle, il resto lo pagano gli stati e i privati: per questo alcune misure fanno salire anche il debito delle regioni. Le entrate: le entrate crescono se l'economia cresce e calano se una regione cade nell'anarchia, che smette di versare (ma smetti anche di pagare i programmi in quella regione). Con l'inflazione ogni anno tutto costa un po' di più, e le entrate si adeguano con circa un anno di ritardo. Si parte senza fondi: le entrate arrivano mese dopo mese. Se i fondi non bastano puoi indebitarti, anche per rispondere a una crisi: paghi il tasso a lungo termine, più un sovrapprezzo che cresce con il debito rispetto alle entrate di un anno: piccolo fino a due anni e mezzo di entrate, poi sempre più alto. Perdi per bancarotta solo se per tre anni gli interessi superano tutto ciò che potresti incassare anche tagliando ogni spesa e alzando ogni tassa.</p>
+      <p>Ogni regione versa all'Autorità una piccola parte della sua ricchezza, circa lo 0,24% del PIL: all'inizio 27 fondi l'anno. Quei soldi escono dai bilanci degli stati, quindi il loro debito sale un poco. Un fondo vale circa 10 miliardi di dollari del 2026. Per le grandi politiche (sanità, energia, reddito di base) l'Autorità paga la sua quota per lanciarle e coordinarle, il resto lo pagano gli stati e i privati: per questo alcune misure fanno salire anche il debito delle regioni. Le entrate: le entrate crescono se l'economia cresce e calano se una regione cade nell'anarchia, che smette di versare (ma smetti anche di pagare i programmi in quella regione). Con l'inflazione ogni anno tutto costa un po' di più, e le entrate si adeguano con circa un anno di ritardo. Come nella realtà, quando il mondo si arricchisce costano di più anche stipendi, cantieri e programmi: la tecnologia prodotta in serie invece costa sempre meno. Negli scenari «Il secolo decisivo» e «Il Grande Filtro» puoi proporre agli stati dei trattati (dal bilancio, toccando i fondi): passano all'Autorità un compito e i soldi per farlo, con un risparmio perché le cose fatte insieme costano meno. Servono i due terzi degli stati favorevoli: è molto più facile subito dopo una grande crisi mondiale. Si parte senza fondi: le entrate arrivano mese dopo mese. Se i fondi non bastano puoi indebitarti, anche per rispondere a una crisi: paghi il tasso a lungo termine, più un sovrapprezzo che cresce con il debito rispetto alle entrate di un anno: piccolo fino a due anni e mezzo di entrate, poi sempre più alto. Perdi per bancarotta solo se per tre anni gli interessi superano tutto ciò che potresti incassare anche tagliando ogni spesa e alzando ogni tassa.</p>
       <h3>Eventi</h3>
       <p>Crisi ed emergenze compaiono sulla mappa come un segnaposto sulla regione colpita; possono essercene più di uno insieme. Hai un anno di tempo per toccarlo: intanto puoi raccogliere i fondi. Più aspetti, più il segnaposto si gonfia; dopo un anno il tempo si ferma finché non lo tocchi. Toccandolo leggi che cosa succede: puoi scegliere subito tra intervento pieno, una via di mezzo o non fare nulla, oppure rimandare la decisione. Il tempo si ferma anche quando apri un menu.</p>
       <h3>Economia e popolazione</h3>
@@ -852,7 +855,7 @@ const pick = (arr) => arr[Math.floor(rand() * arr.length)];
    Tutti i numeri generali del gioco stanno qui: per ritoccarne uno basta cambiarlo in questa tabella
    e rilanciare node tools/tune.js. I numeri dei singoli interventi stanno nella tabella degli interventi (eff/geff). */
 const P = {
-  baseIncome: 25,        // fondi l'anno nel 2026 nello scenario completo, livello medio; crescono con l'economia
+  baseIncome: 27,        // fondi l'anno nel 2026 nello scenario completo, livello medio; crescono con l'economia
   growCost: 1, growTech: 0.3, aiRelief: 0.25, // i costi crescono con l'economia mondiale (vedi priced); la tecnologia in serie molto meno
   // debito dell'Autorità: nessun tetto; paga il tasso a lungo termine più uno spread che dipende da debito / entrate (vedi authRate)
   stabC: 47.1, stabK: 3.8, // scala dell'indice di stabilità (mondo del 2026 ≈ 45)
@@ -1066,9 +1069,10 @@ const TROPIC = ["wca", "esa", "sa", "sea", "latam"]; // dove la malaria pesa di 
 // crescita nominale del PIL nel 2026 (crescita reale più inflazione, FMI), % [Probabile]
 const NOMG_2026 = { na: 4.5, eu: 3.5, ea: 4.5, sa: 10, sea: 7, mena: 6, latam: 6, wca: 9, esa: 9, ru: 8, oce: 4.5 };
 const DEF_2026 = { na: 6.2, eu: 3.2, ea: 6.8, sa: 7.2, sea: 3.3, mena: 3.0, latam: 5.3, wca: 4.2, esa: 4.8, ru: 2.5, oce: 1.8 };
-/* i contributi all'Autorità (circa lo 0,15% del PIL) escono dai bilanci degli stati: il loro deficit sale di altrettanto
-   (quarto rapporto, 31 ottobre 2026) */
-const CONTRIB_DEF = 0.075;
+/* i contributi all'Autorità escono dai bilanci degli stati: il loro deficit sale (quarto rapporto, 31 ottobre 2026).
+   Dal 6 novembre 2026 i contributi sono circa lo 0,24% del PIL (27 fondi l'anno) invece dello 0,15%: peso aggiornato in proporzione.
+   Con i trattati gli stati versano di più ma smettono di pagare i compiti passati all'Autorità: per loro il saldo non cambia. */
+const CONTRIB_DEF = 0.12;
 const MONSOON = ["sa", "sea", "wca", "esa"]; // dove gli aerosol nella stratosfera possono ridurre le piogge
 const FAMILY_ACTS = ["family", "parentalLeave", "housing", "birthDowry", "natality"];
 const PROMISES = {
@@ -1531,6 +1535,11 @@ const INTERVENTIONS = [
   { id: "receiptLottery", cat: "economia", name: "Lotteria degli scontrini e sconti con la carta", desc: "Chi paga con la carta partecipa a estrazioni a premi e ha un piccolo rimborso: i clienti chiedono lo scontrino.", scope: "region", cost: 2, upkeep: 1, T: 1, ramp: 3,
     pro: "L'economia sommersa cala di circa 1 punto; misura popolare", con: "Costa ogni anno per i premi; effetto piccolo",
     eff: { shadow: -1, unrest: -0.5 } },
+  /* Vigilanza sul credito (6 novembre 2026) [Certo: regole di Basilea III e limiti ai mutui rispetto al valore della casa;
+     [Probabile] rendono le bolle meno grandi al prezzo di un credito un po' più caro] */
+  { id: "creditRules", cat: "economia", name: "Vigilanza sul credito", desc: "Le banche devono tenere più capitale di riserva e non possono prestare troppo rispetto al valore delle case o delle aziende che finanziano.", scope: "region", cost: 3, upkeep: 0.3, T: 2, revocable: true,
+    pro: "Le bolle finanziarie crescono la metà: meno crisi bancarie", con: "Prestiti un po' più cari: crescita leggermente più bassa",
+    eff: { g: -0.03 } },
   { id: "taxHavens", cat: "economia", name: "Lotta ai paradisi fiscali", desc: "Scambio automatico di informazioni tra tutte le banche del mondo e una tassa minima globale sui profitti delle multinazionali.", scope: "region", cost: 5, upkeep: 0.5, T: 3, ramp: 5,
     pro: "Le grandi ricchezze nascoste all'estero tornano a pagare: sommerso giù di circa 1,5 punti ed entrate in più dalle multinazionali", con: "Un po' di capitali scappano: crescita leggermente più bassa",
     eff: { shadow: -1.5, g: -0.05 }, geff: { income: 0.04 } },
@@ -1976,7 +1985,7 @@ const baseOf = (id) => (IBY[id] && IBY[id].base) || id;
 const TAB_OF = { genetica: "genetica", energia: "energia", nucleare: "energia", economia: "economia", demografia: "welfare", societa: "societa", clima: "clima", salute: "sicurezza", sicurezza: "sicurezza", ai: "tecnologia", spazio: "tecnologia" };
 for (const d of INTERVENTIONS) { d.fam = d.cat; d.cat = TAB_OF[d.cat]; }
 /* livello di complessità: 1 facile, 2 medio, 3 difficile e super difficile */
-const TIER2 = ["qCrypto", "qComp", "qIndustry", "phage", "cellAg", "plasticBugs", "bioprint", "robotTax", "sovFund", "ubiMid", "childIncome", "teacherEval", "rooftop", "stratoPlanes", "screening", "rareTherapy", "somaticEdit", "gmCrops", "dnaControl", "geneDrive", "eInvoice", "dataMatch", "receiptLottery", "taxHavens", "amnesty", "eProcure", "assetsPublic", "whistle", "fastCourts", "civilPay", "carbonLaw", "geoeng", "ubiPlus", "pensionIndex", "cashless", "centralBank", "university", "research", "cutStaff", "cutSubsidies", "cutDefense", "cutServices", "robots", "fossilSub", "ubi", "taxRaise", "taxEvasion", "unempBenefit", "housing", "pensionFunds", "socialHousing", "wealthTax", "minWage", "publicJobs", "tariffs", "priceCap", "evCars", "parentalLeave", "ivf", "pensionTax", "birthDowry", "healthcare", "civicService", "cyber", "foodReserve", "forestProtect", "efficiency", "nucInfo", "smr", "automation", "retrain", "family", "natality", "integration", "healthyAging", "surveil", "vaccines", "amr", "dac", "aiCap", "aiOpen", "aiPublic", "align2", "align3", "orbital", "pdef", "pdefWatch", "moonFast", "lunarArchive", "lunarIce", "lunarMining", "police", "disinfo"];
+const TIER2 = ["creditRules", "qCrypto", "qComp", "qIndustry", "phage", "cellAg", "plasticBugs", "bioprint", "robotTax", "sovFund", "ubiMid", "childIncome", "teacherEval", "rooftop", "stratoPlanes", "screening", "rareTherapy", "somaticEdit", "gmCrops", "dnaControl", "geneDrive", "eInvoice", "dataMatch", "receiptLottery", "taxHavens", "amnesty", "eProcure", "assetsPublic", "whistle", "fastCourts", "civilPay", "carbonLaw", "geoeng", "ubiPlus", "pensionIndex", "cashless", "centralBank", "university", "research", "cutStaff", "cutSubsidies", "cutDefense", "cutServices", "robots", "fossilSub", "ubi", "taxRaise", "taxEvasion", "unempBenefit", "housing", "pensionFunds", "socialHousing", "wealthTax", "minWage", "publicJobs", "tariffs", "priceCap", "evCars", "parentalLeave", "ivf", "pensionTax", "birthDowry", "healthcare", "civicService", "cyber", "foodReserve", "forestProtect", "efficiency", "nucInfo", "smr", "automation", "retrain", "family", "natality", "integration", "healthyAging", "surveil", "vaccines", "amr", "dac", "aiCap", "aiOpen", "aiPublic", "align2", "align3", "orbital", "pdef", "pdefWatch", "moonFast", "lunarArchive", "lunarIce", "lunarMining", "police", "disinfo"];
 const TIER3 = ["superhotRock", "he3", "qAI", "fusionResearch", "fusion", "massRobots", "agingResearch", "embryoEdit", "aiBio"]; // particelle riflettenti e legge sulle emissioni ci sono da quando c'è il clima (19 ottobre 2026) // reddito di base e sussidi fossili ora già dal livello 2
 for (const d of INTERVENTIONS) { const b = d.base || d.id; d.tier = TIER3.includes(b) ? 3 : TIER2.includes(b) ? 2 : 1; }
 /* Le etichette scientifiche [Certo], [Probabile], [Ipotesi] servono solo nei commenti e nei documenti: nei testi del gioco si
@@ -2062,7 +2071,7 @@ function costOf(st, d) {
   let c = d.id === "moon" && st.flags.moonPartners ? d.cost - 4 : d.cost;
   if (LUNAR_HALF.includes(d.id) && built(st, "lunarIce")) c /= 2; // propellente e materiali prodotti sulla Luna
   if ((d.base || d.id) === "geothermal" && st.year >= 2035) c *= 0.6; // pozzi sempre più rapidi ed economici [Probabile: IEA 2024]
-  return priced(st, st.G && st.G.cheap && st.G.cheap.includes(d.id) ? Math.ceil(c / 2) : c, d);
+  return priced(st, (st.G && st.G.cheap && st.G.cheap.includes(d.id) ? Math.ceil(c / 2) : c) * trSave(st, d), d);
 }
 /* Effetto Baumol [Probabile]: i programmi fatti di lavoro umano (sanità, scuola, sussidi, pensioni, stipendi pubblici, ricerca)
    costano di più quando crescono i redditi, non solo i prezzi: un infermiere deve guadagnare come gli altri lavoratori, ma non
@@ -2101,7 +2110,7 @@ function upkeepOf(st, d) {
     if (tm && tm.n > 0 && st.year - (tm.y0 || tm.y) >= 5) base *= 0.9;
   }
   if (HEALTH_COST.includes(d.id) && built(st, "pubDrugs")) base *= 0.8;
-  return base * base0 * (k || 1) * (d.wasRegion && base > 0 ? ctrlShare(st) : 1) * (d.perUnit && a ? Math.max(1, a.n) : 1) * ((st.g && st.g.pl) || 1) * (WAGE.has(d.id) ? Math.max(Math.pow(wageIdx(st), 0.6), growK(st, d)) : growK(st, d));
+  return base * base0 * (k || 1) * (d.wasRegion && base > 0 ? ctrlShare(st) : 1) * (d.perUnit && a ? Math.max(1, a.n) : 1) * trSave(st, d) * ((st.g && st.g.pl) || 1) * (WAGE.has(d.id) ? Math.max(Math.pow(wageIdx(st), 0.6), growK(st, d)) : growK(st, d));
 }
 const worldDebt = (st) => { const rs = ctrlRegions(st), t = rs.reduce((a, r) => a + r.gdp, 0) || 1; return rs.reduce((a, r) => a + r.debt * r.gdp, 0) / t; };
 const worldSnow = (st) => { const rs = ctrlRegions(st), t = rs.reduce((a, r) => a + r.gdp, 0) || 1; return rs.reduce((a, r) => a + snowball(r, st) * r.gdp, 0) / t; };
@@ -2277,7 +2286,7 @@ function logNews(st, text, kind, quiet) {
 }
 
 // effetto palla di neve: (tasso reale a lungo termine della regione − crescita) × debito, in punti di prodotto l'anno
-const regionRate = (r, st) => st.g.longR - st.g.infl + Math.max(0, r.debt - 100) * 0.01;
+const regionRate = (r, st) => st.g.longR - st.g.infl + Math.max(0, r.debt - 100) * 0.01 * (trOn(st, "trFiscal") ? 0.4 : 1); // unione fiscale: debito comune [Certo: titoli europei 0,7-1,8 punti sotto gli stati più indebitati]
 const snowball = (r, st) => (regionRate(r, st) - r.growth) * r.debt / 100;
 const PENS_K = 140; // peso del welfare per ogni anziano rispetto ai lavoratori
 // crescita della produttività per lavoratore (% l'anno)
@@ -2326,6 +2335,147 @@ function riskLevel(v, thresholds) {
   if (v < a) return 0; if (v < b) return 1; if (v < c) return 2; return 3;
 }
 const RISK_LABELS = ["Basso", "Moderato", "Alto", "Critico"];
+
+/* ---------- ciclo economico (6 novembre 2026, richiesta di Guido) ----------
+   La crescita di lungo periodo viene da produttività, lavoratori e tecnologia; le recessioni sono cadute di 1-2 anni sotto
+   quella tendenza, con cause precise. Dati reali [Certo: Kose, Sugawara e Terrones 2020]: 5 recessioni globali dal 1950
+   (1975, 1982, 1991, 2009, 2020), una ogni 14-16 anni; crolli di borsa oltre il 30% uno ogni 10-12 anni.
+   Cause e probabilità l'anno [Probabile]: bolla finanziaria (cresce negli anni di boom con tassi bassi e nelle corse a una
+   nuova tecnologia, come l'AI: ferrovie 1840, radio 1929, internet 2000), shock energetico (in proporzione ai fossili),
+   stretta contro l'inflazione, debito degli stati, disoccupazione da robot senza reddito, shock esterni (pandemie, guerre). */
+const REC_GAP = 3; // anni minimi tra due recessioni
+const REC_INFO = {
+  fin: { name: "Bolla finanziaria", text: (st) => st.recAI ? "La corsa ai titoli dell'intelligenza artificiale si ferma di colpo: le aziende valevano molto più di quanto guadagnavano. Le banche che avevano prestato per comprarle vacillano e il credito si blocca in mezzo mondo." : "Dopo anni di crediti facili e prezzi gonfiati di case e azioni, una grande banca fallisce. Il credito si blocca in mezzo mondo: imprese e famiglie smettono di spendere." },
+  energia: { name: "Shock energetico", text: () => "Un blocco delle forniture fa esplodere il prezzo di petrolio e gas. Produrre e trasportare costa di più ovunque: i prezzi salgono mentre l'economia frena, soprattutto dove si usano più fossili." },
+  tassi: { name: "Stretta contro l'inflazione", text: () => "Per fermare l'inflazione i tassi sono saliti molto: mutui e prestiti costano troppo e imprese e famiglie tagliano le spese." },
+  debito: { name: "Crisi del debito degli stati", text: () => "Gli investitori non si fidano più dei conti di molti stati: i tassi sui titoli di Stato salgono e le banche piene di quei titoli vacillano." },
+  domanda: { name: "Crisi di domanda da automazione", text: () => "Robot e AI producono sempre di più, ma milioni di persone senza lavoro e senza reddito non possono comprare: le imprese vendono meno e licenziano ancora." },
+  shock: { name: "Shock esterno", text: () => "La crisi in corso ferma fabbriche, commerci e viaggi in tutto il mondo: la produzione crolla di colpo." },
+};
+const recIs = (c) => (st) => (st.recCause || "fin") === c;
+const recText = (st) => REC_INFO[st.recCause || "fin"].text(st);
+// crisi che spesso portano con sé una recessione mondiale (probabilità)
+const ECON_SHOCK = { pandemic: 0.9, epidemic: 0.3, nucCrisis: 0.3, aiIncident: 0.2, cometPanic: 0.3 };
+const worldGrowth = (st) => { const rs = ctrlRegions(st), t = rs.reduce((a, r) => a + r.gdp, 0) || 1; return rs.reduce((a, r) => a + r.growth * r.gdp, 0) / t; };
+function econRisk(st) {
+  if (!st.regions || (st.L && st.L.tutorial)) return { total: 0, parts: [], crash: 0 };
+  const rs = ctrlRegions(st), n = Math.max(1, rs.length);
+  const fos = avgOf(st, "fossil"), debt = avgOf(st, "debt"), rr = st.g.rate - st.g.infl, pain = rs.reduce((a, r) => a + unempPain(r), 0) / n, b = st.bubble || 0;
+  const parts = [
+    { id: "fin", name: "Bolla finanziaria", p: 0.022 + 0.003 * b },
+    { id: "energia", name: "Dipendenza da petrolio e gas", p: 0.03 * fos / 80 * (st.g.tension > 55 ? 1.5 : 1) },
+    { id: "tassi", name: "Tassi alti contro l'inflazione", p: clamp(0.015 * (st.g.infl - 4), 0, 0.05) + clamp(0.012 * (rr - 2), 0, 0.03) },
+    { id: "debito", name: "Debito degli stati", p: clamp(0.0015 * (debt - 100), 0, 0.04) },
+    { id: "domanda", name: "Disoccupati da robot senza reddito", p: clamp(0.004 * (pain - 8), 0, 0.04) },
+  ];
+  const k = st.D.ev || 1;
+  parts.forEach((x) => (x.p *= k));
+  return { total: parts.reduce((a, x) => a + x.p, 0), parts, crash: (0.08 + 0.005 * b) * k };
+}
+function startRecession(st, cause, delay) {
+  st.recY = st.year; st.recCause = cause; st.recAI = cause === "fin" && st.g.aiCap > 40 && st.g.aiCap < 160 && sysOn(st, "ai");
+  if (cause === "fin") st.bubble = (st.bubble || 0) * 0.3;
+  if (cause === "energia") { st.g.piShock += 1.5 * avgOf(st, "fossil") / 80; st.g.oil = (st.g.oil || 0) + 1; }
+  (st.econQ || (st.econQ = [])).push({ id: "recession", at: st.year * 12 + st.month + (delay || 0) });
+}
+const recOk = (st) => !(st.L && st.L.tutorial) && st.year - (st.recY || -99) >= REC_GAP;
+function econTick(st, dt) {
+  if (st.L && st.L.tutorial) return;
+  // la bolla cresce negli anni di boom, con tassi bassi e nelle corse a una nuova tecnologia; la vigilanza sul credito la frena
+  const rr = st.g.rate - st.g.infl, wg = worldGrowth(st);
+  const ai = sysOn(st, "ai") && st.g.aiCap > 40 && st.g.aiCap < 160 ? 0.2 : 0;
+  st.bubble = Math.min(15, (st.bubble || 0) + dt * (0.3 + (wg > 3 ? 0.3 : 0) + (rr < 0.5 ? 0.3 : 0) + ai) * (built(st, "creditRules") ? 0.5 : 1) * (st.govId === "market" ? 1.3 : 1));
+  const R = econRisk(st), now = st.year * 12 + st.month;
+  if (recOk(st) && rand() < 1 - Math.pow(1 - Math.min(0.5, R.total), dt)) {
+    let x = rand() * R.total, c = R.parts[0].id;
+    for (const q of R.parts) { if (x < q.p) { c = q.id; break; } x -= q.p; }
+    startRecession(st, c, 0);
+  } else if (st.year - (st.crashY || -99) >= 3 && rand() < 1 - Math.pow(1 - R.crash, dt)) {
+    // crollo di borsa: a volte resta in borsa (1987), con una bolla grande trascina l'economia (1929, 2008)
+    st.crashY = st.year; st.econQ = st.econQ || []; st.econQ.push({ id: "crash", at: now });
+    if ((st.bubble || 0) > 6 && rand() < 0.5 && recOk(st)) startRecession(st, "fin", 3);
+    else st.bubble = (st.bubble || 0) * 0.5;
+  }
+  if (!st.forceEv && st.econQ && st.econQ.length && st.econQ[0].at <= now) st.forceEv = { id: st.econQ.shift().id, r: null };
+}
+// dopo una grande crisi mondiale spesso arriva anche la recessione (Covid 2020); e si apre una finestra per i trattati
+function afterWorldCrisis(st, id) {
+  if (ECON_SHOCK[id] && recOk(st) && rand() < ECON_SHOCK[id]) startRecession(st, "shock", 2);
+  if (WORLD_CRISIS.includes(id) && trAvail(st) && TREATIES.some((t) => !trWhy(st, t.id))) {
+    const fresh = !(st.trWin && st.trWin >= st.year);
+    st.trWin = st.year + 3; st.trWinBy = evTitle(EBY[id], st, null);
+    if (fresh) note(st, "report", "socialPact", "Gli stati sono pronti a cooperare di più", `Dopo «${st.trWinBy}» molti governi chiedono che l'Autorità abbia più compiti e più risorse. Fino al ${st.trWin} un nuovo trattato ha molti più favorevoli: si propone dal bilancio dell'Autorità (tocca i fondi).`);
+  }
+}
+/* ---------- trattati dell'Autorità (6 novembre 2026, richiesta di Guido) ----------
+   All'inizio gli stati versano all'Autorità circa lo 0,22% del PIL. Con un trattato le passano un compito e i soldi per farlo,
+   come è successo all'Unione europea (da 0,03% a circa 1% del PIL in sessant'anni, sempre in cambio di compiti) [Certo].
+   Fare insieme costa meno che undici volte separati: 15-30% nella difesa, 15-40% negli acquisti comuni [Probabile]. Per questo
+   le entrate dell'Autorità crescono molto, ma crescono quasi altrettanto le sue spese: il guadagno netto è il risparmio.
+   Decisione mondiale con i due terzi degli stati favorevoli (come i trattati globali: soglie del 55-66%) [Certo]. Dopo una crisi
+   mondiale che colpisce tutti (guerra mondiale → ONU, Covid → debito comune europeo) i favorevoli salgono di 10-20 punti per
+   qualche anno [Certo]; divisioni e malcontento li fanno scendere. Le normali crisi economiche non bastano. */
+const TR_SHARE0 = 0.24, TR_EFF = 0.15, TR_NEED = 66, TR_WIN = 15;
+const TREATIES = [
+  { id: "trClimate", name: "Trattato per il clima e l'energia", share: 0.35, base: 54, cats: ["energia", "clima"], save: 0.15,
+    task: "Le reti elettriche tra continenti, la ricerca sull'energia e la difesa dalle catastrofi climatiche passano all'Autorità.",
+    gain: "Interventi di energia e clima: 15% in meno, perché si comprano e si costruiscono insieme" },
+  { id: "trDefense", name: "Trattato per la difesa comune", share: 0.6, base: 42, needs: "trClimate", cats: ["sicurezza"], save: 0.2,
+    task: "Acquisti di armi, comandi e controlli sulle armi passano all'Autorità: un solo sistema d'arma invece di undici.",
+    gain: "Interventi di sicurezza: 20% in meno; meno tensione tra le potenze" },
+  { id: "trFiscal", name: "Unione fiscale", share: 1.0, base: 34, needs: "trDefense", cats: [], save: 0, noGov: ["market"],
+    task: "Una parte del welfare e un debito comune passano all'Autorità.",
+    gain: "Gli stati con molto debito si finanziano come gli altri: interessi più bassi e meno rischio di crisi del debito" },
+];
+const TBY = Object.fromEntries(TREATIES.map((t) => [t.id, t]));
+const trOn = (st, id) => !!(st.treaties && st.treaties[id]);
+const trShare = (st) => TREATIES.reduce((a, t) => (trOn(st, t.id) ? Math.max(a, t.share) : a), TR_SHARE0);
+const trGross = (st) => trShare(st) / TR_SHARE0 - 1; // quote in più versate dagli stati, rispetto ai contributi di base
+const trNet = (st) => trGross(st) * TR_EFF; // il guadagno netto: il risparmio del fare insieme
+const trSave = (st, d) => { let k = 1; for (const t of TREATIES) if (trOn(st, t.id) && t.cats.includes(d.fam)) k *= 1 - t.save; return k; };
+const trAvail = (st) => !!(st.L && st.L.tier === 3 && !st.L.tutorial);
+function trWhy(st, id) {
+  const t = TBY[id];
+  if (!trAvail(st)) return "I trattati ci sono negli scenari «Il secolo decisivo» e «Il Grande Filtro»";
+  if (trOn(st, id)) return "In vigore";
+  if (t.noGov && t.noGov.includes(st.govId)) return "Non si può con il governo «" + st.G.name + "»";
+  if (t.needs && !trOn(st, t.needs)) return "Serve prima «" + TBY[t.needs].name + "»";
+  if (st.trBan && st.trBan[id] > st.year) return "Respinto: si potrà riproporre dal " + st.trBan[id];
+  return null;
+}
+function trDrivers(st, id) {
+  const rs = ctrlRegions(st), P0 = rs.reduce((a, r) => a + r.pop, 0) || 1, avg = (f) => rs.reduce((a, r) => a + f(r) * r.pop, 0) / P0;
+  const out = [], add = (name, v) => { if (Math.abs(v) >= 0.5) out.push({ name, v }); };
+  add("Stabilità del mondo", (worldStab(st) - 50) * 0.5);
+  if (st.trWin && st.trWin >= st.year) add("Dopo «" + st.trWinBy + "» gli stati vogliono più cooperazione", TR_WIN);
+  add("Divisioni e sovranismo", -Math.max(0, avg((r) => r.polar) - 40) * 0.3);
+  add("Malcontento", -Math.max(0, avg((r) => r.unrest) - 45) * 0.3);
+  if (id === "trFiscal") add("Gli stati con poco debito non vogliono pagare per gli altri", -Math.max(0, avg((r) => r.debt) - 90) * 0.1);
+  return out;
+}
+const trSupport = (st, id) => clamp(TBY[id].base + trDrivers(st, id).reduce((a, d) => a + d.v, 0), 3, 95);
+const TR_CAMPAIGNS = [{ cost: 4, gain: 5, name: "Negoziato diplomatico" }, { cost: 12, gain: 10, name: "Grande conferenza mondiale" }];
+function trChance(st, id, k) { const v = trSupport(st, id) + (k ? TR_CAMPAIGNS[k - 1].gain : 0); return clamp((v + REF_NOISE - TR_NEED) / (2 * REF_NOISE), 0, 1); }
+function trInfo(st, id) { return { support: trSupport(st, id), drivers: trDrivers(st, id), chances: TR_CAMPAIGNS.map((c, i) => ({ ...c, cost: priced(st, c.cost), p: trChance(st, id, i + 1) })) }; }
+function proposeTreaty(st, id, k = 1) {
+  const why = trWhy(st, id); if (why) return why;
+  const c = TR_CAMPAIGNS[k - 1], t = TBY[id];
+  st.funds -= priced(st, c.cost);
+  const vote = trSupport(st, id) + c.gain + (rand() * 2 - 1) * REF_NOISE;
+  if (vote > TR_NEED) {
+    (st.treaties || (st.treaties = {}))[id] = st.year;
+    if (id === "trDefense") st.g.tension = Math.max(0, st.g.tension - 5);
+    logNews(st, `Approvato con il ${Math.round(vote)}% degli stati: «${t.name}». Gli stati versano all'Autorità il ${fmtPct(t.share)} del PIL.`, "done");
+    return null;
+  }
+  (st.trBan || (st.trBan = {}))[id] = st.year + 5;
+  logNews(st, `«${t.name}» respinto: favorevoli il ${Math.round(vote)}% degli stati, ne servivano due terzi. Si potrà riproporre dal ${st.year + 5}.`, "bad");
+  return null;
+}
+const fmtPct = (x) => String(x).replace(".", ",") + "%";
+// grandi crisi mondiali, che colpiscono tutti e non sono colpa di nessuno: aprono una finestra di tre anni per i trattati
+const WORLD_CRISIS = ["pandemic", "epidemic", "nucCrisis", "aiIncident", "cometPanic"];
+
 function riskBoard(st) {
   const k = risks(st);
   return [
@@ -2640,17 +2790,35 @@ const EVENTS = [
       { label: "Razionamento e accelerazione delle rinnovabili", cost: 4, out: "Malcontento dove si usano più fossili, ma meno fossili", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockU += 6 * r.fossil / 80; shiftClean(r, 3, "renew"); }) },
       { label: "Non fare nulla", cost: 0, out: "Crescita giù, malcontento", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockG -= 1 * r.fossil / 80; r.shockU += 8 * r.fossil / 80; }) },
     ] },
-  { id: "recession", scope: "global", cat: "Economia", title: "Recessione globale",
-    p: (st) => 0.04 + Math.max(0, avgOf(st, "debt") - 100) * 0.002,
-    text: () => pick([
-      "Il commercio mondiale si contrae. Le imprese tagliano gli investimenti e la disoccupazione sale.",
-      "Il crollo di una grande banca blocca il credito in mezzo mondo. Fabbriche e cantieri si fermano.",
-      "I prezzi delle materie prime crollano e trascinano con sé le economie che le esportano.",
-    ]),
+  /* Recessione globale (rivista il 6 novembre 2026, richiesta di Guido): arriva dal ciclo economico (econTick), non dalla fila
+     degli eventi, quindi può capitare insieme ad altre crisi. Ha sempre una causa, e le risposte che funzionano dipendono
+     dalla causa [Certo: moltiplicatori fiscali 1,5-2 nelle crisi di domanda e finanziarie, 0,5-0,8 in tempi normali, quasi
+     solo inflazione negli shock energetici (Auerbach e Gorodnichenko 2012; Blanchard e Leigh 2013); banche ripulite in fretta
+     (Svezia 1992) contro banche zombie (Giappone anni '90); austerità in recessione peggiora il calo]. */
+  { id: "recession", scope: "global", cat: "Economia", title: (st) => "Recessione globale: " + REC_INFO[st.recCause || "fin"].name.toLowerCase(),
+    p: () => 0,
+    text: (st) => recText(st),
     choices: [
-      { label: "Piano di stimolo", cost: 10, out: "Recessione breve e poca disoccupazione; un po' di inflazione", fx: (st) => { st.g.piShock += 0.6; ctrlRegions(st).forEach((r) => (r.shockG -= 0.3)); } },
-      { label: "Aiuti mirati", cost: 5, out: "Recessione moderata", fx: (st) => { st.g.piShock -= 0.3; ctrlRegions(st).forEach((r) => { r.shockG -= 1.2; r.shockU += 2; }); } },
-      { label: "Non fare nulla", cost: 0, out: "Crescita molto più bassa per alcuni anni, disoccupazione", fx: (st) => { st.g.piShock -= 0.8; ctrlRegions(st).forEach((r) => { r.shockG -= 2.4; r.shockU += 8; r.unemp += 1.5; }); } },
+      { ok: recIs("fin"), label: "Ripulire subito le banche e sostenere la domanda", cost: 12, out: "Recessione breve: le banche malate si risanano in fretta e il credito riparte. Un po' di rabbia per i salvataggi", fx: (st) => { st.bubble = 0; ctrlRegions(st).forEach((r) => { r.shockG -= 0.4; r.polar += 1; }); } },
+      { ok: recIs("fin"), label: "Solo un piano di stimolo", cost: 8, out: "La spesa pubblica attenua il calo, ma le banche malate frenano il credito per anni", fx: (st) => { st.g.piShock += 0.3; ctrlRegions(st).forEach((r) => { r.shockG -= 1.4; r.shockU += 3; }); } },
+      { ok: recIs("fin"), label: "Salvare solo le banche più grandi", cost: 4, out: "Crisi più lunga e molta rabbia: i soldi pubblici vanno a chi l'ha causata", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockG -= 1.8; r.shockU += 5; r.polar += 3; }) },
+      { ok: recIs("fin"), label: "Non fare nulla", cost: 0, out: "Fallimenti a catena: recessione profonda e lunga, disoccupazione", fx: (st) => { st.g.piShock -= 1; ctrlRegions(st).forEach((r) => { r.shockG -= 3.2; r.shockU += 10; r.unemp += 2; }); } },
+      { ok: recIs("energia"), label: "Aiuti mirati alle famiglie povere e risparmio di energia", cost: 5, out: "Protegge chi soffre di più senza far correre i prezzi", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockG -= 1.0 * r.fossil / 80; r.shockU += 2; }) },
+      { ok: recIs("energia"), label: "Bollette bloccate per tutti", cost: 12, out: "Meno malcontento, ma si consuma come prima e i prezzi corrono", fx: (st) => { st.g.piShock += 1.2; ctrlRegions(st).forEach((r) => { r.shockG -= 0.9 * r.fossil / 80; r.shockU += 1; }); } },
+      { ok: recIs("energia"), label: "Piano di stimolo", cost: 10, out: "Serve a poco: manca l'energia, non la voglia di spendere. Soprattutto inflazione", fx: (st) => { st.g.piShock += 1.5; ctrlRegions(st).forEach((r) => { r.shockG -= 1.0 * r.fossil / 80; r.shockU += 3; }); } },
+      { ok: recIs("energia"), label: "Non fare nulla", cost: 0, out: "Crescita giù e malcontento, soprattutto dove si usano più fossili", fx: (st) => { st.g.piShock += 0.6; ctrlRegions(st).forEach((r) => { r.shockG -= 1.7 * r.fossil / 80; r.shockU += 8 * r.fossil / 80; }); } },
+      { ok: recIs("tassi"), label: "Proteggere chi perde il lavoro e lasciar lavorare la banca centrale", cost: 5, out: "Recessione moderata, ma l'inflazione scende davvero", fx: (st) => { st.g.piShock -= 0.6; ctrlRegions(st).forEach((r) => { r.shockG -= 1.0; r.shockU += 2; }); } },
+      { ok: recIs("tassi"), label: "Piano di stimolo", cost: 10, out: "Il calo si attenua, ma l'inflazione torna a salire: la stretta è stata inutile", fx: (st) => { st.g.piShock += 1.2; ctrlRegions(st).forEach((r) => (r.shockG -= 0.5)); } },
+      { ok: recIs("tassi"), label: "Non fare nulla", cost: 0, out: "L'inflazione scende, ma con molta disoccupazione", fx: (st) => { st.g.piShock -= 1; ctrlRegions(st).forEach((r) => { r.shockG -= 1.5; r.shockU += 7; r.unemp += 1; }); } },
+      { ok: recIs("debito"), label: "Garanzia comune sul debito degli stati", cost: 10, out: "I tassi scendono e il panico rientra; qualche divisione su chi paga per chi", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockG -= 0.5; r.polar += 1; }) },
+      { ok: recIs("debito"), label: "Austerità: tagli e tasse per rassicurare i mercati", cost: 0, out: "I mercati si calmano ma la recessione si aggrava e cresce la rabbia", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockG -= 2.2; r.shockU += 9; r.polar += 2; r.debt -= 2; }) },
+      { ok: recIs("debito"), label: "Non fare nulla", cost: 0, out: "Tassi alti, banche in difficoltà e recessione", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockG -= 2.0; r.shockU += 7; r.debt += 3; }) },
+      { ok: recIs("domanda"), label: "Un reddito d'emergenza per chi ha perso il lavoro", cost: 10, out: "La gente torna a comprare: recessione breve", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockG -= 0.5; r.shockU += 1; }) },
+      { ok: recIs("domanda"), label: "Incentivi agli investimenti delle imprese", cost: 8, out: "Le imprese comprano altri robot: la produzione riparte, i consumi no", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockG -= 1.3; r.shockU += 5; }) },
+      { ok: recIs("domanda"), label: "Non fare nulla", cost: 0, out: "Meno vendite, altri licenziamenti: la crisi si avvita", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockG -= 2.4; r.shockU += 10; r.unemp += 1.5; }) },
+      { ok: recIs("shock"), label: "Cassa integrazione e aiuti alle imprese", cost: 10, out: "I posti di lavoro restano: quando la crisi passa l'economia riparte in fretta", fx: (st) => { st.g.piShock += 0.5; ctrlRegions(st).forEach((r) => { r.shockG -= 0.7; r.shockU += 1; }); } },
+      { ok: recIs("shock"), label: "Aiuti mirati solo ai più colpiti", cost: 5, out: "Recessione moderata", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockG -= 1.5; r.shockU += 4; }) },
+      { ok: recIs("shock"), label: "Non fare nulla", cost: 0, out: "Imprese chiuse per sempre e disoccupazione: la ripresa sarà lenta", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockG -= 2.8; r.shockU += 9; r.unemp += 2; }) },
     ] },
   { id: "autoUnemp", scope: "region", cat: "Economia", title: "Disoccupazione da automazione",
     p: (st, r) => (lvl(r, "automation") > 0 || st.g.aiCap > 55) && r.unemp > 9 ? 0.05 : 0,
@@ -3021,15 +3189,16 @@ const EVENTS = [
       { label: "Non fare nulla", cost: 0, out: "Arsenali più grandi, rischio nucleare più alto", fx: (st) => { st.g.arsenal += 25; st.g.tShock += 4; } },
     ] },
   { id: "crash", onFire: (st) => { st.g.piShock += -1; }, scope: "global", cat: "Economia", title: "Crollo delle borse",
-    p: (st) => 0.015 + Math.max(0, avgOf(st, "debt") - 110) * 0.001,
+    p: () => 0, // arriva dal ciclo economico (econTick): circa uno ogni 10-12 anni, più probabile con una bolla
     text: () => pick([
       "In tre giorni le borse perdono un terzo del loro valore. I fondi pensione bruciano anni di risparmi.",
       "Un grande fondo d'investimento fallisce e trascina con sé decine di banche.",
     ]),
     choices: [
-      { label: "Garanzia sui depositi e liquidità", cost: 12, out: "Il panico rientra", fx: (st) => ctrlRegions(st).forEach((r) => (r.shockG -= 0.3)) },
-      { label: "Salvare solo le banche più grandi", cost: 5, out: "Crisi più lunga, rabbia per i salvataggi", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockG -= 1; r.polar += 3; }) },
-      { label: "Non fare nulla", cost: 0, out: "Recessione e risparmi perduti", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockG -= 2; r.shockU += 8; r.pension += 2; }) },
+      // un crollo di borsa da solo pesa poco sull'economia (1987); la recessione arriva solo con una bolla grande (vedi econTick)
+      { label: "Garanzia sui depositi e liquidità alle banche", cost: 6, out: "Il panico rientra in poche settimane", fx: (st) => ctrlRegions(st).forEach((r) => (r.shockG -= 0.1)) },
+      { label: "Salvare solo le banche più grandi", cost: 3, out: "Il panico rientra più piano; rabbia per i salvataggi", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockG -= 0.4; r.polar += 2; }) },
+      { label: "Non fare nulla", cost: 0, out: "Corse agli sportelli e risparmi perduti: crescita più bassa per un po'", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockG -= 0.8; r.shockU += 4; r.pension += 1; }) },
     ] },
   { id: "tradeWar", onFire: (st) => { st.g.piShock += 0.8; }, scope: "global", cat: "Economia", title: "Guerra commerciale",
     p: (st) => (built(st, "tariffs") ? 0.06 : 0.02) * (st.g.tension > 50 ? 1.5 : 1),
@@ -3488,6 +3657,7 @@ function resolveEvent(st, pending, i) {
   const cd = CRISIS_DEBT[ev.id];
   if (cd && !ev.good) { if (r) r.debt += cd; else ctrlRegions(st).forEach((x) => (x.debt += cd)); }
   if (ev.once) st.flags["done_" + ev.id] = true;
+  afterWorldCrisis(st, ev.id);
   logNews(st, r && !evTitle(ev, st, r).includes(r.name) ? `${evTitle(ev, st, r)} (${r.name}). La tua decisione: «${c.label.replace(/\.$/, "")}».` : `${evTitle(ev, st, r)}. La tua decisione: «${c.label.replace(/\.$/, "")}».`, i === ch.length - 1 && ch.length > 2 && !ev.good ? "bad" : "info", true);
   if (st.comet) st.log[0].comet = true;
   return null;
@@ -3783,6 +3953,7 @@ function tick(st) {
     if (d.geff) applyEff(d.geff, GEFF_KEY, gm, k);
     if (d.fx && !d.wasRegion) d.fx(null, k, null, st, gm, st.acts[id]);
   }
+  gm.income += trNet(st); // trattati: il risparmio dei compiti fatti insieme
   for (const id in st.regions) {
     const r = st.regions[id];
     const m = M0();
@@ -4095,6 +4266,7 @@ function tick(st) {
 
   /* Avviso elettorale obbligatorio (6 novembre 2026, richiesta di Guido): nessuna regione può uscire senza che il giocatore
      abbia potuto scegliere se finanziare la campagna. L'avviso arriva sempre nell'anno prima del voto se c'è un rischio. */
+  econTick(st, dt);
   if (st.G.elections && !st.forceEv && !st.over) for (const r of ctrlRegions(st)) {
     if (r.elY === st.year + 1 && r.warnY !== r.elY && popRisk(st, r) >= 10) { r.warnY = r.elY; r.popPromise = popPromise(st); st.forceEv = { id: "electionRisk", r: r.id }; break; }
   }
@@ -4288,6 +4460,7 @@ function budget(st) {
   }
   if (loss > 0.001) inc.push({ name: "Tasse sul lavoro perse per i robot", v: -raw * (1 + (st.gm ? st.gm.income : 0)) * loss, loss: true });
   if (pay > 0.005) inc.push({ name: "Ritorni dei programmi spaziali", v: pay });
+  if (trGross(st) > 0) { inc.push({ name: "Quote degli stati per i compiti dei trattati", v: raw * trGross(st) * (1 - loss) }); out.push({ name: "Compiti passati all'Autorità dai trattati", v: raw * (trGross(st) - trNet(st)) * (1 - loss) }); }
   if (st.genShare > 0) inc.push({ name: "Settore del potenziamento genetico", v: raw * st.genShare * (1 - loss) });
   for (const p of st.prog) { const d = IBY[p.id]; if (d.buildUpkeep) out.push({ name: d.name + " (cantiere)", v: priced(st, d.buildUpkeep), id: d.id }); }
   if ((st.interest || 0) > 0.005) out.push({ name: "Interessi sul debito dell'Autorità", v: st.interest });
@@ -4368,7 +4541,7 @@ function loadState(txt) {
 
 if (typeof module !== "undefined") module.exports = {
   P, PROMISES, pensPoverty, polarCauses, budget, incomeGainOf, amnestyYield, incomeSupport, robotCapture, popLossAge, bioCover, aiTerror, privatePens, WAGE, wageIdx, SHADOW0, taxBase, shadowW, OLD_LEVEL, DISCOVERIES, evTitle, RPROF, priced, eventCost, authRate, maxSurplus, bankPreview, co2Gross, worldBirths, clampRate, snowball, regionRate, co2Gt, GDP_2026, CO2_2026, DIFF, LEVELS, LBY, GOVS, GBY, sysOn, REGIONS, RBY, INTERVENTIONS, IBY, CATS, EVENTS, EBY, ENDINGS, STABLE_YEARS, RISK_LABELS,
-  reconquer, reconWhy, reconChance, RECON_COST, RECON_T, needsRef, refInfo, refSupport, refDrivers, refChance, runReferendum, popRisk, mediate, MEDIATION_COST, evChoices, LOW_STAB, LOW_YEARS, ANOMALY,
+  econRisk, REC_INFO, trAvail, incomeParts, TREATIES, TBY, trOn, trShare, trWhy, trInfo, trSupport, trChance, proposeTreaty, trGross, trNet, TR_NEED, TR_SHARE0, reconquer, reconWhy, reconChance, RECON_COST, RECON_T, needsRef, refInfo, refSupport, refDrivers, refChance, runReferendum, popRisk, mediate, MEDIATION_COST, evChoices, LOW_STAB, LOW_YEARS, ANOMALY,
   newGame, tick, EV_WARN, advise, preview, ctrlShare, available, anarchyNear, saveState, loadState, honors, endingText, costOf, upkeepOf, built, startIntervention, payoffNow, stabParts, stabWeak, stabNow, worldStab, unrestCauses, STAB_PARTS, WIN_WORLD, canStart, parentOk, TREE, resolveEvent, revoke, stability, riskBoard, risks, emissions, worldPop, lvl, setSeed, rand,
 };
 
@@ -6555,7 +6728,7 @@ const ICON_OF = {
   nucPrivate2: "tower", nucPrivate3: "atom", fusion2: "torus", dac2: "recycle",
   fossilSub: "fuel", carbonTax: "smoke", renew: "sun", grid: "battery", efficiency: "bulb", nuclear: "i-nucleare", nucInfo: "megaphone", carbonLaw: "treeTech", cashless: "card", pensionIndex: "seesaw", smr: "tower", nucAgency: "shieldAtom", nucPrivate: "contract", fusionResearch: "torus", fusion: "fusion", priceCap: "plug", evCars: "car",
   centralBank: "rateCoin", university: "cap", research: "microscope", invest: "bridge", austerity: "scissors", cutStaff: "personMinus", cutSubsidies: "factoryDown", cutDefense: "shieldMinus", cutServices: "hospital", automation: "gear", robots: "robot", retrain: "wrench", ubi: "coins", debtRestr: "handshake", develop: "sprout",
-  taxRaise: "percent", wealthTax: "diamond", taxEvasion: "magnifier", eInvoice: "newspaper", dataMatch: "puzzle", receiptLottery: "gift", taxHavens: "vault", amnesty: "dollarCut", eProcure: "contract", assetsPublic: "house", whistle: "megaphone", fastCourts: "gavel", civilPay: "coins", unempBenefit: "umbrella", minWage: "wallet", publicJobs: "hardhat", tariffs: "crate", privat: "tag",
+  taxRaise: "percent", wealthTax: "diamond", taxEvasion: "magnifier", eInvoice: "newspaper", dataMatch: "puzzle", receiptLottery: "gift", taxHavens: "vault", creditRules: "lock", amnesty: "dollarCut", eProcure: "contract", assetsPublic: "house", whistle: "megaphone", fastCourts: "gavel", civilPay: "coins", unempBenefit: "umbrella", minWage: "wallet", publicJobs: "hardhat", tariffs: "crate", privat: "tag",
   retire: "clock", contrib: "piggy", natality: "baby", family: "family", migration: "plane", integration: "puzzle", healthyAging: "heart", housing: "house", parentalLeave: "stroller", ivf: "dna", pensionFunds: "vault", pensionTax: "chartUp", birthDowry: "gift", healthcare: "i-salute",
   transparency: "eye", anticorr: "gavel", assemblies: "people", disinfo: "newspaper", police: "badge", education: "school", socialHousing: "buildings", civicService: "hands",
   adapt: "waves", agri: "wheat", reforest: "tree", dac: "fan", geoeng: "cloud", foodReserve: "silo", forestProtect: "pine",
@@ -7085,7 +7258,7 @@ const GLOSS = {
   ecost: { t: "Costo dell'energia", x: "Il prezzo medio dell'energia per famiglie e imprese (2026 = 100). Scende con nucleare, rinnovabili e fonti diverse; sale con le crisi del petrolio. L'energia economica rende le imprese più produttive." },
   authDebt: { t: "Debito dell'Autorità", x: "Se spendi più dei fondi che hai, l'Autorità si indebita e paga interessi ogni anno. Il tasso dipende da quanti anni di entrate servirebbero per ripagare il debito: fino a un anno nessun sovrapprezzo, poi sale piano, e oltre due anni e mezzo sale sempre più in fretta (i mercati vanno nel panico). Se il mondo è instabile i mercati chiedono ancora di più. Perdi solo se per tre anni gli interessi superano tutto ciò che potresti incassare anche tagliando ogni spesa." },
   saldo: { t: "Saldo annuo", x: "È quanto crescono i fondi dell'Autorità in un anno: le entrate, meno i costi annui dei programmi attivi, meno gli interessi se l'Autorità è in debito. Cambia nel tempo: le entrate seguono l'economia e i prezzi, i costi dei programmi seguono i prezzi e, per quelli fatti di lavoro umano, gli stipendi. Tocca il saldo per vedere entrate e spese una per una." },
-  funds: { t: "Fondi", x: "Un fondo vale circa 10 miliardi di dollari del 2026: all'inizio gli stati versano all'Autorità circa 17 fondi l'anno, lo 0,15% del PIL mondiale. Per le grandi politiche l'Autorità paga la sua quota, il resto lo pagano stati e privati. Con l'inflazione tutto costa un po' di più ogni anno, e anche le entrate crescono." },
+  funds: { t: "Fondi", x: "Un fondo vale circa 10 miliardi di dollari del 2026: all'inizio gli stati versano all'Autorità circa 27 fondi l'anno, lo 0,24% del PIL mondiale; con i trattati la quota sale. Per le grandi politiche l'Autorità paga la sua quota, il resto lo pagano stati e privati. Con l'inflazione tutto costa un po' di più ogni anno, e anche le entrate crescono." },
   shadow: { t: "Economia sommersa", x: "È la parte dell'economia che sfugge al fisco: lavoro nero, vendite senza scontrino, redditi nascosti. Va dall'8% del PIL in Nord America a quasi il 40% in Africa. Le tasse si pagano solo sulla parte emersa: ridurre il sommerso fa salire le entrate senza alzare le tasse." },
   wellbeing: { t: "Benessere della popolazione", x: "Riassume malcontento, divisioni nella società e reddito. Se scende crescono proteste e scioperi, fino al rischio che una regione cada nell'anarchia." },
   temp: { t: "Temperatura", x: "Quanto il pianeta è più caldo rispetto a prima dell'industria. Più sale, più ondate di calore, siccità e alluvioni, soprattutto nelle regioni più esposte." },
@@ -7102,8 +7275,38 @@ function showBudget() {
     <div class="cols"><div><h4>${tr("Entrate")}</h4>${b.inc.map((x) => row(x, totIn)).join("")}<div class="row tot"><span>${tr("Totale")}</span><b>${sign(totIn)}</b></div></div>
     <div><h4>${tr("Spese")}</h4>${b.out.length ? b.out.map((x) => row(x, totOut, true)).join("") : `<div class="row"><span>${tr("Nessuna spesa annua")}</span><b></b></div>`}<div class="row tot"><span>${tr("Totale")}</span><b>${sign(-totOut)}</b></div></div></div>
     <p>${tr("Saldo")}: <b style="color:${totIn - totOut < 0 ? "#f0a597" : "var(--accent)"}">${sign(totIn - totOut)}${tr("/anno")}</b>. ${tr("Valori in fondi l'anno a prezzi di oggi (un fondo vale circa 10 miliardi di dollari del 2026). Tocca una spesa per aprire l'intervento e, se serve, smettere di finanziarlo. Per chiudere tocca la X o fuori dal riquadro.")}</p></div></div>`;
+  if (trAvail(st)) box.querySelector(".bbody").insertAdjacentHTML("beforeend", treatiesHTML());
   box.hidden = false;
+  for (const b of box.querySelectorAll("[data-tr]")) b.onclick = () => { box.hidden = true; showTreaty(b.dataset.tr); };
   for (const r of box.querySelectorAll("[data-go]")) r.onclick = () => { const d = IBY[r.dataset.go]; box.hidden = true; actTab = d.cat; actNode = d.id; if (openScreen === "acts") renderActs(); else open("acts"); };
+}
+/* Trattati dell'Autorità (6 novembre 2026): quota del PIL che gli stati versano, compiti passati e voto mondiale */
+function treatiesHTML() {
+  const pct = (x) => fmt(x, 2).replace(/,?0+$/, "") + "%";
+  const rows = TREATIES.map((t) => {
+    const why = trWhy(st, t.id), on = trOn(st, t.id);
+    const sup = on ? "" : `<small>${tr("Favorevoli oggi: circa {p}% degli stati (ne servono due terzi)", { p: Math.round(trSupport(st, t.id)) })}</small>`;
+    return `<div class="trow"><div><b>${esc(tr(t.name))}</b> <small>· ${tr("quota {x} del PIL", { x: pct(t.share) })}</small><p>${esc(tr(t.task))} ${esc(tr(t.gain))}.</p>${on ? `<small style="color:var(--accent)">${tr("In vigore dal {y}", { y: st.treaties[t.id] })}</small>` : why ? `<small>${esc(tr(why))}</small>` : sup}</div>${!on && !why ? `<button type="button" class="buy" data-tr="${t.id}">${tr("Proponi")}</button>` : ""}</div>`;
+  }).join("");
+  const win = st.trWin && st.trWin >= st.year ? `<p class="note" style="color:var(--accent)">${tr("Dopo «{x}» gli stati sono più disposti a cooperare: finestra aperta fino al {y}.", { x: esc(st.trWinBy), y: st.trWin })}</p>` : "";
+  return `<h4 style="margin-top:14px">${tr("Trattati dell'Autorità")}</h4><p class="note">${tr("Oggi gli stati versano all'Autorità il <b>{x}</b> del loro PIL. Con un trattato le passano un compito e i soldi per farlo: le entrate crescono molto, ma crescono quasi altrettanto le spese. Il guadagno è il risparmio del fare le cose insieme (circa il 15%), più gli sconti sui compiti comuni. Dopo una grande crisi mondiale gli stati sono molto più disposti ad approvarli.", { x: pct(trShare(st)) })}</p>${win}${rows}`;
+}
+function showTreaty(id) {
+  const t = TBY[id], { support, drivers, chances } = trInfo(st, id), best = Math.max(...chances.map((c) => c.p));
+  savedSpeed = speed || savedSpeed || 1; speed = 0; pending = { pause: true }; hud();
+  const c = $("modalCard");
+  const why = drivers.length ? `<ul class="causes" style="margin:4px 0 8px">${drivers.map((x) => `<li><span>${esc(tr(x.name))}</span><span>${x.v > 0 ? "+" : "−"}${fmt(Math.abs(x.v), 0)}</span></li>`).join("")}</ul>` : "";
+  const gross = incomeParts(st).raw * (t.share / TR_SHARE0 - 1 - trGross(st)), net = gross * 0.15;
+  c.innerHTML = `<div class="eyebrow">${tr("Trattato mondiale")} · ${MONTHS[st.month]} ${st.year}</div><h2>${esc(tr(t.name))}</h2>
+    <p>${esc(tr(t.task))} ${esc(tr(t.gain))}. ${tr("Gli stati verserebbero il {x} del PIL: circa {g} fondi l'anno in più di entrate e quasi altrettanti di spese, con un guadagno netto di circa {n}.", { x: fmt(t.share, 2).replace(/,?0+$/, "") + "%", g: fmt(gross, 0), n: fmt(net, 1) })}</p>
+    <p>${tr("Oggi è favorevole circa il <b>{p}%</b> degli stati: per approvarlo servono i due terzi. Cosa sposta i favorevoli:", { p: Math.round(support) })}</p>${why}
+    <p>${best <= 0 ? tr("Oggi i favorevoli sono troppo pochi: il trattato sarebbe quasi certamente respinto e non si potrebbe riproporre per cinque anni. Conviene aspettare più stabilità o una crisi mondiale che spinga a cooperare.") : tr("Se viene respinto non si potrà riproporre per cinque anni.")}</p>
+    <div class="choices">${chances.map((ch, i) => `<button type="button" class="choice" data-k="${i + 1}"><b>${tr(ch.name)}</b><span class="c">${fmt(ch.cost, 0)} ${tr("fondi")}</span><small>${tr("Probabilità di approvarlo: circa {p}%", { p: Math.round(ch.p * 100) })}</small></button>`).join("")}
+    <button type="button" class="choice" id="trNo"><b>${tr("Rinuncia")}</b><span class="c">${tr("gratis")}</span><small>${tr("Si può proporre più avanti")}</small></button></div>`;
+  $("modal").hidden = false;
+  const close = () => { pending = null; $("modal").hidden = true; speed = savedSpeed || 1; hud(); paint(); save(); refresh(); };
+  for (const b of c.querySelectorAll("[data-k]")) b.onclick = () => { proposeTreaty(st, id, +b.dataset.k); close(); };
+  $("trNo").onclick = close;
 }
 document.addEventListener("click", (e) => {
   const t = e.target.closest && e.target.closest("[data-budget]");
@@ -7519,6 +7722,7 @@ function renderWorld() {
     <section class="sec"><h3>${tr(rb.length ? "Rischi di catastrofe" : "Assetto")}</h3>${rb.length ? `<p class="note" style="margin:0 0 4px">${tr("Se una di queste catastrofi avviene, la stabilità del mondo crolla di colpo. Più la barra è piena, più è vicina.")}</p>` : `<p class="note" style="margin:0 0 4px">${tr("In questo scenario le grandi catastrofi non sono ancora in gioco.")}</p>`}${rb.map((x) => `<div class="risk"><span>${tr(x.name)}</span><b style="color:${lvColors[x.lv]};font-weight:600">${tr(RISK_LABELS[x.lv])}</b><span class="lv">${[0, 1, 2, 3].map((i) => `<i style="background:${i <= x.lv ? lvColors[x.lv] : ""}"></i>`).join("")}</span></div>`).join("")}
       ${rb.length ? `<p class="note">${tr("Sono stime: nessuno sa con certezza quanto il mondo sia vicino al baratro.")}</p>` : ""}
       <div class="axis">${tr("Come governa l'Autorità")}<div class="track"><i style="left:${50 + st.axis / 2}%"></i></div><div class="ends"><span>${tr("Decisioni condivise: lente ma solide")}</span><span>${tr("Comando centrale: rapido ma fragile")}</span></div></div></section>
+    ${econHTML(lvColors)}
     <section class="sec"><h3>${tr("Il mondo in cifre")}</h3><p class="note" style="margin:0 0 6px">${esc(tr(st.L.name))} · ${tr("governo")}: ${esc(tr(st.G.name))}</p>${worldKV()}</section>
     <section class="sec"><h3>${tr("Andamento")}</h3>${chartsHTML()}</section>
     <section class="sec"><h3>${tr("Stabilità delle regioni")}</h3>${rankHTML()}</section>
@@ -7526,6 +7730,15 @@ function renderWorld() {
   </div>`;
   wireClose(root); wireWorldTabs(root);
   wireCharts(root);
+}
+// rischio di crisi economica con le sue cause (6 novembre 2026): una stima, perché le bolle si riconoscono bene solo dopo
+function econHTML(lvColors) {
+  const R = econRisk(st);
+  if (!R.parts.length) return "";
+  const lv = (p) => (p < 0.008 ? 0 : p < 0.02 ? 1 : p < 0.035 ? 2 : 3);
+  const ten = Math.round((1 - Math.pow(1 - Math.min(0.5, R.total), 10)) * 100);
+  return `<section class="sec"><h3>${tr("Rischio di crisi economica")}</h3><p class="note" style="margin:0 0 4px">${tr("Probabilità di una recessione mondiale nei prossimi dieci anni: circa <b>{x}%</b>. Nella realtà ne arriva una ogni 14-16 anni. Le cause:", { x: ten })}</p>${R.parts.map((x) => { const l = lv(x.p); return `<div class="risk"><span>${tr(x.name)}</span><b style="color:${lvColors[l]};font-weight:600">${tr(RISK_LABELS[l])}</b><span class="lv">${[0, 1, 2, 3].map((i) => `<i style="background:${i <= l ? lvColors[l] : ""}"></i>`).join("")}</span></div>`; }).join("")}
+    <p class="note">${tr("Sono stime: le bolle si riconoscono con certezza solo dopo. Energia pulita, inflazione sotto controllo, conti in ordine, un reddito per chi perde il lavoro e la vigilanza sul credito riducono il rischio.")}</p></section>`;
 }
 // indicatori del mondo e classifica delle regioni: gli stessi nella schermata Mondo e nel riepilogo di fine partita
 function worldKV(extra) {
