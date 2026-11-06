@@ -145,7 +145,7 @@ button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); o
 .regstrip .nm { font-family: var(--font-d); font-weight: 600; font-size: 17px; letter-spacing: .03em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .regstrip .st { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; grid-column: 2; }
 .regstrip .go { grid-row: 1 / span 2; grid-column: 3; font-size: 13px; color: var(--muted); }
-.worldbtn { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; font-family: var(--font-d); font-weight: 700; font-size: 17px; letter-spacing: .05em; text-transform: uppercase; padding: 10px 16px; }
+.worldbtn { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; font-family: var(--font-d); font-weight: 700; font-size: 17px; letter-spacing: .05em; text-transform: uppercase; padding: 10px 16px; }
 
 /* schermate a tutta finestra */
 .screen { position: absolute; inset: 0; z-index: 10; background: var(--bg); display: flex; flex-direction: column; }
@@ -220,6 +220,16 @@ button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); o
 .buy.autob { width: 100%; box-sizing: border-box; margin: 6px 0; font-size: 14px; padding: 8px 4px; white-space: normal; } .buy.autob.on { border-color: var(--accent); color: var(--accent); }
 .bankprev > div { display: grid; grid-template-columns: 1.3fr 1fr 1fr 1fr; gap: 6px; align-items: center; }
 .bankprev b { font-family: var(--font-m); font-weight: 500; text-align: right; } .bankprev .bph span { font-size: 11.5px; color: var(--muted); text-align: right; }
+.trpage { flex: 1; min-height: 0; overflow-y: auto; padding: 10px var(--gr) 10px var(--gl); }
+.trcards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+.trcard { background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
+.trcard.on { border-color: var(--accent); }
+.trcard .trt { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; } .trcard .trt b { font-family: var(--font-d); font-size: 18px; } .trcard .trt span { color: var(--muted); font-size: 12.5px; white-space: nowrap; }
+.trcard p { margin: 0; font-size: 13px; color: #cbd6df; } .trcard small { color: var(--muted); font-size: 12.5px; } .trcard .buy { margin: 2px 0 0; padding: 7px; font-size: 16px; }
+.trbar { position: relative; height: 10px; border-radius: 5px; background: var(--panel-3); }
+.trbar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 5px; background: #6fb0d8; } .trbar b { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--accent); }
+.trwin { color: var(--accent); font-size: 13px; margin: 0 0 8px; }
+.worldbtn.dot::after { content: ""; position: absolute; top: 6px; right: 6px; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 2px var(--panel); }
 .trow { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; padding: 8px 0; border-top: 1px solid var(--line); }
 .trow p { margin: 2px 0; font-size: 13px; } .trow small { color: var(--muted); } .trow .buy { margin: 0; }
 .bank { display: grid; grid-template-columns: 56px 1fr 56px; gap: 8px; align-items: center; text-align: center; }
@@ -798,7 +808,7 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
       <p>Le crisi economiche seguono la realtà: una recessione mondiale arriva in media ogni 15-20 anni e un crollo di borsa ogni 10-12, anche insieme ad altre crisi. Ognuna ha una causa (una bolla finanziaria, il prezzo del petrolio, tassi alti contro l'inflazione, il debito degli stati, i disoccupati dei robot senza reddito, una pandemia o una guerra) e la risposta giusta dipende dalla causa: lo stimolo funziona bene dopo una bolla o una pandemia, ma con il petrolio alle stelle fa salire soprattutto i prezzi. Nella schermata Mondo vedi il rischio e le sue cause.</p>
       <p>Le crisi sono le stesse a ogni livello. Cambia quanto in fretta la popolazione accetta le riforme e quanto reagisce male ai sacrifici: a livello facile gli interventi entrano a regime prima e fanno meno malcontento.</p>
       <h3>Fondi e debito</h3>
-      <p>Ogni regione versa all'Autorità una piccola parte della sua ricchezza, circa lo 0,24% del PIL: all'inizio 27 fondi l'anno. Quei soldi escono dai bilanci degli stati, quindi il loro debito sale un poco. Un fondo vale circa 10 miliardi di dollari del 2026. Per le grandi politiche (sanità, energia, reddito di base) l'Autorità paga la sua quota per lanciarle e coordinarle, il resto lo pagano gli stati e i privati: per questo alcune misure fanno salire anche il debito delle regioni. Le entrate: le entrate crescono se l'economia cresce e calano se una regione cade nell'anarchia, che smette di versare (ma smetti anche di pagare i programmi in quella regione). Con l'inflazione ogni anno tutto costa un po' di più, e le entrate si adeguano con circa un anno di ritardo. Come nella realtà, quando il mondo si arricchisce costano di più anche stipendi, cantieri e programmi: la tecnologia prodotta in serie invece costa sempre meno. Negli scenari «Il secolo decisivo» e «Il Grande Filtro» puoi proporre agli stati dei trattati (dal bilancio, toccando i fondi): passano all'Autorità un compito e i soldi per farlo, con un risparmio perché le cose fatte insieme costano meno. Servono i due terzi degli stati favorevoli: è molto più facile subito dopo una grande crisi mondiale. Si parte senza fondi: le entrate arrivano mese dopo mese. Se i fondi non bastano puoi indebitarti, anche per rispondere a una crisi: paghi il tasso a lungo termine, più un sovrapprezzo che cresce con il debito rispetto alle entrate di un anno: piccolo fino a due anni e mezzo di entrate, poi sempre più alto. Perdi per bancarotta solo se per tre anni gli interessi superano tutto ciò che potresti incassare anche tagliando ogni spesa e alzando ogni tassa.</p>
+      <p>Ogni regione versa all'Autorità una piccola parte della sua ricchezza, circa lo 0,24% del PIL: all'inizio 27 fondi l'anno. Quei soldi escono dai bilanci degli stati, quindi il loro debito sale un poco. Un fondo vale circa 10 miliardi di dollari del 2026. Per le grandi politiche (sanità, energia, reddito di base) l'Autorità paga la sua quota per lanciarle e coordinarle, il resto lo pagano gli stati e i privati: per questo alcune misure fanno salire anche il debito delle regioni. Le entrate: le entrate crescono se l'economia cresce e calano se una regione cade nell'anarchia, che smette di versare (ma smetti anche di pagare i programmi in quella regione). Con l'inflazione ogni anno tutto costa un po' di più, e le entrate si adeguano con circa un anno di ritardo. Come nella realtà, quando il mondo si arricchisce costano di più anche stipendi, cantieri e programmi: la tecnologia prodotta in serie invece costa sempre meno. Dallo scenario «Energia per tutti» puoi proporre agli stati dei trattati (schermata Mondo, scheda Trattati): passano all'Autorità un compito e i soldi per farlo, con un risparmio perché le cose fatte insieme costano meno. Servono i due terzi degli stati favorevoli: è molto più facile subito dopo una grande crisi mondiale. Si parte senza fondi: le entrate arrivano mese dopo mese. Se i fondi non bastano puoi indebitarti, anche per rispondere a una crisi: paghi il tasso a lungo termine, più un sovrapprezzo che cresce con il debito rispetto alle entrate di un anno: piccolo fino a due anni e mezzo di entrate, poi sempre più alto. Perdi per bancarotta solo se per tre anni gli interessi superano tutto ciò che potresti incassare anche tagliando ogni spesa e alzando ogni tassa.</p>
       <h3>Eventi</h3>
       <p>Crisi ed emergenze compaiono sulla mappa come un segnaposto sulla regione colpita; possono essercene più di uno insieme. Hai un anno di tempo per toccarlo: intanto puoi raccogliere i fondi. Più aspetti, più il segnaposto si gonfia; dopo un anno il tempo si ferma finché non lo tocchi. Toccandolo leggi che cosa succede: puoi scegliere subito tra intervento pieno, una via di mezzo o non fare nulla, oppure rimandare la decisione. Il tempo si ferma anche quando apri un menu.</p>
       <h3>Economia e popolazione</h3>
@@ -2311,7 +2321,7 @@ function logNews(st, text, kind, quiet) {
 }
 
 // effetto palla di neve: (tasso reale a lungo termine della regione − crescita) × debito, in punti di prodotto l'anno
-const regionRate = (r, st) => st.g.longR - st.g.infl + Math.max(0, r.debt - 100) * 0.01 * (trOn(st, "trFiscal") ? 0.4 : 1); // unione fiscale: debito comune [Certo: titoli europei 0,7-1,8 punti sotto gli stati più indebitati]
+const regionRate = (r, st) => st.g.longR - st.g.infl + (st.credPrem || 0) + Math.max(0, r.debt - 100) * 0.01 * (trOn(st, "trFiscal") ? 0.4 : 1); // unione fiscale: debito comune [Certo: titoli europei 0,7-1,8 punti sotto gli stati più indebitati]
 const snowball = (r, st) => (regionRate(r, st) - r.growth) * r.debt / 100;
 const PENS_K = 140; // peso del welfare per ogni anziano rispetto ai lavoratori
 // crescita della produttività per lavoratore (% l'anno)
@@ -2406,6 +2416,7 @@ function startRecession(st, cause, delay) {
 const recOk = (st) => !(st.L && st.L.tutorial) && st.year - (st.recY || -99) >= REC_GAP;
 function econTick(st, dt) {
   if (st.L && st.L.tutorial) return;
+  st.credPrem = (st.credPrem || 0) * (1 - 0.2 * dt); // sfiducia dei mercati dopo un taglio del debito: cala in circa cinque anni
   // la bolla cresce negli anni di boom, con tassi bassi e nelle corse a una nuova tecnologia; la vigilanza sul credito la frena
   const rr = st.g.rate - st.g.infl, wg = worldGrowth(st);
   const ai = sysOn(st, "ai") && st.g.aiCap > 40 && st.g.aiCap < 160 ? 0.2 : 0;
@@ -2421,7 +2432,7 @@ function econTick(st, dt) {
     if ((st.bubble || 0) > 6 && rand() < 0.5 && recOk(st)) startRecession(st, "fin", 3);
     else st.bubble = (st.bubble || 0) * 0.5;
   }
-  if (!st.forceEv && st.econQ && st.econQ.length && st.econQ[0].at <= now) st.forceEv = { id: st.econQ.shift().id, r: null };
+  if (!st.forceEv && st.econQ && st.econQ.length && st.econQ[0].at <= now) { const q = st.econQ.shift(); st.forceEv = { id: q.id, r: q.r || null }; }
 }
 // dopo una grande crisi mondiale spesso arriva anche la recessione (Covid 2020); e si apre una finestra per i trattati
 function afterWorldCrisis(st, id) {
@@ -2429,7 +2440,7 @@ function afterWorldCrisis(st, id) {
   if (WORLD_CRISIS.includes(id) && trAvail(st) && TREATIES.some((t) => !trWhy(st, t.id))) {
     const fresh = !(st.trWin && st.trWin >= st.year);
     st.trWin = st.year + 3; st.trWinBy = evTitle(EBY[id], st, null);
-    if (fresh) note(st, "report", "socialPact", "Gli stati sono pronti a cooperare di più", `Dopo «${st.trWinBy}» molti governi chiedono che l'Autorità abbia più compiti e più risorse. Fino al ${st.trWin} un nuovo trattato ha molti più favorevoli: si propone dal bilancio dell'Autorità (tocca i fondi).`);
+    if (fresh) note(st, "report", "socialPact", "Gli stati sono pronti a cooperare di più", `Dopo «${st.trWinBy}» molti governi chiedono che l'Autorità abbia più compiti e più risorse. Fino al ${st.trWin} un nuovo trattato ha molti più favorevoli: si propone dalla schermata Mondo, scheda Trattati.`); if (fresh && st.notes && st.notes.length) st.notes[st.notes.length - 1].go = "tr";
   }
 }
 /* ---------- trattati dell'Autorità (6 novembre 2026, richiesta di Guido) ----------
@@ -2442,26 +2453,33 @@ function afterWorldCrisis(st, id) {
    qualche anno [Certo]; divisioni e malcontento li fanno scendere. Le normali crisi economiche non bastano. */
 const TR_SHARE0 = 0.24, TR_EFF = 0.15, TR_NEED = 66, TR_WIN = 15;
 const TREATIES = [
-  { id: "trClimate", name: "Trattato per il clima e l'energia", share: 0.35, base: 54, cats: ["energia", "clima"], save: 0.15,
+  { id: "trClimate", minLv: 2, short: "+{n} fondi l'anno netti; energia e clima −15%", name: "Trattato per il clima e l'energia", share: 0.35, base: 54, cats: ["energia", "clima"], save: 0.15,
     task: "Le reti elettriche tra continenti, la ricerca sull'energia e la difesa dalle catastrofi climatiche passano all'Autorità.",
     gain: "Interventi di energia e clima: 15% in meno, perché si comprano e si costruiscono insieme" },
-  { id: "trDefense", name: "Trattato per la difesa comune", share: 0.6, base: 42, needs: "trClimate", cats: ["sicurezza"], save: 0.2,
+  { id: "trDefense", minLv: 4, short: "+{n} fondi l'anno netti; sicurezza −20%; meno tensione", name: "Trattato per la difesa comune", share: 0.6, base: 42, needs: "trClimate", cats: ["sicurezza"], save: 0.2,
     task: "Acquisti di armi, comandi e controlli sulle armi passano all'Autorità: un solo sistema d'arma invece di undici.",
     gain: "Interventi di sicurezza: 20% in meno; meno tensione tra le potenze" },
-  { id: "trFiscal", name: "Unione fiscale", share: 1.0, base: 34, needs: "trDefense", cats: [], save: 0, noGov: ["market"],
+  { id: "trFiscal", minLv: 5, short: "+{n} fondi l'anno netti; debito comune: interessi più bassi per gli stati indebitati", name: "Unione fiscale", share: 1.0, base: 34, needs: "trDefense", cats: [], save: 0, noGov: ["market"],
     task: "Una parte del welfare e un debito comune passano all'Autorità.",
     gain: "Gli stati con molto debito si finanziano come gli altri: interessi più bassi e meno rischio di crisi del debito" },
 ];
 const TBY = Object.fromEntries(TREATIES.map((t) => [t.id, t]));
+// guadagno netto all'anno se si approva (quote in più × risparmio), in fondi di oggi
+const trNetGain = (st, id) => incomeParts(st).raw * (TBY[id].share / TR_SHARE0 - 1 - trGross(st)) * TR_EFF;
+// c'è un trattato che oggi passerebbe con buona probabilità? (segnale sul pulsante Mondo)
+const trReady = (st) => trAvail(st) && TREATIES.some((t) => !trWhy(st, t.id) && trChance(st, t.id, 2) >= 0.5);
 const trOn = (st, id) => !!(st.treaties && st.treaties[id]);
 const trShare = (st) => TREATIES.reduce((a, t) => (trOn(st, t.id) ? Math.max(a, t.share) : a), TR_SHARE0);
 const trGross = (st) => trShare(st) / TR_SHARE0 - 1; // quote in più versate dagli stati, rispetto ai contributi di base
 const trNet = (st) => trGross(st) * TR_EFF; // il guadagno netto: il risparmio del fare insieme
 const trSave = (st, d) => { let k = 1; for (const t of TREATIES) if (trOn(st, t.id) && t.cats.includes(d.fam)) k *= 1 - t.save; return k; };
-const trAvail = (st) => !!(st.L && st.L.tier === 3 && !st.L.tutorial);
+// dallo scenario 2 (7 novembre 2026): un trattato alla volta, insieme agli argomenti dei livelli
+const lvIdx = (st) => LEVELS.findIndex((l) => l.id === st.levelId);
+const trShown = (st, t) => !!(st.L && !st.L.tutorial && lvIdx(st) >= t.minLv);
+const trAvail = (st) => TREATIES.some((t) => trShown(st, t));
 function trWhy(st, id) {
   const t = TBY[id];
-  if (!trAvail(st)) return "I trattati ci sono negli scenari «Il secolo decisivo» e «Il Grande Filtro»";
+  if (!trShown(st, t)) return "Non ancora in questo scenario";
   if (trOn(st, id)) return "In vigore";
   if (t.noGov && t.noGov.includes(st.govId)) return "Non si può con il governo «" + st.G.name + "»";
   if (t.needs && !trOn(st, t.needs)) return "Serve prima «" + TBY[t.needs].name + "»";
@@ -2826,10 +2844,8 @@ const EVENTS = [
     choices: [
       { ok: recIs("fin"), label: "Ripulire subito le banche e sostenere la domanda", cost: 12, out: "Recessione breve: le banche malate si risanano in fretta e il credito riparte. Un po' di rabbia per i salvataggi", fx: (st) => { st.bubble = 0; ctrlRegions(st).forEach((r) => { r.shockG -= 0.4; r.polar += 1; }); } },
       { ok: recIs("fin"), label: "Solo un piano di stimolo", cost: 8, out: "La spesa pubblica attenua il calo, ma le banche malate frenano il credito per anni", fx: (st) => { st.g.piShock += 0.3; ctrlRegions(st).forEach((r) => { r.shockG -= 1.4; r.shockU += 3; }); } },
-      { ok: recIs("fin"), label: "Salvare solo le banche più grandi", cost: 4, out: "Crisi più lunga e molta rabbia: i soldi pubblici vanno a chi l'ha causata", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockG -= 1.8; r.shockU += 5; r.polar += 3; }) },
       { ok: recIs("fin"), label: "Non fare nulla", cost: 0, out: "Fallimenti a catena: recessione profonda e lunga, disoccupazione", fx: (st) => { st.g.piShock -= 1; ctrlRegions(st).forEach((r) => { r.shockG -= 3.2; r.shockU += 10; r.unemp += 2; }); } },
       { ok: recIs("energia"), label: "Aiuti mirati alle famiglie povere e risparmio di energia", cost: 5, out: "Protegge chi soffre di più senza far correre i prezzi", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockG -= 1.0 * r.fossil / 80; r.shockU += 2; }) },
-      { ok: recIs("energia"), label: "Bollette bloccate per tutti", cost: 12, out: "Meno malcontento, ma si consuma come prima e i prezzi corrono", fx: (st) => { st.g.piShock += 1.2; ctrlRegions(st).forEach((r) => { r.shockG -= 0.9 * r.fossil / 80; r.shockU += 1; }); } },
       { ok: recIs("energia"), label: "Piano di stimolo", cost: 10, out: "Serve a poco: manca l'energia, non la voglia di spendere. Soprattutto inflazione", fx: (st) => { st.g.piShock += 1.5; ctrlRegions(st).forEach((r) => { r.shockG -= 1.0 * r.fossil / 80; r.shockU += 3; }); } },
       { ok: recIs("energia"), label: "Non fare nulla", cost: 0, out: "Crescita giù e malcontento, soprattutto dove si usano più fossili", fx: (st) => { st.g.piShock += 0.6; ctrlRegions(st).forEach((r) => { r.shockG -= 1.7 * r.fossil / 80; r.shockU += 8 * r.fossil / 80; }); } },
       { ok: recIs("tassi"), label: "Proteggere chi perde il lavoro e lasciar lavorare la banca centrale", cost: 5, out: "Recessione moderata, ma l'inflazione scende davvero", fx: (st) => { st.g.piShock -= 0.6; ctrlRegions(st).forEach((r) => { r.shockG -= 1.0; r.shockU += 2; }); } },
@@ -3493,6 +3509,20 @@ const EVENTS = [
       { label: "Risarcire i danni e andare avanti", cost: 2, out: "La rabbia resta: più opposizione e malcontento", fx: (st, r) => { r.shockU += 6; r.polar += 2; } },
       { label: "Chiudere i pozzi della zona", cost: 0, out: "Niente più scosse, ma una parte dell'energia pulita torna ai fossili", fx: (st, r) => { const p = Math.min(4, r.renew); r.renew -= p; r.fossil += p; r.shockU += 2; } },
     ] },
+  /* Ricostruzione dopo l'anarchia (7 novembre 2026, richiesta di Guido). Il debito vecchio non si paga quasi mai per intero: dopo
+     il crollo dello stato i creditori accettano grandi tagli [Certo: Iraq 2004 −80%, Liberia 2010 circa −90%, Somalia 2020]. Ma quei
+     soldi li perde qualcuno: i risparmiatori e le banche della regione (la maggior parte del debito dei paesi grandi è in mano ai
+     loro cittadini) e i creditori all'estero. Si sceglie chi paga: l'Autorità (i creditori esteri vengono rimborsati con i suoi
+     fondi), i creditori (perdite per le banche delle altre regioni e tassi più alti per tutti per qualche anno), oppure nessuno
+     (il debito resta e la regione riparte zoppa). */
+  { id: "rebuild", scope: "region", cat: "Sicurezza", title: (st, r) => "Ricostruzione: " + r.name,
+    p: () => 0,
+    text: (st, r) => { const x = rebuildInfo(st, r); return `L'ordine è tornato, ma ${r.name} è in rovina: in ${x.years} anni di anarchia il prodotto è sceso del ${x.drop}% e sono morte circa ${x.dead} milioni di persone in più, soprattutto anziani e bambini. Il vecchio debito è al ${x.debt}% del prodotto e la regione non può pagarlo. Portarlo al ${REBUILD_TARGET}% vuol dire far perdere ai creditori circa ${x.loss} fondi: ${x.home} ai risparmiatori e alle banche della regione, ${x.abroad} ai creditori del resto del mondo.`; },
+    choices: [
+      { label: "Taglio del debito: l'Autorità rimborsa i creditori esteri", cost: (st) => rebuildInfo(st, st.regions[st.rebuildR]).abroadV, out: "Il debito scende al 60%: la regione riparte in fretta. Chi ci rimette sono i risparmiatori della regione", fx: (st, r) => rebuildCut(st, r, false) },
+      { label: "Taglio del debito a carico dei creditori", cost: 0, out: "Il debito scende al 60%, ma le banche delle altre regioni perdono soldi e per qualche anno i mercati chiedono interessi più alti a tutti", fx: (st, r) => rebuildCut(st, r, true) },
+      { label: "Il nuovo governo riconosce tutto il debito", cost: 0, out: "Nessuno perde soldi, ma la regione resta schiacciata dagli interessi: ripresa lenta e molto rischio di ricadere nell'anarchia", fx: (st, r) => { r.rebound = 0.5; r.reboundUntil = st.year + 5; } },
+    ] },
   /* ===== Eventi propri dei governi (1 novembre 2026): nascono dalle loro scelte e dai rischi che comportano ===== */
   // Democrazia liberale: elezioni con rischio di uscita
   { id: "electionRisk", scope: "region", cat: "Istituzioni", title: "Elezioni in arrivo",
@@ -3668,13 +3698,14 @@ function gmPmit(st) { return clamp((st.acts.vaccines ? 0.6 : 0) + (st.acts.amr ?
 
 // scelte di un evento per il governo in carica: alcune esistono solo per certi governi (gov) o mancano per altri (noGov)
 function evChoices(st, E) { return E.choices.filter((c) => (!c.gov || c.gov.includes(st.govId)) && !(c.noGov && c.noGov.includes(st.govId)) && !(c.ok && !c.ok(st))); }
-function eventCost(st, ev, i) { return priced(st, evChoices(st, ev)[i].cost); }
+const choiceCost = (st, c) => (typeof c.cost === "function" ? c.cost(st) : priced(st, c.cost)); // costo che dipende dalla situazione (es. ricostruzione)
+function eventCost(st, ev, i) { return choiceCost(st, evChoices(st, ev)[i]); }
 const CRISIS_DEBT = { recession: 2, crash: 1.5, pandemic: 4, epidemic: 1, storm: 1.5, quake: 2, wildfire: 1, heat: 0.5, famine: 1, civilWar: 3, borderWar: 3, conflict: 2 };
 function resolveEvent(st, pending, i) {
   const ev = EBY[pending.id];
   if (ev.id === "electionRisk" && pending.r && !st.regions[pending.r].controlled) return null; // la regione è già uscita: l'avviso non vale più
   const ch = evChoices(st, ev), c = ch[Math.min(i, ch.length - 1)]; // "non fare nulla" è sempre l'ultima scelta
-  st.funds -= priced(st, c.cost);
+  st.funds -= choiceCost(st, c);
   const r = pending.r ? st.regions[pending.r] : null;
   c.fx(st, r);
   // le crisi costano anche agli stati, qualunque cosa si scelga: soccorsi, sussidi, entrate perse (punti di debito sul PIL)
@@ -3727,7 +3758,7 @@ function honors(st) {
   const lost = Object.values(st.regions).filter((r) => !r.controlled).length;
   return [
     { id: "fast", name: "Rapidità", desc: `Vittoria entro ${st.L.fast} anni`, ok: st.year - 2026 <= st.L.fast },
-    { id: "all", name: "Nessuno lasciato indietro", desc: "Nessuna regione caduta nell'anarchia", ok: lost === 0 },
+    { id: "all", name: "Nessuno lasciato indietro", desc: "Nessuna regione caduta nell'anarchia in tutta la partita", ok: lost === 0 && !st.everAnarchy }, // anche se poi è stata ripresa (7 novembre 2026)
     sysOn(st, "climate") && { id: "cool", name: "Clima sotto controllo", desc: "Temperatura mai oltre +1,8 °C in tutta la partita", ok: Math.max(st.tMax || 0, st.g.temp + st.g.geoOff) < 1.8 },
     sysOn(st, "space") && { id: "moon", name: "Ponte verso le stelle", desc: "Insediamento lunare permanente", ok: !!st.lunarCity },
   ].filter(Boolean);
@@ -3740,6 +3771,30 @@ function honors(st) {
    meglio se vicina, ma si può partire anche da lontano, con meno probabilità di riuscire. Se riesce seguono cinque anni di
    transizione con i caschi blu, che tengono basso il malcontento; se la regione non viene aiutata può ricadere. */
 const RECON_COST = 30, RECON_T = 2;
+/* quota del debito di ogni regione in mano a creditori esteri [Probabile: Cina e Giappone oltre il 90% in mano ai propri cittadini;
+   paesi poveri soprattutto debito estero] */
+const DEBT_FOREIGN = { na: 0.3, eu: 0.4, ea: 0.05, sa: 0.2, sea: 0.3, mena: 0.4, latam: 0.4, wca: 0.6, esa: 0.6, ru: 0.2, oce: 0.4 };
+const REBUILD_TARGET = 60;
+// prodotto della regione in fondi di oggi (115 mila miliardi di dollari nel 2026 = 11.500 fondi per tutto il mondo)
+const gdpFondi = (st, r) => { let g0 = 0; for (const id in st.regions) g0 += st.regions[id].gdp0 || st.regions[id].gdp; return r.gdp / (g0 || 1) * GDP_2026 * 100 * ((st.g && st.g.pl) || 1); };
+function rebuildInfo(st, r) {
+  if (!r) return { abroadV: 0 };
+  const L = Math.max(0, r.debt - REBUILD_TARGET) / 100 * gdpFondi(st, r), f = DEBT_FOREIGN[r.id] || 0.3;
+  return { years: Math.max(1, st.year - (r.anarY || st.year)), drop: Math.round((1 - r.gdp / (r.gdpPre || r.gdp)) * 100), dead: fmt1(r.deadA || 0), debt: Math.round(r.debt),
+    loss: Math.round(L), home: Math.round(L * (1 - f)), abroad: Math.round(L * f), abroadV: Math.round(L * f * 10) / 10, lossV: L, f };
+}
+function rebuildCut(st, r, creditors) {
+  const x = rebuildInfo(st, r);
+  r.debt = Math.min(r.debt, REBUILD_TARGET); r.rebound = 2; r.reboundUntil = st.year + 5;
+  r.shockU += 8 * (1 - x.f); r.pension += 2 * (1 - x.f); // i risparmiatori della regione perdono una parte dei loro risparmi e delle pensioni private
+  if (creditors) {
+    // perdite per le banche del resto del mondo, in proporzione al prodotto mondiale; tassi più alti per tutti
+    let w = 0; for (const id in st.regions) w += st.regions[id].gdp;
+    const k = x.lossV * x.f / Math.max(1, w / r.gdp * gdpFondi(st, r)) * 100; // punti di prodotto mondiale persi dai creditori esteri
+    for (const o of ctrlRegions(st)) if (o !== r) { o.shockG -= 0.4 * k; o.shockU += 1 * k; }
+    st.credPrem = (st.credPrem || 0) + Math.min(2, 0.3 + 0.2 * k);
+  }
+}
 function reconBase(st, r) { return RBY[r.id].nb.map((n) => st.regions[n]).filter((x) => x.controlled && x.stab >= 30); }
 const reconFar = (st) => ctrlRegions(st).filter((x) => x.stab >= 30);
 function reconChance(st, r) {
@@ -4115,10 +4170,18 @@ function tick(st) {
     r.fer = clamp(r.fer + (entr - r.fer * (r.kf + mortW(r)) + 0.7 * mig) * dt, 1, r.wrk); // chi emigra o immigra è soprattutto giovane
     r.old = Math.max(0, r.old + (r.wrk * rr - r.old / lifeOld(r, m)) * dt);
     r.pop = r.yng + r.wrk + r.old;
+    // morti in più durante l'anarchia: violenza, fame, malattie, ospedali chiusi; colpiscono di più anziani e bambini
+    // [Probabile: Congo 1998-2007, circa 5 milioni di morti in più su 60 milioni, quasi l'1% l'anno]
+    if (!r.controlled && !r.exit) { const f = 0.007 * dt; r.deadA = (r.deadA || 0) + f * r.pop; popLossAge(r, f, 0.4); }
     r.age = fAge(r);
     r.popG += ((r.pop / pop0 - 1) / dt * 100 - r.popG) * 0.2;
     // prodotto = lavoratori occupati × produttività
-    const pg = prodGrowth(r, st, m, gm);
+    let pg = prodGrowth(r, st, m, gm);
+    /* anarchia (7 novembre 2026): l'economia crolla di circa il 3% l'anno fino a −30% [Probabile: una guerra civile toglie circa
+       2 punti di crescita l'anno, Collier]; dopo la ricostruzione rimbalza per cinque anni [Probabile] */
+    const anar = !r.controlled && !r.exit;
+    if (anar) pg = r.gdp > 0.7 * (r.gdpPre || r.gdp) ? -3 : 0;
+    else if (r.reboundUntil > st.year) pg += r.rebound || 0;
     r.prod *= 1 + pg / 100 * dt;
     const L = laborOf(r, m);
     if (m.mass <= 0) r.Lpeak = Math.max(r.Lpeak || 0, L);
@@ -4147,7 +4210,7 @@ function tick(st) {
     const cyc = r.controlled ? Math.max(0, basePg(r) - 1 - r.growth) * 0.5 : 0; // solo in una vera frenata
     const ageCost = r.dep0 != null ? Math.max(0, r.old / r.wrk - r.dep0) * 0.8 : 0;
     r.dSnow = snowball(r, st); r.dDef = r.defBase + (r.pension - r.pens0) * 0.08 + m.debtF + cyc + ageCost + (r.controlled ? CONTRIB_DEF * st.D.inc : 0); // palla di neve e deficit
-    r.debt += dt * (r.dDef + r.dSnow);
+    if (r.controlled || r.exit) r.debt += dt * (r.dDef + r.dSnow); // in anarchia nessuno paga e nessuno presta: il debito resta congelato
     r.debt = clamp(r.debt, 0, 400);
 
     const uT = clamp(r.unempBase + 5 + m.unempT + gm.unempAll + Math.max(0, -r.growth) * 1.5 - monetaryPush(st) * 0.35, 1, 85);
@@ -4191,7 +4254,7 @@ function tick(st) {
       if (r.unrest >= (st.D.anarchyAt || 92)) r.anarchy += dt * (st.G.anarchy || 1); // a super difficile si crolla prima (2 novembre 2026) else r.anarchy = Math.max(0, r.anarchy - 0.5 * dt);
       if (r.debt > 220 && rand() < 0.3 * dt) { r.shockU += 15; logNews(st, `In ${r.name} lo stato non paga più stipendi e pensioni.`, "bad"); }
       if (r.anarchy >= 2) {
-        r.controlled = false; r.exit = false; r.nego = null; r.stab = 0;
+        r.controlled = false; r.exit = false; r.nego = null; r.stab = 0; st.everAnarchy = true; r.gdpPre = r.gdp; r.deadA = 0; r.anarY = st.year;
         logNews(st, `${r.name} è precipitata nell'anarchia. Le regioni vicine ne risentono.`, "bad");
         // negli scenari senza la scheda Sicurezza non c'è un esercito per riprenderla: la partita è persa (4 novembre 2026)
         if (!st.L.cats.includes("sicurezza")) { st.lostRegion = r.name; gameOver(st, "regionePersa"); }
@@ -4210,6 +4273,7 @@ function tick(st) {
     const r = st.regions[q.r];
     if (rand() < reconChance(st, r)) {
       r.controlled = true; r.anarchy = 0; r.unrest = Math.min(78, (st.D.anarchyAt || 92) - 20); r.shockU = 0; r.stab = 8; r.peaceUntil = st.year + 5;
+      st.rebuildR = r.id; (st.econQ || (st.econQ = [])).push({ id: "rebuild", r: r.id, at: st.year * 12 + st.month + 1 });
       logNews(st, `${r.name} torna sotto l'Autorità: la missione ha riportato l'ordine. La regione è ancora fragile.`, "done");
       note(st, "good", "mediation", `Ordine ristabilito in ${r.name}`, `La missione di pace e ricostruzione ha funzionato: ${r.name} torna a versare fondi e a seguire gli interventi. Per cinque anni i caschi blu restano e tengono basso il malcontento, ma la regione va aiutata subito: lavoro per chi ha combattuto, servizi, un reddito per chi non ce l'ha. Se le cause della crisi restano, ricadrà.`);
     } else logNews(st, `La missione in ${r.name} è fallita: le milizie controllano ancora il territorio. Si può ritentare.`, "bad");
@@ -4566,7 +4630,7 @@ function loadState(txt) {
 
 if (typeof module !== "undefined") module.exports = {
   P, PROMISES, pensPoverty, polarCauses, budget, incomeGainOf, amnestyYield, incomeSupport, robotCapture, popLossAge, bioCover, aiTerror, privatePens, WAGE, wageIdx, SHADOW0, taxBase, shadowW, OLD_LEVEL, DISCOVERIES, evTitle, RPROF, priced, eventCost, authRate, maxSurplus, bankPreview, co2Gross, worldBirths, clampRate, snowball, regionRate, co2Gt, GDP_2026, CO2_2026, DIFF, LEVELS, LBY, GOVS, GBY, sysOn, REGIONS, RBY, INTERVENTIONS, IBY, CATS, EVENTS, EBY, ENDINGS, STABLE_YEARS, RISK_LABELS,
-  econRisk, REC_INFO, trAvail, incomeParts, TREATIES, TBY, trOn, trShare, trWhy, trInfo, trSupport, trChance, proposeTreaty, trGross, trNet, TR_NEED, TR_SHARE0, reconquer, reconWhy, reconChance, RECON_COST, RECON_T, needsRef, refInfo, refSupport, refDrivers, refChance, runReferendum, popRisk, mediate, MEDIATION_COST, evChoices, LOW_STAB, LOW_YEARS, ANOMALY,
+  econRisk, REC_INFO, trAvail, trShown, trReady, trNetGain, incomeParts, TREATIES, TBY, trOn, trShare, trWhy, trInfo, trSupport, trChance, proposeTreaty, trGross, trNet, TR_NEED, TR_SHARE0, reconquer, reconWhy, reconChance, RECON_COST, RECON_T, needsRef, refInfo, refSupport, refDrivers, refChance, runReferendum, popRisk, mediate, MEDIATION_COST, evChoices, LOW_STAB, LOW_YEARS, ANOMALY,
   newGame, tick, EV_WARN, advise, preview, ctrlShare, available, anarchyNear, saveState, loadState, honors, endingText, costOf, upkeepOf, built, startIntervention, payoffNow, stabParts, stabWeak, stabNow, worldStab, unrestCauses, STAB_PARTS, WIN_WORLD, canStart, parentOk, TREE, resolveEvent, revoke, stability, riskBoard, risks, emissions, worldPop, lvl, setSeed, rand,
 };
 
@@ -7015,6 +7079,7 @@ function hud() {
   $("sFunds").style.color = st.funds < 0 ? "#f0a597" : "";
   $("sFunds").textContent = fmt(st.funds, 1);
   $("sNet").textContent = (net >= 0 ? "+" : "−") + fmt(Math.abs(net), 1) + tr("/anno");
+  $("bWorld").classList.toggle("dot", trReady(st) || (trAvail(st) && st.trWin >= st.year && TREATIES.some((t) => !trWhy(st, t.id))));
   $("sTemp").textContent = tempTxt(st.g.temp + st.g.geoOff);
   const ws = worldStab(st);
   $("sWorld").innerHTML = `<span style="color:${ws >= st.L.win ? "#9fd6c2" : "inherit"}">${Math.round(ws)}</span> <small>${tr("obiettivo {x}", { x: st.L.win })}</small>`;
@@ -7300,21 +7365,21 @@ function showBudget() {
     <div class="cols"><div><h4>${tr("Entrate")}</h4>${b.inc.map((x) => row(x, totIn)).join("")}<div class="row tot"><span>${tr("Totale")}</span><b>${sign(totIn)}</b></div></div>
     <div><h4>${tr("Spese")}</h4>${b.out.length ? b.out.map((x) => row(x, totOut, true)).join("") : `<div class="row"><span>${tr("Nessuna spesa annua")}</span><b></b></div>`}<div class="row tot"><span>${tr("Totale")}</span><b>${sign(-totOut)}</b></div></div></div>
     <p>${tr("Saldo")}: <b style="color:${totIn - totOut < 0 ? "#f0a597" : "var(--accent)"}">${sign(totIn - totOut)}${tr("/anno")}</b>. ${tr("Valori in fondi l'anno a prezzi di oggi (un fondo vale circa 10 miliardi di dollari del 2026). Tocca una spesa per aprire l'intervento e, se serve, smettere di finanziarlo. Per chiudere tocca la X o fuori dal riquadro.")}</p></div></div>`;
-  if (trAvail(st)) box.querySelector(".bbody").insertAdjacentHTML("beforeend", treatiesHTML());
   box.hidden = false;
-  for (const b of box.querySelectorAll("[data-tr]")) b.onclick = () => { box.hidden = true; showTreaty(b.dataset.tr); };
   for (const r of box.querySelectorAll("[data-go]")) r.onclick = () => { const d = IBY[r.dataset.go]; box.hidden = true; actTab = d.cat; actNode = d.id; if (openScreen === "acts") renderActs(); else open("acts"); };
 }
 /* Trattati dell'Autorità (6 novembre 2026): quota del PIL che gli stati versano, compiti passati e voto mondiale */
 function treatiesHTML() {
   const pct = (x) => fmt(x, 2).replace(/,?0+$/, "") + "%";
-  const rows = TREATIES.map((t) => {
-    const why = trWhy(st, t.id), on = trOn(st, t.id);
-    const sup = on ? "" : `<small>${tr("Favorevoli oggi: circa {p}% degli stati (ne servono due terzi)", { p: Math.round(trSupport(st, t.id)) })}</small>`;
-    return `<div class="trow"><div><b>${esc(tr(t.name))}</b> <small>· ${tr("quota {x} del PIL", { x: pct(t.share) })}</small><p>${esc(tr(t.task))} ${esc(tr(t.gain))}.</p>${on ? `<small style="color:var(--accent)">${tr("In vigore dal {y}", { y: st.treaties[t.id] })}</small>` : why ? `<small>${esc(tr(why))}</small>` : sup}</div>${!on && !why ? `<button type="button" class="buy" data-tr="${t.id}">${tr("Proponi")}</button>` : ""}</div>`;
+  const cards = TREATIES.filter((t) => trShown(st, t)).map((t) => {
+    const why = trWhy(st, t.id), on = trOn(st, t.id), sup = trSupport(st, t.id);
+    const bar = on ? "" : `<div class="trbar"><i style="width:${Math.round(sup)}%"></i><b style="left:${TR_NEED}%"></b></div><small>${tr("Favorevoli: {p}% degli stati · ne servono due terzi", { p: Math.round(sup) })}</small>`;
+    return `<div class="trcard${on ? " on" : ""}"><div class="trt"><b>${esc(tr(t.name))}</b><span>${tr("quota {x}", { x: pct(t.share) })}</span></div>
+      <p>${on ? esc(tr(t.gain)) : esc(tr(t.short, { n: fmt(trNetGain(st, t.id), 1) }))}</p>${bar}
+      ${on ? `<small style="color:var(--accent)">${tr("In vigore dal {y}", { y: st.treaties[t.id] })}</small>` : why ? `<small>${esc(tr(why))}</small>` : `<button type="button" class="buy" data-tr="${t.id}">${tr("Proponi")}</button>`}</div>`;
   }).join("");
-  const win = st.trWin && st.trWin >= st.year ? `<p class="note" style="color:var(--accent)">${tr("Dopo «{x}» gli stati sono più disposti a cooperare: finestra aperta fino al {y}.", { x: esc(st.trWinBy), y: st.trWin })}</p>` : "";
-  return `<h4 style="margin-top:14px">${tr("Trattati dell'Autorità")}</h4><p class="note">${tr("Oggi gli stati versano all'Autorità il <b>{x}</b> del loro PIL. Con un trattato le passano un compito e i soldi per farlo: le entrate crescono molto, ma crescono quasi altrettanto le spese. Il guadagno è il risparmio del fare le cose insieme (circa il 15%), più gli sconti sui compiti comuni. Dopo una grande crisi mondiale gli stati sono molto più disposti ad approvarli.", { x: pct(trShare(st)) })}</p>${win}${rows}`;
+  const win = st.trWin && st.trWin >= st.year ? `<p class="trwin">${tr("Dopo «{x}» gli stati sono più disposti a cooperare: fino al {y} i favorevoli sono 15 punti più alti.", { x: esc(st.trWinBy), y: st.trWin })}</p>` : "";
+  return `<div class="trpage"><p class="note">${tr("Gli stati versano all'Autorità il <b>{x}</b> del loro PIL. Un trattato le passa un compito e i soldi per farlo: si guadagna il risparmio del fare le cose insieme. Tocca «Proponi» per i dettagli.", { x: pct(trShare(st)) })}</p>${win}<div class="trcards">${cards}</div></div>`;
 }
 function showTreaty(id) {
   const t = TBY[id], { support, drivers, chances } = trInfo(st, id), best = Math.max(...chances.map((c) => c.p));
@@ -7738,7 +7803,14 @@ function renderRegion() {
 let worldTab = "sum";
 function renderWorld() {
   const root = $("scrWorld");
-  const wtabs = `<div class="tabs" role="group" aria-label="${tr("Sezioni")}"><button type="button" data-wt="sum" aria-pressed="${worldTab === "sum"}">${tr("Riepilogo")}</button><button type="button" data-wt="stats" aria-pressed="${worldTab === "stats"}">${tr("Statistiche")}</button></div>`;
+  const wtabs = `<div class="tabs" role="group" aria-label="${tr("Sezioni")}"><button type="button" data-wt="sum" aria-pressed="${worldTab === "sum"}">${tr("Riepilogo")}</button><button type="button" data-wt="stats" aria-pressed="${worldTab === "stats"}">${tr("Statistiche")}</button>${trAvail(st) ? `<button type="button" data-wt="tr" aria-pressed="${worldTab === "tr"}">${tr("Trattati")}${trReady(st) || (st.trWin >= st.year) ? " •" : ""}</button>` : ""}</div>`;
+  if (worldTab === "tr" && trAvail(st)) {
+    root.innerHTML = headHTML(tr("Mondo"), wtabs) + treatiesHTML();
+    wireClose(root); wireWorldTabs(root);
+    for (const b of root.querySelectorAll("[data-tr]")) b.onclick = () => showTreaty(b.dataset.tr);
+    if (!st.trSeen) { st.trSeen = true; showTip({ title: "I trattati", text: "Qui puoi proporre agli stati di passare all'Autorità un compito comune e i soldi per farlo. Le entrate crescono quasi quanto le spese: si guadagna il risparmio del fare le cose insieme, più uno sconto sugli interventi di quel settore. Serve il sì dei due terzi degli stati: più il mondo è stabile, più sono favorevoli, e dopo una grande crisi mondiale lo sono molto di più." }); }
+    return;
+  }
   if (worldTab === "stats") {
     root.innerHTML = headHTML(tr("Mondo"), wtabs) + statsHTML(st.hist);
     wireClose(root); wireWorldTabs(root); wireStats(root, st.hist);
@@ -8237,7 +8309,18 @@ const TELE = (() => {
   const rid = () => Math.random().toString(36).slice(2, 10);
   let player = null; try { player = localStorage.getItem("gf-player") || (localStorage.setItem("gf-player", rid()), localStorage.getItem("gf-player")); } catch (e) { player = rid(); }
   const on = () => { try { return localStorage.getItem("gf-stats") !== "off"; } catch (e) { return true; } };
-  let lastPause = 0;
+  let lastPause = 0, lastN = 0;
+  const R1 = (v) => Math.round(v * 10) / 10;
+  function detail() {
+    const b = budget(st), out = b.out.slice(0, 5).map((x) => [x.name, R1(x.v)]), inc = b.inc.filter((x) => Math.abs(x.v) > 0.05).slice(0, 6).map((x) => [x.name, R1(x.v)]);
+    const news = st.log.filter((n) => n.n > lastN).map((n) => n.y + "/" + (n.mo + 1) + " " + n.text).reverse(); lastN = st.logN || 0;
+    return {
+      regioni: Object.values(st.regions).map((r) => [r.id, Math.round(r.stab), Math.round(r.unrest), Math.round(r.debt), R1(r.growth), r.controlled ? "dentro" : r.exit ? "uscita" : "anarchia"]),
+      entrate: R1(st.income), spese: R1(st.upkeep || 0), interessi: R1(st.interest || 0), tasso: R1(st.authRate || 0), voci_entrate: inc, voci_spese: out,
+      prezzi: R1(st.g.pl), inflazione: R1(st.g.infl), temp: R1(st.g.temp + st.g.geoOff), robot: R1((st.robShareW || 0) * 100), bolla: R1(st.bubble || 0), rischio_recessione: Math.round(econRisk(st).total * 1000) / 10,
+      trattati: st.treaties || {}, quota: trShare(st), interventi_nuovi: Object.keys(st.acts).filter((id) => st.acts[id].y0 === st.year || st.acts[id].y === st.year), notizie: news,
+    };
+  }
   function send(type, extra) {
     if (!URL || !st || !on()) return;
     if (!st.gid) st.gid = rid();
@@ -8245,6 +8328,8 @@ const TELE = (() => {
     const d = { t: type, p: player, g: st.gid, sc: st.levelId, diff: st.diffId, gov: st.govId, anno: st.year, stab: Math.round(worldStab(st)),
       fondi: Math.round(st.funds), int: Object.keys(st.acts).length, anarchia: rs.filter((r) => !r.controlled && !r.exit).length,
       uscite: rs.filter((r) => r.exit).length, min: Math.round((st.rt || 0) / 60000), x: extra || {} };
+    // ogni anno tutti i dati che servono per capire una partita (7 novembre 2026, richiesta di Guido: il foglio deve registrare tutto)
+    if (type === "anno" || type === "fine") Object.assign(d.x, detail());
     try { fetch(URL, { method: "POST", mode: "no-cors", keepalive: true, headers: { "Content-Type": "text/plain" }, body: JSON.stringify(d) }); } catch (e) {}
   }
   document.addEventListener("visibilitychange", () => {
@@ -8266,7 +8351,7 @@ function loop(now) {
       acc -= MONTH_MS;
       const ev = tick(st);
       changed = true;
-      if (st.month === 0) { save(); if (st.year % 5 === 0) TELE.send("anno"); }
+      if (st.month === 0) { save(); TELE.send("anno"); }
       if (st.over) { endGame(); break; }
       if (ev) queueEvent(ev);
       // nel tutorial la prima crisi arriva sempre, pochi mesi dopo l'avvio del tempo
@@ -8431,10 +8516,19 @@ function showNote() {
   savedSpeed = speed || savedSpeed || 1; speed = 0; pending = { note: true };
   const c = $("modalCard"); c.classList.add("tip", n.kind === "discovery" ? "disc" : n.kind === "warn" ? "warn" : "good");
   c.innerHTML = `<div class="notehead"><svg viewBox="-20 -20 40 40"><polygon points="${hexPts(18)}"/><use href="${iconHref(n.icon)}" x="-10" y="-10" width="20" height="20"/></svg><div><div class="eyebrow">${tr({ discovery: "Scoperta scientifica", report: "Esito dell'indagine", warn: "Allarme" }[n.kind] || "Buona notizia")} · ${MONTHS[n.mo]} ${n.y}</div><h2>${esc(tr(n.title).replace(/^(Scoperta|Discovery): /, ""))}</h2></div></div><p>${esc(tr(n.text))}</p>
-    <div class="tipfoot"><button type="button" class="buy" id="noteOk">${tr("Continua")}</button></div>`;
+    <div class="tipfoot"><button type="button" class="buy" id="noteOk">${tr("Continua")}</button>${n.go === "tr" ? `<button type="button" class="buy alt" id="noteGo">${tr("Vai ai trattati")}</button>` : ""}</div>`;
   $("modal").hidden = false;
   $("noteOk").onclick = () => { c.classList.remove("tip", "disc", "good", "warn"); $("modal").hidden = true; pending = null; speed = savedSpeed || 1; save(); refresh(); };
+  if ($("noteGo")) $("noteGo").onclick = () => { $("noteOk").onclick(); worldTab = "tr"; open("world"); };
   $("noteOk").focus(); hud();
+}
+// consiglio a tutta pagina che compare una volta sola (es. la prima volta nella scheda Trattati)
+function showTip(t) {
+  savedSpeed = speed || savedSpeed || 1; speed = 0; pending = { tip: true };
+  const c = $("modalCard"); c.classList.add("tip");
+  c.innerHTML = `<div class="eyebrow">${tr("Consiglio")}</div><h2>${esc(tr(t.title))}</h2><p>${esc(tr(t.text))}</p><div class="tipfoot"><button type="button" class="buy" id="tipOk">${tr("Capito")}</button></div>`;
+  $("modal").hidden = false;
+  $("tipOk").onclick = () => { c.classList.remove("tip"); $("modal").hidden = true; pending = null; speed = savedSpeed || 1; refresh(); };
 }
 function tipsOn() { try { return localStorage.getItem("gf-tips") !== "off"; } catch (e) { return true; } }
 function checkTips() {
