@@ -888,7 +888,7 @@ const P = {
   /* Tasse e contributi sul lavoro: circa metà delle entrate pubbliche (media OCSE 2023: contributi 25,5%, imposta sui redditi
      23,7%) [Certo]. Quando i robot fanno il lavoro delle persone, questa parte delle entrate sparisce, a meno di tassare i robot
      o di possedere una quota delle aziende che li usano (decisione del 25 ottobre 2026). */
-  laborTax: 0.5, capBase: 0.4,
+  laborTax: 0.5, capBase: 0.4, failRate: 0.3, failStab: 3, failYears: 4, // stato fallito: sotto failStab di stabilità per più di failYears anni la regione scivola verso l'anarchia
 };
 
 /* ---------- difficoltà ---------- */
@@ -899,7 +899,7 @@ const DIFF = {
   facile:    { name: "Facile",          inc: 1.1,  ev: 1, funds: 0, risk: 0.8,  adopt: 1.6, backlash: 0.6 },
   medio:     { name: "Medio",           inc: 1.0,  ev: 1, funds: 0, risk: 1.0,  adopt: 1.0, backlash: 1.0 },
   difficile: { name: "Difficile",       inc: 0.98, ev: 1, funds: 0, risk: 1.1,  adopt: 0.85, backlash: 1.08 },
-  super:     { name: "Super difficile", inc: 0.92, ev: 1, funds: 0, risk: 1.27, adopt: 0.68, backlash: 1.32, anarchyAt: 88 }, // il giocatore automatico vince circa 1 volta su 20 (5 su 100 nello scenario 5, 2 su 60 nel 6) e in circa metà delle partite una regione cade nell'anarchia; ritarato il 4 novembre 2026
+  super:     { name: "Super difficile", inc: 0.92, ev: 1, funds: 0, risk: 1.27, adopt: 0.68, backlash: 1.42, anarchyAt: 88 }, // il giocatore automatico vince circa 1 volta su 20 (5 su 100 nello scenario 5, 2 su 60 nel 6) e in circa metà delle partite una regione cade nell'anarchia; ritarato il 4 novembre 2026
 };
 
 /* ---------- scenari ----------
@@ -2145,13 +2145,16 @@ function upkeepOf(st, d) {
     if (tm && tm.n > 0 && st.year - (tm.y0 || tm.y) >= 5) base *= 0.9;
   }
   if (HEALTH_COST.includes(d.id) && built(st, "pubDrugs")) base *= 0.8;
-  return base * base0 * (k || 1) * (d.wasRegion && base > 0 ? ctrlShare(st) : 1) * (d.perUnit && a ? Math.max(1, a.n) : 1) * trSave(st, d) * ((st.g && st.g.pl) || 1) * (WAGE.has(d.id) ? Math.max(Math.pow(wageIdx(st), 0.6), growK(st, d)) : growK(st, d));
+  return base * base0 * (k || 1) * (d.wasRegion && base > 0 ? ctrlShareG(st) : 1) * (d.perUnit && a ? Math.max(1, a.n) : 1) * trSave(st, d) * ((st.g && st.g.pl) || 1) * (WAGE.has(d.id) ? Math.max(Math.pow(wageIdx(st), 0.6), growK(st, d)) : growK(st, d));
 }
 const worldDebt = (st) => { const rs = ctrlRegions(st), t = rs.reduce((a, r) => a + r.gdp, 0) || 1; return rs.reduce((a, r) => a + r.debt * r.gdp, 0) / t; };
 const worldSnow = (st) => { const rs = ctrlRegions(st), t = rs.reduce((a, r) => a + r.gdp, 0) || 1; return rs.reduce((a, r) => a + snowball(r, st) * r.gdp, 0) / t; };
 // dopo una ristrutturazione: tassi più alti per otto anni (da +3,5 punti a zero) e nessun prestito all'Autorità per cinque anni
 const restrPrem = (st) => (st.restrY != null && st.year - st.restrY < 8 ? 3.5 * (1 - (st.year + st.month / 12 - st.restrY) / 8) : 0);
 const noCredit = (st) => st.restrY != null && st.year + st.month / 12 - st.restrY < 5;
+// quota del prodotto mondiale nelle regioni che stanno dentro l'Autorità: i programmi nelle regioni costano in proporzione alla loro
+// ricchezza (salari e prezzi), come le entrate. Se una regione esce si risparmia quanto si perde di entrate (7 novembre 2026)
+function ctrlShareG(st) { let a = 0, t = 0; for (const id in st.regions) { const r = st.regions[id]; t += r.gdp; if (r.controlled) a += r.gdp; } return t ? a / t : 1; }
 function ctrlShare(st) { let a = 0, t = 0; for (const id in st.regions) { const r = st.regions[id]; t += r.pop; if (r.controlled) a += r.pop; } return t ? a / t : 1; }
 // quota del prodotto mondiale nelle regioni cadute nell'anarchia: lì scappano i capitali
 function anarchyShare(st) { let a = 0, t = 0; for (const id in st.regions) { const r = st.regions[id]; t += r.gdp; if (!r.controlled) a += r.gdp; } return t ? a / t : 0; }
@@ -2321,7 +2324,7 @@ function logNews(st, text, kind, quiet) {
 }
 
 // effetto palla di neve: (tasso reale a lungo termine della regione − crescita) × debito, in punti di prodotto l'anno
-const regionRate = (r, st) => st.g.longR - st.g.infl + (st.credPrem || 0) + Math.max(0, r.debt - 100) * 0.01 * (trOn(st, "trFiscal") ? 0.4 : 1); // unione fiscale: debito comune [Certo: titoli europei 0,7-1,8 punti sotto gli stati più indebitati]
+const regionRate = (r, st) => st.g.longR - st.g.infl + (st.credPrem || 0) - (r.repressUntil > st.year ? 3 : 0) + Math.max(0, r.debt - 100) * 0.01 * (trOn(st, "trFiscal") ? 0.4 : 1); // unione fiscale: debito comune [Certo: titoli europei 0,7-1,8 punti sotto gli stati più indebitati]
 const snowball = (r, st) => (regionRate(r, st) - r.growth) * r.debt / 100;
 const PENS_K = 140; // peso del welfare per ogni anziano rispetto ai lavoratori
 // crescita della produttività per lavoratore (% l'anno)
@@ -2416,6 +2419,7 @@ function startRecession(st, cause, delay) {
 const recOk = (st) => !(st.L && st.L.tutorial) && st.year - (st.recY || -99) >= REC_GAP;
 function econTick(st, dt) {
   if (st.L && st.L.tutorial) return;
+  budgetWatch(st);
   st.credPrem = (st.credPrem || 0) * (1 - 0.2 * dt); // sfiducia dei mercati dopo un taglio del debito: cala in circa cinque anni
   // la bolla cresce negli anni di boom, con tassi bassi e nelle corse a una nuova tecnologia; la vigilanza sul credito la frena
   const rr = st.g.rate - st.g.infl, wg = worldGrowth(st);
@@ -2432,7 +2436,33 @@ function econTick(st, dt) {
     if ((st.bubble || 0) > 6 && rand() < 0.5 && recOk(st)) startRecession(st, "fin", 3);
     else st.bubble = (st.bubble || 0) * 0.5;
   }
-  if (!st.forceEv && st.econQ && st.econQ.length && st.econQ[0].at <= now) { const q = st.econQ.shift(); st.forceEv = { id: q.id, r: q.r || null }; }
+  // crisi del debito: sempre quando una regione supera il 120%, poi ogni 30 punti in più; sotto il 100% si riparte da 120
+  for (const r of ctrlRegions(st)) {
+    if (r.debtNext == null) r.debtNext = Math.max(120, Math.ceil((r.debt + 1) / 30) * 30); // chi parte già sopra il 120% aspetta la soglia successiva
+    if (r.debt < 100) r.debtNext = 120;
+    else if (r.debt >= (r.debtNext || 120) && !(st.econQ || []).some((q) => q.id === "debt" && q.r === r.id)) { r.debtNext = Math.ceil((r.debt + 1) / 30) * 30; (st.econQ || (st.econQ = [])).push({ id: "debt", r: r.id, at: now }); }
+  }
+  if (!st.forceEv && st.econQ && st.econQ.length && st.econQ[0].at <= now) { const q = st.econQ.shift(); st.forceEv = { id: q.id, r: q.r || null }; if (q.id === "debt") st.debtR = q.r; }
+}
+/* Avviso quando i conti dell'Autorità vanno in rosso (7 novembre 2026, richiesta di Guido): ogni gennaio si confronta il saldo
+   con quello dell'anno prima e, se è diventato negativo o è peggiorato molto, si spiega perché con le voci che sono cambiate di più. */
+function budgetWatch(st) {
+  if (st.sim || st.month !== 0) return;
+  const b = budget(st), items = {}, ctrl = ctrlRegions(st).map((r) => r.id);
+  for (const x of b.out) items[x.name] = (items[x.name] || 0) + x.v;
+  const net = st.income - (st.upkeep || 0) - (st.interest || 0), prev = st.bPrev;
+  st.bPrev = { net, income: st.income, interest: st.interest || 0, items, ctrl };
+  if (!prev || st.year - (st.bWarnY || -99) < 3) return;
+  if (!(net < 0 && (prev.net >= 0 || net < prev.net - 0.25 * Math.abs(st.income)))) return;
+  const why = [];
+  const gone = prev.ctrl.filter((id) => !ctrl.includes(id)).map((id) => st.regions[id].name);
+  if (st.income < prev.income * 0.97) why.push(`entrate ${fmt1(st.income - prev.income)} fondi${gone.length ? " (" + gone.join(", ") + (gone.length > 1 ? " non versano più" : " non versa più") + ")" : ""}`);
+  if ((st.interest || 0) > prev.interest + 1) why.push(`interessi sul debito ${"+" + fmt1((st.interest || 0) - prev.interest)} fondi: il debito dell'Autorità è ${debtStep(st) >= 2 ? "oltre due anni e mezzo di entrate e il tasso sale in fretta" : "cresciuto"}`);
+  const up = Object.keys(items).map((k) => [k, items[k] - (prev.items[k] || 0)]).filter((x) => x[1] > 0.5 && !/^Interessi/.test(x[0])).sort((a, c) => c[1] - a[1]).slice(0, 3);
+  for (const [k, v] of up) why.push((prev.items[k] || 0) < 0.5 ? `nuova spesa «${k}» ${"+" + fmt1(v)} fondi` : `«${k}» +${fmt1(v)} fondi`);
+  if (!why.length) return;
+  st.bWarnY = st.year;
+  note(st, "warn", "austerity", "I conti dell'Autorità sono in rosso", `Il saldo è passato da ${fmt1(prev.net)} a ${fmt1(net)} fondi l'anno. Cosa è cambiato rispetto all'anno scorso: ${why.join("; ")}. Tocca i fondi per vedere tutte le entrate e le spese.`);
 }
 // dopo una grande crisi mondiale spesso arriva anche la recessione (Covid 2020); e si apre una finestra per i trattati
 function afterWorldCrisis(st, id) {
@@ -2809,17 +2839,21 @@ function genEv(id, after, title, text, choices) {
     p: (st) => (st.flags.genMkt != null && !st.flags.genBan && !st.G.noGenMarket && st.year - st.flags.genMkt >= after && (i === 0 || st.flags["done_" + GEN_CHAIN[i - 1]]) ? 0.5 : 0) };
 }
 const EVENTS = [
+  /* Crisi del debito (rivista il 7 novembre 2026, richiesta di Guido): arriva sempre quando una regione supera il 120% del prodotto,
+     poi di nuovo ogni 30 punti in più. Tre strade reali, ognuna con chi paga [Certo]:
+     - piano di rientro: il deficit scende di 3 punti l'anno per quattro anni, ma i tagli in recessione costano crescita e consenso
+       (Blanchard e Leigh 2013);
+     - repressione finanziaria: tassi tenuti sotto l'inflazione e banche obbligate a comprare titoli; il debito si erode di
+       qualche punto l'anno, lo pagano i risparmiatori (Stati Uniti e Regno Unito dopo il 1945: 3-4 punti l'anno; Reinhart e Sbrancia 2011);
+     - oltre il 200%, ristrutturazione: il debito scende al 90%, lo pagano i creditori della regione e del resto del mondo. */
   { id: "debt", scope: "region", cat: "Economia", title: "Crisi del debito",
-    p: (st, r) => r.debt > 140 ? Math.min(0.5, (r.debt - 140) * 0.012) : 0,
-    text: (st, r) => pick([
-      `I mercati non rinnovano i titoli di ${r.name}: il debito ha superato il ${Math.round(r.debt)}% del prodotto e nessuno vuole più prestare.`,
-      `Le agenzie di valutazione declassano ${r.name}. Gli interessi sul debito, ormai al ${Math.round(r.debt)}% del prodotto, schizzano verso l'alto.`,
-      `In ${r.name} le banche sono piene di titoli pubblici che nessuno compra più. Il debito è al ${Math.round(r.debt)}% del prodotto.`,
-    ]),
+    p: () => 0,
+    text: (st, r) => `I mercati non si fidano più dei conti di ${r.name}: il debito pubblico è al ${Math.round(r.debt)}% del prodotto e gli interessi salgono. ${r.debt >= 200 ? "A questo livello il debito non si può più ripagare per intero." : "Bisogna scegliere chi pagherà per farlo scendere."}`,
     choices: [
-      { label: "Salvataggio dell'Autorità", cost: 20, out: "Il debito scende molto e la crisi rientra", fx: (st, r) => { r.debt -= 40; r.shockU += 3; } },
-      { label: "Austerità imposta", cost: 3, out: "Il debito scende molto, ma il malcontento esplode", fx: (st, r) => { r.debt -= 35; r.shockU += 28; } },
-      { label: "Non fare nulla", cost: 0, out: "Recessione, debito ancora più alto, rischio di anarchia", fx: (st, r) => { r.shockG -= 3; r.shockU += 25; r.debt += 15; } },
+      { ok: (st) => !(debtR(st) && debtR(st).debt >= 200), label: "Piano di rientro: tagli e tasse", cost: 0, out: "Il deficit scende di 3 punti l'anno per quattro anni, ma i tagli frenano l'economia e fanno arrabbiare", fx: (st, r) => { r.austUntil = st.year + 4; r.shockU += 10; r.shockG -= 1.2; } },
+      { ok: (st) => debtR(st) && debtR(st).debt >= 200, label: "Ristrutturazione: taglio del debito", cost: 0, out: "Il debito scende al 90%; lo pagano i risparmiatori della regione e le banche del resto del mondo, e per qualche anno i tassi salgono per tutti", fx: (st, r) => cutDebt(st, r, 90, true) },
+      { label: "Repressione finanziaria", cost: 0, out: "Per dieci anni tassi sotto l'inflazione: il debito si erode piano. Pagano i risparmiatori, che perdono valore ogni anno; un po' meno crescita", fx: (st, r) => { r.repressUntil = st.year + 10; r.shockU += 5; r.shockG -= 0.5; st.g.piShock += 0.2; } },
+      { label: "Non fare nulla", cost: 0, out: "Interessi più alti: il debito sale ancora, la crescita rallenta e cresce la rabbia", fx: (st, r) => { r.debt += 8; r.shockG -= 1.5; r.shockU += 8; } },
     ] },
   { id: "energyShock", scope: "global", cat: "Energia", title: "Crisi del petrolio e del gas",
     p: (st) => 0.05 * avgOf(st, "fossil") / 80 * (st.g.tension > 55 ? 1.5 : 1),
@@ -3783,6 +3817,19 @@ function rebuildInfo(st, r) {
   return { years: Math.max(1, st.year - (r.anarY || st.year)), drop: Math.round((1 - r.gdp / (r.gdpPre || r.gdp)) * 100), dead: fmt1(r.deadA || 0), debt: Math.round(r.debt),
     loss: Math.round(L), home: Math.round(L * (1 - f)), abroad: Math.round(L * f), abroadV: Math.round(L * f * 10) / 10, lossV: L, f };
 }
+const debtR = (st) => st.debtR && st.regions[st.debtR];
+// taglio del debito di una regione fino a "target": chi ci perde sono i risparmiatori della regione e, se creditors, le banche del mondo
+function cutDebt(st, r, target, creditors) {
+  const L = Math.max(0, r.debt - target) / 100 * gdpFondi(st, r), f = DEBT_FOREIGN[r.id] || 0.3;
+  r.debt = Math.min(r.debt, target);
+  r.shockU += 8 * (1 - f); r.pension += 2 * (1 - f);
+  if (creditors) {
+    let w = 0; for (const id in st.regions) w += st.regions[id].gdp;
+    const k = L * f / Math.max(1, w / r.gdp * gdpFondi(st, r)) * 100;
+    for (const o of ctrlRegions(st)) if (o !== r) { o.shockG -= 0.4 * k; o.shockU += 1 * k; }
+    st.credPrem = (st.credPrem || 0) + Math.min(2, 0.3 + 0.2 * k);
+  }
+}
 function rebuildCut(st, r, creditors) {
   const x = rebuildInfo(st, r);
   r.debt = Math.min(r.debt, REBUILD_TARGET); r.rebound = 2; r.reboundUntil = st.year + 5;
@@ -4210,6 +4257,7 @@ function tick(st) {
     const cyc = r.controlled ? Math.max(0, basePg(r) - 1 - r.growth) * 0.5 : 0; // solo in una vera frenata
     const ageCost = r.dep0 != null ? Math.max(0, r.old / r.wrk - r.dep0) * 0.8 : 0;
     r.dSnow = snowball(r, st); r.dDef = r.defBase + (r.pension - r.pens0) * 0.08 + m.debtF + cyc + ageCost + (r.controlled ? CONTRIB_DEF * st.D.inc : 0); // palla di neve e deficit
+    if (r.austUntil > st.year) r.dDef -= 3; // piano di rientro
     if (r.controlled || r.exit) r.debt += dt * (r.dDef + r.dSnow); // in anarchia nessuno paga e nessuno presta: il debito resta congelato
     r.debt = clamp(r.debt, 0, 400);
 
@@ -4251,7 +4299,11 @@ function tick(st) {
 
     // perdita del controllo (anche una regione uscita può precipitare nell'anarchia)
     if (r.controlled || r.exit) {
-      if (r.unrest >= (st.D.anarchyAt || 92)) r.anarchy += dt * (st.G.anarchy || 1); // a super difficile si crolla prima (2 novembre 2026) else r.anarchy = Math.max(0, r.anarchy - 0.5 * dt);
+      // stato fallito (7 novembre 2026): con la stabilità quasi a zero per anni lo stato non paga più stipendi, ospedali e polizia
+      r.lowStabY = r.stab < P.failStab ? (r.lowStabY || 0) + dt : 0;
+      if (r.unrest >= (st.D.anarchyAt || 92)) r.anarchy += dt * (st.G.anarchy || 1); // a super difficile si crolla prima (2 novembre 2026)
+      else if (r.lowStabY > P.failYears) r.anarchy += P.failRate * dt * (st.G.anarchy || 1);
+      else r.anarchy = Math.max(0, r.anarchy - 0.5 * dt); // prima questa riga era finita per errore dentro il commento: il contatore non scendeva mai
       if (r.debt > 220 && rand() < 0.3 * dt) { r.shockU += 15; logNews(st, `In ${r.name} lo stato non paga più stipendi e pensioni.`, "bad"); }
       if (r.anarchy >= 2) {
         r.controlled = false; r.exit = false; r.nego = null; r.stab = 0; st.everAnarchy = true; r.gdpPre = r.gdp; r.deadA = 0; r.anarY = st.year;
@@ -8168,6 +8220,7 @@ function evDataHTML(ev, r) {
   return `<div class="evdata">${items.map(([k, v]) => `<span>${tr(k)} <b>${typeof v === "string" ? tr(v) : v}</b></span>`).join("")}</div>`;
 }
 function showEvent(ev) {
+  if (ev.id === "debt" && ev.r) st.debtR = ev.r; // le scelte dipendono dal debito di quella regione
   // avviso elettorale per una regione già uscita: non vale più (5 novembre 2026)
   if (ev.id === "electionRisk" && ev.r && st.regions[ev.r] && !st.regions[ev.r].controlled) { refresh(); return; }
   pending = ev;
