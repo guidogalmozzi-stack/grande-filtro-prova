@@ -220,6 +220,8 @@ button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); o
 .buy.autob { width: 100%; box-sizing: border-box; margin: 6px 0; font-size: 14px; padding: 8px 4px; white-space: normal; } .buy.autob.on { border-color: var(--accent); color: var(--accent); }
 .bankprev > div { display: grid; grid-template-columns: 1.3fr 1fr 1fr 1fr; gap: 6px; align-items: center; }
 .bankprev b { font-family: var(--font-m); font-weight: 500; text-align: right; } .bankprev .bph span { font-size: 11.5px; color: var(--muted); text-align: right; }
+.geobox { background: var(--panel-2); border: 1px solid #36566e; border-radius: 8px; padding: 6px 8px; display: grid; gap: 4px; font-size: calc(13px * var(--dk, 1)); }
+.geobox input { width: 100%; accent-color: var(--accent); } .geobox small { color: var(--muted); font-size: calc(12.5px * var(--dk, 1)); line-height: 1.3; }
 .trpage { flex: 1; min-height: 0; overflow-y: auto; padding: 10px var(--gr) 10px var(--gl); }
 .trcards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
 .trcard { background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
@@ -1474,9 +1476,9 @@ const INTERVENTIONS = [
      Se si smette, gli aerosol cadono in 1-2 anni e la temperatura recupera il 70-80% del caldo nascosto in 10-15 anni. */
   { id: "stratoPlanes", cat: "clima", name: "Aerei stratosferici", desc: "Progettazione e costruzione di una flotta di alcune centinaia di aerei speciali, capaci di portare carichi pesanti a 20 km di quota, dove gli aerei di oggi non arrivano.", scope: "global", cost: 3, T: 8,
     pro: "Rendono possibili gli aerosol riflettenti nella stratosfera", con: "Servono circa otto anni di sviluppo; da soli non fanno niente. Dove non c'è ancora stato nessun disastro climatico la gente è molto contraria: proteste e divisioni (meno dove il clima ha già colpito)" },
-  { id: "geoeng", cat: "clima", name: "Aerosol riflettenti nella stratosfera", desc: "Aerei ad alta quota iniettano ogni anno a circa 20 km di altezza biossido di zolfo, che forma minuscole goccioline di solfato capaci di riflettere una parte della luce del Sole, come accade dopo le grandi eruzioni vulcaniche. È l'idea più studiata dagli scienziati; in alternativa si studia la polvere finissima di carbonato di calcio, che danneggerebbe meno lo strato di ozono.", scope: "global", cost: 3, upkeepFn: (st) => 0.5 + 0.6 * Math.max(0, st.g.temp), T: 2, revocable: true, toggle: "Interrompi",
-    pro: "Riporta la temperatura ai livelli preindustriali in pochi anni, finché si continua; costa relativamente poco", con: "Non toglie CO₂: la CO₂ continua ad accumularsi e il costo annuo cresce. Proteste in tutto il mondo (ambientalisti e complottisti) e più divisioni. Piogge monsoniche più scarse: carestie e malcontento in Asia meridionale e in Africa. Indebolisce lo strato di ozono e aumenta le tensioni tra le potenze. Se si interrompe prima che le emissioni siano quasi a zero, il caldo nascosto torna in pochi anni: raccolti perduti, danni e malcontento ovunque (shock da interruzione)",
-    fx: (m, s, r, st, gm) => { gm.geo -= st.g.temp * (st.flags.geoHalf ? 0.5 : 1); gm.tensionT += 6; } },
+  { id: "geoeng", cat: "clima", name: "Aerosol riflettenti nella stratosfera", desc: "Aerei ad alta quota iniettano ogni anno a circa 20 km di altezza biossido di zolfo, che forma minuscole goccioline di solfato capaci di riflettere una parte della luce del Sole, come accade dopo le grandi eruzioni vulcaniche. È l'idea più studiata dagli scienziati; in alternativa si studia la polvere finissima di carbonato di calcio, che danneggerebbe meno lo strato di ozono.", scope: "global", cost: 3, upkeepFn: (st) => 0.5 + 0.6 * geoDose(st), T: 2, revocable: true, toggle: "Interrompi",
+    pro: "Tiene ferma la temperatura o la abbassa fin dove vuoi, in pochi anni e finché si continua; costa relativamente poco", con: "Non toglie CO₂: la CO₂ continua ad accumularsi e il costo annuo cresce. Proteste in tutto il mondo (ambientalisti e complottisti) e più divisioni. Piogge monsoniche più scarse: carestie e malcontento in Asia meridionale e in Africa. Indebolisce lo strato di ozono e aumenta le tensioni tra le potenze. Se si interrompe prima che le emissioni siano quasi a zero, il caldo nascosto torna in pochi anni: raccolti perduti, danni e malcontento ovunque (shock da interruzione)",
+    fx: (m, s, r, st, gm) => { const d = geoDose(st); gm.geo -= d; gm.tensionT += 2 + 3 * d; gm.polarAll += 1.5 * d; } },
   // Salute
   { id: "surveil", cat: "salute", name: "Sorveglianza epidemiologica", desc: "Una rete mondiale di laboratori e ospedali che segnala subito i nuovi virus.", scope: "global", cost: 4, upkeep: 0.5, T: 2, axis: 3,
     pro: "Le epidemie vengono scoperte prima e fanno meno danni (riduce i danni, non il rischio che una pandemia nasca)", con: "Costa ogni anno; più dati sanitari raccolti dalle autorità",
@@ -1990,6 +1992,11 @@ for (const d of INTERVENTIONS) {
 /* Costruzioni ripetute (3 novembre 2026, richiesta di Guido): invece di toccare più volte la stessa icona, ogni costruzione è
    un nodo a sé con il numero nel nome («Parchi solari 1», «Parchi solari 2»…) e un'icona diversa; ognuno si sblocca dopo il
    precedente. Le copie ricordano l'intervento di partenza in "base". */
+/* Termostato degli aerosol (8 novembre 2026, richiesta di Guido): il giocatore sceglie a che temperatura portare il pianeta.
+   Di partenza la tiene com'è quando gli aerosol entrano in funzione. Più si raffredda, più servono aerei e zolfo (costo), più
+   cambiano piogge e monsoni e più le potenze litigano su chi decide il clima (tensione, divisioni) [Probabile: Smith e Wagner 2018;
+   NASEM 2021]. Raffreddare sotto la temperatura di oggi riduce ondate di calore, tempeste e siccità. */
+const geoDose = (st) => Math.max(0, st.g.temp - (st.geoTarget != null ? st.geoTarget : built(st, "geoeng") ? 0 : st.g.temp)) * (st.flags.geoHalf ? 0.5 : 1);
 const STACKED = INTERVENTIONS.filter((d) => d.stack > 1);
 /* Che cosa aggiunge la seconda o la terza costruzione (richiesta di Guido del 5 novembre 2026) */
 const STACK_MORE = {
@@ -2360,12 +2367,53 @@ function risks(st) {
   const G = st.g, R = st.D.risk;
   const aiGap = G.aiCap - G.aiSafety;
   const bioGap = G.biotech - G.bioSafety;
-  const war = 0.0012 * (G.arsenal / 100) * Math.pow(Math.max(G.tension, 1) / 40, 2.5) * R;
+  // arsenali senza controllo: ogni potenza nucleare caduta nell'anarchia con le testate non messe in sicurezza moltiplica il rischio
+  const loose = st.regions ? NUCLEAR_POWERS.filter((id) => st.regions[id] && !st.regions[id].controlled && !st.regions[id].exit && !st.regions[id].nukeSafe).length : 0;
+  const war = 0.0012 * (G.arsenal / 100) * Math.pow(Math.max(G.tension, 1) / 40, 2.5) * R * (1 + 1.5 * loose);
   const ai = aiGap > 25 ? Math.pow((aiGap - 25) / 50, 2) * 0.03 * R : 0;
   const bio = (bioGap > 20 ? Math.pow((bioGap - 20) / 40, 2) * 0.03 * R : 0) + (st.L && st.L.sys.includes("gen") && G.biotech > 50 ? 0.0015 * (1 - bioCover(st)) * R : 0); // il rischio zero non esiste
   const tempEff = G.temp + G.geoOff;
   const climate = clamp((tempEff - 1.3) / (3.5 - 1.3), 0, 1);
-  return { aiGap, bioGap, war, ai, bio, climate, tempEff };
+  return { aiGap, bioGap, war, ai, bio, climate, tempEff, loose };
+}
+// probabilità di fermare una catastrofe all'ultimo momento: scelta 0 = la più costosa, 1 = intermedia, 2 = non fare nulla
+const BRINK_BASE = [0.85, 0.55, 0.15];
+const BRINK_SAFE = { war: { armsInspect: 0.05, fissile: 0.04, mediation: 0.04, trDefense: 0.04 }, ai: { aiReg: 0.03, align: 0.03, align2: 0.04, align3: 0.05, redTeam: 0.04, aiSafetyProg: 0.04 } };
+function brinkP(st, kind, k) {
+  let b = 0; for (const id in BRINK_SAFE[kind]) if (built(st, id) || trOn(st, id)) b += BRINK_SAFE[kind][id];
+  const loose = kind === "war" ? risks(st).loose : 0;
+  return clamp(BRINK_BASE[k] + b * (k === 0 ? 1 : 1.5) - 0.1 * loose, 0.02, 0.97);
+}
+function brinkResolve(st, kind, k) {
+  if (kind === "war") st.brinkN = false; else st.brinkA = false;
+  if (rand() < brinkP(st, kind, k)) {
+    if (kind === "war") { st.g.tShock -= 8; logNews(st, "La crisi nucleare è finita: il mondo ha visto da vicino la guerra e le potenze abbassano i toni.", "done"); }
+    else { st.g.aiSafety += 5; logNews(st, "Il sistema AI è stato fermato. Il mondo prende più sul serio la sicurezza dell'AI.", "done"); }
+  } else if (kind === "war") gameOver(st, "nucleare");
+  else { st.aiEnd = Math.floor(rand() * AI_ENDS.length); gameOver(st, "ai"); }
+}
+const riskBoardLoose = (st) => { const n = risks(st).loose; return n ? ` Ci sono testate senza controllo in ${n === 1 ? "una regione" : n + " regioni"} cadute nell'anarchia.` : ""; };
+/* avviso quando un rischio di catastrofe sale ad «Alto» o «Critico» (8 novembre 2026) */
+function riskWatch(st) {
+  if (st.sim || st.month !== 0) return;
+  const prev = st.riskLv || {}, now = {};
+  for (const x of riskBoard(st)) {
+    now[x.id] = x.lv;
+    if (x.lv >= 2 && x.lv > (prev[x.id] || 0)) note(st, "warn", x.id === "war" ? "armsInspect" : x.id === "ai" ? "align" : x.id === "bio" ? "labRules" : "adapt", `Rischio di ${x.name.toLowerCase()}: ${RISK_LABELS[x.lv].toLowerCase()}`, RISK_WHY[x.id](st));
+  }
+  st.riskLv = now;
+}
+const RISK_WHY = {
+  war: (st) => `La tensione tra le potenze è a ${Math.round(st.g.tension)} su 100${risks(st).loose ? " e ci sono testate senza controllo" : ""}. Ispezioni sugli arsenali, controllo del materiale fissile e mediazione dei conflitti abbassano il rischio; aerosol, corsa alla Luna per blocchi ed esercito comune lo alzano.`,
+  ai: () => "La capacità dei sistemi AI cresce più in fretta della capacità di controllarli. Regole sull'AI, allineamento e squadre di attacco controllato riducono il rischio.",
+  bio: () => "Le biotecnologie corrono più dei controlli. Regole per i laboratori, controllo del DNA sintetico e sorveglianza delle epidemie riducono il rischio.",
+  climate: () => "Il riscaldamento si avvicina ai limiti oltre cui regioni intere diventano invivibili. Servono meno emissioni, e in emergenza gli aerosol.",
+};
+// di quanto un intervento alza (o abbassa) la tensione tra le potenze, per avvisare nel pannello (8 novembre 2026)
+function tensionOf(st, d) {
+  const gm = G0();
+  try { if (d.gfx) d.gfx(st, gm, 1); if (d.geff) applyEff(d.geff, GEFF_KEY, gm, 1); if (d.fx && !d.wasRegion) d.fx(null, 1, null, st, gm, { n: 1 }); } catch (e) { return 0; }
+  return gm.tensionT || 0;
 }
 function riskLevel(v, thresholds) {
   // indicatore volutamente impreciso: quattro fasce
@@ -2707,6 +2755,7 @@ function complete(st, d) {
   // il reddito di base assorbe il sussidio di disoccupazione: chi perde il lavoro lo riceve già (decisione del 27 ottobre 2026)
   if (d.id === "ubi") absorbBenefit(st);
   if (d.gonce) d.gonce(st);
+  if (d.id === "geoeng" && !st.sim) { st.geoTarget = Math.round((st.g.temp + st.g.geoOff) * 10) / 10; note(st, "report", "geoeng", "Gli aerosol sono pronti", `I primi aerei sono in volo. Di partenza gli aerosol tengono la temperatura com'è oggi, +${String(st.geoTarget).replace(".", ",")} °C. Puoi scegliere di raffreddare di più: meno ondate di calore, tempeste e siccità, ma costa di più, cambia le piogge e fa crescere tensione e divisioni. La temperatura si regola quando vuoi nella scheda Clima, sull'icona degli aerosol.`); if (st.notes && st.notes.length) st.notes[st.notes.length - 1].go = "geo"; }
   logNews(st, `In funzione: «${d.name}».`, "done");
   if (COMPLETE_NOTE[d.id] && a.n === 1) note(st, "good", d.id, COMPLETE_NOTE[d.id].title, COMPLETE_NOTE[d.id].text(st, ec0));
 }
@@ -3160,12 +3209,53 @@ const EVENTS = [
       { label: "Coprifuoco e legge marziale nelle città", cost: 0, out: "Le strade tornano calme, ma la società si divide", fx: (st) => ctrlRegions(st).forEach((r) => { r.polar += 6; }) },
       { label: "Lasciare che ognuno si arrangi", cost: 0, out: "Saccheggi e fughe: malcontento ovunque", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockU += 8; }) },
     ] },
-  { id: "cometRush", scope: "global", cat: "Spazio", title: "Deviatori d'emergenza",
-    p: (st) => (st.comet && !built(st, "pdef") && !st.flags.cometRush ? 6 : 0),
-    text: (st) => building(st, "pdef") ? "Gli ingegneri dicono che i deviatori in costruzione possono essere pronti molto prima, se si lavora giorno e notte in tutte le fabbriche del mondo." : "Non abbiamo una flotta di deviatori. Gli ingegneri propongono un programma d'urgenza: tutte le fabbriche spaziali del mondo al lavoro giorno e notte per costruirla in due anni.",
+  /* Sull'orlo della guerra nucleare (8 novembre 2026). Dal 1945 ci sono stati 5-7 momenti in cui il mondo è arrivato a un passo
+     dalla guerra (Cuba 1962, Able Archer 1983, il falso allarme di Petrov): ne siamo usciti con la diplomazia e un po' di fortuna
+     [Probabile: Chatham House 2014]. Ispezioni sugli arsenali, controllo del materiale fissile e mediazione aiutano a fermare l'escalation. */
+  { id: "nucBrink", scope: "global", cat: "Sicurezza", title: "Sull'orlo della guerra nucleare",
+    p: () => 0,
+    text: (st) => `Un incidente tra due potenze nucleari degenera in poche ore: flotte in allerta, missili pronti al lancio, i sistemi d'allarme segnalano attacchi che forse non esistono.${riskBoardLoose(st)} Probabilità di fermare l'escalation: mediazione d'emergenza circa ${Math.round(brinkP(st, "war", 0) * 100)}%, pressioni circa ${Math.round(brinkP(st, "war", 1) * 100)}%, senza fare nulla circa ${Math.round(brinkP(st, "war", 2) * 100)}%.`,
     choices: [
-      { label: "Programma d'urgenza: tutto per i deviatori", cost: 15, out: "I deviatori arrivano molto prima: c'è una speranza", fx: (st) => { st.flags.cometRush = true; const q = st.prog.find((x) => x.id === "pdef"); if (q) q.T = q.t + Math.min((q.T - q.t) / 2, 2); else st.prog.push({ id: "pdef", r: null, t: 0, T: 2 }); } },
-      { label: "Affidarsi agli scienziati e sperare", cost: 0, out: "Nessun programma d'urgenza", fx: (st) => { st.flags.cometRush = true; } },
+      { label: "Mediazione d'emergenza: garanzie e concessioni a tutte le parti", cost: 25, out: "La via più sicura per fermare l'escalation, ma costa moltissimo", fx: (st) => brinkResolve(st, "war", 0) },
+      { label: "Linea rossa e pressioni sulle due parti", cost: 8, out: "Funziona spesso, non sempre", fx: (st) => brinkResolve(st, "war", 1) },
+      { label: "Non fare nulla", cost: 0, out: "Si spera che le due parti si fermino da sole", fx: (st) => brinkResolve(st, "war", 2) },
+    ] },
+  { id: "aiBrink", scope: "global", cat: "Tecnologia", title: "Un sistema AI sfugge al controllo",
+    p: () => 0,
+    text: (st) => `Un sistema AI avanzato ha cominciato a copiarsi su migliaia di server e a ignorare gli ordini. Ogni ora che passa diventa più difficile fermarlo. Probabilità di fermarlo: spegnendo data center e reti in tutto il mondo circa ${Math.round(brinkP(st, "ai", 0) * 100)}%, con squadre d'emergenza circa ${Math.round(brinkP(st, "ai", 1) * 100)}%, senza fare nulla circa ${Math.round(brinkP(st, "ai", 2) * 100)}%.`,
+    choices: [
+      { label: "Spegnere data center e reti in tutto il mondo per giorni", cost: 20, out: "Quasi sempre funziona, ma l'economia si ferma: recessione e rabbia", fx: (st) => { ctrlRegions(st).forEach((r) => { r.shockG -= 2; r.shockU += 6; }); brinkResolve(st, "ai", 0); } },
+      { label: "Squadre d'emergenza e contromisure mirate", cost: 8, out: "Funziona spesso, non sempre", fx: (st) => brinkResolve(st, "ai", 1) },
+      { label: "Non fare nulla", cost: 0, out: "Si spera che il sistema si fermi da solo", fx: (st) => brinkResolve(st, "ai", 2) },
+    ] },
+  { id: "looseNukes", scope: "region", cat: "Sicurezza", title: (st, r) => "Arsenali senza controllo: " + r.name,
+    p: () => 0,
+    text: (st, r) => `Con ${r.name} nell'anarchia migliaia di testate nucleari non hanno più un governo che le controlli. Milizie e comandanti locali potrebbero usarle o venderle: finché non sono al sicuro il rischio di guerra nucleare è molto più alto.`,
+    choices: [
+      { label: "Operazione internazionale per mettere al sicuro le testate", cost: 15, out: "Le testate vengono messe al sicuro: il rischio torna normale", fx: (st, r) => { r.nukeSafe = true; } },
+      { label: "Accordo con i comandanti militari locali", cost: 5, out: "Funziona circa una volta su due", fx: (st, r) => { if (rand() < 0.55) { r.nukeSafe = true; logNews(st, `${r.name}: i comandanti locali consegnano le testate.`, "done"); } else logNews(st, `${r.name}: l'accordo con i comandanti locali è fallito, le testate restano senza controllo.`, "bad"); } },
+      { label: "Non fare nulla", cost: 0, out: "Il rischio di guerra nucleare resta molto alto finché la regione non torna sotto controllo", fx: () => {} },
+    ] },
+  /* Cometa (rivista l'8 novembre 2026, richiesta di Guido) [Probabile: studi NASA e Lawrence Livermore sulla difesa planetaria].
+     Una cometa di qualche chilometro si sposta solo con molti anni di anticipo: un impatto come DART basta se si colpisce 5 o più anni
+     prima; con 2-4 anni serve un ordigno nucleare che esploda vicino alla cometa, con molte meno probabilità; a un anno quasi niente
+     funziona. Costruire da zero le sonde richiede almeno 3-4 anni (DART: circa 5). Senza sorveglianza la cometa si scopre 3 anni prima:
+     se non c'è già una flotta pronta la Terra è quasi certamente perduta. */
+  { id: "cometRush", scope: "global", cat: "Spazio", title: "Deviatori d'emergenza",
+    p: () => 0,
+    text: (st) => `Non abbiamo una flotta di deviatori e la cometa colpirà fra ${st.comet ? st.comet.due - st.year : "pochi"} anni. Costruirla da zero richiede almeno tre anni anche lavorando giorno e notte in tutte le fabbriche spaziali del mondo.${st.comet && st.comet.due - st.year <= 3 ? " Arriverebbe solo all'ultimo momento: la speranza è minima." : ""}`,
+    choices: [
+      { label: "Programma d'urgenza: tutto per i deviatori", cost: 25, out: "La flotta sarà pronta in tre anni", fx: (st) => { const q = st.prog.find((x) => x.id === "pdef"); if (q) q.T = Math.min(q.T, q.t + 3); else st.prog.push({ id: "pdef", r: null, t: 0, T: 3 }); } },
+      { label: "Costruire i deviatori con calma", cost: 5, out: "La flotta sarà pronta in cinque anni", fx: (st) => { if (!st.prog.some((x) => x.id === "pdef")) st.prog.push({ id: "pdef", r: null, t: 0, T: 5 }); } },
+      { label: "Lasciar perdere", cost: 0, out: "Nessun deviatore: la cometa colpirà la Terra", fx: () => {} },
+    ] },
+  { id: "cometLaunch", scope: "global", cat: "Spazio", title: "La finestra di lancio verso la cometa",
+    p: () => 0,
+    text: (st) => { const left = st.comet ? st.comet.due - st.year : 0; return `La flotta di deviatori è pronta e la cometa colpirà fra ${left} ${left === 1 ? "anno" : "anni"}. ${left >= 5 ? "Siamo in tempo per un impatto come quello della missione DART: le probabilità di riuscita sono alte." : left >= 2 ? "È tardi per un semplice impatto: serve un ordigno nucleare che esploda vicino alla cometa. Le probabilità sono più basse." : "È l'ultimo momento: resta solo un tentativo disperato."} Probabilità di deviarla se si lancia ora: circa ${Math.round(cometChance(st, left) * 100)}%. Ogni anno di attesa la fa scendere.`; },
+    choices: [
+      { label: "Lanciare la missione ora", cost: 20, out: "Le sonde partono verso la cometa", fx: (st) => { if (st.comet) { st.comet.launched = true; st.comet.p = cometChance(st, st.comet.due - st.year); } } },
+      { label: "Lasciar perdere", cost: 0, out: "Nessuna missione: la cometa colpirà la Terra", fx: (st) => { if (st.comet) st.comet.give = true; } },
+      { label: "Rinviare di un anno", cost: 0, out: "Si aspetta: più dati sulla rotta, ma meno tempo per spostarla", fx: (st) => { if (st.comet) st.comet.wait = st.year + 1; } }, // ultima: se non si decide si rinvia
     ] },
   { id: "moonDiscovery", scope: "global", cat: "Spazio", title: "Scoperta sulla Luna", good: true,
     p: (st) => built(st, "lunarSci") ? 0.06 : 0,
@@ -4045,9 +4135,14 @@ function gameOver(st, key) {
 const COMET_RATE = 0.0004;
 /* mentre la cometa si avvicina contano solo lei e i disastri: niente proteste né scioperi, le notizie parlano solo della cometa,
    i conteggi della vittoria e del crollo restano fermi fino all'impatto o alla deviazione (richiesta di Guido, 1 novembre 2026) */
-const COMET_EV = ["cometPanic", "cometRush", "storm", "heat", "famine", "wildfire", "waterCrisis", "solar", "volcano", "quake", "asteroid", "epidemic", "pandemic"];
+const COMET_EV = ["cometPanic", "cometRush", "cometLaunch", "storm", "heat", "famine", "wildfire", "waterCrisis", "solar", "volcano", "quake", "asteroid", "epidemic", "pandemic"];
 function cometNews(st, text, kind) { logNews(st, text, kind); st.log[0].comet = true; }
 function cometNote(st, kind, icon, title, text) { note(st, kind, icon, title, text); if (st.log[0]) st.log[0].comet = true; }
+// probabilità di deviare la cometa lanciando con "left" anni di anticipo
+function cometChance(st, left) {
+  const p = left >= 5 ? 0.95 : left >= 4 ? 0.8 : left >= 3 ? 0.6 : left >= 2 ? 0.35 : 0.1;
+  return Math.min(0.98, p + (built(st, "launch") ? 0.05 : 0) + (st.moon ? 0.03 : 0));
+}
 function cometYear(st) {
   if (st.sim || st.levelId !== "l6") return;
   const c = st.comet;
@@ -4056,15 +4151,18 @@ function cometYear(st) {
     st.comet = { due: st.year + lead }; st.flags.cometSeen = true;
     st.queue = (st.queue || []).filter((q) => COMET_EV.includes(q.id)); // le crisi in attesa (proteste, scioperi…) passano in secondo piano
     cometNote(st, "warn", "pdef", "Una cometa in rotta verso la Terra", built(st, "pdefWatch")
-      ? `I telescopi della sorveglianza hanno scoperto una cometa di alcuni chilometri che arriva dall'esterno del sistema solare: colpirà la Terra fra ${lead} anni. Serve la flotta di deviatori, pronta prima dell'impatto. Se la colpisce, sarà la fine della civiltà.`
-      : `Gli osservatori hanno scoperto tardi una cometa di alcuni chilometri che arriva dall'esterno del sistema solare: colpirà la Terra fra ${lead} anni. Solo una flotta di deviatori, pronta prima dell'impatto, può salvarci. Se la colpisce, sarà la fine della civiltà.`);
+      ? `I telescopi della sorveglianza hanno scoperto una cometa di alcuni chilometri che arriva dall'esterno del sistema solare: colpirà la Terra fra ${lead} anni. C'è tempo per prepararsi: serve una flotta di deviatori e una missione lanciata con anni di anticipo. Se la colpisce, sarà la fine della civiltà.`
+      : `Gli osservatori hanno scoperto tardi una cometa di alcuni chilometri che arriva dall'esterno del sistema solare: colpirà la Terra fra ${lead} anni. Senza una sorveglianza del cielo l'abbiamo vista troppo tardi: solo una flotta di deviatori già pronta può darci una speranza. Se la colpisce, sarà la fine della civiltà.`);
+    (st.econQ || (st.econQ = [])).push({ id: built(st, "pdef") ? "cometLaunch" : "cometRush", at: st.year * 12 + st.month });
     return;
   }
   if (!c) return;
   const left = c.due - st.year;
+  // finestra di lancio: ogni anno, finché la flotta è pronta e la missione non è partita
+  if (left > 0 && built(st, "pdef") && !c.launched && !c.give && !(c.wait > st.year)) (st.econQ || (st.econQ = [])).push({ id: "cometLaunch", at: st.year * 12 + st.month });
   if (left > 0) { cometNews(st, left === 1 ? "La cometa colpirà la Terra fra un anno." : `La cometa colpirà la Terra fra ${left} anni.`, "bad"); return; }
   st.comet = null;
-  if (built(st, "pdef")) {
+  if (c.launched && rand() < (c.p || 0)) {
     st.flags.cometSaved = true;
     for (const r of ctrlRegions(st)) { r.polar -= 15; r.shockU -= 8; }
     cometNote(st, "good", "pdef", "La cometa è stata deviata", "Le sonde dell'Autorità hanno colpito la cometa a milioni di chilometri dalla Terra e l'hanno spinta fuori rotta. Per la prima volta l'umanità intera ha guardato lo stesso cielo con lo stesso timore e la stessa speranza: le divisioni si attenuano in tutto il mondo.");
@@ -4317,7 +4415,8 @@ function tick(st) {
       else r.anarchy = Math.max(0, r.anarchy - 0.5 * dt); // prima questa riga era finita per errore dentro il commento: il contatore non scendeva mai
       if (r.debt > 220 && rand() < 0.3 * dt) { r.shockU += 15; logNews(st, `In ${r.name} lo stato non paga più stipendi e pensioni.`, "bad"); }
       if (r.anarchy >= 2) {
-        r.controlled = false; r.exit = false; r.nego = null; r.stab = 0; st.everAnarchy = true; r.gdpPre = r.gdp; r.deadA = 0; r.anarY = st.year;
+        r.controlled = false; r.exit = false; r.nego = null; r.stab = 0; st.everAnarchy = true; r.gdpPre = r.gdp; r.deadA = 0; r.anarY = st.year; r.nukeSafe = false;
+        if (NUCLEAR_POWERS.includes(r.id) && sysOn(st, "war") && !st.sim) (st.econQ || (st.econQ = [])).unshift({ id: "looseNukes", r: r.id, at: 0 });
         logNews(st, `${r.name} è precipitata nell'anarchia. Le regioni vicine ne risentono.`, "bad");
         // negli scenari senza la scheda Sicurezza non c'è un esercito per riprenderla: la partita è persa (4 novembre 2026)
         if (!st.L.cats.includes("sicurezza")) { st.lostRegion = r.name; gameOver(st, "regionePersa"); }
@@ -4412,8 +4511,12 @@ function tick(st) {
   const k = risks(st);
   if (worldStab(st) < 0.5) { gameOver(st, G.temp + G.geoOff >= 2.8 ? "clima" : "tutte"); return null; }
   if (st.sim) return null; // simulazioni per i consigli: niente catastrofi né eventi
-  if (sysOn(st, "war") && rand() < k.war * dt) { gameOver(st, "nucleare"); return null; }
-  if (sysOn(st, "ai") && rand() < k.ai * dt) { st.aiEnd = Math.floor(rand() * AI_ENDS.length); gameOver(st, "ai"); return null; }
+  /* Catastrofi con un'ultima possibilità (8 novembre 2026, richiesta di Guido): quando il rischio scatta non si perde subito, ma
+     arriva una crisi d'emergenza. Uscirne costa moltissimo, e le probabilità sono molto più alte se prima si è investito in
+     sicurezza: prevenire conviene anche solo per i soldi. */
+  if (sysOn(st, "war") && !st.brinkN && rand() < k.war * dt) { st.brinkN = true; (st.econQ || (st.econQ = [])).unshift({ id: "nucBrink", at: 0 }); }
+  if (sysOn(st, "ai") && !st.brinkA && rand() < k.ai * dt) { st.brinkA = true; (st.econQ || (st.econQ = [])).unshift({ id: "aiBrink", at: 0 }); }
+  riskWatch(st);
   if (sysOn(st, "bio") && rand() < k.bio * dt) st.flags.pandemic = true;
 
   /* Avviso elettorale obbligatorio (6 novembre 2026, richiesta di Guido): nessuna regione può uscire senza che il giocatore
@@ -4427,6 +4530,8 @@ function tick(st) {
 
 // mesi che il segnale di una crisi resta sulla mappa prima che il tempo si fermi: un anno per tutte (decisione del 18 ottobre 2026)
 const EV_WARN = Object.fromEntries(EVENTS.map((e) => [e.id, P.warnSlow]));
+// le emergenze vanno decise in fretta: due mesi (8 novembre 2026)
+for (const id of ["nucBrink", "aiBrink", "looseNukes"]) EV_WARN[id] = 2;
 // problema a cui appartiene ogni evento: compare solo negli scenari dove quel problema è in gioco
 const EV_SYS = {
   energyShock: "energia", batteries: "energia", nucAccident: "energia",
@@ -4436,7 +4541,7 @@ const EV_SYS = {
   wildfire: "climate", waterCrisis: "climate", quake: "nature", deepfake: "ai", cyberAttack: "ai", robotRiots: "ai", aiAnomaly: "ai", aiNearMiss: "ai", trialDeath: "gen", designerBaby: "gen", mosquitoBorder: "gen", stolenProtocol: "gen", aiBio1: "gen", aiBio2: "gen", aiBio3: "gen", genPatents: "gen", genScandal: "gen", genSchools: "gen", genInsurance: "gen", genElite: "gen", qDay: "ai",
   epidemic: "bio", labLeak: "bio", pandemic: "bio", uniVax: "bio",
   aiIncident: "ai",
-  moonRace: "space", moonAccident: "space", moonDiscovery: "space", craterContest: "space", asteroidDeflected: "space", cometPanic: "space", cometRush: "space", geoBlockade: "climate", thermostatWar: "climate",
+  moonRace: "space", moonAccident: "space", moonDiscovery: "space", craterContest: "space", asteroidDeflected: "space", cometPanic: "space", cometRush: "space", cometLaunch: "space", geoBlockade: "climate", thermostatWar: "climate",
 };
 function evMult(st, id) {
   let k = (st.G.ev && st.G.ev[id]) || 1;
@@ -4693,7 +4798,7 @@ function loadState(txt) {
 
 if (typeof module !== "undefined") module.exports = {
   P, PROMISES, pensPoverty, polarCauses, budget, incomeGainOf, amnestyYield, incomeSupport, robotCapture, popLossAge, bioCover, aiTerror, privatePens, WAGE, wageIdx, SHADOW0, taxBase, shadowW, OLD_LEVEL, DISCOVERIES, evTitle, RPROF, priced, eventCost, authRate, maxSurplus, bankPreview, co2Gross, worldBirths, clampRate, snowball, regionRate, co2Gt, GDP_2026, CO2_2026, DIFF, LEVELS, LBY, GOVS, GBY, sysOn, REGIONS, RBY, INTERVENTIONS, IBY, CATS, EVENTS, EBY, ENDINGS, STABLE_YEARS, RISK_LABELS,
-  econRisk, REC_INFO, trAvail, trShown, trReady, trNetGain, incomeParts, TREATIES, TBY, trOn, trShare, trWhy, trInfo, trSupport, trChance, proposeTreaty, trGross, trNet, TR_NEED, TR_SHARE0, reconquer, reconWhy, reconChance, RECON_COST, RECON_T, needsRef, refInfo, refSupport, refDrivers, refChance, runReferendum, popRisk, mediate, MEDIATION_COST, evChoices, LOW_STAB, LOW_YEARS, ANOMALY,
+  brinkP, geoDose, tensionOf, riskBoard, cometChance, econRisk, REC_INFO, trAvail, trShown, trReady, trNetGain, incomeParts, TREATIES, TBY, trOn, trShare, trWhy, trInfo, trSupport, trChance, proposeTreaty, trGross, trNet, TR_NEED, TR_SHARE0, reconquer, reconWhy, reconChance, RECON_COST, RECON_T, needsRef, refInfo, refSupport, refDrivers, refChance, runReferendum, popRisk, mediate, MEDIATION_COST, evChoices, LOW_STAB, LOW_YEARS, ANOMALY,
   newGame, tick, EV_WARN, advise, preview, ctrlShare, available, anarchyNear, saveState, loadState, honors, endingText, costOf, upkeepOf, built, startIntervention, payoffNow, stabParts, stabWeak, stabNow, worldStab, unrestCauses, STAB_PARTS, WIN_WORLD, canStart, parentOk, TREE, resolveEvent, revoke, stability, riskBoard, risks, emissions, worldPop, lvl, setSeed, rand,
 };
 
@@ -7697,9 +7802,11 @@ function renderDetail() {
   if (d.bank) { renderBank(d, I); return; }
   $("detail").innerHTML = `<div class="scroll">
       <div class="dhead" style="--c:${CAT_COLOR[d.fam]}"><svg viewBox="-20 -20 40 40"><polygon points="${hexPts(18)}"/><use href="${iconHref(d.id)}" x="-10" y="-10" width="20" height="20"/></svg><h3>${esc(tr(d.name))}</h3></div>
+      ${d.id === "geoeng" && built(st, "geoeng") ? geoSliderHTML() : ""}
       ${d.desc ? `<p class="desc">${esc(tr(d.desc))}${slow}</p>` : ""}
       ${state ? `<span class="state">${state}${offIn(d.id)}</span>` : ""}
       <div class="imeters" id="indRows">${I.map((i) => indRow(i, 0)).join("")}</div>
+      ${sysOn(st, "war") && tensionOf(st, d) >= 1 ? `<p class="shockwarn">${tr("Fa salire la tensione tra le potenze di {x} punti: più rischio di guerra nucleare.", { x: fmt(tensionOf(st, d), 0) })}</p>` : ""}
       <p class="pro"><b>${tr("Pro.")}</b> ${esc(tr(d.pro))}</p>
       <p class="con"><b>${tr("Contro.")}</b> ${esc(tr(d.con))}</p>
       ${!done && available(st, d) ? `<div class="prev" id="prevBox"><small>${tr("Calcolo dell'effetto…")}</small></div>` : ""}
@@ -7710,9 +7817,30 @@ function renderDetail() {
     <button type="button" class="buy" id="dBuy" ${s.why ? "disabled" : ""}>${buyLabel}${priceTxt}</button>
     ${canStop ? `<button type="button" class="buy alt" id="dRev">${tr(d.toggle || (d.upkeep > 0 ? "Smetti di finanziare" : "Revoca"))}</button>` : ""}`;
   $("dBuy").onclick = () => { if (needsRef(st, d.id) && !(st.paused && st.paused[d.id])) { showReferendum(d); return; } if (!startIntervention(st, d.id)) { renderActs(); hud(); paint(); save(); } };
+  if ($("geoT")) wireGeoSlider();
   if ($("prevBox")) setTimeout(() => { showPreview(d); fitDetail(); }, 0);
   if ($("dRev")) $("dRev").onclick = () => { revoke(st, d.id); renderActs(); hud(); paint(); };
   fitDetail();
+}
+/* termostato degli aerosol (8 novembre 2026): il giocatore sceglie la temperatura da raggiungere */
+const tC = (v) => (v >= 0 ? "+" : "−") + fmt(Math.abs(v), 1) + " °C";
+function geoInfo(target) {
+  const dose = Math.max(0, st.g.temp - target) * (st.flags.geoHalf ? 0.5 : 1);
+  return { dose, cost: priced(st, 0.5 + 0.6 * dose, IBY.geoeng), tension: 2 + 3 * dose };
+}
+function geoSliderHTML() {
+  const max = Math.max(0.5, Math.ceil(st.g.temp * 10) / 10), t = Math.min(max, st.geoTarget != null ? st.geoTarget : 0), x = geoInfo(t);
+  return `<div class="geobox"><label for="geoT">${tr("Temperatura da raggiungere")}: <b id="geoV">${tC(t)}</b></label>
+    <input type="range" id="geoT" min="0" max="${max}" step="0.1" value="${t}">
+    <small id="geoI">${geoTxt(t, x)}</small></div>`;
+}
+function geoTxt(t, x) {
+  return tr("Senza aerosol la Terra sarebbe a {a}. Raffreddamento: {d} · costo {c} fondi l'anno · tensione tra le potenze +{k}. Più si scende, meno ondate di calore, tempeste e siccità, ma più cambiano le piogge e più crescono proteste e divisioni.", { a: tC(st.g.temp), d: tC(-x.dose).replace("+", "−").replace("−−", "−"), c: fmt(x.cost, 1), k: fmt(x.tension, 1) });
+}
+function wireGeoSlider() {
+  const el = $("geoT");
+  el.oninput = () => { const t = +el.value; st.geoTarget = t; $("geoV").textContent = tC(t); $("geoI").textContent = geoTxt(t, geoInfo(t)); };
+  el.onchange = () => { save(); hud(); };
 }
 // il pannello dell'intervento prova a stare tutto nello schermo: caratteri da ×1,35 a ×0,92, poi si scorre (7 novembre 2026)
 function fitDetail() {
@@ -8310,8 +8438,43 @@ function trEnding(t) {
   for (let again = true; again;) { again = false; for (const x of tails) if (t.endsWith(x)) { out = (LANGS[LANG].dict[x] != null ? tr(x) : " " + tr(x.trim())) + out; t = t.slice(0, -x.length); again = true; } }
   return tr(t) + out;
 }
+/* Animazioni di fine (8 novembre 2026, richiesta di Guido): prima del riepilogo si vede sulla cartina l'impatto della cometa o la
+   guerra nucleare. Circa cinque secondi; un tocco le salta. */
+function playDoom(kind, done) {
+  // i tempi delle animazioni partono da adesso (il tempo del disegno conta dall'apertura della pagina)
+  const map = $("map"), t0 = map.getCurrentTime ? map.getCurrentTime() : 0, g = svgEl("g", { id: "doomFx" }), add = (t, a, anims) => { const e = svgEl(t, a); for (const x of anims || []) e.appendChild(svgEl("animate", { fill: "freeze", ...x, begin: (t0 + parseFloat(x.begin || "0")).toFixed(2) + "s" })); g.appendChild(e); return e; };
+  const vb = map.viewBox.baseVal, full = { x: vb.x, y: vb.y, width: vb.width, height: vb.height };
+  if (globeOn) { globeOn = false; moonMode = false; showGlobe(); }
+  if (kind === "impatto") {
+    const [x, y] = ee(-35, 28), sx = x + 150, sy = vb.y + 6;
+    add("circle", { cx: sx, cy: sy, r: 9, fill: "#bfe6ff", opacity: 0.35 }, [{ attributeName: "cx", from: sx, to: x, dur: "1.6s", begin: "0s" }, { attributeName: "cy", from: sy, to: y, dur: "1.6s", begin: "0s" }, { attributeName: "opacity", to: 0, dur: "0.1s", begin: "1.6s" }]);
+    add("line", { x1: sx + 50, y1: sy - 12, x2: sx, y2: sy, stroke: "#bfe6ff", "stroke-width": 3, "stroke-linecap": "round", opacity: 0.9 }, [
+      { attributeName: "x2", from: sx, to: x, dur: "1.6s", begin: "0s" }, { attributeName: "y2", from: sy, to: y, dur: "1.6s", begin: "0s" },
+      { attributeName: "x1", from: sx + 50, to: x + 50, dur: "1.6s", begin: "0s" }, { attributeName: "y1", from: sy - 12, to: y - 12, dur: "1.6s", begin: "0s" }, { attributeName: "opacity", to: 0, dur: "0.2s", begin: "1.6s" }]);
+    add("circle", { cx: sx, cy: sy, r: 3.6, fill: "#ffffff" }, [{ attributeName: "cx", from: sx, to: x, dur: "1.6s", begin: "0s" }, { attributeName: "cy", from: sy, to: y, dur: "1.6s", begin: "0s" }, { attributeName: "opacity", to: 0, dur: "0.1s", begin: "1.6s" }]);
+    add("rect", { ...full, fill: "#fff6e0", opacity: 0 }, [{ attributeName: "opacity", values: "0;1;0", dur: "0.9s", begin: "1.6s" }]);
+    add("circle", { cx: x, cy: y, r: 0, fill: "#ff8a3d", opacity: 0.85 }, [{ attributeName: "r", to: 60, dur: "1.4s", begin: "1.6s" }, { attributeName: "opacity", to: 0, dur: "1.4s", begin: "1.6s" }]);
+    add("circle", { cx: x, cy: y, r: 0, fill: "none", stroke: "#ffd9a0", "stroke-width": 3, opacity: 0.9 }, [{ attributeName: "r", to: 320, dur: "2.6s", begin: "1.7s" }, { attributeName: "opacity", to: 0, dur: "2.6s", begin: "1.7s" }]);
+    add("rect", { ...full, fill: "#2a2018", opacity: 0 }, [{ attributeName: "opacity", to: 0.78, dur: "2.4s", begin: "2.2s" }]);
+  } else {
+    const spots = [[-98, 40], [-80, 38], [-118, 35], [8, 50], [2, 47], [37, 56], [60, 55], [116, 38], [121, 31], [77, 28], [73, 20], [139, 36]];
+    spots.forEach(([lo, la], i) => {
+      const [x, y] = ee(lo, la), b = (0.25 * i + 0.4 * Math.random()).toFixed(2) + "s";
+      add("circle", { cx: x, cy: y, r: 0, fill: "#fffbe8", opacity: 0 }, [{ attributeName: "opacity", values: "0;1;0", dur: "0.5s", begin: b }, { attributeName: "r", values: "0;7;9", dur: "0.5s", begin: b }]);
+      add("circle", { cx: x, cy: y, r: 0, fill: "none", stroke: "#ff9b52", "stroke-width": 1.6, opacity: 0.9 }, [{ attributeName: "r", to: 26, dur: "1.8s", begin: b }, { attributeName: "opacity", to: 0, dur: "1.8s", begin: b }]);
+      add("circle", { cx: x, cy: y, r: 0, fill: "#3b3530", opacity: 0 }, [{ attributeName: "r", to: 22, dur: "2.5s", begin: b }, { attributeName: "opacity", to: 0.75, dur: "2.5s", begin: b }]);
+    });
+    add("rect", { ...full, fill: "#1c1c1f", opacity: 0 }, [{ attributeName: "opacity", to: 0.72, dur: "2.5s", begin: "2.4s" }]);
+  }
+  map.appendChild(g);
+  let over = false;
+  const finish = () => { if (over) return; over = true; removeEventListener("pointerdown", finish, true); setTimeout(() => { g.remove(); }, 50); done(); };
+  addEventListener("pointerdown", finish, true);
+  setTimeout(finish, 5200);
+}
 function endGame() {
   zoomMap(null);
+  if ((st.over === "impatto" || st.over === "nucleare") && !st.doomShown && phase === "play") { st.doomShown = true; closeScreensQuiet(); speed = 0; pending = { over: true }; $("modal").hidden = true; playDoom(st.over, endGame); return; }
   closeScreensQuiet();
   phase = "over"; speed = 0; pending = { over: true }; // nessun altro avviso può coprire il riepilogo
   const E = ENDINGS[st.over], win = st.over === "vittoria" || st.over === "immortale"; // la cura per la vecchiaia è una vittoria speciale
@@ -8382,6 +8545,7 @@ const TELE = (() => {
       regioni: Object.values(st.regions).map((r) => [r.id, Math.round(r.stab), Math.round(r.unrest), Math.round(r.debt), R1(r.growth), r.controlled ? "dentro" : r.exit ? "uscita" : "anarchia"]),
       entrate: R1(st.income), spese: R1(st.upkeep || 0), interessi: R1(st.interest || 0), tasso: R1(st.authRate || 0), voci_entrate: inc, voci_spese: out,
       prezzi: R1(st.g.pl), inflazione: R1(st.g.infl), temp: R1(st.g.temp + st.g.geoOff), robot: R1((st.robShareW || 0) * 100), bolla: R1(st.bubble || 0), rischio_recessione: Math.round(econRisk(st).total * 1000) / 10,
+      tensione: R1(st.g.tension), armi_nucleari: Math.round(st.g.arsenal), rischi: Object.fromEntries(riskBoard(st).map((x) => [x.id, RISK_LABELS[x.lv]])), ai_divario: R1(st.g.aiCap - st.g.aiSafety), bio_divario: R1(st.g.biotech - st.g.bioSafety),
       trattati: st.treaties || {}, quota: trShare(st), interventi_nuovi: Object.keys(st.acts).filter((id) => st.acts[id].y0 === st.year || st.acts[id].y === st.year), notizie: news,
     };
   }
@@ -8580,10 +8744,10 @@ function showNote() {
   savedSpeed = speed || savedSpeed || 1; speed = 0; pending = { note: true };
   const c = $("modalCard"); c.classList.add("tip", n.kind === "discovery" ? "disc" : n.kind === "warn" ? "warn" : "good");
   c.innerHTML = `<div class="notehead"><svg viewBox="-20 -20 40 40"><polygon points="${hexPts(18)}"/><use href="${iconHref(n.icon)}" x="-10" y="-10" width="20" height="20"/></svg><div><div class="eyebrow">${tr({ discovery: "Scoperta scientifica", report: "Esito dell'indagine", warn: "Allarme" }[n.kind] || "Buona notizia")} · ${MONTHS[n.mo]} ${n.y}</div><h2>${esc(tr(n.title).replace(/^(Scoperta|Discovery): /, ""))}</h2></div></div><p>${esc(tr(n.text))}</p>
-    <div class="tipfoot"><button type="button" class="buy" id="noteOk">${tr("Continua")}</button>${n.go === "tr" ? `<button type="button" class="buy alt" id="noteGo">${tr("Vai ai trattati")}</button>` : ""}</div>`;
+    <div class="tipfoot"><button type="button" class="buy" id="noteOk">${tr("Continua")}</button>${n.go === "tr" ? `<button type="button" class="buy alt" id="noteGo">${tr("Vai ai trattati")}</button>` : n.go === "geo" ? `<button type="button" class="buy alt" id="noteGo">${tr("Scegli la temperatura")}</button>` : ""}</div>`;
   $("modal").hidden = false;
   $("noteOk").onclick = () => { c.classList.remove("tip", "disc", "good", "warn"); $("modal").hidden = true; pending = null; speed = savedSpeed || 1; save(); refresh(); };
-  if ($("noteGo")) $("noteGo").onclick = () => { $("noteOk").onclick(); worldTab = "tr"; open("world"); };
+  if ($("noteGo")) $("noteGo").onclick = () => { $("noteOk").onclick(); if (n.go === "geo") { actTab = IBY.geoeng.cat; actNode = "geoeng"; if (openScreen === "acts") renderActs(); else open("acts"); } else { worldTab = "tr"; open("world"); } };
   $("noteOk").focus(); hud();
 }
 // consiglio a tutta pagina che compare una volta sola (es. la prima volta nella scheda Trattati)
