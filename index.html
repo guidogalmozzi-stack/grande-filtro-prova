@@ -3209,6 +3209,40 @@ const EVENTS = [
       { label: "Coprifuoco e legge marziale nelle città", cost: 0, out: "Le strade tornano calme, ma la società si divide", fx: (st) => ctrlRegions(st).forEach((r) => { r.polar += 6; }) },
       { label: "Lasciare che ognuno si arrangi", cost: 0, out: "Saccheggi e fughe: malcontento ovunque", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockU += 8; }) },
     ] },
+  /* Cometa scoperta tardi, senza sorveglianza (8 novembre 2026, richiesta di Guido): con tre anni nessuna tecnologia di oggi può
+     spostare una cometa di chilometri [Probabile]. La partita continua tre anni: si spende tutto per far sopravvivere più persone
+     possibile. Le scelte cambiano il finale, non l'esito (tranne un ultimo tentativo disperato, circa 2%). */
+  { id: "cometShelter", scope: "global", cat: "Spazio", title: "Rifugi per l'inverno d'impatto",
+    p: () => 0,
+    text: () => "Gli scienziati sono unanimi: con tre anni di preavviso non c'è modo di spostare la cometa. Dopo l'impatto polvere e fuliggine copriranno il cielo per anni. L'unica cosa da fare è preparare rifugi dove una parte dell'umanità possa sopravvivere.",
+    choices: [
+      { label: "Rifugi sotterranei in tutte le regioni", cost: 60, out: "Milioni di persone potranno ripararsi", fx: (st) => { if (st.comet) st.comet.shelter = 2; } },
+      { label: "Rifugi solo nelle grandi città", cost: 25, out: "Si salverà qualcuno, soprattutto nelle città ricche", fx: (st) => { if (st.comet) st.comet.shelter = 1; ctrlRegions(st).forEach((r) => { if (r.wealth < 40) r.shockU += 6; }); } },
+      { label: "Non fare nulla", cost: 0, out: "Ognuno si arrangia", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockU += 8; }) },
+    ] },
+  { id: "cometFood", scope: "global", cat: "Spazio", title: "Scorte per gli anni senza sole",
+    p: () => 0,
+    text: () => "Per anni dopo l'impatto i raccolti falliranno in tutto il mondo. Si possono accumulare cibo, semi e medicine, e costruire serre sotterranee con luce artificiale.",
+    choices: [
+      { label: "Scorte per tre anni e serre sotterranee", cost: 50, out: "Chi sopravvive all'impatto avrà da mangiare", fx: (st) => { if (st.comet) st.comet.food = 2; } },
+      { label: "Scorte per un anno", cost: 20, out: "Basteranno per il primo inverno", fx: (st) => { if (st.comet) st.comet.food = 1; } },
+      { label: "Non fare nulla", cost: 0, out: "Dopo l'impatto sarà la fame", fx: () => {} },
+    ] },
+  { id: "cometSeats", scope: "global", cat: "Spazio", title: "Chi entra nei rifugi?",
+    p: () => 0,
+    text: (st) => st.comet && st.comet.shelter ? "I posti nei rifugi sono pochi rispetto agli abitanti della Terra. Bisogna decidere chi entrerà." : "Non ci sono rifugi pubblici: i ricchi costruiscono i loro bunker privati e la rabbia cresce. Bisogna decidere se permetterlo.",
+    choices: [
+      { label: "Chi può pagare (i posti si vendono)", cost: -20, out: "Entrate per l'Autorità, ma rabbia e divisioni ovunque", fx: (st) => { if (st.comet) st.comet.seats = "soldi"; ctrlRegions(st).forEach((r) => { r.shockU += 12; r.polar += 10; }); } },
+      { label: "Prima giovani, medici e scienziati", cost: 0, out: "Si salva chi potrà ricostruire; molti anziani si sentono abbandonati", fx: (st) => { if (st.comet) st.comet.seats = "futuro"; ctrlRegions(st).forEach((r) => { r.shockU += 5; }); } },
+      { label: "Estrazione a sorte tra tutti", cost: 0, out: "La scelta più giusta agli occhi di tutti", fx: (st) => { if (st.comet) st.comet.seats = "sorte"; ctrlRegions(st).forEach((r) => { r.polar -= 3; }); } },
+    ] },
+  { id: "cometLast", scope: "global", cat: "Spazio", title: "Un ultimo tentativo",
+    p: () => 0,
+    text: () => "Le potenze propongono di lanciare contro la cometa tutti i missili e tutte le testate nucleari del pianeta, montati in fretta su razzi spaziali. Gli scienziati dicono che le probabilità sono quasi nulle: forse 2 su 100.",
+    choices: [
+      { label: "Lanciare tutte le testate contro la cometa", cost: 80, out: "Un tentativo disperato, quasi certamente inutile", fx: (st) => { if (st.comet) st.comet.last = true; } },
+      { label: "Non fare nulla", cost: 0, out: "Si accetta il destino e si spende tutto per i sopravvissuti", fx: () => {} },
+    ] },
   /* Sull'orlo della guerra nucleare (8 novembre 2026). Dal 1945 ci sono stati 5-7 momenti in cui il mondo è arrivato a un passo
      dalla guerra (Cuba 1962, Able Archer 1983, il falso allarme di Petrov): ne siamo usciti con la diplomazia e un po' di fortuna
      [Probabile: Chatham House 2014]. Ispezioni sugli arsenali, controllo del materiale fissile e mediazione aiutano a fermare l'escalation. */
@@ -3876,10 +3910,22 @@ const AI_ENDS = [
   "Un laboratorio automatico guidato da un'AI ha progettato e costruito macchine capaci di costruire altre macchine. Nessun ordine umano è riuscito a fermare la loro crescita.",
   "Un'AI militare, incaricata di difendere a ogni costo la propria rete, ha deciso che gli esseri umani che potevano spegnerla erano il pericolo più grande.",
 ];
+// dopo l'impatto: quanto contano rifugi, scorte e la scelta su chi salvare
+function cometEpilogue(st) {
+  const p = st.cometPrep || {}, out = [];
+  if (p.shelter === 2 && p.food === 2) out.push("Nei rifugi sotterranei, con scorte e serre, qualche decina di milioni di persone supera gli anni di buio.");
+  else if (p.shelter && p.food) out.push("Nei rifugi qualche milione di persone supera il primo inverno, ma le scorte non bastano per tutti gli anni di buio.");
+  else if (p.shelter) out.push("Nei rifugi molti sopravvivono all'impatto, ma senza scorte la fame fa il resto.");
+  else if (p.food) out.push("Le scorte ci sono, ma senza rifugi pochi sopravvivono all'impatto per usarle.");
+  if (p.seats === "futuro" && p.shelter) out.push("Tra i sopravvissuti ci sono molti medici e scienziati: un giorno potranno ricominciare.");
+  if (p.seats === "soldi" && p.shelter) out.push("Nei bunker sono entrati i più ricchi, e il rancore resterà per generazioni.");
+  return out.length ? " " + out.join(" ") : "";
+}
 function endingText(st) {
   const E = ENDINGS[st.over];
   if (!E) return "";
   if (st.over === "ai") return AI_ENDS[st.aiEnd || 0] + " Il filtro che ha fermato l'umanità è stato l'intelligenza artificiale." + (st.lunarArchive || st.lunarCity ? " " + ARCHIVE_EPILOGUE : st.moon ? " " + SEP_EPILOGUE : "");
+  if (st.over === "impatto") return E.text + cometEpilogue(st) + (st.lunarArchive || st.lunarCity ? " " + ARCHIVE_EPILOGUE : "");
   if (st.over === "vittoria") return E.text + (st.lunarCity ? " Sulla Luna vive già una comunità permanente: il primo passo verso il sistema solare è compiuto." : "");
   // vittoria speciale: niente epilogo da catastrofe (richiesta di Guido del 5 novembre 2026)
   if (st.over === "immortale") return E.text + (st.lunarCity ? " Sulla Luna vive già una comunità permanente: il primo passo verso il sistema solare è compiuto." : st.lunarArchive ? " Sulla Luna l'archivio dell'umanità custodisce i saperi e i genomi della Terra: una copia di sicurezza per i secoli che verranno." : "");
@@ -4135,7 +4181,7 @@ function gameOver(st, key) {
 const COMET_RATE = 0.0004;
 /* mentre la cometa si avvicina contano solo lei e i disastri: niente proteste né scioperi, le notizie parlano solo della cometa,
    i conteggi della vittoria e del crollo restano fermi fino all'impatto o alla deviazione (richiesta di Guido, 1 novembre 2026) */
-const COMET_EV = ["cometPanic", "cometRush", "cometLaunch", "storm", "heat", "famine", "wildfire", "waterCrisis", "solar", "volcano", "quake", "asteroid", "epidemic", "pandemic"];
+const COMET_EV = ["cometPanic", "cometRush", "cometLaunch", "cometShelter", "cometFood", "cometSeats", "cometLast", "storm", "heat", "famine", "wildfire", "waterCrisis", "solar", "volcano", "quake", "asteroid", "epidemic", "pandemic"];
 function cometNews(st, text, kind) { logNews(st, text, kind); st.log[0].comet = true; }
 function cometNote(st, kind, icon, title, text) { note(st, kind, icon, title, text); if (st.log[0]) st.log[0].comet = true; }
 // probabilità di deviare la cometa lanciando con "left" anni di anticipo
@@ -4153,7 +4199,13 @@ function cometYear(st) {
     cometNote(st, "warn", "pdef", "Una cometa in rotta verso la Terra", built(st, "pdefWatch")
       ? `I telescopi della sorveglianza hanno scoperto una cometa di alcuni chilometri che arriva dall'esterno del sistema solare: colpirà la Terra fra ${lead} anni. C'è tempo per prepararsi: serve una flotta di deviatori e una missione lanciata con anni di anticipo. Se la colpisce, sarà la fine della civiltà.`
       : `Gli osservatori hanno scoperto tardi una cometa di alcuni chilometri che arriva dall'esterno del sistema solare: colpirà la Terra fra ${lead} anni. Senza una sorveglianza del cielo l'abbiamo vista troppo tardi: solo una flotta di deviatori già pronta può darci una speranza. Se la colpisce, sarà la fine della civiltà.`);
-    (st.econQ || (st.econQ = [])).push({ id: built(st, "pdef") ? "cometLaunch" : "cometRush", at: st.year * 12 + st.month });
+    const now = st.year * 12 + st.month, q = st.econQ || (st.econQ = []);
+    if (built(st, "pdefWatch")) q.push({ id: built(st, "pdef") ? "cometLaunch" : "cometRush", at: now });
+    else {
+      // senza sorveglianza: tre anni non bastano per spostare una cometa di chilometri. Resta solo prepararsi a sopravvivere
+      st.comet.doom = true;
+      q.push({ id: "cometShelter", at: now + 1 }, { id: "cometFood", at: now + 7 }, { id: "cometSeats", at: now + 15 }, { id: "cometLast", at: now + 24 });
+    }
     return;
   }
   if (!c) return;
@@ -4162,7 +4214,8 @@ function cometYear(st) {
   if (left > 0 && built(st, "pdef") && !c.launched && !c.give && !(c.wait > st.year)) (st.econQ || (st.econQ = [])).push({ id: "cometLaunch", at: st.year * 12 + st.month });
   if (left > 0) { cometNews(st, left === 1 ? "La cometa colpirà la Terra fra un anno." : `La cometa colpirà la Terra fra ${left} anni.`, "bad"); return; }
   st.comet = null;
-  if (c.launched && rand() < (c.p || 0)) {
+  st.cometPrep = { shelter: c.shelter || 0, food: c.food || 0, seats: c.seats || "" };
+  if ((c.launched && rand() < (c.p || 0)) || (c.last && rand() < 0.02)) {
     st.flags.cometSaved = true;
     for (const r of ctrlRegions(st)) { r.polar -= 15; r.shockU -= 8; }
     cometNote(st, "good", "pdef", "La cometa è stata deviata", "Le sonde dell'Autorità hanno colpito la cometa a milioni di chilometri dalla Terra e l'hanno spinta fuori rotta. Per la prima volta l'umanità intera ha guardato lo stesso cielo con lo stesso timore e la stessa speranza: le divisioni si attenuano in tutto il mondo.");
@@ -4541,7 +4594,7 @@ const EV_SYS = {
   wildfire: "climate", waterCrisis: "climate", quake: "nature", deepfake: "ai", cyberAttack: "ai", robotRiots: "ai", aiAnomaly: "ai", aiNearMiss: "ai", trialDeath: "gen", designerBaby: "gen", mosquitoBorder: "gen", stolenProtocol: "gen", aiBio1: "gen", aiBio2: "gen", aiBio3: "gen", genPatents: "gen", genScandal: "gen", genSchools: "gen", genInsurance: "gen", genElite: "gen", qDay: "ai",
   epidemic: "bio", labLeak: "bio", pandemic: "bio", uniVax: "bio",
   aiIncident: "ai",
-  moonRace: "space", moonAccident: "space", moonDiscovery: "space", craterContest: "space", asteroidDeflected: "space", cometPanic: "space", cometRush: "space", cometLaunch: "space", geoBlockade: "climate", thermostatWar: "climate",
+  moonRace: "space", moonAccident: "space", moonDiscovery: "space", craterContest: "space", asteroidDeflected: "space", cometPanic: "space", cometRush: "space", cometLaunch: "space", cometShelter: "space", cometFood: "space", cometSeats: "space", cometLast: "space", geoBlockade: "climate", thermostatWar: "climate",
 };
 function evMult(st, id) {
   let k = (st.G.ev && st.G.ev[id]) || 1;
