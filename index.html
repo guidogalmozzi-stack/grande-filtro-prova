@@ -2324,7 +2324,7 @@ function logNews(st, text, kind, quiet) {
 }
 
 // effetto palla di neve: (tasso reale a lungo termine della regione − crescita) × debito, in punti di prodotto l'anno
-const regionRate = (r, st) => st.g.longR - st.g.infl + (st.credPrem || 0) - (r.repressUntil > st.year ? 3 : 0) + Math.max(0, r.debt - 100) * 0.01 * (trOn(st, "trFiscal") ? 0.4 : 1); // unione fiscale: debito comune [Certo: titoli europei 0,7-1,8 punti sotto gli stati più indebitati]
+const regionRate = (r, st) => st.g.longR - st.g.infl + (st.credPrem || 0) - (r.repressUntil > st.year ? 2.2 * (1 - (DEBT_FOREIGN[r.id] || 0.3)) : 0) + Math.max(0, r.debt - 100) * 0.01 * (trOn(st, "trFiscal") ? 0.4 : 1); // unione fiscale: debito comune [Certo: titoli europei 0,7-1,8 punti sotto gli stati più indebitati]
 const snowball = (r, st) => (regionRate(r, st) - r.growth) * r.debt / 100;
 const PENS_K = 140; // peso del welfare per ogni anziano rispetto ai lavoratori
 // crescita della produttività per lavoratore (% l'anno)
@@ -2850,9 +2850,9 @@ const EVENTS = [
     p: () => 0,
     text: (st, r) => `I mercati non si fidano più dei conti di ${r.name}: il debito pubblico è al ${Math.round(r.debt)}% del prodotto e gli interessi salgono. ${r.debt >= 200 ? "A questo livello il debito non si può più ripagare per intero." : "Bisogna scegliere chi pagherà per farlo scendere."}`,
     choices: [
-      { ok: (st) => !(debtR(st) && debtR(st).debt >= 200), label: "Piano di rientro: tagli e tasse", cost: 0, out: "Il deficit scende di 3 punti l'anno per quattro anni, ma i tagli frenano l'economia e fanno arrabbiare", fx: (st, r) => { r.austUntil = st.year + 4; r.shockU += 10; r.shockG -= 1.2; } },
+      { ok: (st) => !(debtR(st) && debtR(st).debt >= 200), label: "Piano di rientro: tagli e tasse", cost: 0, out: "Il debito scende più in fretta: deficit −3 punti l'anno per cinque anni. Ma subito i tagli frenano l'economia e fanno arrabbiare", fx: (st, r) => { r.austUntil = st.year + 5; r.shockU += 10; r.shockG -= 1.0; } },
       { ok: (st) => debtR(st) && debtR(st).debt >= 200, label: "Ristrutturazione: taglio del debito", cost: 0, out: "Il debito scende al 90%; lo pagano i risparmiatori della regione e le banche del resto del mondo, e per qualche anno i tassi salgono per tutti", fx: (st, r) => cutDebt(st, r, 90, true) },
-      { label: "Repressione finanziaria", cost: 0, out: "Per dieci anni tassi sotto l'inflazione: il debito si erode piano. Pagano i risparmiatori, che perdono valore ogni anno; un po' meno crescita", fx: (st, r) => { r.repressUntil = st.year + 10; r.shockU += 5; r.shockG -= 0.5; st.g.piShock += 0.2; } },
+      { label: "Repressione finanziaria", cost: 0, out: "Per dieci anni tassi sotto l'inflazione e banche obbligate a comprare titoli: il debito si erode piano. Ogni anno risparmiatori e pensionati perdono valore (malcontento che cresce), le imprese trovano meno credito (crescita più bassa) e i prezzi salgono un po'. Funziona solo sul debito in mano ai cittadini della regione", fx: (st, r) => { r.repressUntil = st.year + 10; r.shockU += 3; st.g.piShock += 0.4; } },
       { label: "Non fare nulla", cost: 0, out: "Interessi più alti: il debito sale ancora, la crescita rallenta e cresce la rabbia", fx: (st, r) => { r.debt += 8; r.shockG -= 1.5; r.shockU += 8; } },
     ] },
   { id: "energyShock", scope: "global", cat: "Energia", title: "Crisi del petrolio e del gas",
@@ -4229,6 +4229,9 @@ function tick(st) {
     const anar = !r.controlled && !r.exit;
     if (anar) pg = r.gdp > 0.7 * (r.gdpPre || r.gdp) ? -3 : 0;
     else if (r.reboundUntil > st.year) pg += r.rebound || 0;
+    /* repressione finanziaria: credito indirizzato ai titoli di Stato e non alle imprese, risparmi che perdono valore ogni anno
+       [Certo: Reinhart e Sbrancia 2011; Probabile: −0,3 punti di crescita l'anno]; il malcontento dei risparmiatori cresce piano */
+    if (r.repressUntil > st.year && r.controlled) { pg -= 0.5; r.shockU += 3 * dt; }
     r.prod *= 1 + pg / 100 * dt;
     const L = laborOf(r, m);
     if (m.mass <= 0) r.Lpeak = Math.max(r.Lpeak || 0, L);
