@@ -3913,6 +3913,10 @@ const AI_ENDS = [
 // dopo l'impatto: quanto contano rifugi, scorte e la scelta su chi salvare
 function cometEpilogue(st) {
   const p = st.cometPrep || {}, out = [];
+  // perché si è perso: la cometa vista tardi, senza sorveglianza del cielo (8 novembre 2026, richiesta di Guido)
+  if (p.doom) out.push(p.shelter === 2 && p.food === 2 && p.last
+    ? "Nonostante l'umanità abbia fatto tutto il possibile, spendendo ogni risorsa e indebitandosi fino all'ultimo, non c'era speranza: senza un sistema di sorveglianza del cielo la cometa è stata vista solo tre anni prima, troppo tardi per qualsiasi tecnologia. Con i telescopi della sorveglianza degli asteroidi l'avremmo scoperta dieci anni prima, in tempo per deviarla."
+    : "La cometa è stata vista solo tre anni prima: senza un sistema di sorveglianza del cielo nessuno sforzo poteva bastare per deviarla. Con i telescopi della sorveglianza degli asteroidi l'avremmo scoperta dieci anni prima, in tempo per prepararsi.");
   if (p.shelter === 2 && p.food === 2) out.push("Nei rifugi sotterranei, con scorte e serre, qualche decina di milioni di persone supera gli anni di buio.");
   else if (p.shelter && p.food) out.push("Nei rifugi qualche milione di persone supera il primo inverno, ma le scorte non bastano per tutti gli anni di buio.");
   else if (p.shelter) out.push("Nei rifugi molti sopravvivono all'impatto, ma senza scorte la fame fa il resto.");
@@ -4214,7 +4218,7 @@ function cometYear(st) {
   if (left > 0 && built(st, "pdef") && !c.launched && !c.give && !(c.wait > st.year)) (st.econQ || (st.econQ = [])).push({ id: "cometLaunch", at: st.year * 12 + st.month });
   if (left > 0) { cometNews(st, left === 1 ? "La cometa colpirà la Terra fra un anno." : `La cometa colpirà la Terra fra ${left} anni.`, "bad"); return; }
   st.comet = null;
-  st.cometPrep = { shelter: c.shelter || 0, food: c.food || 0, seats: c.seats || "" };
+  st.cometPrep = { shelter: c.shelter || 0, food: c.food || 0, seats: c.seats || "", doom: !!c.doom, last: !!c.last };
   if ((c.launched && rand() < (c.p || 0)) || (c.last && rand() < 0.02)) {
     st.flags.cometSaved = true;
     for (const r of ctrlRegions(st)) { r.polar -= 15; r.shockU -= 8; }
