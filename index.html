@@ -3216,7 +3216,7 @@ const EVENTS = [
     p: () => 0,
     text: () => "Gli scienziati sono unanimi: con tre anni di preavviso non c'è modo di spostare la cometa. Dopo l'impatto polvere e fuliggine copriranno il cielo per anni. L'unica cosa da fare è preparare rifugi dove una parte dell'umanità possa sopravvivere.",
     choices: [
-      { label: "Rifugi sotterranei in tutte le regioni", cost: 60, out: "Milioni di persone potranno ripararsi", fx: (st) => { if (st.comet) st.comet.shelter = 2; } },
+      { label: "Rifugi sotterranei in tutte le regioni", cost: 60, out: "Qualche milione di persone potrà ripararsi", fx: (st) => { if (st.comet) st.comet.shelter = 2; } },
       { label: "Rifugi solo nelle grandi città", cost: 25, out: "Si salverà qualcuno, soprattutto nelle città ricche", fx: (st) => { if (st.comet) st.comet.shelter = 1; ctrlRegions(st).forEach((r) => { if (r.wealth < 40) r.shockU += 6; }); } },
       { label: "Non fare nulla", cost: 0, out: "Ognuno si arrangia", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockU += 8; }) },
     ] },
@@ -3917,10 +3917,12 @@ function cometEpilogue(st) {
   if (p.doom) out.push(p.shelter === 2 && p.food === 2 && p.last
     ? "Nonostante l'umanità abbia fatto tutto il possibile, spendendo ogni risorsa e indebitandosi fino all'ultimo, non c'era speranza: senza un sistema di sorveglianza del cielo la cometa è stata vista solo tre anni prima, troppo tardi per qualsiasi tecnologia. Con i telescopi della sorveglianza degli asteroidi l'avremmo scoperta dieci anni prima, in tempo per deviarla."
     : "La cometa è stata vista solo tre anni prima: senza un sistema di sorveglianza del cielo nessuno sforzo poteva bastare per deviarla. Con i telescopi della sorveglianza degli asteroidi l'avremmo scoperta dieci anni prima, in tempo per prepararsi.");
-  if (p.shelter === 2 && p.food === 2) out.push("Nei rifugi sotterranei, con scorte e serre, qualche decina di milioni di persone supera gli anni di buio.");
-  else if (p.shelter && p.food) out.push("Nei rifugi qualche milione di persone supera il primo inverno, ma le scorte non bastano per tutti gli anni di buio.");
-  else if (p.shelter) out.push("Nei rifugi molti sopravvivono all'impatto, ma senza scorte la fame fa il resto.");
+  // numeri prudenti (8 novembre 2026) [Ipotesi]: i rifugi proteggono dalle prime ore, ma gli anni di buio richiedono cibo ed energia per anni
+  if (p.shelter === 2 && p.food === 2) out.push("Nei rifugi sotterranei, con scorte, serre ed energia per anni, qualche milione di persone supera gli anni di buio.");
+  else if (p.shelter && p.food) out.push("Nei rifugi qualche centinaio di migliaia di persone supera il primo inverno, ma le scorte non bastano per tutti gli anni di buio.");
+  else if (p.shelter) out.push("Nei rifugi molti sopravvivono all'impatto, ma senza scorte la fame ne lascia solo poche decine di migliaia.");
   else if (p.food) out.push("Le scorte ci sono, ma senza rifugi pochi sopravvivono all'impatto per usarle.");
+  else out.push("Sopravvivono solo piccoli gruppi sparsi, lontano dal punto d'impatto e dalle coste.");
   if (p.seats === "futuro" && p.shelter) out.push("Tra i sopravvissuti ci sono molti medici e scienziati: un giorno potranno ricominciare.");
   if (p.seats === "soldi" && p.shelter) out.push("Nei bunker sono entrati i più ricchi, e il rancore resterà per generazioni.");
   return out.length ? " " + out.join(" ") : "";
