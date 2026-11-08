@@ -3731,7 +3731,15 @@ function aiTerror(st) {
 function gmPmit(st) { return clamp((st.acts.vaccines ? 0.6 : 0) + (st.acts.amr ? 0.15 : 0) + (st.acts.surveil ? 0.1 : 0) + (st.acts.volSurveil ? 0.06 : 0) + (st.flags.uniVax ? 0.1 : 0), 0, 0.9); }
 
 // scelte di un evento per il governo in carica: alcune esistono solo per certi governi (gov) o mancano per altri (noGov)
-function evChoices(st, E) { return E.choices.filter((c) => (!c.gov || c.gov.includes(st.govId)) && !(c.noGov && c.noGov.includes(st.govId)) && !(c.ok && !c.ok(st))); }
+/* Ordine delle scelte (8 novembre 2026, regola di Guido): a sinistra la più costosa, poi le intermedie, a destra la più economica;
+   l'ultima scelta dell'evento (di solito «Non fare nulla») resta sempre in fondo. */
+function evChoices(st, E) {
+  const last = E.choices[E.choices.length - 1];
+  const ch = E.choices.filter((c) => (!c.gov || c.gov.includes(st.govId)) && !(c.noGov && c.noGov.includes(st.govId)) && !(c.ok && !c.ok(st)));
+  const tail = ch.filter((c) => c === last), rest = ch.filter((c) => c !== last);
+  const k = (c) => (typeof c.cost === "function" ? c.cost(st) : c.cost || 0);
+  return rest.map((c, i) => [c, i]).sort((a, b) => k(b[0]) - k(a[0]) || a[1] - b[1]).map((x) => x[0]).concat(tail);
+}
 const choiceCost = (st, c) => (typeof c.cost === "function" ? c.cost(st) : priced(st, c.cost)); // costo che dipende dalla situazione (es. ricostruzione)
 function eventCost(st, ev, i) { return choiceCost(st, evChoices(st, ev)[i]); }
 const CRISIS_DEBT = { recession: 2, crash: 1.5, pandemic: 4, epidemic: 1, storm: 1.5, quake: 2, wildfire: 1, heat: 0.5, famine: 1, civilWar: 3, borderWar: 3, conflict: 2 };
