@@ -2073,10 +2073,33 @@ Object.assign(TREE, {
   invest: "growthPlan", antitrust: "growthPlan", sez: "growthPlan", ppp: "growthPlan", startupLoans: "growthPlan", popShares: "growthPlan", stateChampions: "growthPlan",
   unempBenefit: "laborPlan", socialPact: "laborPlan", shortWeek: "laborPlan", coops: "laborPlan", trainVouchers: "laborPlan", priceControl: "laborPlan",
 });
+/* Poche icone all'inizio in ogni scheda (9 novembre 2026, richiesta di Guido): le scelte esclusive dei governi si appendono
+   all'icona del loro tema invece di essere radici. */
+Object.assign(TREE, {
+  pubPensionFund: "contrib", pensionFloor: "contrib", actuarial: "contrib", childcare: "housing", charity: "housing", healthBrake: "healthcare", ticketEx: "healthBrake", ticketAll: "ticketEx", pubDrugs: "healthBrake",
+  jobGuarantee: "laborPlan", lifelong: "laborPlan", healthAccounts: "privHealth",
+  climCourt: "adapt", justTransition: "adapt", carbonPrize: "dac", forcedRelocation: "adapt", qualityAgri: "adapt", sciGeo: "stratoPlanes",
+  territorialMed: "surveil", catInsurance: "police", massSurveil: "police", militaryQuarantine: "surveil", civilProt: "police", bsl4: "labRules", redTeam: "labRules",
+  algoTransp: "aiReg", aiRace: "aiCap", aiLiability: "aiCap", stateAI: "aiCap", assistTech: "aiCap",
+  ethicsCom: "screening", pubGene: "screening", patentShort: "screening", stateGene: "screening", geneProtocol: "screening", sciCouncil: "education",
+});
 for (const id in TREE) { IBY[id].parent = TREE[id] || undefined; delete IBY[id].needs; }
+// padri diversi per un governo, quando il padre normale è vietato e non ha un livello sopra
+const GOV_PARENT = {
+  liberal: { vaccines: "volSurveil", cyber: "mediation", armsInspect: "mediation" },
+  central: { anticorr: "civicService", eProcure: "anticorr", assetsPublic: "anticorr", disinfo: "patrioticEdu" },
+  techno: { aiOpen: "aiReg", aiPublic: "aiReg", aiSafetyProg: "aiReg" },
+};
+// padre effettivo per il governo in carica: si salta un padre vietato e si sale di livello (9 novembre 2026)
+function effParent(st, d) {
+  const g = st && GOV_PARENT[st.govId];
+  let p = (g && d.id in g) ? g[d.id] : d.parent;
+  while (p && st && st.G && !available(st, IBY[p])) p = IBY[p].parent;
+  return p || null;
+}
 // il sussidio di disoccupazione assorbito dal reddito di base conta come attivo per i rami che ne dipendono
 // se il governo vieta il nodo padre, il figlio diventa una radice (non resta bloccato per sempre)
-function parentOk(st, d) { return !d.parent || !available(st, IBY[d.parent]) || !!(st.acts[d.parent] && st.acts[d.parent].n > 0) || (d.parent === "unempBenefit" && built(st, "ubi")) || (d.parent === "moon" && built(st, "moonFast")); }
+function parentOk(st, d) { const p = effParent(st, d); if (p !== d.parent) return !p || built(st, p); return !d.parent || !available(st, IBY[d.parent]) || !!(st.acts[d.parent] && st.acts[d.parent].n > 0) || (d.parent === "unempBenefit" && built(st, "ubi")) || (d.parent === "moon" && built(st, "moonFast")); }
 // la base lunare, condivisa o costruita per blocchi
 const moonBuilt = (st) => built(st, "moon") || built(st, "moonFast");
 // ritorno economico di un intervento: nullo per "after" anni dal completamento, poi cresce fino al massimo in "ramp" anni
@@ -2705,7 +2728,7 @@ function canStart(st, id) {
   if (st.G && st.G.auto && st.G.auto.includes(id) && !st._autoStart) return "Arriva da sola con il libero mercato";
   if (st.refBan && st.refBan[id] > st.year) return "Referendum perso: si potrà riproporre dal " + st.refBan[id];
   if (d.from && st.year < d.from) return "Disponibile dal " + d.from;
-  if (!parentOk(st, d)) return "Richiede: " + IBY[d.parent].name;
+  if (!parentOk(st, d)) return "Richiede: " + IBY[effParent(st, d) || d.parent].name;
   if (d.need) { const w = d.need(st); if (w) return w; }
   if (id === "unempBenefit" && built(st, "ubi")) return "Assorbito dal reddito di base";
   if ((id === "moon" || id === "moonFast") && (moonBuilt(st) || building(st, "moon") || building(st, "moonFast"))) return "Hai già scelto come andare sulla Luna";
@@ -4857,7 +4880,7 @@ function loadState(txt) {
 
 if (typeof module !== "undefined") module.exports = {
   P, PROMISES, pensPoverty, polarCauses, budget, incomeGainOf, amnestyYield, incomeSupport, robotCapture, popLossAge, bioCover, aiTerror, privatePens, WAGE, wageIdx, SHADOW0, taxBase, shadowW, OLD_LEVEL, DISCOVERIES, evTitle, RPROF, priced, eventCost, authRate, maxSurplus, bankPreview, co2Gross, worldBirths, clampRate, snowball, regionRate, co2Gt, GDP_2026, CO2_2026, DIFF, LEVELS, LBY, GOVS, GBY, sysOn, REGIONS, RBY, INTERVENTIONS, IBY, CATS, EVENTS, EBY, ENDINGS, STABLE_YEARS, RISK_LABELS,
-  brinkP, geoDose, tensionOf, riskBoard, cometChance, econRisk, REC_INFO, trAvail, trShown, trReady, trNetGain, incomeParts, TREATIES, TBY, trOn, trShare, trWhy, trInfo, trSupport, trChance, proposeTreaty, trGross, trNet, TR_NEED, TR_SHARE0, reconquer, reconWhy, reconChance, RECON_COST, RECON_T, needsRef, refInfo, refSupport, refDrivers, refChance, runReferendum, popRisk, mediate, MEDIATION_COST, evChoices, LOW_STAB, LOW_YEARS, ANOMALY,
+  effParent, brinkP, geoDose, tensionOf, riskBoard, cometChance, econRisk, REC_INFO, trAvail, trShown, trReady, trNetGain, incomeParts, TREATIES, TBY, trOn, trShare, trWhy, trInfo, trSupport, trChance, proposeTreaty, trGross, trNet, TR_NEED, TR_SHARE0, reconquer, reconWhy, reconChance, RECON_COST, RECON_T, needsRef, refInfo, refSupport, refDrivers, refChance, runReferendum, popRisk, mediate, MEDIATION_COST, evChoices, LOW_STAB, LOW_YEARS, ANOMALY,
   newGame, tick, EV_WARN, advise, preview, ctrlShare, available, anarchyNear, saveState, loadState, honors, endingText, costOf, upkeepOf, built, startIntervention, payoffNow, stabParts, stabWeak, stabNow, worldStab, unrestCauses, STAB_PARTS, WIN_WORLD, canStart, parentOk, TREE, resolveEvent, revoke, stability, riskBoard, risks, emissions, worldPop, lvl, setSeed, rand,
 };
 
@@ -7688,8 +7711,9 @@ function layoutTree(list) {
   const key = list.map((d) => d.id).join() + "|" + (($("tree") && $("tree").clientWidth) || 0);
   if (layoutCache[key]) return layoutCache[key];
   const kids = {}; list.forEach((d) => (kids[d.id] = []));
-  list.forEach((d) => { if (d.parent && kids[d.parent]) kids[d.parent].push(d.id); });
-  const roots = list.filter((d) => !d.parent || !kids[d.parent]).map((d) => d.id);
+  const par = (d) => effParent(st, d); // padre per il governo in carica
+  list.forEach((d) => { const p = par(d); if (p && kids[p]) kids[p].push(d.id); });
+  const roots = list.filter((d) => { const p = par(d); return !p || !kids[p]; }).map((d) => d.id);
   // ogni albero: la radice al centro, i figli nelle caselle libere vicine, proseguendo verso l'esterno
   const clusters = roots.map((rid) => {
     const cell = { [rid]: [0, 0] }, used = new Set(["0,0"]);
@@ -7745,9 +7769,9 @@ function drawTree() {
   const svg = $("tree"), pad = HR * 1.6;
   svg.setAttribute("viewBox", `${-pad} ${-pad} ${W + 2 * pad} ${H + 2 * pad}`);
   svg.innerHTML = "";
-  for (const d of vis) if (d.parent && pos[d.parent] && vis.some((v) => v.id === d.parent)) {
-    const [x1, y1] = pos[d.parent], [x2, y2] = pos[d.id];
-    svg.appendChild(svgEl("path", { d: `M${x1} ${y1} L${x2} ${y2}`, class: "edge" + (built(st, d.parent) ? " on" : ""), style: "--c:" + CAT_COLOR[d.fam] }));
+  for (const d of vis) { const p = effParent(st, d); if (!(p && pos[p] && vis.some((v) => v.id === p))) continue;
+    const [x1, y1] = pos[p], [x2, y2] = pos[d.id];
+    svg.appendChild(svgEl("path", { d: `M${x1} ${y1} L${x2} ${y2}`, class: "edge" + (built(st, p) ? " on" : ""), style: "--c:" + CAT_COLOR[d.fam] }));
   }
   for (const d of vis) {
     const [x, y] = pos[d.id], s = states[d.id], col = CAT_COLOR[d.fam];
