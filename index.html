@@ -112,6 +112,10 @@ button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); o
 .speed { display: flex; gap: 3px; }
 .speed button { background: var(--panel-2); border: 1px solid var(--line); border-radius: 6px; min-width: 34px; height: 30px; font-family: var(--font-m); font-size: 13px; }
 .speed button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.evspeed { display: flex; align-items: center; justify-content: flex-end; gap: 4px; margin-top: 8px; font-size: 12px; color: var(--muted, #8fa3b3); }
+.evspeed span { margin-right: 4px; }
+.evspeed button { background: var(--panel-2); border: 1px solid var(--line); border-radius: 6px; min-width: 32px; height: 26px; font-family: var(--font-m); font-size: 12px; }
+.evspeed button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 .side { position: absolute; z-index: 2; left: var(--gl); top: var(--mt, 56px); bottom: var(--mb, 70px); width: var(--sw, 190px); display: flex; flex-direction: column; gap: 6px; }
 .viewbtn { background: rgba(21,38,52,.93); border: 1px solid var(--line); border-radius: 8px; padding: 4px 8px; font-size: 13px; color: var(--muted); text-align: left; display: block; width: 100%; }
 .viewbtn small { display: block; font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; }
@@ -1297,6 +1301,14 @@ const INTERVENTIONS = [
   { id: "austerity", cat: "economia", name: "Revisione della spesa", desc: "Una revisione generale dei bilanci pubblici: si eliminano sprechi, doppioni e spese inutili.", scope: "region", cost: 2, upkeep: -1.5, T: 1,
     pro: "Un piccolo risparmio ogni anno e un deficit un po' più basso, con poco malcontento", con: "Effetto modesto: i tagli veri vanno scelti uno per uno",
     eff: { debt: -0.3, unrest: 1 } },
+  /* Regola di bilancio con un consiglio dei conti indipendente (9 novembre 2026, richiesta di Guido): il deficit si corregge da solo
+     quando il debito è alto, ogni anno, senza aspettare la crisi. [Probabile: freno al debito svizzero del 2003, saldo migliorato di
+     circa 3,6 punti in cinque anni; regole ben fatte circa +0,6 punti in media (FMI 2019); Nuova Zelanda 1994, Svezia 1997]
+     Più il debito supera il 60% del prodotto, più la correzione è forte (fino a 2,5 punti l'anno); un po' meno crescita e un po'
+     di malcontento per i tagli, ma molto meno di un piano di rientro imposto dai mercati. */
+  { id: "debtBrake", cat: "economia", name: "Regola di bilancio", desc: "Una legge obbliga ogni governo a correggere il deficit quando il debito è alto; un consiglio indipendente controlla i conti e lo dice pubblicamente.", scope: "region", cost: 3, T: 2, revocable: true, toggle: "Sospendi la regola",
+    pro: "Il debito smette di salire e poi scende, anno dopo anno, senza aspettare le crisi: più è alto, più la correzione è forte", con: "Meno spesa e un po' più di tasse quando il debito è alto: crescita un po' più lenta e qualche protesta",
+    fx: (m, s, r) => { const k = clamp((r.debt - 60) * 0.035, 0, 2.5) * s; m.debtF -= k; m.g -= 0.06 * k; m.unrestT += 0.8 * k; } },
   /* Legge sulle emissioni delle imprese: una tassa che cresce ogni anno per tonnellata di CO₂; le imprese possono ridurla pagando
      la cattura con alberi artificiali. In circa 50 anni porta le emissioni a zero; finché la transizione non è fatta la crescita è
      più lenta e la tassa non compensa le entrate perse. */
@@ -1361,7 +1373,11 @@ const INTERVENTIONS = [
      Con un figlio la famiglia ha il doppio, con due il triplo. Gli assegni normali alzano poco le nascite (+0,05-0,15 figli per
      donna per ogni punto di PIL [Probabile]); un assegno pari a un reddito pieno per figlio potrebbe portarle verso 2-2,4 [Ipotesi],
      ma costerebbe il 15-25% del PIL e molti genitori lascerebbero il lavoro. */
-  { id: "childIncome", cat: "demografia", name: "Reddito di base per ogni figlio", desc: "Ogni bambino, anche appena nato, riceve il suo reddito di base pieno fino alla maggiore età: con un figlio la famiglia ha il doppio, con due il triplo.", scope: "region", cost: 0, upkeep: 45, T: 2, ramp: 8,
+  /* Costo (rivisto il 9 novembre 2026, richiesta di Guido): ogni bambino riceve quanto un adulto con tutti e tre i gradini del
+     reddito di base (20 + 18 + 30), quindi il costo è quello dei tre gradini per il numero di bambini per adulto: nel 2026 circa
+     0,4 (2,4 miliardi di minori contro 5,9 miliardi di adulti) [Certo: ONU, World Population Prospects], cioè circa 27 invece dei
+     45 di prima; scende se nascono meno bambini e sale se le nascite risalgono. */
+  { id: "childIncome", cat: "demografia", name: "Reddito di base per ogni figlio", desc: "Ogni bambino, anche appena nato, riceve il suo reddito di base pieno fino alla maggiore età: con un figlio la famiglia ha il doppio, con due il triplo.", scope: "region", cost: 0, upkeepFn: (st) => 68 * kidsPerAdult(st), T: 2, ramp: 8,
     pro: "Le nascite risalgono davvero: i figli per donna si avvicinano a 2", con: "Costosissimo; molti genitori smettono di lavorare; un po' più di inflazione. Utile soprattutto a lungo termine, non per vincere",
     fx: (m, s) => { m.fert += 0.8 * s; m.labor -= 0.03 * s; m.debtF += 0.3; }, geff: { infl: 0.3 } },
   /* Ristrutturazione (rivista il 27 ottobre 2026): il debito pubblico è in mano a banche, fondi pensione e risparmiatori; tagliarlo
@@ -2054,7 +2070,7 @@ function available(st, d) {
 const TREE = {
   fossilPlan: null, renewPlan: null, fossilSub: "fossilPlan", carbonTax: "fossilPlan", renew: "renewPlan", grid: "renew", efficiency: "carbonTax", nuclear: "nucInfo", nucInfo: null, smr: "nuclear", nucAgency: "nucInfo", nucPrivate: "nucAgency", fusionResearch: null, fusion: "fusionResearch", wind: "renewPlan", localBenefits: "wind", hydro: "renewPlan", geoConv: "renewPlan", geoResearch: "renewPlan",
   energyComm: "renewPlan", greenJobs: "renewPlan", worldGrid: "renewPlan", stateEnergy: "renewPlan", socTariff: "fossilPlan", ets: "fossilPlan", geothermal: "geoResearch", superhotRock: "geothermal",
-  invest: null, automation: "invest", retrain: "automation", ubi: "unempBenefit", ubiMid: "ubi", ubiPlus: "ubiMid", childIncome: "ubiPlus", robotTax: "robots", sovFund: "robotTax", develop: "invest", austerity: null, debtRestr: "austerity",
+  invest: null, automation: "invest", retrain: "automation", ubi: "unempBenefit", ubiMid: "ubi", ubiPlus: "ubiMid", childIncome: "ubiPlus", robotTax: "robots", sovFund: "robotTax", develop: "invest", austerity: null, debtBrake: "austerity", debtRestr: "austerity",
   taxRaise: null, wealthTax: "taxRaise", taxEvasion: null, unempBenefit: null, minWage: "unempBenefit", publicJobs: "unempBenefit", tariffs: null,
   priceCap: "fossilSub", evCars: "renew", rooftop: "renew", carbonLaw: "dac", cashless: "eInvoice", eInvoice: "taxEvasion", dataMatch: "taxEvasion", receiptLottery: "cashless", taxHavens: "dataMatch", amnesty: null, cutStaff: "austerity", cutSubsidies: "austerity", cutDefense: "austerity", cutServices: "austerity", robots: "automation", massRobots: "robots",
   housing: null, parentalLeave: "family", ivf: "housing", pensionFunds: "contrib", pensionTax: "pensionFunds", birthDowry: "pensionFunds", healthcare: null,
@@ -2100,6 +2116,7 @@ const healthGap = (r) => clamp((88 - (HEALTH_SCI[r.id] || 70)) / 46, 0, 1);
    Levi 1988; nei paesi nordici tasse alte e grande fiducia]: ogni servizio pubblico visibile toglie il 12% del malcontento
    delle tasse, fino a dimezzarlo. */
 const TAX_SERVICES = ["healthcare", "education", "pensionFloor", "childcare", "unempBenefit", "pubPensionFund"];
+const kidsPerAdult = (st) => { let y = 0, a = 0; for (const r of Object.values(st.regions)) if (r.controlled) { y += r.yng; a += r.wrk + r.old; } return a ? y / a : 0.4; };
 const taxAccept = (st) => Math.max(0.5, 1 - 0.12 * TAX_SERVICES.filter((id) => built(st, id)).length);
 // padri diversi per un governo, quando il padre normale è vietato e non ha un livello sopra
 const GOV_PARENT = {
@@ -2530,7 +2547,12 @@ function econTick(st, dt) {
     if (r.debt < 100) r.debtNext = 120;
     else if (r.debt >= (r.debtNext || 120) && !(st.econQ || []).some((q) => q.id === "debt" && q.r === r.id)) { r.debtNext = Math.ceil((r.debt + 1) / 30) * 30; (st.econQ || (st.econQ = [])).push({ id: "debt", r: r.id, at: now }); }
   }
-  if (!st.forceEv && st.econQ && st.econQ.length && st.econQ[0].at <= now) { const q = st.econQ.shift(); st.forceEv = { id: q.id, r: q.r || null }; if (q.id === "debt") st.debtR = q.r; }
+  if (!st.forceEv && st.econQ && st.econQ.length && st.econQ[0].at <= now) {
+    const q = st.econQ.shift(), rr = q.r && st.regions[q.r];
+    // ricostruzione con un debito già sotto il 60%: non c'è niente da tagliare, la regione riparte e basta
+    if (q.id === "rebuild" && rr && rr.debt <= REBUILD_TARGET + 2) { rr.rebound = 2; rr.reboundUntil = st.year + 5; logNews(st, `Ricostruzione in ${rr.name}: il debito è già basso (${Math.round(rr.debt)}% del prodotto), la regione riparte senza tagli.`, "info"); }
+    else { st.forceEv = { id: q.id, r: q.r || null }; if (q.id === "debt") st.debtR = q.r; }
+  }
 }
 /* Avviso quando i conti dell'Autorità vanno in rosso (7 novembre 2026, richiesta di Guido): ogni gennaio si confronta il saldo
    con quello dell'anno prima e, se è diventato negativo o è peggiorato molto, si spiega perché con le voci che sono cambiate di più. */
@@ -2937,11 +2959,11 @@ const EVENTS = [
      - oltre il 200%, ristrutturazione: il debito scende al 90%, lo pagano i creditori della regione e del resto del mondo. */
   { id: "debt", scope: "region", cat: "Economia", title: "Crisi del debito",
     p: () => 0,
-    text: (st, r) => `I mercati non si fidano più dei conti di ${r.name}: il debito pubblico è al ${Math.round(r.debt)}% del prodotto e gli interessi salgono. ${r.debt >= 200 ? "A questo livello il debito non si può più ripagare per intero." : "Bisogna scegliere chi pagherà per farlo scendere."}`,
+    text: (st, r) => `I mercati non si fidano più dei conti di ${r.name}: il debito pubblico è al ${Math.round(r.debt)}% del prodotto e gli interessi salgono. ${r.debt >= 200 ? "A questo livello il debito non si può più ripagare per intero." : "Bisogna scegliere chi pagherà per farlo scendere."}${built(st, "debtBrake") || !available(st, IBY.debtBrake) ? "" : " Perché non torni a salire serve una correzione che duri: la Regola di bilancio (scheda Economia)."}`,
     choices: [
-      { ok: (st) => !(debtR(st) && debtR(st).debt >= 200), label: "Piano di rientro: tagli e tasse", cost: 0, out: "Il debito scende più in fretta: deficit −3 punti l'anno per cinque anni. Ma subito i tagli frenano l'economia e fanno arrabbiare", fx: (st, r) => { r.austUntil = st.year + 5; r.shockU += 10; r.shockG -= 1.0; } },
+      { ok: (st) => !(debtR(st) && debtR(st).debt >= 200), label: "Piano di rientro: tagli e tasse", cost: 0, out: "Deficit −3 punti l'anno per cinque anni, poi metà dei tagli resta per sempre. Subito meno crescita e rabbia", fx: (st, r) => { r.austUntil = st.year + 5; r.austPerm = Math.min(3, (r.austPerm || 0) + 1.5); r.shockU += 10; r.shockG -= 1.0; } },
       { ok: (st) => debtR(st) && debtR(st).debt >= 200, label: "Ristrutturazione: taglio del debito", cost: 0, out: "Il debito scende al 90%; lo pagano i risparmiatori della regione e le banche del resto del mondo, e per qualche anno i tassi salgono per tutti", fx: (st, r) => cutDebt(st, r, 90, true) },
-      { label: "Repressione finanziaria", cost: 0, out: "Per dieci anni tassi sotto l'inflazione e banche obbligate a comprare titoli: il debito si erode piano. Ogni anno risparmiatori e pensionati perdono valore (malcontento che cresce), le imprese trovano meno credito (crescita più bassa) e i prezzi salgono un po'. Funziona solo sul debito in mano ai cittadini della regione", fx: (st, r) => { r.repressUntil = st.year + 10; r.shockU += 3; st.g.piShock += 0.4; } },
+      { label: "Repressione finanziaria", cost: 0, out: "Per dieci anni tassi tenuti bassi: il debito cala piano. Pagano i risparmiatori: malcontento, meno crescita, prezzi un po' più alti", fx: (st, r) => { r.repressUntil = st.year + 10; r.shockU += 3; st.g.piShock += 0.4; } },
       { label: "Non fare nulla", cost: 0, out: "Interessi più alti: il debito sale ancora, la crescita rallenta e cresce la rabbia", fx: (st, r) => { r.debt += 8; r.shockG -= 1.5; r.shockU += 8; } },
     ] },
   { id: "energyShock", scope: "global", cat: "Energia", title: "Crisi del petrolio e del gas",
@@ -2985,7 +3007,8 @@ const EVENTS = [
       { ok: recIs("shock"), label: "Non fare nulla", cost: 0, out: "Imprese chiuse per sempre e disoccupazione: la ripresa sarà lenta", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockG -= 2.8; r.shockU += 9; r.unemp += 2; }) },
     ] },
   { id: "autoUnemp", scope: "region", cat: "Economia", title: "Disoccupazione da automazione",
-    p: (st, r) => (lvl(r, "automation") > 0 || st.g.aiCap > 55) && r.unemp > 9 ? 0.05 : 0,
+    // con un reddito per tutti chi perde il lavoro non scende in piazza: l'evento arriva solo se il sostegno al reddito è debole (9 novembre 2026)
+    p: (st, r) => (lvl(r, "automation") > 0 || st.g.aiCap > 55) && r.unemp > 9 && incomeSupport(r) < 0.6 ? 0.05 * (1 - incomeSupport(r)) : 0,
     text: (st, r) => `In ${r.name} robot e programmi sostituiscono interi reparti. La disoccupazione è salita al ${r.unemp.toFixed(1)}%.`,
     choices: [
       { label: "Sussidi e riqualificazione", cost: 12, out: "Disoccupazione in forte calo", fx: (st, r) => { r.unemp -= 4; } },
@@ -3607,8 +3630,8 @@ const EVENTS = [
     onFire: (st, r) => { r.promiseOff = pick(Object.keys(r.local)); },
     text: (st, r) => `I mercati chiedono a ${r.name} di ridurre il deficit: il debito è al ${Math.round(r.debt)}% del PIL. La misura più discussa è ${PROMISES[r.promiseOff].t.toLowerCase()}, che costa circa ${fmt1(r.local[r.promiseOff].def)} punti di PIL l'anno.`,
     choices: [
-      { label: "Ritirarla", cost: 0, out: "Il deficit scende, ma chi ne beneficiava protesta", fx: (st, r) => { const L = r.local[r.promiseOff]; if (L) { r.shockU += L.u * 2; delete r.local[r.promiseOff]; } } },
       { label: "Mantenerla", cost: 0, out: "La gente è contenta, il debito continua a salire", fx: () => {} },
+      { label: "Ritirarla", cost: 0, out: "Il deficit scende, ma chi ne beneficiava protesta", fx: (st, r) => { const L = r.local[r.promiseOff]; if (L) { r.shockU += L.u * 2; delete r.local[r.promiseOff]; } } },
     ] },
   { id: "pensionPoverty", scope: "region", cat: "Previdenza", title: "Pensionati in povertà",
     p: (st, r) => (pensPoverty(r) > 10 ? 0.2 : 0),
@@ -4034,11 +4057,31 @@ function rebuildCut(st, r, creditors) {
 }
 function reconBase(st, r) { return RBY[r.id].nb.map((n) => st.regions[n]).filter((x) => x.controlled && x.stab >= 30); }
 const reconFar = (st) => ctrlRegions(st).filter((x) => x.stab >= 30);
-function reconChance(st, r) {
+/* Probabilità di riuscita (rivista il 9 novembre 2026, richiesta di Guido): la base dipende dalle regioni vicine e arriva al
+   massimo al 60%; le decisioni durante la missione aggiungono fino a 30 punti; ogni tentativo fallito lascia una parte del
+   territorio pacificata (+10 punti, al massimo +20). Prima il tetto del 90% veniva raggiunto già senza decisioni, che quindi
+   non servivano a nulla. [Probabile: le missioni di pace robuste riescono in circa metà-due terzi dei casi; Doyle e Sambanis 2006,
+   Fortna 2008] */
+function reconParts(st, r) {
   const b = RBY[r.id].nb.map((n) => st.regions[n]).filter((x) => x.controlled);
   const avg = b.length ? b.reduce((a, x) => a + x.stab, 0) / b.length : 0;
   const q = (st.recon || []).find((x) => x.r === r.id);
-  return clamp(0.25 + ((q && q.bonus) || 0) + avg / 100 - anarchyNear(st, r) * 0.1 - (reconBase(st, r).length ? 0 : 0.1), 0.15, 0.9);
+  return { base: 0.15 + 0.45 * avg / 100, avg, nb: b, near: anarchyNear(st, r) * 0.1, far: reconBase(st, r).length ? 0 : 0.1,
+    tries: Math.min(0.2, 0.1 * (r.reconFails || 0)), bonus: (q && q.bonus) || 0 };
+}
+function reconChance(st, r) {
+  const x = reconParts(st, r);
+  return clamp(x.base - x.near - x.far + x.tries + x.bonus, 0.1, 0.92);
+}
+// perché una missione è fallita: i fattori che hanno pesato, in parole semplici
+function reconFailText(st, r, p) {
+  const x = reconParts(st, r), why = [];
+  if (x.avg < 50) why.push(x.nb.length ? `le regioni vicine erano poco stabili (${x.nb.map((n) => `${n.name} ${Math.round(n.stab)}`).join(", ")}): da lì passano truppe e rifornimenti` : "nessuna regione vicina era sotto controllo");
+  if (x.near) why.push("altre regioni vicine erano nell'anarchia e armavano le milizie");
+  if (x.far) why.push("la missione è partita da lontano");
+  if (x.bonus < 0.2) why.push("durante la missione si è scelto di spendere poco");
+  const odds = Math.round(p * 100);
+  return `Dopo due anni le milizie controllano ancora gran parte di ${r.name}. La probabilità di riuscita era circa il ${odds}%: ${odds >= 70 ? `è andata male, come succede circa ${Math.max(1, Math.round(100 - odds))} volte su 100.` : "il rischio era alto."}${why.length ? " Hanno pesato: " + why.join("; ") + "." : ""} Una parte del territorio resta pacificata: il prossimo tentativo avrà circa 10 punti di probabilità in più.`;
 }
 function reconWhy(st, rid) {
   const r = st.regions[rid];
@@ -4438,7 +4481,10 @@ function tick(st) {
        [Certo: Reinhart e Sbrancia 2011; Probabile: −0,3 punti di crescita l'anno]; il malcontento dei risparmiatori cresce piano */
     if (r.repressUntil > st.year && r.controlled) { pg -= 0.5; r.shockU += 3 * dt; }
     r.prod *= 1 + pg / 100 * dt;
-    const L = laborOf(r, m);
+    /* dopo l'anarchia robot e lavoratori tornano in qualche anno, non in un mese: prima il prodotto triplicava di colpo e il
+       debito in % del prodotto crollava (Nord America, partita di Guido del 9 novembre 2026). Al massimo +15% di lavoro l'anno. */
+    let L = laborOf(r, m);
+    if (r.L && L > r.L * (1 + 0.15 * dt)) L = r.L * (1 + 0.15 * dt);
     if (m.mass <= 0) r.Lpeak = Math.max(r.Lpeak || 0, L);
     r.lg += ((L / r.L - 1) / dt * 100 - r.lg) * 0.15; r.L = L;
     r.gdp = L * r.prod;
@@ -4465,7 +4511,10 @@ function tick(st) {
     const cyc = r.controlled ? Math.max(0, basePg(r) - 1 - r.growth) * 0.5 : 0; // solo in una vera frenata
     const ageCost = r.dep0 != null ? Math.max(0, r.old / r.wrk - r.dep0) * 0.8 : 0;
     r.dSnow = snowball(r, st); r.dDef = r.defBase + (r.pension - r.pens0) * 0.08 + m.debtF + cyc + ageCost + (r.controlled ? CONTRIB_DEF * st.D.inc : 0); // palla di neve e deficit
-    if (r.austUntil > st.year) r.dDef -= 3; // piano di rientro
+    /* piano di rientro: −3 punti per cinque anni, poi resta circa la metà dei tagli (−1,5 per sempre, al massimo −3 con più piani).
+       [Certo: le grandi riduzioni del debito nei paesi OCSE sono durate circa 11 anni con avanzi di circa 2 punti l'anno;
+       Probabile: dopo 5-10 anni in media resta meno della metà del risanamento, per stanchezza (Ghosh e altri 2013)] */
+    if (r.austUntil > st.year) r.dDef -= 3; else r.dDef -= r.austPerm || 0;
     if (r.controlled || r.exit) r.debt += dt * (r.dDef + r.dSnow); // in anarchia nessuno paga e nessuno presta: il debito resta congelato
     r.debt = clamp(r.debt, 0, 400);
 
@@ -4533,11 +4582,16 @@ function tick(st) {
     if (q.t < RECON_T) continue;
     const r = st.regions[q.r];
     if (rand() < reconChance(st, r)) {
-      r.controlled = true; r.anarchy = 0; r.unrest = Math.min(78, (st.D.anarchyAt || 92) - 20); r.shockU = 0; r.stab = 8; r.peaceUntil = st.year + 5;
+      r.controlled = true; r.anarchy = 0; r.reconFails = 0; r.unrest = Math.min(78, (st.D.anarchyAt || 92) - 20); r.shockU = 0; r.stab = 8; r.peaceUntil = st.year + 5;
       st.rebuildR = r.id; (st.econQ || (st.econQ = [])).push({ id: "rebuild", r: r.id, at: st.year * 12 + st.month + 1 });
       logNews(st, `${r.name} torna sotto l'Autorità: la missione ha riportato l'ordine. La regione è ancora fragile.`, "done");
       note(st, "good", "mediation", `Ordine ristabilito in ${r.name}`, `La missione di pace e ricostruzione ha funzionato: ${r.name} torna a versare fondi e a seguire gli interventi. Per cinque anni i caschi blu restano e tengono basso il malcontento, ma la regione va aiutata subito: lavoro per chi ha combattuto, servizi, un reddito per chi non ce l'ha. Se le cause della crisi restano, ricadrà.`);
-    } else logNews(st, `La missione in ${r.name} è fallita: le milizie controllano ancora il territorio. Si può ritentare.`, "bad");
+    } else {
+      const txt = reconFailText(st, r, reconChance(st, r));
+      r.reconFails = (r.reconFails || 0) + 1;
+      logNews(st, `La missione in ${r.name} è fallita: le milizie controllano ancora il territorio. Si può ritentare.`, "bad");
+      note(st, "bad", "mediation", `Missione fallita in ${r.name}`, txt);
+    }
   }
   st.recon = (st.recon || []).filter((q) => q.t < RECON_T);
 
@@ -6973,6 +7027,7 @@ const GLYPH = {
   plug: `<path d="M3.5 1.2v2.3M6.5 1.2v2.3M2.5 3.5h5v1.5a2.5 2.5 0 0 1-5 0zM5 7.5v2"/>`,
   car: `<path d="M1.5 7V5.5l1.2-2.2h4.6l1.2 2.2V7zM2.6 5.4h4.8"/><circle cx="3.2" cy="7.4" r=".9" ${F}/><circle cx="6.8" cy="7.4" r=".9" ${F}/>`,
   bridge: `<path d="M.8 6.5h8.4M1.5 6.5v2.5M8.5 6.5v2.5M1.5 6.5C3 3 7 3 8.5 6.5M3.5 4.6v1.9M5 4.1v2.4M6.5 4.6v1.9"/>`,
+  scales: `<path d="M5 1.4v7.2M3 8.6h4M1.6 2.8h6.8M1.6 2.8 .5 5.4M1.6 2.8l1.1 2.6M8.4 2.8 7.3 5.4M8.4 2.8l1.1 2.6M.5 5.4h2.2M7.3 5.4h2.2"/>`,
   scissors: `<circle cx="2.6" cy="7.4" r="1.3"/><circle cx="2.6" cy="2.6" r="1.3"/><path d="M3.7 3.3 9 7.6M3.7 6.7 9 2.4"/>`,
   personMinus: `<circle cx="4" cy="3" r="1.6" ${F}/><path d="M1.2 9c0-2.4 1.2-3.6 2.8-3.6S6.8 6.6 6.8 9z" ${F}/><path d="M7 3.4h2.4"/>`,
   factoryDown: `<path d="M1 9V5l2.2 1.3V5l2.2 1.3V3.4h1.6V9z" ${F}/><path d="M8.6 1v3.2M7.6 3.2l1 1 1-1"/>`,
@@ -7083,7 +7138,7 @@ const ICON_OF = {
   localBenefits: "coins", renew2: "panel", renew3: "panels", wind: "wind", wind2: "windSea", wind3: "windFarm", nuclear2: "tower", nuclear3: "atom",
   nucPrivate2: "tower", nucPrivate3: "atom", fusion2: "torus", dac2: "recycle",
   fossilSub: "fuel", carbonTax: "smoke", renew: "sun", grid: "battery", efficiency: "bulb", nuclear: "i-nucleare", nucInfo: "megaphone", carbonLaw: "treeTech", cashless: "card", pensionIndex: "seesaw", smr: "tower", nucAgency: "shieldAtom", nucPrivate: "contract", fusionResearch: "torus", fusion: "fusion", priceCap: "plug", evCars: "car",
-  centralBank: "rateCoin", university: "cap", research: "microscope", invest: "bridge", austerity: "scissors", cutStaff: "personMinus", cutSubsidies: "factoryDown", cutDefense: "shieldMinus", cutServices: "hospital", automation: "gear", robots: "robot", retrain: "wrench", ubi: "coins", debtRestr: "handshake", develop: "sprout",
+  centralBank: "rateCoin", university: "cap", research: "microscope", invest: "bridge", austerity: "scissors", debtBrake: "scales", cutStaff: "personMinus", cutSubsidies: "factoryDown", cutDefense: "shieldMinus", cutServices: "hospital", automation: "gear", robots: "robot", retrain: "wrench", ubi: "coins", debtRestr: "handshake", develop: "sprout",
   taxRaise: "percent", wealthTax: "diamond", taxEvasion: "magnifier", eInvoice: "newspaper", dataMatch: "puzzle", receiptLottery: "gift", taxHavens: "vault", creditRules: "lock", fiscalPlan: "piggy", growthPlan: "chartUp", laborPlan: "hardhat", amnesty: "dollarCut", eProcure: "contract", assetsPublic: "house", whistle: "megaphone", fastCourts: "gavel", civilPay: "coins", unempBenefit: "umbrella", minWage: "wallet", publicJobs: "hardhat", tariffs: "crate", privat: "tag",
   retire: "clock", contrib: "piggy", natality: "baby", family: "family", migration: "plane", integration: "puzzle", healthyAging: "heart", housing: "house", parentalLeave: "stroller", ivf: "dna", pensionFunds: "vault", pensionTax: "chartUp", birthDowry: "gift", healthcare: "i-salute",
   transparency: "eye", anticorr: "gavel", assemblies: "people", disinfo: "newspaper", police: "badge", education: "school", socialHousing: "buildings", civicService: "hands",
@@ -7115,7 +7170,7 @@ const SHORT = {
   socWealth: "Patrimoniale grandi capitali", pubDrugs: "Farmaci pubblici",
   qCrypto: "Crittografia quantistica", qComp: "Computer quantistici", qIndustry: "Centri quantistici", qAI: "Quantistica e AI", phage: "Batteriofagi", cellAg: "Carne coltivata", plasticBugs: "Mangia-plastica", bioprint: "Organi stampati",
   robotTax: "Tassa robot", sovFund: "Fondo sovrano", ubiMid: "Reddito intermedio", childIncome: "Reddito ai figli", teacherEval: "Valutare docenti", rooftop: "Pannelli sui tetti", stratoPlanes: "Aerei stratosferici",
-  invest: "Investimenti", automation: "Automazione", retrain: "Formazione", ubi: "Reddito di base", austerity: "Tagli alla spesa", debtRestr: "Taglio del debito",
+  invest: "Investimenti", automation: "Automazione", retrain: "Formazione", ubi: "Reddito di base", austerity: "Tagli alla spesa", debtBrake: "Regola di bilancio", debtRestr: "Taglio del debito",
   retire: "Età pensionabile", healthyAging: "Invecchiamento sano", contrib: "Contributi", family: "Servizi famiglia", natality: "Bonus figli", migration: "Immigrazione regolata", integration: "Integrazione",
   transparency: "Trasparenza", anticorr: "Anticorruzione", assemblies: "Assemblee", disinfo: "Disinformazione", police: "Ordine pubblico", develop: "Aiuti allo sviluppo",
   adapt: "Adattamento", agri: "Agricoltura", reforest: "Riforestazione", dac: "Cattura CO₂", geoeng: "Geoingegneria",
@@ -7142,7 +7197,9 @@ let st = null;
 let phase = "title";      // title | how | diff | play | over
 let introDiff = "medio", introLevel = "tut", introGov = "base";
 let sel = null;
-let speed = 1, savedSpeed = 1;
+let speed = 1, savedSpeed = 1, userPause = false;
+// il tempo fermo scelto dal giocatore resta fermo: chiudere un evento o un pannello non lo fa ripartire (9 novembre 2026)
+const resumeSpeed = () => (userPause ? 0 : savedSpeed || 1);
 let pending = null;
 let layer = "stab";
 let actTab = "energia", actNode = null;
@@ -7547,7 +7604,7 @@ function continueGame() {
   if (!o) { $("mCont").hidden = true; return; }
   tryLandscape(); music.start();
   zoomMap(null);
-  st = o.st; sel = null; speed = 0; savedSpeed = 1; seenLog = st.logN || 0; tut = st.L.tutorial ? { step: 0, events: 0 } : null;
+  st = o.st; sel = null; speed = 0; savedSpeed = 1; userPause = false; seenLog = st.logN || 0; tut = st.L.tutorial ? { step: 0, events: 0 } : null;
   showPhase("play"); refresh();
   rotateHint();
   if (o.pending) showEvent(o.pending); else toast(tr("Partita ripresa: {m} {y}. Tocca 1× per far ripartire il tempo.", { m: MONTHS[st.month], y: st.year }), "spread");
@@ -7567,13 +7624,13 @@ function open(kind) {
   openScreen = kind;
   // se un pannello dà errore si chiude solo quel pannello: il gioco non deve mai sparire (crash del 28 ottobre 2026)
   try { if (kind === "acts") renderActs(); else if (kind === "reg") renderRegion(); else renderWorld(); }
-  catch (e) { console.warn("pannello non disponibile", e); closeScreensQuiet(); if (!pending && phase === "play") speed = savedSpeed || 1; }
+  catch (e) { console.warn("pannello non disponibile", e); closeScreensQuiet(); if (!pending && phase === "play") speed = resumeSpeed(); }
   hud();
 }
 function closeScreens() {
   $("scrActs").hidden = $("scrReg").hidden = $("scrWorld").hidden = true;
   openScreen = null;
-  if (!pending && phase === "play") speed = savedSpeed || 1;
+  if (!pending && phase === "play") speed = resumeSpeed();
   refresh();
 }
 const headHTML = (title, extra = "") => `<div class="head"><button type="button" class="back" data-close aria-label="${tr("Torna alla mappa")}">‹</button><h2>${title}</h2>${extra}</div>`;
@@ -7661,7 +7718,7 @@ function showTreaty(id) {
     <div class="choices">${chances.map((ch, i) => `<button type="button" class="choice" data-k="${i + 1}"><b>${tr(ch.name)}</b><span class="c">${fmt(ch.cost, 0)} ${tr("fondi")}</span><small>${tr("Probabilità di approvarlo: circa {p}%", { p: Math.round(ch.p * 100) })}</small></button>`).join("")}
     <button type="button" class="choice" id="trNo"><b>${tr("Rinuncia")}</b><span class="c">${tr("gratis")}</span><small>${tr("Si può proporre più avanti")}</small></button></div>`;
   $("modal").hidden = false;
-  const close = () => { pending = null; $("modal").hidden = true; speed = savedSpeed || 1; hud(); paint(); save(); refresh(); };
+  const close = () => { pending = null; $("modal").hidden = true; speed = resumeSpeed(); hud(); paint(); save(); refresh(); };
   for (const b of c.querySelectorAll("[data-k]")) b.onclick = () => { proposeTreaty(st, id, +b.dataset.k); close(); };
   $("trNo").onclick = close;
 }
@@ -7731,48 +7788,65 @@ function layoutTree(list) {
   const par = (d) => effParent(st, d); // padre per il governo in carica
   list.forEach((d) => { const p = par(d); if (p && kids[p]) kids[p].push(d.id); });
   const roots = list.filter((d) => { const p = par(d); return !p || !kids[p]; }).map((d) => d.id);
-  // ogni albero: la radice al centro, i figli nelle caselle libere vicine, proseguendo verso l'esterno
-  const clusters = roots.map((rid) => {
+  /* ogni albero: la radice al centro, ogni figlio nella casella libera accanto al padre più vicina al centro dell'albero,
+     contando di più la distanza in verticale (peso "a"): gli alberi crescono in larghezza e restano compatti. Prima i rami
+     proseguivano dritti e l'albero dell'economia diventava alto e stretto, con icone minuscole (9 novembre 2026, richiesta di Guido). */
+  const build = (a) => roots.map((rid) => {
     const cell = { [rid]: [0, 0] }, used = new Set(["0,0"]);
     const queue = [[rid, -1]];
+    const score = (q, r) => { const [x, y] = hexXY(q, r); return x * x + a * y * y; };
     while (queue.length) {
       const [id, dir] = queue.shift(), [q, r] = cell[id];
-      // dalla radice i rami partono prima verso destra e sinistra: il pannello è più largo che alto (6 novembre 2026)
-      const order = dir < 0 ? [0, 3, 1, 4, 5, 2] : [dir, (dir + 5) % 6, (dir + 1) % 6, (dir + 4) % 6, (dir + 2) % 6];
-      let k = 0;
       for (const kid of kids[id]) {
-        while (k < order.length && used.has((q + HEXD[order[k]][0]) + "," + (r + HEXD[order[k]][1]))) k++;
-        const o = order[Math.min(k, order.length - 1)];
-        let nq = q + HEXD[o][0], nr = r + HEXD[o][1];
-        while (used.has(nq + "," + nr)) { nq += HEXD[o][0]; nr += HEXD[o][1]; }
-        cell[kid] = [nq, nr]; used.add(nq + "," + nr); queue.push([kid, o]); k++;
+        let bestC = null;
+        for (let o = 0; o < 6; o++) { const nq = q + HEXD[o][0], nr = r + HEXD[o][1]; if (used.has(nq + "," + nr)) continue; const sc = score(nq, nr); if (!bestC || sc < bestC[2]) bestC = [nq, nr, sc, o]; }
+        if (!bestC) { // nessuna casella libera accanto: si prosegue nella direzione del ramo
+          const o = dir < 0 ? 0 : dir; let nq = q + HEXD[o][0], nr = r + HEXD[o][1];
+          while (used.has(nq + "," + nr)) { nq += HEXD[o][0]; nr += HEXD[o][1]; }
+          bestC = [nq, nr, 0, o];
+        }
+        cell[kid] = [bestC[0], bestC[1]]; used.add(bestC[0] + "," + bestC[1]); queue.push([kid, bestC[3]]);
       }
     }
     const pts = Object.entries(cell).map(([id, [q, r]]) => [id, ...hexXY(q, r)]);
     const xs = pts.map((p) => p[1]), ys = pts.map((p) => p[2]);
     return { pts, x0: Math.min(...xs), y0: Math.min(...ys), w: Math.max(...xs) - Math.min(...xs), h: Math.max(...ys) - Math.min(...ys) };
   });
-  // alberi disposti a scaffale: righe di larghezza simile, per riempire un pannello più largo che alto
   /* alberi disposti a scaffale: si provano tutte le larghezze di riga possibili e si sceglie quella che, nella forma vera del
      pannello, dà le icone più grandi (6 novembre 2026: prima restava molto spazio vuoto e le icone erano piccole) */
   const box = $("tree"), bw = (box && box.clientWidth) || 600, bh = (box && box.clientHeight) || 300, pad = HR * 1.6;
   // distanza tra due alberi vicini: più di un'icona intera (prima 1,4 raggi: le icone di alberi diversi si sovrapponevano)
   const GAPC = 2.6 * HR, GAPR = 2.4 * HR;
-  const shelf = (rowW) => {
-    const pos = {}; let x = 0, y = 0, rowH = 0, W = 0;
-    for (const c of clusters) {
-      if (x > 0 && x + c.w > rowW + 0.01) { x = 0; y += rowH + GAPR; rowH = 0; }
-      for (const [id, px, py] of c.pts) pos[id] = [x + px - c.x0, y + py - c.y0];
-      x += c.w + GAPC; rowH = Math.max(rowH, c.h); W = Math.max(W, x - GAPC);
-    }
-    return { pos, W, H: y + rowH };
-  };
   let best = null;
-  const widths = new Set([Math.max(...clusters.map((c) => c.w))]);
-  for (let i = 0; i < clusters.length; i++) { let w = 0; for (let j = i; j < clusters.length; j++) { w += clusters[j].w + (j > i ? GAPC : 0); widths.add(w); } }
-  for (const w of widths) {
-    const L = shelf(w), sc = Math.min(bw / (L.W + 2 * pad), bh / (L.H + 2 * pad));
-    if (!best || sc > best.sc) best = { ...L, sc };
+  for (const a of [1, 1.6, 2.5, 4]) {
+    const clusters = build(a);
+    const shelf = (rowW) => {
+      const pos = {}; let x = 0, y = 0, rowH = 0, W = 0;
+      for (const c of clusters) {
+        if (x > 0 && x + c.w > rowW + 0.01) { x = 0; y += rowH + GAPR; rowH = 0; }
+        for (const [id, px, py] of c.pts) pos[id] = [x + px - c.x0, y + py - c.y0];
+        x += c.w + GAPC; rowH = Math.max(rowH, c.h); W = Math.max(W, x - GAPC);
+      }
+      return { pos, W, H: y + rowH };
+    };
+    const widths = new Set([Math.max(...clusters.map((c) => c.w))]);
+    for (let i = 0; i < clusters.length; i++) { let w = 0; for (let j = i; j < clusters.length; j++) { w += clusters[j].w + (j > i ? GAPC : 0); widths.add(w); } }
+    // anche a colonne: un albero grande a sinistra e quelli piccoli impilati accanto
+    const column = (colH) => {
+      const pos = {}; let x = 0, y = 0, colW = 0, H = 0;
+      for (const c of clusters) {
+        if (y > 0 && y + c.h > colH + 0.01) { y = 0; x += colW + GAPC; colW = 0; }
+        for (const [id, px, py] of c.pts) pos[id] = [x + px - c.x0, y + py - c.y0];
+        y += c.h + GAPR; colW = Math.max(colW, c.w); H = Math.max(H, y - GAPR);
+      }
+      return { pos, W: x + colW, H };
+    };
+    const heights = new Set([Math.max(...clusters.map((c) => c.h))]);
+    for (let i = 0; i < clusters.length; i++) { let h = 0; for (let j = i; j < clusters.length; j++) { h += clusters[j].h + (j > i ? GAPR : 0); heights.add(h); } }
+    for (const L of [...[...widths].map(shelf), ...[...heights].map(column)]) {
+      const sc = Math.min(bw / (L.W + 2 * pad), bh / (L.H + 2 * pad));
+      if (!best || sc > best.sc + 1e-9) best = { ...L, sc };
+    }
   }
   return (layoutCache[key] = { pos: best.pos, W: best.W, H: best.H });
 }
@@ -7877,7 +7951,8 @@ function renderDetail() {
   const active = s.a && s.a.n > 0;
   // nel piede: quanto costa subito e quanto cambia il saldo annuo
   // saves: interventi il cui costo annuo sparisce quando questo è pronto (la base lunare autonoma)
-  const saved = done ? 0 : (d.saves || []).filter((k) => built(st, k)).reduce((t, k) => t + upkeepOf(st, IBY[k]), 0);
+  // il reddito di base prende il posto del sussidio di disoccupazione: il suo costo annuo sparisce (9 novembre 2026)
+  const saved = done ? 0 : (d.saves || []).filter((k) => built(st, k)).reduce((t, k) => t + upkeepOf(st, IBY[k]), 0) + (d.id === "ubi" && built(st, "unempBenefit") ? upkeepOf(st, IBY.unempBenefit) : 0);
   // interventi contro l'evasione: entrate in più a regime, stimate dal calo dell'economia sommersa
   const shadowPts = d.eff && d.eff.shadow < 0 ? -d.eff.shadow : 0, tb = taxBase(st);
   // tasse e misure che aumentano le entrate (patrimoniale, tassa sui robot, contributi del reddito di base…): entrate in più a regime
@@ -8030,8 +8105,8 @@ function reconHTML(r) {
   const why = reconWhy(st, r.id), q = (st.recon || []).find((x) => x.r === r.id), c = priced(st, RECON_COST);
   return `<p class="note" style="margin:0 0 6px">${tr("La regione è in anarchia: non esegue più gli ordini, non versa fondi e spinge verso il caos le regioni vicine.")}</p>
     <div class="advice"><span class="eyebrow">${tr("Missione di pace e ricostruzione")}</span>
-    <span class="gain">${tr("Truppe di pace, lavoro per chi ha combattuto e un governo di transizione per {t} anni, partendo da una regione stabile (meglio se vicina). Probabilità di riuscita oggi: circa <em>{p}%</em>, più alta se le regioni vicine sono stabili. Se fallisce si può ritentare. Se riesce, per cinque anni i caschi blu tengono basso il malcontento: è il momento di risolvere quello che aveva fatto crollare la regione, o ricadrà.", { t: RECON_T, p: Math.round(reconChance(st, r) * 100) })}</span>
-    ${q ? `<p class="why">${tr("Missione in corso: {a} mesi su {b}.", { a: Math.floor(q.t * 12), b: RECON_T * 12 })}</p>` : `<button type="button" class="buy" id="bRecon" ${why ? "disabled" : ""}>${st.funds < c ? tr("Avvia a debito") : tr("Avvia")} – ${fmt(c, c % 1 ? 1 : 0)}</button>${why ? `<p class="why">${esc(tr(why))}</p>` : ""}`}</div>`;
+    <span class="gain">${tr("Truppe di pace, lavoro per chi ha combattuto e un governo di transizione per {t} anni, partendo da una regione stabile (meglio se vicina). Probabilità di riuscita oggi: circa <em>{p}%</em>, più alta se le regioni vicine sono stabili; le decisioni durante la missione possono aggiungere fino a 30 punti. Se fallisce si può ritentare, con qualche punto in più. Se riesce, per cinque anni i caschi blu tengono basso il malcontento: è il momento di risolvere quello che aveva fatto crollare la regione, o ricadrà.", { t: RECON_T, p: Math.round(reconChance(st, r) * 100) })}</span>
+    ${q ? `<p class="why">${tr("Missione in corso: {a} mesi su {b}.", { a: Math.floor(q.t * 12), b: RECON_T * 12 }) + " " + tr("Probabilità di riuscita con le decisioni prese finora: circa {p}%.", { p: Math.round(reconChance(st, r) * 100) })}</p>` : `<button type="button" class="buy" id="bRecon" ${why ? "disabled" : ""}>${st.funds < c ? tr("Avvia a debito") : tr("Avvia")} – ${fmt(c, c % 1 ? 1 : 0)}</button>${why ? `<p class="why">${esc(tr(why))}</p>` : ""}`}</div>`;
 }
 // misure nazionali lasciate fare e interventi sospesi solo in questa regione
 function localHTML(r) {
@@ -8476,19 +8551,25 @@ function showEvent(ev) {
     ${r ? evDataHTML(ev, r) : ""}
     <div class="choices">${evChoices(st, E).map((ch, i) => { const cost = eventCost(st, E, i), debt = cost > 0 && st.funds < cost;
       return `<button type="button" class="choice" data-i="${i}"><b>${esc(tr(ch.label))}</b><span class="c">${cost > 0 ? fmt(cost, cost % 1 ? 1 : 0) + " " + tr("fondi") : cost < 0 ? "+" + fmt(-cost, 0) + " " + tr("fondi") : tr("gratis")}</span><small>${esc(tr(ch.out))}${debt ? " · " + tr("a debito: i fondi andranno sotto zero") : ""}</small></button>`; }).join("")}</div>
-    ${canWait ? `<button type="button" class="x evx" id="evLater" aria-label="${tr("Chiudi e decidi più tardi")}">×</button>` : ""}`;
+    ${canWait ? `<button type="button" class="x evx" id="evLater" aria-label="${tr("Chiudi e decidi più tardi")}">×</button>` : ""}
+    <div class="evspeed"><span>${tr("Tempo dopo la decisione")}</span>${[[0, "II"], [1, "1×"], [2, "2×"], [4, "4×"]].map(([v, t]) => `<button type="button" data-es="${v}" aria-pressed="${String(v === resumeSpeed())}">${t}</button>`).join("")}</div>`;
   $("modal").hidden = false;
+  // la velocità si può cambiare anche con l'evento aperto: vale da quando si decide (9 novembre 2026, richiesta di Guido)
+  for (const b of c.querySelectorAll("[data-es]")) b.onclick = () => {
+    const v = +b.dataset.es; userPause = v === 0; if (v > 0) savedSpeed = v;
+    for (const x of c.querySelectorAll("[data-es]")) x.setAttribute("aria-pressed", String(x === b));
+  };
   if (canWait) $("evLater").onclick = () => {
     // la crisi torna sulla mappa con la stessa scadenza
     st.queue.push(ev); pending = null; $("modal").hidden = true;
-    speed = openScreen ? 0 : savedSpeed || 1;
+    speed = openScreen ? 0 : resumeSpeed();
     refresh(); drawBubbles(); save();
   };
   for (const b of c.querySelectorAll("[data-i]")) b.onclick = () => {
     if (resolveEvent(st, pending, +b.dataset.i)) return;
     if (tut) tut.events++;
     pending = null; $("modal").hidden = true;
-    speed = openScreen ? 0 : savedSpeed || 1;
+    speed = openScreen ? 0 : resumeSpeed();
     if (st.over) endGame(); else { refresh(); save(); }
   };
   refresh();
@@ -8818,7 +8899,7 @@ function showReferendum(d) {
     <div class="choices">${chances.map((ch, i) => `<button type="button" class="choice" data-k="${i + 1}"><b>${tr(ch.name)}</b><span class="c">${fmt(ch.cost, 0)} ${tr("fondi")}</span><small>${tr("Probabilità di vincere: circa {p}%", { p: Math.round(ch.p * 100) })}</small></button>`).join("")}
     <button type="button" class="choice" id="refNo"><b>${tr("Rinuncia")}</b><span class="c">${tr("gratis")}</span><small>${tr("Si può indire più avanti")}</small></button></div>`;
   $("modal").hidden = false;
-  const close = () => { pending = null; $("modal").hidden = true; speed = savedSpeed || 1; renderActs(); hud(); paint(); save(); refresh(); };
+  const close = () => { pending = null; $("modal").hidden = true; speed = resumeSpeed(); renderActs(); hud(); paint(); save(); refresh(); };
   for (const b of c.querySelectorAll("[data-k]")) b.onclick = () => { runReferendum(st, d.id, +b.dataset.k); close(); };
   $("refNo").onclick = close;
 }
@@ -8847,7 +8928,7 @@ function showNote() {
   c.innerHTML = `<div class="notehead"><svg viewBox="-20 -20 40 40"><polygon points="${hexPts(18)}"/><use href="${iconHref(n.icon)}" x="-10" y="-10" width="20" height="20"/></svg><div><div class="eyebrow">${tr({ discovery: "Scoperta scientifica", report: "Esito dell'indagine", warn: "Allarme" }[n.kind] || "Buona notizia")} · ${MONTHS[n.mo]} ${n.y}</div><h2>${esc(tr(n.title).replace(/^(Scoperta|Discovery): /, ""))}</h2></div></div><p>${esc(tr(n.text))}</p>
     <div class="tipfoot"><button type="button" class="buy" id="noteOk">${tr("Continua")}</button>${n.go === "tr" ? `<button type="button" class="buy alt" id="noteGo">${tr("Vai ai trattati")}</button>` : n.go === "geo" ? `<button type="button" class="buy alt" id="noteGo">${tr("Scegli la temperatura")}</button>` : ""}</div>`;
   $("modal").hidden = false;
-  $("noteOk").onclick = () => { c.classList.remove("tip", "disc", "good", "warn"); $("modal").hidden = true; pending = null; speed = savedSpeed || 1; save(); refresh(); };
+  $("noteOk").onclick = () => { c.classList.remove("tip", "disc", "good", "warn"); $("modal").hidden = true; pending = null; speed = resumeSpeed(); save(); refresh(); };
   if ($("noteGo")) $("noteGo").onclick = () => { $("noteOk").onclick(); if (n.go === "geo") { actTab = IBY.geoeng.cat; actNode = "geoeng"; if (openScreen === "acts") renderActs(); else open("acts"); } else { worldTab = "tr"; open("world"); } };
   $("noteOk").focus(); hud();
 }
@@ -8857,7 +8938,7 @@ function showTip(t) {
   const c = $("modalCard"); c.classList.add("tip");
   c.innerHTML = `<div class="eyebrow">${tr("Consiglio")}</div><h2>${esc(tr(t.title))}</h2><p>${esc(tr(t.text))}</p><div class="tipfoot"><button type="button" class="buy" id="tipOk">${tr("Capito")}</button></div>`;
   $("modal").hidden = false;
-  $("tipOk").onclick = () => { c.classList.remove("tip"); $("modal").hidden = true; pending = null; speed = savedSpeed || 1; refresh(); };
+  $("tipOk").onclick = () => { c.classList.remove("tip"); $("modal").hidden = true; pending = null; speed = resumeSpeed(); refresh(); };
 }
 function tipsOn() { try { return localStorage.getItem("gf-tips") !== "off"; } catch (e) { return true; } }
 function checkTips() {
@@ -8871,7 +8952,7 @@ function checkTips() {
   c.innerHTML = `<div class="eyebrow">${tr("Consiglio")}</div><h2>${esc(tr(t.title))}</h2><p>${esc(tr(typeof t.text === "function" ? t.text(st) : t.text))}</p>
     <div class="tipfoot"><button type="button" class="buy" id="tipOk">${tr("Capito")}</button><button type="button" class="linkbtn" id="tipOff">${tr("Non mostrare più consigli")}</button></div>`;
   $("modal").hidden = false;
-  const close = () => { c.classList.remove("tip"); $("modal").hidden = true; pending = null; speed = savedSpeed || 1; refresh(); };
+  const close = () => { c.classList.remove("tip"); $("modal").hidden = true; pending = null; speed = resumeSpeed(); refresh(); };
   $("tipOk").onclick = close;
   $("tipOff").onclick = () => { try { localStorage.setItem("gf-tips", "off"); } catch (e) {} close(); };
   $("tipOk").focus(); hud();
@@ -9127,7 +9208,7 @@ $("bPause").onclick = () => {
     <p>${tr("La partita si salva da sola. Dal menu principale puoi riprenderla con «Continua».")}</p>
     <div class="choices"><button type="button" class="buy" id="pResume" style="margin:0">${tr("Riprendi")}</button><button type="button" class="buy alt" id="pExit" style="margin:0">${tr("Salva ed esci al menu")}</button></div>`;
   $("modal").hidden = false;
-  $("pResume").onclick = () => { pending = null; $("modal").hidden = true; speed = savedSpeed || 1; refresh(); };
+  $("pResume").onclick = () => { pending = null; $("modal").hidden = true; speed = resumeSpeed(); refresh(); };
   $("pExit").onclick = () => {
     pending = null; save(); TELE.send("uscita");
     $("modal").hidden = true; closeScreensQuiet(); zoomMap(null);
@@ -9142,7 +9223,7 @@ $("bPause").onclick = () => {
 for (const b of document.querySelectorAll(".speed button")) b.onclick = () => {
   if (phase !== "play" || pending) return;
   if (+b.dataset.s > 0 && expiredEv()) { toast(tr("Prima decidi sulla crisi scaduta: tocca il segnale lampeggiante sulla mappa."), "bad"); return; }
-  speed = +b.dataset.s; if (speed > 0) savedSpeed = speed;
+  speed = +b.dataset.s; userPause = speed === 0; if (speed > 0) savedSpeed = speed;
 
   hud();
 };
@@ -9153,7 +9234,7 @@ $("news").onclick = () => { if (phase === "play" && !pending) { worldTab = "sum"
 $("regStrip").onclick = () => { if (sel) open("reg"); };
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && openScreen) closeScreens();
-  if (e.key === " " && phase === "play" && !pending && !openScreen && e.target === document.body) { e.preventDefault(); speed = speed ? 0 : savedSpeed || 1; hud(); }
+  if (e.key === " " && phase === "play" && !pending && !openScreen && e.target === document.body) { e.preventDefault(); if (speed) { speed = 0; userPause = true; } else { userPause = false; speed = savedSpeed || 1; } hud(); }
 });
 
 /* ---------- rotazione automatica ----------
