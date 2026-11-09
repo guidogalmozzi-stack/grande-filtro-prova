@@ -901,7 +901,7 @@ const DIFF = {
   facile:    { name: "Facile",          inc: 1.1,  ev: 1, funds: 0, risk: 0.8,  adopt: 1.6, backlash: 0.6 },
   medio:     { name: "Medio",           inc: 1.0,  ev: 1, funds: 0, risk: 1.0,  adopt: 1.0, backlash: 1.0 },
   difficile: { name: "Difficile",       inc: 0.98, ev: 1, funds: 0, risk: 1.1,  adopt: 0.85, backlash: 1.08 },
-  super:     { name: "Super difficile", inc: 0.92, ev: 1, funds: 0, risk: 1.27, adopt: 0.68, backlash: 1.42, anarchyAt: 88 }, // il giocatore automatico vince circa 1 volta su 20 (5 su 100 nello scenario 5, 2 su 60 nel 6) e in circa metà delle partite una regione cade nell'anarchia; ritarato il 4 novembre 2026
+  super:     { name: "Super difficile", inc: 0.92, ev: 1, funds: 0, risk: 1.27, adopt: 0.68, backlash: 1.46, anarchyAt: 88 }, // il giocatore automatico vince circa 1 volta su 20 (5 su 100 nello scenario 5, 2 su 60 nel 6) e in circa metà delle partite una regione cade nell'anarchia; ritarato il 4 novembre 2026
 };
 
 /* ---------- scenari ----------
@@ -1205,7 +1205,7 @@ const INTERVENTIONS = [
     fx: (m) => { m.energyCost -= 12; m.g += 0.3; m.unrestT -= 4; m.fossilShift -= 0.6; } },
   { id: "carbonTax", cat: "energia", name: "Tassa sul carbonio", desc: "Chi brucia petrolio, gas o carbone paga una tassa per ogni tonnellata di CO₂ che emette.", scope: "region", cost: 3, T: 2,
     pro: "Le emissioni calano; il gettito riduce il debito", con: "Energia più cara e malcontento, soprattutto nelle regioni povere",
-    fx: (m, s, r) => { m.fossilShift += 0.9; m.energyCost += 8; m.unrestT += r.wealth < 40 ? 8 : 4; m.debtF -= 0.5; } },
+    fx: (m, s, r, st) => { m.fossilShift += 0.9; m.energyCost += 8; m.unrestT += (r.wealth < 40 ? 8 : 4) * taxAccept(st); m.debtF -= 0.5; } },
   /* Solare ed eolico separati (3 novembre 2026, richiesta di Guido): ognuno rende di più dove c'è più sole o più vento
      (SUN_POT, WIND_POT). Insieme, senza reti e accumuli, non superano il 45% dell'energia perché dipendono dal tempo. [Probabile] */
   { id: "renew", cat: "energia", name: "Parchi solari", desc: "Grandi impianti fotovoltaici che prendono il posto delle centrali a carbone e a gas.", scope: "region", cost: 10, T: 3, spread: true, stack: 3,
@@ -1536,8 +1536,8 @@ const INTERVENTIONS = [
      tension tensione tra le potenze, co2 CO₂ tolta, safeRate sicurezza AI, bioRate biosicurezza, polarAll, gAll. */
   // Fisco
   { id: "taxRaise", cat: "economia", name: "Aumento delle tasse", desc: "Imposte un po' più alte su redditi e consumi in tutte le regioni.", scope: "region", cost: 0, T: 1, revocable: true, toggle: "Abbassa le tasse",
-    pro: "Le entrate dell'Autorità crescono di un quarto", con: "Malcontento e crescita più bassa",
-    eff: { unrest: 5, g: -0.25 }, geff: { income: 0.25, infl: -0.2 } },
+    pro: "Le entrate dell'Autorità crescono di un quarto", con: "Malcontento e crescita più bassa; il malcontento è molto minore se la gente vede servizi che funzionano (sanità, scuola, pensioni, asili, sussidi)",
+    eff: { g: -0.25 }, fx: (m, s, r, st) => { m.unrestT += 5 * s * taxAccept(st); }, geff: { income: 0.25, infl: -0.2 } },
   /* Patrimoniale (rivista il 25 ottobre 2026): in Europa ha incassato in genere lo 0,2-1% del PIL (Svizzera circa 1%, Francia
      prima del 2017 circa 0,2%) [Probabile]; molti paesi l'hanno abolita perché i capitali scappavano. Con l'Autorità che impone
      le stesse leggi in tutto il mondo la fuga non è possibile, tranne verso le regioni cadute nell'anarchia. Con i robot la
@@ -1626,8 +1626,11 @@ const INTERVENTIONS = [
     pro: "Il sistema delle pensioni sta sempre in equilibrio: il loro peso scende molto", con: "Se i lavoratori sono pochi rispetto ai pensionati, le pensioni diventano troppo basse e cresce la povertà degli anziani: servono crescita e più giovani",
     fx: (m, s, r) => { m.pensT -= 12 * s; m.unrestT += pensPoverty(r) * 0.6 * s; } },
   { id: "healthcare", cat: "demografia", name: "Sanità universale", desc: "Cure mediche gratuite per tutti, pagate con le tasse.", scope: "region", cost: 10, upkeepFn: (st) => 9 * (1 + 2.5 * Math.max(0, oldRatio(st) - 0.16)) * (built(st, "healthyAging") ? 0.85 : 1), T: 3,
-    pro: "Molto meno malcontento, persone più sane e produttive", con: "Una delle spese più grandi: costa molto ogni anno, e sempre di più man mano che la popolazione invecchia (meno con l'invecchiamento in salute); si vive più a lungo e le pensioni pesano un po' di più",
-    eff: { unrest: -5, labor: 0.01, life: 1.5 } },
+    /* rivista il 9 novembre 2026 (osservazione di Guido): la sanità per tutti è una delle cose che rende la gente più contenta e fiduciosa
+       [Probabile: World Happiness Report, OCSE; le spese mediche sono una delle prime cause di rovina delle famiglie dove la sanità è privata].
+       Più effetto sul malcontento, meno divisioni e lavoratori un po' più sani. */
+    pro: "Molto meno malcontento e meno divisioni: niente più famiglie rovinate dalle spese mediche; persone più sane e produttive. E le tasse pesano meno, perché si vede a cosa servono", con: "Una delle spese più grandi: costa molto ogni anno, e sempre di più man mano che la popolazione invecchia (meno con l'invecchiamento in salute); si vive più a lungo e le pensioni pesano un po' di più",
+    eff: { unrest: -8, polar: -2, labor: 0.015, life: 1.5 } },
   // Società
   { id: "socialHousing", cat: "societa", name: "Edilizia popolare", desc: "Case a basso affitto costruite dallo Stato nelle città.", scope: "region", cost: 12, T: 4,
     pro: "Meno malcontento e meno divisioni nelle città", con: "Costo alto",
@@ -2084,6 +2087,11 @@ Object.assign(TREE, {
   ethicsCom: "screening", pubGene: "screening", patentShort: "screening", stateGene: "screening", geneProtocol: "screening", sciCouncil: "education",
 });
 for (const id in TREE) { IBY[id].parent = TREE[id] || undefined; delete IBY[id].needs; }
+/* Le tasse pesano meno quando si vede a cosa servono (9 novembre 2026, richiesta di Guido) [Probabile: «contratto fiscale»,
+   Levi 1988; nei paesi nordici tasse alte e grande fiducia]: ogni servizio pubblico visibile toglie il 12% del malcontento
+   delle tasse, fino a dimezzarlo. */
+const TAX_SERVICES = ["healthcare", "education", "pensionFloor", "childcare", "unempBenefit", "pubPensionFund"];
+const taxAccept = (st) => Math.max(0.5, 1 - 0.12 * TAX_SERVICES.filter((id) => built(st, id)).length);
 // padri diversi per un governo, quando il padre normale è vietato e non ha un livello sopra
 const GOV_PARENT = {
   liberal: { vaccines: "volSurveil", cyber: "mediation", armsInspect: "mediation" },
@@ -7949,6 +7957,7 @@ function renderBank(d, I) {
       <div class="imeters" id="indRows">${I.map((i) => indRow(i, 0)).join("")}</div>
       <p class="pro"><b>${tr("Alzare.")}</b> ${tr("L'inflazione scende, ma crescita e lavoro rallentano.")}</p>
       <p class="con"><b>${tr("Abbassare.")}</b> ${tr("Più crescita e lavoro, ma l'inflazione sale; se resta alta per anni è sempre più difficile farla scendere.")}</p>
+      <p class="why">${tr("Inflazione voluta più alta (fino all'8%): per qualche anno il peso dei debiti vecchi si alleggerisce, perché le entrate crescono con i prezzi e i tassi si adeguano solo piano. Ma il carovita fa arrabbiare (ogni punto sopra il 4% aggiunge malcontento), i risparmiatori perdono e poi i tassi a lungo termine salgono. Nel mondo c'è una sola moneta: un'inflazione più alta non aiuta le esportazioni.")}</p>
       <p class="why">${tr("Il tasso a lungo termine{i}, che pesa sui debiti degli stati, non si sceglie: oggi è {r}%. È la media dei tassi a breve attesi negli anni (inflazione attesa {a}% più il tasso naturale {n}%, che sale con la crescita e scende con l'invecchiamento) più un premio per il rischio di {p} punti, che sale con il debito mondiale, la tensione tra le potenze e il debito dell'Autorità.", { i: infoBtn("longR"), r: fmt(G.longR, 1), a: fmt(G.anchor, 1), n: fmt(G.rstar ?? 0.5, 1), p: fmt(G.prem ?? 0.5, 1) })}</p>
     </div>`;
   setTimeout(() => {
