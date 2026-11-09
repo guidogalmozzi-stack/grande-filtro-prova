@@ -903,9 +903,16 @@ const P = {
    ai lati negativi dei cambiamenti (malcontento e polarizzazione causati dagli interventi). */
 const DIFF = {
   facile:    { name: "Facile",          inc: 1.1,  ev: 1, funds: 0, risk: 0.8,  adopt: 1.6, backlash: 0.6 },
-  medio:     { name: "Medio",           inc: 1.0,  ev: 1, funds: 0, risk: 1.0,  adopt: 1.0, backlash: 1.0 },
-  difficile: { name: "Difficile",       inc: 0.98, ev: 1, funds: 0, risk: 1.1,  adopt: 0.85, backlash: 1.08 },
-  super:     { name: "Super difficile", inc: 0.92, ev: 1, funds: 0, risk: 1.27, adopt: 0.68, backlash: 1.46, anarchyAt: 88 }, // il giocatore automatico vince circa 1 volta su 20 (5 su 100 nello scenario 5, 2 su 60 nel 6) e in circa metà delle partite una regione cade nell'anarchia; ritarato il 4 novembre 2026
+  medio:     { name: "Medio",           inc: 1.0,  ev: 1, funds: 0, risk: 1.0,  adopt: 1.0, backlash: 1.0, scar: 0.3 },
+  difficile: { name: "Difficile",       inc: 0.98, ev: 1, funds: 0, risk: 1.1,  adopt: 0.85, backlash: 1.08, scar: 0.5 },
+  super:     { name: "Super difficile", inc: 0.92, ev: 1, funds: 0, risk: 1.27, adopt: 0.68, backlash: 1.46, anarchyAt: 88,
+    /* a super difficile i dati reali meno favorevoli invece di quelli medi (9 novembre 2026, scelta di Guido):
+       austKeep = parte dei tagli del piano di rientro che resta (in media meno della metà dopo 5-10 anni), fatigue = quanto se ne
+       perde ogni anno per stanchezza fiscale (Ghosh e altri 2013), brakeK = forza della regola di bilancio (in media +0,6 punti,
+       il freno svizzero +3,6 è il caso migliore), brakeSusp = la regola si sospende nelle recessioni mondiali (Europa e Germania
+       2020-2022), scar = punti di interesse in più per dieci anni dopo una crisi del debito («insolventi seriali», Asonuma 2016),
+       reconMax = massima probabilità di riuscita di una missione di pace (riescono in circa metà-due terzi dei casi) */
+    austKeep: 1, fatigue: 0.04, brakeK: 0.6, brakeSusp: true, scar: 1.0, reconMax: 0.8 }, // il giocatore automatico vince circa 1 volta su 20 (5 su 100 nello scenario 5, 2 su 60 nel 6) e in circa metà delle partite una regione cade nell'anarchia; ritarato il 4 novembre 2026
 };
 
 /* ---------- scenari ----------
@@ -1304,11 +1311,12 @@ const INTERVENTIONS = [
   /* Regola di bilancio con un consiglio dei conti indipendente (9 novembre 2026, richiesta di Guido): il deficit si corregge da solo
      quando il debito è alto, ogni anno, senza aspettare la crisi. [Probabile: freno al debito svizzero del 2003, saldo migliorato di
      circa 3,6 punti in cinque anni; regole ben fatte circa +0,6 punti in media (FMI 2019); Nuova Zelanda 1994, Svezia 1997]
-     Più il debito supera il 60% del prodotto, più la correzione è forte (fino a 2,5 punti l'anno); un po' meno crescita e un po'
+     Più il debito supera il 60% del prodotto, più la correzione è forte (fino a 1,8 punti l'anno); un po' meno crescita e un po'
      di malcontento per i tagli, ma molto meno di un piano di rientro imposto dai mercati. */
   { id: "debtBrake", cat: "economia", name: "Regola di bilancio", desc: "Una legge obbliga ogni governo a correggere il deficit quando il debito è alto; un consiglio indipendente controlla i conti e lo dice pubblicamente.", scope: "region", cost: 3, T: 2, revocable: true, toggle: "Sospendi la regola",
     pro: "Il debito smette di salire e poi scende, anno dopo anno, senza aspettare le crisi: più è alto, più la correzione è forte", con: "Meno spesa e un po' più di tasse quando il debito è alto: crescita un po' più lenta e qualche protesta",
-    fx: (m, s, r) => { const k = clamp((r.debt - 60) * 0.035, 0, 2.5) * s; m.debtF -= k; m.g -= 0.06 * k; m.unrestT += 0.8 * k; } },
+    fx: (m, s, r, st) => { if (st.D.brakeSusp && st.year - (st.recY || -99) < 2) return; // sospesa nelle recessioni mondiali (super difficile)
+      const k = clamp((r.debt - 60) * 0.025, 0, 1.8) * s * (st.D.brakeK || 1); m.debtF -= k; m.g -= 0.06 * k; m.unrestT += 0.8 * k; } },
   /* Legge sulle emissioni delle imprese: una tassa che cresce ogni anno per tonnellata di CO₂; le imprese possono ridurla pagando
      la cattura con alberi artificiali. In circa 50 anni porta le emissioni a zero; finché la transizione non è fatta la crescita è
      più lenta e la tassa non compensa le entrate perse. */
@@ -2388,7 +2396,7 @@ function logNews(st, text, kind, quiet) {
 }
 
 // effetto palla di neve: (tasso reale a lungo termine della regione − crescita) × debito, in punti di prodotto l'anno
-const regionRate = (r, st) => st.g.longR - st.g.infl + (st.credPrem || 0) - (r.repressUntil > st.year ? 2.2 * (1 - (DEBT_FOREIGN[r.id] || 0.3)) : 0) + Math.max(0, r.debt - 100) * 0.01 * (trOn(st, "trFiscal") ? 0.4 : 1); // unione fiscale: debito comune [Certo: titoli europei 0,7-1,8 punti sotto gli stati più indebitati]
+const regionRate = (r, st) => st.g.longR - st.g.infl + (st.credPrem || 0) + (r.scarUntil > st.year ? (st.D && st.D.scar) || 0 : 0) - (r.repressUntil > st.year ? 2.2 * (1 - (DEBT_FOREIGN[r.id] || 0.3)) : 0) + Math.max(0, r.debt - 100) * 0.01 * (trOn(st, "trFiscal") ? 0.4 : 1); // unione fiscale: debito comune [Certo: titoli europei 0,7-1,8 punti sotto gli stati più indebitati]
 const snowball = (r, st) => (regionRate(r, st) - r.growth) * r.debt / 100;
 const PENS_K = 140; // peso del welfare per ogni anziano rispetto ai lavoratori
 // crescita della produttività per lavoratore (% l'anno)
@@ -2545,7 +2553,7 @@ function econTick(st, dt) {
   for (const r of ctrlRegions(st)) {
     if (r.debtNext == null) r.debtNext = Math.max(120, Math.ceil((r.debt + 1) / 30) * 30); // chi parte già sopra il 120% aspetta la soglia successiva
     if (r.debt < 100) r.debtNext = 120;
-    else if (r.debt >= (r.debtNext || 120) && !(st.econQ || []).some((q) => q.id === "debt" && q.r === r.id)) { r.debtNext = Math.ceil((r.debt + 1) / 30) * 30; (st.econQ || (st.econQ = [])).push({ id: "debt", r: r.id, at: now }); }
+    else if (r.debt >= (r.debtNext || 120) && !(st.econQ || []).some((q) => q.id === "debt" && q.r === r.id)) { r.debtNext = Math.ceil((r.debt + 1) / 30) * 30; r.scarUntil = st.year + 10; (st.econQ || (st.econQ = [])).push({ id: "debt", r: r.id, at: now }); }
   }
   if (!st.forceEv && st.econQ && st.econQ.length && st.econQ[0].at <= now) {
     const q = st.econQ.shift(), rr = q.r && st.regions[q.r];
@@ -2961,7 +2969,7 @@ const EVENTS = [
     p: () => 0,
     text: (st, r) => `I mercati non si fidano più dei conti di ${r.name}: il debito pubblico è al ${Math.round(r.debt)}% del prodotto e gli interessi salgono. ${r.debt >= 200 ? "A questo livello il debito non si può più ripagare per intero." : "Bisogna scegliere chi pagherà per farlo scendere."}${built(st, "debtBrake") || !available(st, IBY.debtBrake) ? "" : " Perché non torni a salire serve una correzione che duri: la Regola di bilancio (scheda Economia)."}`,
     choices: [
-      { ok: (st) => !(debtR(st) && debtR(st).debt >= 200), label: "Piano di rientro: tagli e tasse", cost: 0, out: "Deficit −3 punti l'anno per cinque anni, poi metà dei tagli resta per sempre. Subito meno crescita e rabbia", fx: (st, r) => { r.austUntil = st.year + 5; r.austPerm = Math.min(3, (r.austPerm || 0) + 1.5); r.shockU += 10; r.shockG -= 1.0; } },
+      { ok: (st) => !(debtR(st) && debtR(st).debt >= 200), label: "Piano di rientro: tagli e tasse", cost: 0, out: "Deficit −3 punti l'anno per cinque anni, poi una parte dei tagli resta. Subito meno crescita e rabbia", fx: (st, r) => { r.austUntil = st.year + 5; r.austPerm = Math.min(3, (r.austPerm || 0) + (st.D.austKeep != null ? st.D.austKeep : 1.5)); r.shockU += 10; r.shockG -= 1.0; } },
       { ok: (st) => debtR(st) && debtR(st).debt >= 200, label: "Ristrutturazione: taglio del debito", cost: 0, out: "Il debito scende al 90%; lo pagano i risparmiatori della regione e le banche del resto del mondo, e per qualche anno i tassi salgono per tutti", fx: (st, r) => cutDebt(st, r, 90, true) },
       { label: "Repressione finanziaria", cost: 0, out: "Per dieci anni tassi tenuti bassi: il debito cala piano. Pagano i risparmiatori: malcontento, meno crescita, prezzi un po' più alti", fx: (st, r) => { r.repressUntil = st.year + 10; r.shockU += 3; st.g.piShock += 0.4; } },
       { label: "Non fare nulla", cost: 0, out: "Interessi più alti: il debito sale ancora, la crescita rallenta e cresce la rabbia", fx: (st, r) => { r.debt += 8; r.shockG -= 1.5; r.shockU += 8; } },
@@ -4071,7 +4079,7 @@ function reconParts(st, r) {
 }
 function reconChance(st, r) {
   const x = reconParts(st, r);
-  return clamp(x.base - x.near - x.far + x.tries + x.bonus, 0.1, 0.92);
+  return clamp(x.base - x.near - x.far + x.tries + x.bonus, 0.1, (st.D && st.D.reconMax) || 0.92);
 }
 // perché una missione è fallita: i fattori che hanno pesato, in parole semplici
 function reconFailText(st, r, p) {
@@ -4514,7 +4522,7 @@ function tick(st) {
     /* piano di rientro: −3 punti per cinque anni, poi resta circa la metà dei tagli (−1,5 per sempre, al massimo −3 con più piani).
        [Certo: le grandi riduzioni del debito nei paesi OCSE sono durate circa 11 anni con avanzi di circa 2 punti l'anno;
        Probabile: dopo 5-10 anni in media resta meno della metà del risanamento, per stanchezza (Ghosh e altri 2013)] */
-    if (r.austUntil > st.year) r.dDef -= 3; else r.dDef -= r.austPerm || 0;
+    if (r.austUntil > st.year) r.dDef -= 3; else { r.dDef -= r.austPerm || 0; if (r.austPerm && st.D.fatigue) r.austPerm *= 1 - st.D.fatigue * dt; } // a super difficile i tagli si consumano
     if (r.controlled || r.exit) r.debt += dt * (r.dDef + r.dSnow); // in anarchia nessuno paga e nessuno presta: il debito resta congelato
     r.debt = clamp(r.debt, 0, 400);
 
