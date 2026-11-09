@@ -802,6 +802,8 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
       <p>Il pianeta affronta una crisi su molti fronti: debito, invecchiamento, clima, tensioni tra potenze, tecnologie sempre più potenti. Dopo lunghe trattative le nazioni hanno istituito un'Autorità sovranazionale e accettano di eseguirne gli ordini. Tu sei l'Autorità.</p>
       <h3>Scenari e governi</h3>
       <p>Si comincia dall'addestramento, che spiega il gioco passo per passo. Ogni scenario aggiunge nuovi problemi e nuovi interventi, e vincendolo si apre il successivo. Prima di ogni partita scegli la difficoltà (il livello super difficile si apre vincendo lo scenario a livello difficile) e il tipo di governo: ogni governo ha vantaggi, svantaggi e azioni proprie, e vale la pena vincere ogni scenario con tutti.</p>
+      <h3>Le difficoltà</h3>
+      <p>Tutti i livelli usano dati e studi reali. Cambia solo quale stima si prende quando gli esperti danno un intervallo: a livello facile le più favorevoli, a medio quelle centrali, a super difficile le meno favorevoli (gente che reagisce peggio alle riforme, tagli che si consumano, mercati che non dimenticano le crisi).</p>
       <h3>La stabilità</h3>
       <p>Ogni regione ha un indice di stabilità da 1 a 100, il numero che vedi sulla mappa. Riassume otto aspetti: pace sociale, coesione, conti pubblici, welfare, lavoro, energia pulita, sicurezza climatica ed equilibrio demografico. Tocca una regione per vedere cosa la indebolisce e quale intervento la aiuterebbe di più.</p>
       <h3>Obiettivo</h3>
@@ -905,13 +907,17 @@ const DIFF = {
   facile:    { name: "Facile",          inc: 1.1,  ev: 1, funds: 0, risk: 0.8,  adopt: 1.6, backlash: 0.6 },
   medio:     { name: "Medio",           inc: 1.0,  ev: 1, funds: 0, risk: 1.0,  adopt: 1.0, backlash: 1.0, scar: 0.3 },
   difficile: { name: "Difficile",       inc: 0.98, ev: 1, funds: 0, risk: 1.1,  adopt: 0.85, backlash: 1.08, scar: 0.5 },
-  super:     { name: "Super difficile", inc: 0.92, ev: 1, funds: 0, risk: 1.27, adopt: 0.68, backlash: 1.46, anarchyAt: 88,
+  super:     { name: "Super difficile", inc: 0.9, ev: 1, funds: 0, risk: 1.27, adopt: 0.58, backlash: 1.46, anarchyAt: 88, autoGap: 1.2,
     /* a super difficile i dati reali meno favorevoli invece di quelli medi (9 novembre 2026, scelta di Guido):
        austKeep = parte dei tagli del piano di rientro che resta (in media meno della metà dopo 5-10 anni), fatigue = quanto se ne
        perde ogni anno per stanchezza fiscale (Ghosh e altri 2013), brakeK = forza della regola di bilancio (in media +0,6 punti,
        il freno svizzero +3,6 è il caso migliore), brakeSusp = la regola si sospende nelle recessioni mondiali (Europa e Germania
        2020-2022), scar = punti di interesse in più per dieci anni dopo una crisi del debito («insolventi seriali», Asonuma 2016),
-       reconMax = massima probabilità di riuscita di una missione di pace (riescono in circa metà-due terzi dei casi) */
+       reconMax = massima probabilità di riuscita di una missione di pace (riescono in circa metà-due terzi dei casi),
+       autoGap = crescita persa ogni anno dalla Repubblica del lavoro senza automazione (stima alta dell'effetto di robot e AI).
+       Regola di Guido: a super difficile il giocatore attento vince al massimo 1 volta su 10 con ogni governo; per arrivarci,
+       il 9 novembre 2026: adopt 0,68 → 0,58 (riforme applicate più lentamente), inc 0,92 → 0,90 (contributi degli stati più bassi),
+       autoGap 1,2. Risultato: 0-2 vittorie su 30 per ogni governo negli scenari 5 e 6. */
     austKeep: 1, fatigue: 0.04, brakeK: 0.6, brakeSusp: true, scar: 1.0, reconMax: 0.8 }, // il giocatore automatico vince circa 1 volta su 20 (5 su 100 nello scenario 5, 2 su 60 nel 6) e in circa metà delle partite una regione cade nell'anarchia; ritarato il 4 novembre 2026
 };
 
@@ -1316,7 +1322,7 @@ const INTERVENTIONS = [
   { id: "debtBrake", cat: "economia", name: "Regola di bilancio", desc: "Una legge obbliga ogni governo a correggere il deficit quando il debito è alto; un consiglio indipendente controlla i conti e lo dice pubblicamente.", scope: "region", cost: 3, T: 2, revocable: true, toggle: "Sospendi la regola",
     pro: "Il debito smette di salire e poi scende, anno dopo anno, senza aspettare le crisi: più è alto, più la correzione è forte", con: "Meno spesa e un po' più di tasse quando il debito è alto: crescita un po' più lenta e qualche protesta",
     fx: (m, s, r, st) => { if (st.D.brakeSusp && st.year - (st.recY || -99) < 2) return; // sospesa nelle recessioni mondiali (super difficile)
-      const k = clamp((r.debt - 60) * 0.025, 0, 1.8) * s * (st.D.brakeK || 1); m.debtF -= k; m.g -= 0.06 * k; m.unrestT += 0.8 * k; } },
+      const k = clamp((r.debt - 60) * 0.025, 0, 1.8) * s * (st.D.brakeK || 1); m.debtF -= k; m.g -= 0.06 * k; m.unrestT += 2 * k; } }, // ogni punto di tagli fa crescere le proteste [Probabile: Ponticelli e Voth 2011]
   /* Legge sulle emissioni delle imprese: una tassa che cresce ogni anno per tonnellata di CO₂; le imprese possono ridurla pagando
      la cattura con alberi artificiali. In circa 50 anni porta le emissioni a zero; finché la transizione non è fatta la crescita è
      più lenta e la tassa non compensa le entrate perse. */
@@ -2412,6 +2418,11 @@ function prodGrowth(r, st, m, gm) {
   g += st.g ? clamp(monetaryPush(st) * 0.25, -2.5, 0.6) : 0;
   g -= st.g ? Math.max(0, Math.abs(st.g.infl - 2) - 3) * 0.3 : 0; // inflazione molto alta o deflazione frenano l'economia
   g -= Math.max(0, r.debt - 100) * 0.01;
+  /* Repubblica del lavoro: senza automazione e robot nelle imprese la produttività cresce meno (9 novembre 2026).
+     [Certo: i robot industriali hanno aggiunto circa 0,36 punti l'anno alla crescita della produttività in 17 paesi, 1993-2007,
+     Graetz e Michaels 2018; Probabile: l'AI nelle imprese da 0,1 a 1,5 punti nei prossimi decenni]. L'effetto cresce in dieci anni,
+     man mano che gli altri paesi si automatizzano. Prima la rinuncia non costava quasi nulla in crescita. */
+  if (st && st.govId === "human") g -= ((st.D && st.D.autoGap) || 0.5) * clamp(((st.year || 2026) - 2026) / 10, 0, 1);
   g -= Math.max(0, r.unrest - 50) * 0.03;
   g -= Math.max(-0.4, (r.energyCost - 50) * 0.03); // l'energia cara frena; quella a buon mercato aiuta solo un po'
   /* Rendimenti decrescenti (decisione del 24 ottobre 2026): scuola, università, ricerca, investimenti e riforme si sommano
