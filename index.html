@@ -1626,11 +1626,15 @@ const INTERVENTIONS = [
     pro: "Il sistema delle pensioni sta sempre in equilibrio: il loro peso scende molto", con: "Se i lavoratori sono pochi rispetto ai pensionati, le pensioni diventano troppo basse e cresce la povertà degli anziani: servono crescita e più giovani",
     fx: (m, s, r) => { m.pensT -= 12 * s; m.unrestT += pensPoverty(r) * 0.6 * s; } },
   { id: "healthcare", cat: "demografia", name: "Sanità universale", desc: "Cure mediche gratuite per tutti, pagate con le tasse.", scope: "region", cost: 10, upkeepFn: (st) => 9 * (1 + 2.5 * Math.max(0, oldRatio(st) - 0.16)) * (built(st, "healthyAging") ? 0.85 : 1), T: 3,
-    /* rivista il 9 novembre 2026 (osservazione di Guido): la sanità per tutti è una delle cose che rende la gente più contenta e fiduciosa
-       [Probabile: World Happiness Report, OCSE; le spese mediche sono una delle prime cause di rovina delle famiglie dove la sanità è privata].
-       Più effetto sul malcontento, meno divisioni e lavoratori un po' più sani. */
+    /* Rivista il 9 novembre 2026 con dati reali (richiesta di Guido: effetti veri, non tarati per il gioco). Ricerca in
+       docs/ricerche/2026-11-09-sanita-benessere.md. Nel 2026 molte regioni hanno già una sanità quasi universale: l'effetto della
+       sanità per tutti dipende da quanta copertura manca (indice di copertura dell'OMS, 2021: Europa 81, Americhe 80, Africa 44,
+       mondo 68) [Certo]. Dove manca: meno famiglie rovinate dalle spese mediche (nel mondo 1,3 miliardi di persone impoverite e
+       344 milioni spinte nella povertà estrema dalle spese di tasca propria) [Certo: OMS e Banca mondiale 2023], molta meno
+       depressione (−9 punti su 30 nell'esperimento dell'Oregon) [Certo], meno morti (−9% tra gli adulti poveri con l'estensione di
+       Medicaid) [Certo], disuguaglianza del benessere più bassa (77 paesi) [Probabile]. */
     pro: "Molto meno malcontento e meno divisioni: niente più famiglie rovinate dalle spese mediche; persone più sane e produttive. E le tasse pesano meno, perché si vede a cosa servono", con: "Una delle spese più grandi: costa molto ogni anno, e sempre di più man mano che la popolazione invecchia (meno con l'invecchiamento in salute); si vive più a lungo e le pensioni pesano un po' di più",
-    eff: { unrest: -8, polar: -2, labor: 0.015, life: 1.5 } },
+    eff: { labor: 0.015, life: 1.5 }, fx: (m, s, r) => { const gap = healthGap(r); m.unrestT -= (2 + 12 * gap) * s; m.polarT -= (1 + 2 * gap) * s; } },
   // Società
   { id: "socialHousing", cat: "societa", name: "Edilizia popolare", desc: "Case a basso affitto costruite dallo Stato nelle città.", scope: "region", cost: 12, T: 4,
     pro: "Meno malcontento e meno divisioni nelle città", con: "Costo alto",
@@ -2087,6 +2091,11 @@ Object.assign(TREE, {
   ethicsCom: "screening", pubGene: "screening", patentShort: "screening", stateGene: "screening", geneProtocol: "screening", sciCouncil: "education",
 });
 for (const id in TREE) { IBY[id].parent = TREE[id] || undefined; delete IBY[id].needs; }
+/* Copertura sanitaria già presente nel 2026, regione per regione (indice OMS dei servizi, 2021, aggregato per regione)
+   [Certo per Europa 81, Americhe 80, Africa 44; Probabile per le altre aggregazioni]. In Nord America pesano anche le persone senza
+   assicurazione e le spese di tasca propria. gap = quanto manca, da 0 (copertura piena) a 1 (copertura bassissima). */
+const HEALTH_SCI = { eu: 82, na: 78, oce: 85, ea: 81, ru: 75, latam: 75, mena: 70, sea: 70, sa: 60, esa: 46, wca: 42 };
+const healthGap = (r) => clamp((88 - (HEALTH_SCI[r.id] || 70)) / 46, 0, 1);
 /* Le tasse pesano meno quando si vede a cosa servono (9 novembre 2026, richiesta di Guido) [Probabile: «contratto fiscale»,
    Levi 1988; nei paesi nordici tasse alte e grande fiducia]: ogni servizio pubblico visibile toglie il 12% del malcontento
    delle tasse, fino a dimezzarlo. */
