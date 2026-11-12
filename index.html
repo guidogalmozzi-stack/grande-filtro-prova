@@ -1225,8 +1225,8 @@ const INTERVENTIONS = [
     pro: "Apre le scelte sulle rinnovabili: solare, eolico, dighe, geotermia; un piccolo passo avanti dell'energia pulita ovunque", con: "Da solo cambia poco",
     gfx: () => {}, fx: (m, s) => { if (m) m.fossilShift += 0.1 * s; } },
   { id: "fossilSub", cat: "energia", name: "Sussidi ai combustibili fossili", desc: "Lo Stato paga una parte del prezzo di benzina, gasolio, gas e carbone.", scope: "region", cost: 0, upkeep: 6, T: 0,
-    pro: "Energia meno cara, più crescita, meno malcontento", con: "Più emissioni; costa fondi ogni anno; toglierli fa arrabbiare",
-    fx: (m) => { m.energyCost -= 12; m.g += 0.3; m.unrestT -= 4; m.fossilShift -= 0.6; } },
+    pro: "Energia meno cara, meno malcontento", con: "Più emissioni; costa fondi ogni anno; toglierli fa arrabbiare",
+    fx: (m) => { m.energyCost -= 12; m.unrestT -= 4; m.fossilShift -= 0.6; } }, // non fanno crescere: costo nascosto, FMI 2023 (prima +0,3)
   { id: "carbonTax", cat: "energia", name: "Tassa sul carbonio", desc: "Chi brucia petrolio, gas o carbone paga una tassa per ogni tonnellata di CO₂ che emette.", scope: "region", cost: 3, T: 2,
     pro: "Le emissioni calano; il gettito riduce il debito", con: "Energia più cara e malcontento, soprattutto nelle regioni povere",
     fx: (m, s, r, st) => { m.fossilShift += 0.9; m.energyCost += 8; m.unrestT += (r.wealth < 40 ? 8 : 4) * taxAccept(st); m.debtF -= 0.5; } },
@@ -1469,23 +1469,23 @@ const INTERVENTIONS = [
   /* Istruzione e ricerca: le leve più forti sulla produttività, ma i frutti arrivano dopo 10–20 anni [Probabile] */
   { id: "education", cat: "societa", name: "Scuola per tutti", desc: "Più insegnanti, scuole migliori e nessun bambino fuori dalla scuola, fino alle superiori.", scope: "region", cost: 5, upkeep: 2.5, T: 2, ramp: 18, spread: true,
     pro: "Produttività molto più alta quando gli studenti di oggi saranno al lavoro, meno disuguaglianza", con: "Costa ogni anno e l'effetto pieno arriva dopo quasi vent'anni; con più studio si fanno un po' meno figli",
-    fx: (m, s) => { m.g += 0.9 * s; m.polarT -= 2 * s; m.fert -= 0.1 * s; } },
+    fx: (m, s) => { m.g += 0.9 * s; m.gF += 0.25 * s; m.polarT -= 2 * s; m.fert -= 0.1 * s; } },
   /* Valutazione degli insegnanti (decisione del 25 ottobre 2026): un insegnante migliore di una deviazione standard alza i redditi
      futuri dei suoi studenti dell'1-1,3% (Chetty, Friedman e Rockoff 2014) [Certo]; i bonus ai migliori funzionano in alcuni casi
      (Washington DC, India, Israele) e non in altri (Tennessee) [Probabile]; pubblicare le valutazioni ha portato proteste dei
      sindacati (Los Angeles 2010, New York 2012) [Certo]. */
   { id: "teacherEval", cat: "societa", name: "Valutazione degli insegnanti", desc: "Le capacità di insegnamento dei docenti vengono valutate ogni anno; i più bravi ricevono un bonus e i risultati sono pubblici.", scope: "region", cost: 3, upkeep: 1.5, T: 2, ramp: 16,
     pro: "La produttività cresce ancora quando gli studenti di oggi diventano maggiorenni", con: "Costa ogni anno per i bonus; gli insegnanti protestano, soprattutto nei primi anni, e la società si divide di più",
-    fx: (m, s, r, st, gm, a) => { m.g += 0.35 * s; m.polarT += 2; m.unrestT += st.year - (a.y0 || a.y) < 5 ? 2 : 1; } },
+    fx: (m, s, r, st, gm, a) => { m.g += 0.2 * s; m.gF += 0.05 * s; m.polarT += 2; m.unrestT += st.year - (a.y0 || a.y) < 5 ? 2 : 1; } },
   { id: "university", cat: "societa", name: "Università e formazione tecnica", desc: "Più posti all'università, borse di studio e scuole tecniche legate alle imprese.", scope: "region", cost: 6, upkeep: 2, T: 3, ramp: 12,
     pro: "Più lavoratori qualificati: la produttività cresce in una decina d'anni", con: "Costa ogni anno",
-    fx: (m, s) => { m.g += 0.7 * s; m.unempT -= 0.5 * s; } },
+    fx: (m, s) => { m.g += 0.7 * s; m.gF += 0.15 * s; m.unempT -= 0.5 * s; } },
   { id: "research", cat: "societa", name: "Ricerca scientifica", desc: "Grandi programmi pubblici di ricerca, laboratori e scienziati da tutto il mondo.", scope: "region", cost: 8, upkeep: 3, T: 3, ramp: 10,
     pro: "Nuove tecnologie: produttività più alta ovunque, tecnologie di frontiera più rapide, più sicurezza su AI e laboratori", con: "Costa ogni anno; i risultati arrivano dopo anni",
-    fx: (m, s) => { m.g += 0.6 * s; }, geff: { frontier: 0.2, safeRate: 0.3, bioRate: 0.2 } },
+    fx: (m, s) => { m.g += 0.6 * s; m.gF += 0.3 * s; }, geff: { frontier: 0.2, safeRate: 0.3, bioRate: 0.2 } },
   { id: "develop", cat: "economia", name: "Aiuti allo sviluppo", desc: "Fondi per scuole, ospedali, strade ed energia nelle regioni più povere.", scope: "region", cost: 8, upkeep: 2.5, T: 3, req: (r) => r.wealth < 45 ? null : "Solo per regioni a basso reddito",
     pro: "Crescita forte nelle regioni povere; con il reddito che sale le famiglie fanno meno figli", con: "Costa ogni anno; nessun effetto diretto nelle regioni ricche",
-    fx: (m, s, r) => { if (r.wealth < 45) { m.g += 1.6; m.fert -= 0.25; m.unrestT -= 5; } } },
+    fx: (m, s, r) => { if (r.wealth < 45) { m.g += 1.0; m.fert -= 0.25; m.unrestT -= 5; } } }, // prima +1,6: gli aiuti da soli rendono poco (Clemens 2012), sommati a scuola e strade molto di più
   // Clima
   { id: "adapt", cat: "clima", name: "Opere di adattamento", desc: "Argini, dighe, sistemi di allerta e città più verdi contro alluvioni e ondate di calore.", scope: "region", cost: 15, T: 5, spread: true,
     pro: "Meno danni dagli eventi climatici", con: "Non riduce le cause del riscaldamento",
@@ -1633,6 +1633,13 @@ const INTERVENTIONS = [
   { id: "tariffs", cat: "economia", name: "Dazi protettivi", desc: "Tasse sulle merci importate per proteggere le industrie locali.", scope: "region", cost: 1, T: 1, revocable: true, toggle: "Togli i dazi",
     pro: "Salvano subito posti di lavoro", con: "Frenano la crescita",
     fx: (m, s, r, st, gm, a) => { m.unempT -= 1.5 * s; m.g -= Math.min(1.2, 0.1 + 0.06 * (st.year - a.y)) * s; }, geff: { infl: 0.4 } },
+  /* Mercato unico mondiale (12 novembre 2026, richiesta di Guido: le leve che solo un governo mondiale ha). Togliere dazi e
+     barriere tra le regioni: guadagno di livello di qualche punto del prodotto mondiale [Probabile: accordo OMC sulla facilitazione
+     degli scambi, +0,5 punti di crescita l'anno fino al 2030, OMC 2015]; nelle regioni povere aiuta la rincorsa. Chi perde sono gli
+     operai delle industrie esposte alla concorrenza nelle regioni ricche [Certo: «shock cinese», Autor, Dorn e Hanson 2013]. */
+  { id: "singleMarket", cat: "economia", name: "Mercato unico mondiale", desc: "Via dazi e barriere tra le regioni: regole comuni per merci e servizi, come un solo grande mercato.", scope: "region", cost: 4, T: 3, ramp: 5,
+    pro: "Più commercio: l'economia si allarga in tutte le regioni, e nelle regioni povere la rincorsa accelera", con: "Nelle regioni ricche chiudono le fabbriche esposte alla concorrenza: per una decina d'anni più disoccupazione e più divisioni. Non funziona dove ci sono i dazi",
+    fx: (m, s, r, st, gm, a) => { if (lvl(r, "tariffs") > 0) return; m.g += 0.5 * s; if (r.wealth > 60 && st.year - (a.y0 || a.y) < 10) { m.unempT += 0.8 * s; m.polarT += 3 * s; } } },
   // Energia
   { id: "priceCap", cat: "energia", name: "Bollette bloccate", desc: "Lo Stato fissa un tetto al prezzo dell'energia e paga la differenza ai produttori.", scope: "region", cost: 0, upkeep: 4, T: 0, revocable: true, toggle: "Sblocca le bollette",
     pro: "Energia meno cara e meno malcontento, subito", con: "Costa molto ogni anno e rallenta il passaggio alle rinnovabili",
@@ -1792,7 +1799,7 @@ const INTERVENTIONS = [
     eff: { unrest: -1, pension: -1, life: 0.3 } },
   { id: "schoolVoucher", cat: "societa", name: "Buono scuola universale", desc: "Lo Stato paga una cifra per ogni studente e la famiglia sceglie la scuola, pubblica o privata.", scope: "region", cost: 4, upkeep: 1.8, T: 2, ramp: 18, gov: "market",
     pro: "Più scelta e produttività un po' più alta quando gli studenti saranno al lavoro", con: "Le scuole pubbliche dei quartieri poveri chiudono: più divisioni tra ricchi e poveri. Esclusivo del Libero mercato (al posto della scuola per tutti) [Probabile: Cile e Svezia]",
-    fx: (m, s) => { m.g += 0.7 * s; m.polarT += 2 * s; m.fert -= 0.1 * s; } },
+    fx: (m, s) => { m.g += 0.8 * s; m.gF += 0.2 * s; m.polarT += 2 * s; m.fert -= 0.1 * s; } }, // come la scuola pubblica, un po' meno: i buoni da soli non alzano i risultati
   { id: "ets", cat: "energia", name: "Mercato dei permessi di emissione", desc: "Chi inquina deve comprare permessi, che si possono scambiare; ogni anno i permessi sono meno.", scope: "region", cost: 3, T: 2, gov: "market",
     pro: "Le emissioni scendono al costo più basso possibile", con: "Il prezzo dei permessi oscilla molto: energia più cara e un po' di malcontento. Esclusivo del Libero mercato (al posto della legge sulle emissioni) [Certo: Unione europea]",
     eff: { fossil: 0.35, energy: 3, unrest: 0.5 } },
@@ -2091,7 +2098,7 @@ function available(st, d) {
 const TREE = {
   fossilPlan: null, renewPlan: null, fossilSub: "fossilPlan", carbonTax: "fossilPlan", renew: "renewPlan", grid: "renew", efficiency: "carbonTax", nuclear: "nucInfo", nucInfo: null, smr: "nuclear", nucAgency: "nucInfo", nucPrivate: "nucAgency", fusionResearch: null, fusion: "fusionResearch", wind: "renewPlan", localBenefits: "wind", hydro: "renewPlan", geoConv: "renewPlan", geoResearch: "renewPlan",
   energyComm: "renewPlan", greenJobs: "renewPlan", worldGrid: "renewPlan", stateEnergy: "renewPlan", socTariff: "fossilPlan", ets: "fossilPlan", geothermal: "geoResearch", superhotRock: "geothermal",
-  invest: null, automation: "invest", retrain: "automation", ubi: "unempBenefit", ubiMid: "ubi", ubiPlus: "ubiMid", childIncome: "ubiPlus", robotTax: "robots", sovFund: "robotTax", develop: "invest", austerity: null, debtBrake: "austerity", debtRestr: "austerity",
+  invest: null, automation: "invest", retrain: "automation", ubi: "unempBenefit", ubiMid: "ubi", ubiPlus: "ubiMid", childIncome: "ubiPlus", robotTax: "robots", sovFund: "robotTax", develop: "invest", singleMarket: "invest", austerity: null, debtBrake: "austerity", debtRestr: "austerity",
   taxRaise: null, wealthTax: "taxRaise", taxEvasion: null, unempBenefit: null, minWage: "unempBenefit", publicJobs: "unempBenefit", tariffs: null,
   priceCap: "fossilSub", evCars: "renew", rooftop: "renew", carbonLaw: "dac", cashless: "eInvoice", eInvoice: "taxEvasion", dataMatch: "taxEvasion", receiptLottery: "cashless", taxHavens: "dataMatch", amnesty: null, cutStaff: "austerity", cutSubsidies: "austerity", cutDefense: "austerity", cutServices: "austerity", robots: "automation", massRobots: "robots",
   housing: null, parentalLeave: "family", ivf: "housing", pensionFunds: "contrib", pensionTax: "pensionFunds", birthDowry: "pensionFunds", healthcare: null,
@@ -2300,7 +2307,7 @@ function lvl(r, id) {
 }
 
 /* ---------- stato ---------- */
-const M0 = () => ({ g: 0, unrestT: 0, polarT: 0, unempT: 0, fert: 0, pensT: 0, debtF: 0, fossilShift: 0, resistT: 0, energyCost: 0, eff: 0, dmg: 0, famine: 0, labor: 0, robot: 0, life: 0, mig: 0, mass: 0, weak: 0, shadowT: 0, absorb: 0 });
+const M0 = () => ({ g: 0, gF: 0, unrestT: 0, polarT: 0, unempT: 0, fert: 0, pensT: 0, debtF: 0, fossilShift: 0, resistT: 0, energyCost: 0, eff: 0, dmg: 0, famine: 0, labor: 0, robot: 0, life: 0, mig: 0, mass: 0, weak: 0, shadowT: 0, absorb: 0 });
 const G0 = () => ({ malaria: 0, aiRate: 0, safeRate: 0, bioRate: 0, biotechRate: 0, co2Rem: 0, geo: 0, tensionT: 0, gAll: 0, unempAll: 0, pmit: 0, epi: 0, polarAll: 0, frontier: 0, income: 0, infl: 0 });
 
 function emissions(st) {
@@ -2420,6 +2427,7 @@ const NEUTRAL = 1; // tasso reale neutrale: con il 4% e un'inflazione del 3% la 
 const realRate = (st) => st.g.rate - st.g.infl;
 const clampRate = (v) => clamp(v, 0, 15);
 const monetaryPush = (st) => clamp(NEUTRAL - realRate(st), -10, 4); // positivo = politica espansiva; un tasso molto alto frena sempre di più
+const LVL_SPEED = 0.15; // ogni anno si recupera il 15% della distanza dal nuovo livello: circa 7 anni per arrivarci a due terzi
 function prodGrowth(r, st, m, gm) {
   let g = basePg(r);
   g += st.g ? clamp(monetaryPush(st) * 0.25, -2.5, 0.6) : 0;
@@ -2435,8 +2443,20 @@ function prodGrowth(r, st, m, gm) {
   /* Rendimenti decrescenti (decisione del 24 ottobre 2026): scuola, università, ricerca, investimenti e riforme si sommano
      sempre meno; nelle regioni povere possono far correre l'economia (fino a +4,4%), in quelle già ricche aggiungono al massimo
      circa il 2,2% [Probabile]. L'AI e le grandi scoperte (gAll) restano a parte: con le innovazioni giuste la crescita può essere alta. */
-  const capR = 2.2 + 2.2 * (1 - clamp(r.wealth, 0, 100) / 100), pos = Math.max(0, m.g);
-  g += capR * (1 - Math.exp(-pos / capR)) + Math.min(0, m.g) + gm.gAll + r.shockG;
+  /* Crescita dalle politiche (rivista il 12 novembre 2026, richiesta di Guido, dati in docs/ricerche/2026-11-12-politiche-e-crescita.md):
+     - regioni povere: le politiche insieme fanno correre la rincorsa dei paesi ricchi, fino a +4,4 punti l'anno per decenni,
+       finché il divario si chiude [Certo: Corea, Taiwan, Cina, Vietnam 6-10% per 30-40 anni];
+     - regioni ricche: investimenti, robot, istituzioni danno un guadagno di LIVELLO (al massimo circa +8% del prodotto) che arriva
+       in circa 7 anni e resta finché si paga [Certo: investimento pubblico +1,5% del prodotto in 4 anni, FMI 2014; robot +0,37 punti
+       per 10-20 anni, Graetz e Michaels]; solo ricerca, scuola e università alzano la crescita in modo duraturo, poco (gF, fino a
+       +0,6 punti) [Probabile: Hanushek e Woessmann; Jones e Williams; idee sempre più difficili da trovare, Bloom e altri 2020].
+     Prima ogni programma aggiungeva crescita per sempre anche nelle regioni ricche (Nord America al 3,4% nel 2050). */
+  const f = clamp((100 - r.wealth) / 60, 0, 1), pos = Math.max(0, m.g), capC = 4.4 * f;
+  g += capC > 0.01 ? capC * (1 - Math.exp(-pos / capC)) : 0;
+  r.lvlT = (1 - f) * 8 * (1 - Math.exp(-pos / 3)); // guadagno di livello che si raggiunge nelle regioni ricche, in %
+  g += (r.lvlT - (r.lvlG || 0)) * LVL_SPEED; // la crescita in più mentre il livello sale (o in meno se si smette di pagare)
+  g += (1 - f) * 0.6 * (1 - Math.exp(-Math.max(0, m.gF || 0) / 0.6));
+  g += Math.min(0, m.g) + gm.gAll + r.shockG;
   g -= anarchyNear(st, r) * 0.5; // commerci interrotti con le regioni in anarchia
   // chi perde il lavoro e non ha un reddito smette di comprare: con tanta disoccupazione l'economia frena (crisi da mancanza
   // di domanda) [Probabile] (decisione del 25 ottobre 2026)
@@ -4498,6 +4518,7 @@ function tick(st) {
     r.popG += ((r.pop / pop0 - 1) / dt * 100 - r.popG) * 0.2;
     // prodotto = lavoratori occupati × produttività
     let pg = prodGrowth(r, st, m, gm);
+    r.lvlG = (r.lvlG || 0) + ((r.lvlT || 0) - (r.lvlG || 0)) * LVL_SPEED * dt;
     /* anarchia (7 novembre 2026): l'economia crolla di circa il 3% l'anno fino a −30% [Probabile: una guerra civile toglie circa
        2 punti di crescita l'anno, Collier]; dopo la ricostruzione rimbalza per cinque anni [Probabile] */
     const anar = !r.controlled && !r.exit;
@@ -7164,7 +7185,7 @@ const ICON_OF = {
   localBenefits: "coins", renew2: "panel", renew3: "panels", wind: "wind", wind2: "windSea", wind3: "windFarm", nuclear2: "tower", nuclear3: "atom",
   nucPrivate2: "tower", nucPrivate3: "atom", fusion2: "torus", dac2: "recycle",
   fossilSub: "fuel", carbonTax: "smoke", renew: "sun", grid: "battery", efficiency: "bulb", nuclear: "i-nucleare", nucInfo: "megaphone", carbonLaw: "treeTech", cashless: "card", pensionIndex: "seesaw", smr: "tower", nucAgency: "shieldAtom", nucPrivate: "contract", fusionResearch: "torus", fusion: "fusion", priceCap: "plug", evCars: "car",
-  centralBank: "rateCoin", university: "cap", research: "microscope", invest: "bridge", austerity: "scissors", debtBrake: "scales", cutStaff: "personMinus", cutSubsidies: "factoryDown", cutDefense: "shieldMinus", cutServices: "hospital", automation: "gear", robots: "robot", retrain: "wrench", ubi: "coins", debtRestr: "handshake", develop: "sprout",
+  centralBank: "rateCoin", university: "cap", research: "microscope", invest: "bridge", austerity: "scissors", debtBrake: "scales", cutStaff: "personMinus", cutSubsidies: "factoryDown", cutDefense: "shieldMinus", cutServices: "hospital", automation: "gear", robots: "robot", retrain: "wrench", ubi: "coins", debtRestr: "handshake", develop: "sprout", singleMarket: "crate",
   taxRaise: "percent", wealthTax: "diamond", taxEvasion: "magnifier", eInvoice: "newspaper", dataMatch: "puzzle", receiptLottery: "gift", taxHavens: "vault", creditRules: "lock", fiscalPlan: "piggy", growthPlan: "chartUp", laborPlan: "hardhat", amnesty: "dollarCut", eProcure: "contract", assetsPublic: "house", whistle: "megaphone", fastCourts: "gavel", civilPay: "coins", unempBenefit: "umbrella", minWage: "wallet", publicJobs: "hardhat", tariffs: "crate", privat: "tag",
   retire: "clock", contrib: "piggy", natality: "baby", family: "family", migration: "plane", integration: "puzzle", healthyAging: "heart", housing: "house", parentalLeave: "stroller", ivf: "dna", pensionFunds: "vault", pensionTax: "chartUp", birthDowry: "gift", healthcare: "i-salute",
   transparency: "eye", anticorr: "gavel", assemblies: "people", disinfo: "newspaper", police: "badge", education: "school", socialHousing: "buildings", civicService: "hands",
@@ -7198,7 +7219,7 @@ const SHORT = {
   robotTax: "Tassa robot", sovFund: "Fondo sovrano", ubiMid: "Reddito intermedio", childIncome: "Reddito ai figli", teacherEval: "Valutare docenti", rooftop: "Pannelli sui tetti", stratoPlanes: "Aerei stratosferici",
   invest: "Investimenti", automation: "Automazione", retrain: "Formazione", ubi: "Reddito di base", austerity: "Tagli alla spesa", debtBrake: "Regola di bilancio", debtRestr: "Taglio del debito",
   retire: "Età pensionabile", healthyAging: "Invecchiamento sano", contrib: "Contributi", family: "Servizi famiglia", natality: "Bonus figli", migration: "Immigrazione regolata", integration: "Integrazione",
-  transparency: "Trasparenza", anticorr: "Anticorruzione", assemblies: "Assemblee", disinfo: "Disinformazione", police: "Ordine pubblico", develop: "Aiuti allo sviluppo",
+  transparency: "Trasparenza", anticorr: "Anticorruzione", assemblies: "Assemblee", disinfo: "Disinformazione", police: "Ordine pubblico", develop: "Aiuti allo sviluppo", singleMarket: "Mercato unico",
   adapt: "Adattamento", agri: "Agricoltura", reforest: "Riforestazione", dac: "Cattura CO₂", geoeng: "Geoingegneria",
   surveil: "Sorveglianza", vaccines: "Vaccini rapidi", labRules: "Regole laboratori", amr: "Antibiotici",
   mediation: "Mediazione", fissile: "Materiale fissile", arms: "Riduzione arsenali",
