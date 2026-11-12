@@ -339,7 +339,7 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
 .rank { list-style: none; margin: 0; padding: 0; font-size: 13px; }
 .rank li { display: grid; grid-template-columns: 1fr 34px; gap: 8px; padding: 4px 0; border-bottom: 1px solid var(--line); align-items: center; }
 .rank li b { font-family: var(--font-m); font-weight: 500; text-align: right; padding: 1px 4px; border-radius: 4px; color: #0c1822; }
-.brief { max-width: 78ch; margin: 0 auto; font-size: calc(14px * var(--k, 1)); line-height: 1.45; color: #cbd6df; }
+.brief { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; max-width: 78ch; margin: 0 auto; font-size: calc(14px * var(--k, 1)); line-height: 1.45; color: #cbd6df; }
 .brief h3 { font-family: var(--font-d); font-size: calc(17px * var(--k, 1)); letter-spacing: .04em; color: var(--accent); margin: calc(8px * var(--k, 1)) 0 3px; }
 .brief p { margin: 0 0 calc(6px * var(--k, 1)); }
 .brief .goals li { padding: calc(4px * var(--k, 1)) 10px; }
@@ -7599,16 +7599,13 @@ function startGame() {
 /* la missione deve stare tutta in una pagina (richiesta del 25 ottobre 2026): si rimpicciolisce il testo e, se serve, si passa a
    due colonne, finché non c'è più niente da scorrere */
 function fitBrief() {
+  /* tutta in una pagina, sempre (richiesta di Guido del 12 novembre 2026): si prova a una e a due colonne e si tiene il testo più
+     grande che entra senza scorrere; sui telefoni con caratteri ingranditi si scende quanto serve */
   const b = $("briefBody"), box = b && b.parentElement; if (!box || !box.clientHeight) return;
   const over = () => box.scrollHeight > box.clientHeight + 1;
-  b.classList.remove("two");
-  for (const two of [false, true]) {
-    b.classList.toggle("two", two);
-    let k = 1; b.style.setProperty("--k", k);
-    while (k > 0.93 && over()) { k -= 0.03; b.style.setProperty("--k", k.toFixed(2)); }
-    if (!over()) return;
-  }
-  // sotto questa misura il testo diventa illeggibile: meglio far scorrere la pagina (terzo rapporto, 28 ottobre 2026)
+  const fits = (two) => { b.classList.toggle("two", two); let k = 1.15; b.style.setProperty("--k", k); while (k > 0.45 && over()) { k -= 0.02; b.style.setProperty("--k", k.toFixed(2)); } return over() ? 0 : k; };
+  const k1 = fits(false), k2 = box.clientWidth > 600 ? fits(true) : 0;
+  const two = k2 > k1 + 0.04; b.classList.toggle("two", two); b.style.setProperty("--k", (two ? k2 : k1 || 0.45).toFixed(2));
 }
 window.addEventListener("resize", () => { if (phase === "brief") fitBrief(); });
 function beginPlay() { if (st && !st.gid) { st.gid = Math.random().toString(36).slice(2, 10); TELE.send("inizio"); } zoomMap(null); showPhase("play"); refresh(); save(); rotateHint(); renderCoach(); }
