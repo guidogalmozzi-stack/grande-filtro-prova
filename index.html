@@ -1146,7 +1146,14 @@ const fAge = (r) => clamp(37.4 - 44.35 * r.yng / r.pop + 61.6 * r.old / r.pop, 1
 /* Economia: il prodotto di una regione è lavoratori occupati × produttività di ciascuno (× robot, se ci sono).
    Meno giovani oggi significa meno lavoratori fra 18 anni: con la produttività ferma il prodotto scende. */
 // crescita naturale della produttività: più rapida nei paesi a reddito medio che rincorrono, più lenta nei più poveri e nei più ricchi
-const basePg = (r) => { const d = r.wealth / 100; return 1.1 + 2.6 * (1 - d) * Math.min(1, d * 3); };
+/* Crescita di partenza tarata sui dati reali (12 novembre 2026, osservazione di Guido: «la crescita sembra troppo bassa").
+   Il modello dava nel 2026 Asia orientale 1,3%, Asia meridionale 3,3%, Sud-est asiatico 3,0%, Nord America 1,25%; l'FMI prevede
+   circa 3,4% (Cina 4,2, Giappone 0,6, Corea 1,8), 5,8% (India 6,2), 4,4%, 2,0% (Stati Uniti 2,1, Canada 1,5), Oceania 2,1
+   [Probabile: FMI, World Economic Outlook ottobre 2025, proiezioni 2026]. La differenza si aggiunge alla crescita e si spegne
+   piano (dimezza in circa 14 anni): poi contano le dinamiche del modello (invecchiamento, rincorsa dei paesi poveri). */
+const GROWTH_GAP = { na: 0.7, ea: 2.0, sa: 2.4, sea: 1.3, oce: 0.5 };
+const gapNow = (r, st) => (GROWTH_GAP[r.id] || 0) * Math.exp(-Math.max(0, ((st && st.year) || 2026) + ((st && st.month) || 0) / 12 - 2026) / 20);
+const basePg = (r) => { const d = r.wealth / 100; return 1.1 + 2.6 * (1 - d) * Math.min(1, d * 3) + gapNow(r, { year: r.yearNow || 2026 }); }; // anche le attese della gente seguono la crescita reale
 /* con i robot pensanti (mass da 0 a 1) il lavoro umano viene sostituito da una forza lavoro di macchine pari a 1,1 volte il massimo
    raggiunto (prima 1,3: la crescita arrivava al 16-20% l'anno; ridotta il 25 ottobre 2026). robShare: quota del lavoro fatta da robot. */
 const laborOf = (r, m) => {
@@ -7218,7 +7225,7 @@ let introDiff = "medio", introLevel = "tut", introGov = "base";
 let sel = null;
 let speed = 1, savedSpeed = 1, userPause = false;
 // il tempo fermo scelto dal giocatore resta fermo: chiudere un evento o un pannello non lo fa ripartire (9 novembre 2026)
-const resumeSpeed = () => (userPause ? 0 : savedSpeed || 1);
+const resumeSpeed = () => (userPause || openScreen ? 0 : savedSpeed || 1); // con un pannello aperto (trattati, interventi, regione) il tempo resta fermo
 let pending = null;
 let layer = "stab";
 let actTab = "energia", actNode = null;
@@ -7797,12 +7804,16 @@ const HR = 20, HEXD = [[1, 0], [1, -1], [0, -1], [-1, 0], [-1, 1], [0, 1]];
 // le caselle sono un po' più larghe delle icone: tra due icone vicine resta sempre uno spazio (7 novembre 2026)
 const HS = HR * 1.18, hexXY = (q, r) => [HS * 1.5 * q, HS * Math.sqrt(3) * (r + q / 2)];
 const layoutCache = {};
+// icone da tenere vicine nell'albero (12 novembre 2026, richiesta di Guido): geotermia profonda accanto a quella tradizionale
+const TREE_NEAR = { geoResearch: "geoConv" };
 function layoutTree(list) {
   const key = list.map((d) => d.id).join() + "|" + (($("tree") && $("tree").clientWidth) || 0);
   if (layoutCache[key]) return layoutCache[key];
   const kids = {}; list.forEach((d) => (kids[d.id] = []));
   const par = (d) => effParent(st, d); // padre per il governo in carica
   list.forEach((d) => { const p = par(d); if (p && kids[p]) kids[p].push(d.id); });
+  // la coppia da tenere vicina si colloca per prima, così trova due caselle accanto
+  for (const k in kids) for (const [a, b] of Object.entries(TREE_NEAR)) { const L = kids[k], i = L.indexOf(a), j = L.indexOf(b); if (i >= 0 && j >= 0) { L.splice(i, 1); L.splice(L.indexOf(b), 1); L.unshift(b, a); } }
   const roots = list.filter((d) => { const p = par(d); return !p || !kids[p]; }).map((d) => d.id);
   /* ogni albero: la radice al centro, ogni figlio nella casella libera accanto al padre più vicina al centro dell'albero,
      contando di più la distanza in verticale (peso "a"): gli alberi crescono in larghezza e restano compatti. Prima i rami
@@ -7811,11 +7822,13 @@ function layoutTree(list) {
     const cell = { [rid]: [0, 0] }, used = new Set(["0,0"]);
     const queue = [[rid, -1]];
     const score = (q, r) => { const [x, y] = hexXY(q, r); return x * x + a * y * y; };
+    const nextTo = (c, q, r) => c && HEXD.some(([dq, dr]) => c[0] + dq === q && c[1] + dr === r);
     while (queue.length) {
       const [id, dir] = queue.shift(), [q, r] = cell[id];
       for (const kid of kids[id]) {
         let bestC = null;
-        for (let o = 0; o < 6; o++) { const nq = q + HEXD[o][0], nr = r + HEXD[o][1]; if (used.has(nq + "," + nr)) continue; const sc = score(nq, nr); if (!bestC || sc < bestC[2]) bestC = [nq, nr, sc, o]; }
+        const near = cell[TREE_NEAR[kid]]; // argomenti affini uno accanto all'altro, anche se non sono nella stessa catena
+        for (let o = 0; o < 6; o++) { const nq = q + HEXD[o][0], nr = r + HEXD[o][1]; if (used.has(nq + "," + nr)) continue; const sc = score(nq, nr) - (nextTo(near, nq, nr) ? 1e7 : 0); if (!bestC || sc < bestC[2]) bestC = [nq, nr, sc, o]; }
         if (!bestC) { // nessuna casella libera accanto: si prosegue nella direzione del ramo
           const o = dir < 0 ? 0 : dir; let nq = q + HEXD[o][0], nr = r + HEXD[o][1];
           while (used.has(nq + "," + nr)) { nq += HEXD[o][0]; nr += HEXD[o][1]; }
