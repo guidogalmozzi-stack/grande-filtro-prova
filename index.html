@@ -1076,7 +1076,7 @@ function investigate(st, r, look) {
   if (!look) { if (isAI) st.g.aiCap += 1; return; } // un'AI non scoperta continua indisturbata
   if (isAI) {
     st.aiFound = (st.aiFound || 0) + 1; st.g.aiSafety += 4; r.shockU -= 2;
-    note(st, "report", "chipShield", "Era un'intelligenza artificiale", A.ai + " Le regole sull'AI vengono rafforzate: la sicurezza dell'AI sale. Se capita ancora, l'AI sta diventando più potente di quanto riusciamo a controllare.");
+    note(st, "report", "chipShield", "Era un'intelligenza artificiale", A.ai + (st.aiFound > 1 ? ` È già la ${st.aiFound}ª volta che un'AI agisce da sola contro le regole: è il segno che le AI più potenti sfuggono ai controlli. Conviene investire nella sicurezza dell'AI (scheda Tecnologia).` : " Nessuno l'aveva programmata per farlo: è un primo segnale che le AI più potenti possono agire contro le regole. Le regole sull'AI vengono rafforzate e la sicurezza dell'AI sale."));
     return;
   }
   const o = pick(A.other);
@@ -2472,7 +2472,7 @@ function risks(st) {
   const bioGap = G.biotech - G.bioSafety;
   // arsenali senza controllo: ogni potenza nucleare caduta nell'anarchia con le testate non messe in sicurezza moltiplica il rischio
   const loose = st.regions ? NUCLEAR_POWERS.filter((id) => st.regions[id] && !st.regions[id].controlled && !st.regions[id].exit && !st.regions[id].nukeSafe).length : 0;
-  const war = 0.0012 * (G.arsenal / 100) * Math.pow(Math.max(G.tension, 1) / 40, 2.5) * R * (1 + 1.5 * loose);
+  const war = 0.0012 * (G.arsenal / 100) * Math.pow(Math.max(G.tension, 1) / 40, 2.5) * R * (1 + (st.acts && built(st, "fissile") ? 0.75 : 1.5) * loose);
   const ai = aiGap > 25 ? Math.pow((aiGap - 25) / 50, 2) * 0.03 * R : 0;
   const bio = (bioGap > 20 ? Math.pow((bioGap - 20) / 40, 2) * 0.03 * R : 0) + (st.L && st.L.sys.includes("gen") && G.biotech > 50 ? 0.0015 * (1 - bioCover(st)) * R : 0); // il rischio zero non esiste
   const tempEff = G.temp + G.geoOff;
@@ -2597,6 +2597,7 @@ function econTick(st, dt) {
     const q = st.econQ.shift(), rr = q.r && st.regions[q.r];
     // ricostruzione con un debito già sotto il 60%: non c'è niente da tagliare, la regione riparte e basta
     if (q.id === "rebuild" && rr && rr.debt <= REBUILD_TARGET + 2) { rr.rebound = 2; rr.reboundUntil = st.year + 5; logNews(st, `Ricostruzione in ${rr.name}: il debito è già basso (${Math.round(rr.debt)}% del prodotto), la regione riparte senza tagli.`, "info"); }
+    else if (rr && !rr.controlled && !["looseNukes", "rebuild"].includes(q.id)) { /* la regione è caduta nell'anarchia: la crisi non vale più */ }
     else { st.forceEv = { id: q.id, r: q.r || null }; if (q.id === "debt") st.debtR = q.r; }
   }
 }
@@ -3373,10 +3374,13 @@ const EVENTS = [
     ] },
   { id: "looseNukes", scope: "region", cat: "Sicurezza", title: (st, r) => "Arsenali senza controllo: " + r.name,
     p: () => 0,
-    text: (st, r) => `Con ${r.name} nell'anarchia migliaia di testate nucleari non hanno più un governo che le controlli. Milizie e comandanti locali potrebbero usarle o venderle: finché non sono al sicuro il rischio di guerra nucleare è molto più alto.`,
+    /* La preparazione conta (13 novembre 2026, domanda di Guido): con meno testate (trattato sugli arsenali) l'operazione costa meno, e con
+       il materiale fissile già registrato e sorvegliato l'accordo con i comandanti riesce molto più spesso e le testate rimaste sono
+       meno pericolose [Certo: dopo il 1991 il programma Nunn-Lugar mise al sicuro le testate ex sovietiche partendo da inventari noti]. */
+    text: (st, r) => `Con ${r.name} nell'anarchia ${st.g.arsenal < 60 ? "le testate nucleari rimaste" : "migliaia di testate nucleari"} non hanno più un governo che le controlli. Milizie e comandanti locali potrebbero usarle o venderle: finché non sono al sicuro il rischio di guerra nucleare è molto più alto.${st.g.arsenal < 100 || built(st, "fissile") ? ` La tua preparazione aiuta:${st.g.arsenal < 100 ? ` gli arsenali sono ridotti al ${Math.round(st.g.arsenal)}%, quindi l'operazione costa meno` : ""}${st.g.arsenal < 100 && built(st, "fissile") ? ";" : ""}${built(st, "fissile") ? " il materiale fissile è registrato e sorvegliato, quindi l'accordo con i comandanti riesce più spesso e il pericolo è minore" : ""}.` : ""}`,
     choices: [
-      { label: "Operazione internazionale per mettere al sicuro le testate", cost: 15, out: "Le testate vengono messe al sicuro: il rischio torna normale", fx: (st, r) => { r.nukeSafe = true; } },
-      { label: "Accordo con i comandanti militari locali", cost: 5, out: "Funziona circa una volta su due", fx: (st, r) => { if (rand() < 0.55) { r.nukeSafe = true; logNews(st, `${r.name}: i comandanti locali consegnano le testate.`, "done"); } else logNews(st, `${r.name}: l'accordo con i comandanti locali è fallito, le testate restano senza controllo.`, "bad"); } },
+      { label: "Operazione internazionale per mettere al sicuro le testate", cost: (st) => priced(st, 15 * Math.max(0.25, st.g.arsenal / 100)), out: "Le testate vengono messe al sicuro: il rischio torna normale", fx: (st, r) => { r.nukeSafe = true; } },
+      { label: "Accordo con i comandanti militari locali", cost: (st) => priced(st, 5 * Math.max(0.25, st.g.arsenal / 100)), out: "Funziona circa una volta su due; molto più spesso se il materiale fissile è già sorvegliato", fx: (st, r) => { if (rand() < (built(st, "fissile") ? 0.85 : 0.55)) { r.nukeSafe = true; logNews(st, `${r.name}: i comandanti locali consegnano le testate.`, "done"); } else logNews(st, `${r.name}: l'accordo con i comandanti locali è fallito, le testate restano senza controllo.`, "bad"); } },
       { label: "Non fare nulla", cost: 0, out: "Il rischio di guerra nucleare resta molto alto finché la regione non torna sotto controllo", fx: () => {} },
     ] },
   /* Cometa (rivista l'8 novembre 2026, richiesta di Guido) [Probabile: studi NASA e Lawrence Livermore sulla difesa planetaria].
@@ -7816,6 +7820,8 @@ function barHTML(v, dv, col) {
   return `<span class="mbar"><i style="width:${w(v)}%;background:${col}"></i>${ghost}</span>`;
 }
 const sectorList = (tab) => INTERVENTIONS.filter((x) => x.cat === tab && available(st, x));
+// tutti gli interventi che una scheda può avere in questo scenario, con qualunque governo
+const fullSector = (tab) => INTERVENTIONS.filter((x) => x.cat === tab && st.L.cats.includes(x.cat) && x.tier <= st.L.tier && !(x.sys && !st.L.sys.includes(x.sys)));
 const sectorDone = (tab) => { const l = sectorList(tab); return { n: l.length || 1, did: l.filter((x) => built(st, x.id) || building(st, x.id)).length }; };
 
 /* ---------- albero: esagoni piccoli con un'icona,; gli alberi si aprono in più direzioni ----------
@@ -7831,7 +7837,10 @@ function layoutTree(list) {
   const key = list.map((d) => d.id).join() + "|" + (($("tree") && $("tree").clientWidth) || 0);
   if (layoutCache[key]) return layoutCache[key];
   const kids = {}; list.forEach((d) => (kids[d.id] = []));
-  const par = (d) => effParent(st, d); // padre per il governo in carica
+  /* posizioni fisse (13 novembre 2026, richiesta di Guido): la disposizione si calcola con tutti gli interventi della scheda
+     nello scenario, per tutti i governi e con il padre normale, così un'icona sta sempre nello stesso posto: sbloccarne un'altra
+     la fa solo comparire, come se fosse sempre stata lì nascosta */
+  const par = (d) => d.parent;
   list.forEach((d) => { const p = par(d); if (p && kids[p]) kids[p].push(d.id); });
   // la coppia da tenere vicina si colloca per prima, così trova due caselle accanto
   for (const k in kids) for (const [a, b] of Object.entries(TREE_NEAR)) { const L = kids[k], i = L.indexOf(a), j = L.indexOf(b); if (i >= 0 && j >= 0) { L.splice(i, 1); L.splice(L.indexOf(b), 1); L.unshift(b, a); } }
@@ -7906,11 +7915,11 @@ function drawTree() {
   const states = Object.fromEntries(list.map((d) => [d.id, nodeState(d)]));
   const vis = list.filter((d) => nodeVisible(d, states[d.id]));
   if (!actNode || !vis.some((d) => d.id === actNode)) actNode = vis[0].id;
-  const { pos, W, H } = layoutTree(vis); // si dispongono solo le icone visibili: niente buchi per quelle ancora bloccate
+  const { pos, W, H } = layoutTree(fullSector(actTab)); // tutte le icone possibili nello scenario: le posizioni non cambiano mai
   const svg = $("tree"), pad = HR * 1.6;
   svg.setAttribute("viewBox", `${-pad} ${-pad} ${W + 2 * pad} ${H + 2 * pad}`);
   svg.innerHTML = "";
-  for (const d of vis) { const p = effParent(st, d); if (!(p && pos[p] && vis.some((v) => v.id === p))) continue;
+  for (const d of vis) { const p0 = d.parent, p1 = effParent(st, d), p = p0 && vis.some((v) => v.id === p0) ? p0 : p1; if (!(p && pos[p] && vis.some((v) => v.id === p))) continue;
     const [x1, y1] = pos[p], [x2, y2] = pos[d.id];
     svg.appendChild(svgEl("path", { d: `M${x1} ${y1} L${x2} ${y2}`, class: "edge" + (built(st, p) ? " on" : ""), style: "--c:" + CAT_COLOR[d.fam] }));
   }
@@ -8537,9 +8546,20 @@ window.addEventListener("pointerup", (e) => {
   st.queue = st.queue.filter((x) => x !== q); zoomMap(null); showEvent(q);
 });
 const PIN_D = "M0 0C-2.6-4.4-8-8.2-8-13.6a8 8 0 1 1 16 0C8-8.2 2.6-4.4 0 0z";
+/* una crisi di una regione che nel frattempo è caduta nell'anarchia (o uscita) non vale più: nessuno governa lì per chiedere
+   qualcosa (13 novembre 2026, osservazione di Guido). Restano solo gli eventi pensati per quelle regioni. */
+const ANARCHY_EV = ["looseNukes", "missionWar", "missionRebuild", "rebuild"];
+function evStillValid(ev) {
+  const r = ev && ev.r && st.regions[ev.r]; if (!r) return true;
+  const E = EBY[ev.id]; if (!E) return true;
+  if (E.exitOnly) return !!r.exit;
+  if (ANARCHY_EV.includes(ev.id)) return true;
+  return !!r.controlled;
+}
 function drawBubbles() {
   const g = $("bubbles"); g.innerHTML = "";
   if (!st || phase !== "play") return;
+  st.queue = (st.queue || []).filter(evStillValid);
   // ogni segnaposto tiene il suo posto finché resta sulla mappa: il secondo evento in una regione si mette di fianco al primo senza spostarlo
   const used = {};
   for (const q of (st.queue || []).slice().sort((a, b) => a.start - b.start)) {
@@ -8588,6 +8608,7 @@ function showEvent(ev) {
   if (ev.id === "debt" && ev.r) st.debtR = ev.r; // le scelte dipendono dal debito di quella regione
   // avviso elettorale per una regione già uscita: non vale più (5 novembre 2026)
   if (ev.id === "electionRisk" && ev.r && st.regions[ev.r] && !st.regions[ev.r].controlled) { refresh(); return; }
+  if (!evStillValid(ev)) { refresh(); return; }
   pending = ev;
   if (openScreen === null) savedSpeed = speed || savedSpeed || 1;
   speed = 0;
