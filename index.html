@@ -2425,7 +2425,7 @@ const PENS_K = 140; // peso del welfare per ogni anziano rispetto ai lavoratori
    pubblici, non si controlla: segue l'inflazione, il debito medio e la scarsità di capitale (anche il debito dell'Autorità). */
 const NEUTRAL = 1; // tasso reale neutrale: con il 4% e un'inflazione del 3% la politica monetaria non spinge né frena
 const realRate = (st) => st.g.rate - st.g.infl;
-const clampRate = (v) => clamp(v, 0, 15);
+const clampRate = (v) => clamp(v, 0, 60); // con un'inflazione alta la banca può alzare molto il tasso (prima massimo 15)
 const monetaryPush = (st) => clamp(NEUTRAL - realRate(st), -10, 4); // positivo = politica espansiva; un tasso molto alto frena sempre di più
 const LVL_SPEED = 0.15; // ogni anno si recupera il 15% della distanza dal nuovo livello: circa 7 anni per arrivarci a due terzi
 function prodGrowth(r, st, m, gm) {
@@ -8099,7 +8099,8 @@ function renderBank(d, I) {
       <div class="bank"><button type="button" class="buy alt" id="rDown" aria-label="${tr("Abbassa il tasso")}">−</button><div><b>${fmt(G.rateT, 1)}%</b><small>${auto ? tr("deciso dal pilota") : tr("tasso scelto")}${Math.abs(G.rate - G.rateT) > 0.05 ? " · " + tr("ora {x}%", { x: fmt(G.rate, 1) }) : ""}</small></div><button type="button" class="buy alt" id="rUp" aria-label="${tr("Alza il tasso")}">+</button></div>
       <button type="button" class="buy alt autob${auto ? " on" : ""}" id="rAuto">${auto ? tr("Pilota automatico: acceso") : tr("Pilota automatico: spento")}</button>
       ${auto ? `<div class="bank"><button type="button" class="buy alt" id="tDown" aria-label="${tr("Obiettivo più basso")}">−</button><div><b>${fmt(G.autoT, 1)}%</b><small>${tr("inflazione voluta")}</small></div><button type="button" class="buy alt" id="tUp" aria-label="${tr("Obiettivo più alto")}">+</button></div>
-      <p class="why">${tr("La banca centrale cambia il tasso da sola per tenere l'inflazione al valore voluto. È comodo, ma non guarda crescita e debiti: a volte un tasso scelto a mano funziona meglio.")}</p>` : ""}
+      <p class="why">${tr("La banca centrale cambia il tasso da sola per tenere l'inflazione al valore voluto. È comodo, ma non guarda crescita e debiti: a volte un tasso scelto a mano funziona meglio.")}</p>
+      ${G.autoT > 6 ? `<p class="why" style="color:#f0c27a">${tr("Inflazione alta: i debiti (anche quello dell'Autorità) pesano meno ogni anno, ma risparmi e stipendi perdono valore. Oltre il 5% l'economia frena e la gente si arrabbia sempre di più; sopra il 20-30% è una crisi seria.")}</p>` : ""}` : ""}
       <div class="bankprev" id="bankPrev"><small>${tr("Calcolo dell'effetto…")}</small></div>
       <p class="why" style="margin-top:4px">${tr("Fra un anno il saldo è diverso da oggi anche senza cambiare nulla: le entrate crescono con l'economia e con i prezzi.")}</p>
       <div class="imeters" id="indRows">${I.map((i) => indRow(i, 0)).join("")}</div>
@@ -8119,7 +8120,7 @@ function renderBank(d, I) {
   $("rDown").onclick = () => { G.autoT = null; G.rateT = clampRate(Math.round(G.rateT * 2) / 2 - 0.5); renderBank(d, I); };
   $("rUp").onclick = () => { G.autoT = null; G.rateT = clampRate(Math.round(G.rateT * 2) / 2 + 0.5); renderBank(d, I); };
   $("rAuto").onclick = () => { G.autoT = auto ? null : 3; renderBank(d, I); };
-  if (auto) { $("tDown").onclick = () => { G.autoT = Math.max(0, G.autoT - 0.5); renderBank(d, I); }; $("tUp").onclick = () => { G.autoT = Math.min(8, G.autoT + 0.5); renderBank(d, I); }; }
+  if (auto) { $("tDown").onclick = () => { G.autoT = Math.max(0, G.autoT - (G.autoT > 10 ? 2 : 0.5)); renderBank(d, I); }; $("tUp").onclick = () => { G.autoT = Math.min(60, G.autoT + (G.autoT >= 10 ? 2 : 0.5)); renderBank(d, I); }; } // nessun tetto all'8%: si può scegliere un'inflazione alta, come nella realtà (13 novembre 2026)
 }
 /* stima dell'effetto: si simula il mondo per qualche anno con e senza l'intervento (senza eventi né catastrofi).
    Le barre mostrano tutti gli indicatori che cambiano, in verde dove migliora e in rosso dove peggiora. */
