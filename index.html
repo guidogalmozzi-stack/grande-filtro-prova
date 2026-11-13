@@ -2307,7 +2307,7 @@ function lvl(r, id) {
 }
 
 /* ---------- stato ---------- */
-const M0 = () => ({ g: 0, gF: 0, unrestT: 0, polarT: 0, unempT: 0, fert: 0, pensT: 0, debtF: 0, fossilShift: 0, resistT: 0, energyCost: 0, eff: 0, dmg: 0, famine: 0, labor: 0, robot: 0, life: 0, mig: 0, mass: 0, weak: 0, shadowT: 0, absorb: 0 });
+const M0 = () => ({ g: 0, gF: 0, uUp: 0, uDn: 0, uTop: null, unrestT: 0, polarT: 0, unempT: 0, fert: 0, pensT: 0, debtF: 0, fossilShift: 0, resistT: 0, energyCost: 0, eff: 0, dmg: 0, famine: 0, labor: 0, robot: 0, life: 0, mig: 0, mass: 0, weak: 0, shadowT: 0, absorb: 0 });
 const G0 = () => ({ malaria: 0, aiRate: 0, safeRate: 0, bioRate: 0, biotechRate: 0, co2Rem: 0, geo: 0, tensionT: 0, gAll: 0, unempAll: 0, pmit: 0, epi: 0, polarAll: 0, frontier: 0, income: 0, infl: 0 });
 
 function emissions(st) {
@@ -2772,6 +2772,8 @@ function unrestCauses(r, st) {
     { name: "Effetti del clima", v: climUnrest(r, temp) * (1 - (r.m ? r.m.dmg : 0)) },
     { name: "Anarchia nelle regioni vicine", v: anarchyNear(st, r) * ANARCHY_SPREAD },
     { name: "Crisi recenti", v: Math.max(0, r.shockU) },
+    // le riforme che fanno arrabbiare (tasse, tagli, pensione più tardi…), con le due che pesano di più
+    { name: r.m && r.m.uTop && r.m.uTop.length ? "Riforme e tagli: " + r.m.uTop.slice().sort((a, b) => b[1] - a[1]).slice(0, 2).map((x) => x[0].toLowerCase()).join(", ") : "Riforme e tagli", v: r.m ? r.m.uUp : 0 },
   ].filter((c) => c.v >= 0.5).sort((a, b) => b.v - a.v);
 }
 
@@ -4399,8 +4401,11 @@ function tick(st) {
       const bl = (st.D && st.D.backlash) || 1;
       if (m.unrestT > u0) m.unrestT = u0 + (m.unrestT - u0) * bl;
       if (m.polarT > p0) m.polarT = p0 + (m.polarT - p0) * bl;
+      // quanto malcontento portano o tolgono gli interventi, per mostrarlo tra le cause (13 novembre 2026)
+      const du = m.unrestT - u0;
+      if (du > 0) { m.uUp += du; (m.uTop || (m.uTop = [])).push([d.name, du]); } else m.uDn -= du;
     }
-    m.unrestT += Math.min(6, fat);
+    m.unrestT += Math.min(6, fat); m.uUp += Math.min(6, fat);
     // genetica: zanzare contro la malaria nelle regioni tropicali, svolte sull'invecchiamento e scoperte della biologia guidata dall'AI
     if (r.controlled || r.exit) {
       if (gm.malaria && TROPIC.includes(r.id)) { m.g += 0.3; m.life += 0.5; }
