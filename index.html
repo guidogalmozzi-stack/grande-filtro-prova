@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
-<script>window.GF_BUILD = "mwgf59hi"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
+<script>window.GF_BUILD = "mwgpa01i"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
 <style>html{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);background:#0f1d29;color-scheme:dark}body{margin:0;font-family:system-ui,-apple-system,sans-serif;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -886,7 +886,7 @@ const P = {
   baseIncome: 27,        // fondi l'anno nel 2026 nello scenario completo, livello medio; crescono con l'economia
   growCost: 1, growTech: 0.3, aiRelief: 0.25, // i costi crescono con l'economia mondiale (vedi priced); la tecnologia in serie molto meno
   // debito dell'Autorità: nessun tetto; paga il tasso a lungo termine più uno spread che dipende da debito / entrate (vedi authRate)
-  stabC: 47.1, stabK: 3.8, // scala dell'indice di stabilità (mondo del 2026 ≈ 45)
+  stabC: 50.5, stabK: 3.8, // scala dell'indice di stabilità (mondo del 2026 ≈ 45; 47,1 → 50,5: mondo del 2026 circa 48, con 45 il livello medio diventava troppo difficile il 14 novembre 2026 dopo i Conti pubblici sulla direzione del debito)
   anarchySpread: 12,     // malcontento portato da ogni regione vicina in anarchia
   lowStab: 15, lowYears: 5, // sotto questa stabilità mondiale per tanti anni: sconfitta
   stableYears: 10, winWorld: 80, // traguardo predefinito (ogni scenario ha il suo)
@@ -911,7 +911,7 @@ const DIFF = {
     /* reazione alle riforme per governo (14 novembre 2026, regola di Guido: a super difficile il giocatore attento deve vincere almeno
        1 volta e al massimo 3 su 30 con ogni governo). Un solo valore non basta: i governi sono di forza diversa (con 1,15 lo Stato
        sociale vinceva 12 volte, il Libero mercato mai). Tarata con 30 partite automatiche per governo negli scenari 5 e 6. */
-    backlashG: { base: 1.5, liberal: 1.52, central: 1.23, human: 1.44, market: 1.24, market_l6: 1.25, techno: 1.25, techno_l6: 1.13, social: 1.55, social_l6: 1.56 }, // ritarata il 14 novembre 2026 dopo i Conti pubblici sulla direzione del debito
+    backlashG: { base: 1.2, base_l6: 1.15, liberal: 1.22, liberal_l6: 1.2, central: 0.95, central_l6: 0.93, human: 1.22, market: 1.05, market_l6: 1.06, techno: 1.0, techno_l6: 0.9, social: 1.24, social_l6: 1.3 }, // ritarata il 14 novembre 2026 (partenza a circa 48, tetto ai tassi scelto dal giocatore)
     /* a super difficile i dati reali meno favorevoli invece di quelli medi (9 novembre 2026, scelta di Guido):
        austKeep = parte dei tagli del piano di rientro che resta (in media meno della metà dopo 5-10 anni), fatigue = quanto se ne
        perde ogni anno per stanchezza fiscale (Ghosh e altri 2013), brakeK = forza della regola di bilancio (in media +0,6 punti,
@@ -2752,7 +2752,7 @@ const STAB_PARTS = [
 ];
 function stabParts(r, st) { return STAB_PARTS.map((p) => ({ ...p, val: clamp(p.v(r, st), 0, 100) })); }
 // scala allargata: il mondo del 2026 parte intorno a 45, un mondo davvero stabile supera 80
-const STAB_C = P.stabC, STAB_K = P.stabK;
+const STAB_K = P.stabK; // la scala (P.stabC) si legge ogni volta: le prove di taratura la possono cambiare
 /* punto debole: una sola voce molto bassa abbassa tutta la stabilità (non si compensa con le altre). Energia e clima contano
    solo negli scenari dove ci sono. */
 const WEAK_AT = 40, WEAK_K = 0.6;
@@ -2775,7 +2775,7 @@ function stabNow(r, st) {
   if (!r.controlled && !r.exit) return 0;
   const parts = stabParts(r, st);
   const raw = parts.reduce((s, p) => s + p.val * p.w, 0) / parts.reduce((s, p) => s + p.w, 0);
-  const v = clamp((raw - STAB_C) * STAB_K - stabWeak(r, st).pen, 1, 100);
+  const v = clamp((raw - P.stabC) * STAB_K - stabWeak(r, st).pen, 1, 100);
   return v; // anche le regioni uscite contano con la loro stabilità vera (5 novembre 2026)
 }
 /* L'anarchia si diffonde: ogni regione vicina in anarchia porta profughi, violenza e commerci interrotti.
@@ -2948,10 +2948,17 @@ function authSpread(st) {
      i titoli che nessuno vuole: il prezzo è l'inflazione, non la bancarotta (14 novembre 2026, osservazione di Guido)
      [Certo: Giappone oltre il 250% del PIL senza crisi dei tassi; Probabile: Argentina e Turchia, finanziamento monetario →
      inflazione alta]. Premio massimo 4 punti (prima 40). */
-  return Math.min(4, s * (ws < 30 ? 1.5 : ws < 45 ? 1.25 : 1));
+  /* Rivisto il 14 novembre 2026 (decisione di Guido): senza l'intervento della banca centrale il premio sale fino a 12 punti (nei casi
+     reali più gravi 10-15 punti, finché la banca centrale non interviene: Regno Unito 2022, BCE 2012). La banca centrale può
+     comprare i titoli quando il tasso supera un tetto scelto dal giocatore (capRate): il prezzo è l'inflazione. */
+  return Math.min(12, s * (ws < 30 ? 1.5 : ws < 45 ? 1.25 : 1));
 }
 const debtStep = (st) => { const R = debtRatio(st); return R <= 1 ? 0 : R <= 2.5 ? 1 : R <= 3.5 ? 2 : R <= 4.5 ? 3 : 4; }; // fasce, per gli avvisi
-const authRate = (st) => Math.max(1, st.g.longR) + authSpread(st);
+const authMarket = (st) => Math.max(1, st.g.longR) + authSpread(st); // il tasso che chiederebbero i mercati
+// con il tetto della banca centrale l'Autorità non paga più del tetto: la differenza la copre la banca comprando i titoli
+const authRate = (st) => { const m = authMarket(st), cap = st.g && st.g.capRate; return cap != null && m > cap ? Math.max(cap, Math.max(1, st.g.longR)) : m; };
+// quanto spinge l'inflazione la banca che compra i titoli: in proporzione a quanto il tetto taglia il tasso e a quanto debito c'è
+const capPush = (st) => { const cap = st.g && st.g.capRate; if (cap == null) return 0; const cut = Math.max(0, authMarket(st) - Math.max(cap, st.g.longR)); return Math.min(30, 0.8 * cut * Math.min(4, debtRatio(st))); };
 /* Il massimo avanzo possibile: le entrate con tutte le tasse e i tagli ancora disponibili, senza nessun programma da pagare.
    Se per tre anni di fila gli interessi lo superano, tornare in pareggio è impossibile: bancarotta. */
 function maxSurplus(st) {
@@ -4527,7 +4534,7 @@ function tick(st) {
     // se l'inflazione resta lontana dal 3% per anni, le attese si spostano con lei: va corretta con il tasso
     G.anchor += (G.infl - G.anchor) * Math.min(0.5, 0.06 + 0.03 * Math.max(0, G.infl - 6)) * dt; // con l'inflazione alta le attese si spostano molto più in fretta [Probabile]
     // finanziamento monetario del debito dell'Autorità: oltre un anno e mezzo di entrate spinge l'inflazione (2,5 punti per ogni anno di entrate in più, fino a +50)
-    st.monetize = clamp(2.5 * (debtRatio(st) - 1.5), 0, 50);
+    st.monetize = capPush(st); // nessun finanziamento automatico: solo se il giocatore ha messo il tetto ai tassi
     const piT = st.monetize + G.anchor + 0.1 * clamp(G.gW0 - uW, -4, 4) + 0.1 * Math.max(0, ecW - G.ec0) + gm.infl + G.piShock + 0.6 * monetaryPush(st);
     G.infl += (piT - G.infl) * 0.7 * dt;
     /* Tasso a lungo termine [Probabile]: è la media dei tassi a breve attesi nei prossimi anni (quello di oggi e quello "normale",
@@ -5028,7 +5035,7 @@ function canRevoke(st, id) { const d = IBY[id], a = st.acts[id]; return !!(d && 
 function advise(st, rid, months = 96) {
   const seed = _seed, base = JSON.stringify({ ...st, D: undefined, L: undefined, G: undefined, gm: undefined });
   // stabilità senza il minimo di 1: nelle regioni già a terra anche un miglioramento che non la porta sopra zero si vede
-  const raw = (r, c) => { if (!r.controlled && !r.exit) return -100; const p = stabParts(r, c), a = p.reduce((s, x) => s + x.val * x.w, 0) / p.reduce((s, x) => s + x.w, 0); return (a - STAB_C) * STAB_K - stabWeak(r, c).pen; };
+  const raw = (r, c) => { if (!r.controlled && !r.exit) return -100; const p = stabParts(r, c), a = p.reduce((s, x) => s + x.val * x.w, 0) / p.reduce((s, x) => s + x.w, 0); return (a - P.stabC) * STAB_K - stabWeak(r, c).pen; };
   // media su tutti gli anni simulati: conta anche ritardare un crollo o tenere la regione in piedi più a lungo
   const run = (id) => {
     const c = simulate(st, id, 0, base); let sum = 0, n = 0;
@@ -5082,7 +5089,7 @@ function loadState(txt) {
 }
 
 if (typeof module !== "undefined") module.exports = {
-  P, PROMISES, pensPoverty, polarCauses, budget, incomeGainOf, amnestyYield, incomeSupport, robotCapture, popLossAge, bioCover, aiTerror, privatePens, WAGE, wageIdx, SHADOW0, taxBase, shadowW, OLD_LEVEL, DISCOVERIES, evTitle, RPROF, priced, eventCost, authRate, maxSurplus, bankPreview, co2Gross, worldBirths, clampRate, snowball, regionRate, co2Gt, GDP_2026, CO2_2026, DIFF, LEVELS, LBY, GOVS, GBY, sysOn, REGIONS, RBY, INTERVENTIONS, IBY, CATS, EVENTS, EBY, ENDINGS, STABLE_YEARS, RISK_LABELS,
+  P, PROMISES, pensPoverty, polarCauses, budget, incomeGainOf, amnestyYield, incomeSupport, robotCapture, popLossAge, bioCover, aiTerror, privatePens, WAGE, wageIdx, SHADOW0, taxBase, shadowW, OLD_LEVEL, DISCOVERIES, evTitle, RPROF, priced, eventCost, authRate, maxSurplus, bankPreview, authMarket, capPush, co2Gross, worldBirths, clampRate, snowball, regionRate, co2Gt, GDP_2026, CO2_2026, DIFF, LEVELS, LBY, GOVS, GBY, sysOn, REGIONS, RBY, INTERVENTIONS, IBY, CATS, EVENTS, EBY, ENDINGS, STABLE_YEARS, RISK_LABELS,
   effParent, brinkP, geoDose, tensionOf, riskBoard, cometChance, econRisk, REC_INFO, trAvail, trShown, trReady, trNetGain, incomeParts, TREATIES, TBY, trOn, trShare, trWhy, trInfo, trSupport, trChance, proposeTreaty, trGross, trNet, TR_NEED, TR_SHARE0, reconquer, reconWhy, reconChance, RECON_COST, RECON_T, needsRef, refInfo, refSupport, refDrivers, refChance, runReferendum, popRisk, mediate, MEDIATION_COST, evChoices, LOW_STAB, LOW_YEARS, ANOMALY,
   newGame, tick, EV_WARN, advise, preview, ctrlShare, available, anarchyNear, saveState, loadState, honors, endingText, costOf, upkeepOf, built, startIntervention, payoffNow, stabParts, stabWeak, stabWhy, stabNow, worldStab, unrestCauses, STAB_PARTS, WIN_WORLD, canStart, parentOk, TREE, resolveEvent, revoke, stability, riskBoard, risks, emissions, worldPop, lvl, setSeed, rand,
 };
@@ -8012,7 +8019,8 @@ function layoutStrict(list) {
   const famOf = (rid) => { const c = {}; const walk = (id) => { for (const m of members[id]) { const f = IBY[m].fam; c[f] = (c[f] || 0) + 1; } kids[id].forEach(walk); }; walk(rid); return Object.entries(c).sort((a, b) => b[1] - a[1])[0][0]; };
   const NB = [[1, 0], [1, -1], [0, -1], [-1, 0], [-1, 1], [0, 1]];
   let best = null;
-  for (let t = 0; t < 24; t++) {
+  const compact = TREE_COMPACT.includes(actTab), TRIES = compact ? 30 : 24;
+  for (let t = 0; t < TRIES; t++) {
     seed = 1 + t * 7919; const wa = [1, 1.6, 2.5, 4][t % 4], wd = [0, 1.5, 3][(t >> 2) % 3];
     const trees = []; let ok = true;
     for (const rid of roots) { let cell = null; for (let k = 0; k < 6 && !cell; k++) cell = grow(rid, wa, wd); if (!cell) { ok = false; break; } trees.push({ rid, cell, fam: famOf(rid), n: Object.keys(cell).length }); }
@@ -8020,32 +8028,48 @@ function layoutStrict(list) {
     // stesso colore insieme, poi dal più grande
     const famSize = {}; trees.forEach((x) => (famSize[x.fam] = (famSize[x.fam] || 0) + x.n));
     trees.sort((a, b) => famSize[b.fam] - famSize[a.fam] || (a.fam < b.fam ? -1 : a.fam > b.fam ? 1 : 0) || b.n - a.n);
+    // nelle schede da compattare si provano anche ordini diversi degli alberi (i più grandi restano per primi)
+    if (compact && t >= 24) { const big = trees.slice(0, 2), rest = trees.slice(2); for (let i = rest.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [rest[i], rest[j]] = [rest[j], rest[i]]; } trees.length = 0; trees.push(...big, ...rest); }
     const occ = new Map(); // casella → famiglia
     const placed = {}; const famPts = {};
     let fail = false;
-    for (const tr of trees) {
+    const spot = (tr) => {
       let bp = null;
       const occList = [...occ.keys()].map((k) => k.split(",").map(Number));
       const qs = occList.map((p) => p[0]), rs = occList.map((p) => p[1]);
       const q0 = occList.length ? Math.min(...qs) - 8 : 0, q1 = occList.length ? Math.max(...qs) + 8 : 0, r0 = occList.length ? Math.min(...rs) - 8 : 0, r1 = occList.length ? Math.max(...rs) + 8 : 0;
+      // ingombro e centro delle caselle già occupate, calcolati una volta sola
+      let ox0 = Infinity, ox1 = -Infinity, oy0 = Infinity, oy1 = -Infinity, ax = 0, ay = 0;
+      for (const p of occList) { const [x, y] = hexXY(...p); ox0 = Math.min(ox0, x); ox1 = Math.max(ox1, x); oy0 = Math.min(oy0, y); oy1 = Math.max(oy1, y); ax += x; ay += y; }
+      if (occList.length) { ax /= occList.length; ay /= occList.length; }
+      const fp = famPts[tr.fam], compactTab = TREE_COMPACT.includes(actTab);
       for (let k = 0; k < 6; k++) {
         const cells = Object.entries(tr.cell).map(([id, c]) => [id, rot(c, k)]);
+        let cx0 = Infinity, cx1 = -Infinity, cy0 = Infinity, cy1 = -Infinity;
+        for (const [, c] of cells) { const [x, y] = hexXY(...c); cx0 = Math.min(cx0, x); cx1 = Math.max(cx1, x); cy0 = Math.min(cy0, y); cy1 = Math.max(cy1, y); }
         for (let dq = q0; dq <= q1; dq++) for (let dr = r0; dr <= r1; dr++) {
           let bad = false;
           for (const [, [q, r]] of cells) { const Q = q + dq, R = r + dr; if (occ.has(Q + "," + R)) { bad = true; break; } for (const [a, b] of NB) if (occ.has((Q + a) + "," + (R + b))) { bad = true; break; } if (bad) break; }
           if (bad) continue;
-          // misura: grandezza delle icone con questa aggiunta, e vicinanza agli alberi dello stesso colore
-          const all = occList.concat(cells.map(([, [q, r]]) => [q + dq, r + dr])).map(([q, r]) => hexXY(q, r));
-          const xs = all.map((p) => p[0]), ys = all.map((p) => p[1]), W = Math.max(...xs) - Math.min(...xs), H = Math.max(...ys) - Math.min(...ys);
+          const [tx, ty] = hexXY(dq, dr);
+          const W = Math.max(ox1, cx1 + tx) - Math.min(ox0, cx0 + tx), H = Math.max(oy1, cy1 + ty) - Math.min(oy0, cy0 + ty);
           const sc = Math.min(bw / (W + 2 * pad), bh / (H + 2 * pad));
-          let near = 0; const fp = famPts[tr.fam];
-          if (fp && fp.length) { const [cx, cy] = hexXY(dq, dr); near = Math.min(...fp.map(([x, y]) => Math.hypot(x - cx, y - cy))) / (HS * 40); }
-          const score = sc - near * sc * 0.15;
+          // vicino agli alberi dello stesso colore; nelle schede da compattare anche verso il centro
+          const near = fp && fp.length ? Math.min(...fp.map(([x, y]) => Math.hypot(x - tx, y - ty))) / (HS * 40) : 0;
+          const mid = compactTab && occList.length ? Math.hypot(tx - ax, ty - ay) / (HS * 40) : 0;
+          const score = sc - near * sc * 0.15 - mid * sc * 0.12;
           if (!bp || score > bp.score) bp = { score, k, dq, dr, cells };
         }
       }
-      if (!bp) { fail = true; break; }
-      for (const [id, [q, r]] of bp.cells) { const Q = q + bp.dq, R = r + bp.dr; occ.set(Q + "," + R, tr.fam); placed[id] = [Q, R]; (famPts[tr.fam] || (famPts[tr.fam] = [])).push(hexXY(Q, R)); }
+      return bp;
+    };
+    const put = (tr, bp) => { tr.at = []; for (const [id, [q, r]] of bp.cells) { const Q = q + bp.dq, R = r + bp.dr; occ.set(Q + "," + R, tr.fam); placed[id] = [Q, R]; tr.at.push(Q + "," + R); } rebuildFam(); };
+    const rebuildFam = () => { for (const k in famPts) delete famPts[k]; for (const [k, f] of occ) (famPts[f] || (famPts[f] = [])).push(hexXY(...k.split(",").map(Number))); };
+    for (const tr of trees) { const bp = spot(tr); if (!bp) { fail = true; break; } put(tr, bp); }
+    // passaggi finali: ogni albero si toglie e si rimette nel posto migliore, così l'insieme si stringe (14 novembre 2026)
+    if (!fail && TREE_COMPACT.includes(actTab)) for (let pass = 0; pass < 2; pass++) for (const tr of trees) {
+      for (const k of tr.at) occ.delete(k); rebuildFam();
+      const bp = spot(tr); if (bp) put(tr, bp); else { for (const k of tr.at) occ.set(k, tr.fam); rebuildFam(); }
     }
     if (fail) continue;
     const SP = 1.14; // più spazio tra le caselle: le icone vicine non si toccano
@@ -8060,10 +8084,17 @@ function layoutStrict(list) {
   return { pos, W: best.W, H: best.H };
 }
 // disposizione scelta per ogni scheda (approvata da Guido il 14 novembre 2026)
-const TREE_TAB_MODE = { welfare: "rect", societa: "rect", clima: "forest", sicurezza: "forest", genetica: "forest", energia: "strict", economia: "strict", tecnologia: "strict" };
+const TREE_COMPACT = ["welfare", "clima", "sicurezza"];
+const TREE_PRE = {"economia|fiscalPlan,growthPlan,laborPlan,invest,austerity,debtBrake,debtRestr,develop,singleMarket,antitrust,socialPact,spendReview,machineContrib,inheritTax,popShares,sez,ppp,trainVouchers,startupLoans,priceControl,stateChampions,shortWeek,coops,budgetOffice,socWealth,privat":{"pos":{"growthPlan":[40.4,23.3],"invest":[40.4,69.9],"antitrust":[80.7,46.6],"popShares":[80.7,46.6],"stateChampions":[80.7,46.6],"sez":[0,0],"ppp":[80.7,0],"startupLoans":[0,46.6],"develop":[0,93.2],"singleMarket":[80.7,93.2],"fiscalPlan":[161.4,46.6],"austerity":[201.8,69.9],"spendReview":[201.8,23.3],"budgetOffice":[201.8,23.3],"socWealth":[201.8,23.3],"privat":[201.8,23.3],"inheritTax":[161.4,0],"debtBrake":[242.1,46.6],"debtRestr":[282.5,23.3],"laborPlan":[282.5,116.5],"socialPact":[242.1,139.8],"trainVouchers":[242.1,139.8],"priceControl":[242.1,139.8],"shortWeek":[242.1,139.8],"coops":[322.8,93.2],"machineContrib":[161.4,139.8]},"W":322.8,"H":139.8},"welfare|retire,contrib,migration,pensionFloor,childcare,healthBrake,ticketEx,ticketAll,pubPensionFund,charity,privHealth,healthAccounts,jobGuarantee,lifelong,actuarial,pubDrugs":{"pos":{"contrib":[40.4,46.6],"retire":[0,23.3],"pensionFloor":[0,69.9],"actuarial":[0,69.9],"pubPensionFund":[40.4,93.2],"healthBrake":[121.1,46.6],"privHealth":[121.1,46.6],"ticketEx":[161.4,23.3],"healthAccounts":[161.4,23.3],"pubDrugs":[121.1,93.2],"ticketAll":[121.1,0],"migration":[201.8,93.2],"childcare":[242.1,23.3],"charity":[242.1,23.3],"jobGuarantee":[242.1,23.3],"lifelong":[242.1,23.3]},"W":242.1,"H":93.2},"societa|transparency,anticorr,assemblies,education,freePress,massHousing,schoolVoucher,patrioticEdu,civicPlus,sciCouncil":{"pos":{"transparency":[80.7,23.3],"anticorr":[121.1,46.6],"assemblies":[121.1,0],"education":[201.8,46.6],"sciCouncil":[201.8,0],"freePress":[0,23.3],"massHousing":[0,23.3],"schoolVoucher":[0,23.3],"patrioticEdu":[0,23.3],"civicPlus":[0,23.3]},"W":201.8,"H":46.6},"economia|fiscalPlan,growthPlan,laborPlan,centralBank,invest,austerity,debtBrake,cutStaff,cutSubsidies,cutDefense,cutServices,automation,robots,robotTax,sovFund,retrain,ubi,ubiMid,ubiPlus,debtRestr,develop,taxRaise,wealthTax,taxEvasion,eInvoice,dataMatch,cashless,receiptLottery,creditRules,taxHavens,amnesty,unempBenefit,minWage,publicJobs,tariffs,singleMarket,antitrust,socialPact,spendReview,machineContrib,inheritTax,popShares,sez,ppp,trainVouchers,startupLoans,priceControl,stateChampions,shortWeek,coops,budgetOffice,socWealth,privat":{"pos":{"fiscalPlan":[121.1,116.5],"taxEvasion":[80.7,93.2],"austerity":[161.4,93.2],"creditRules":[121.1,163.1],"spendReview":[161.4,139.8],"budgetOffice":[161.4,139.8],"socWealth":[161.4,139.8],"privat":[161.4,139.8],"inheritTax":[121.1,69.9],"eInvoice":[80.7,46.6],"dataMatch":[40.4,69.9],"taxRaise":[80.7,139.8],"cashless":[121.1,23.3],"receiptLottery":[80.7,0],"taxHavens":[40.4,23.3],"amnesty":[0,93.2],"wealthTax":[80.7,186.4],"debtBrake":[201.8,69.9],"cutStaff":[201.8,116.5],"cutSubsidies":[161.4,46.6],"debtRestr":[242.1,93.2],"cutServices":[201.8,163.1],"cutDefense":[161.4,0],"growthPlan":[363.2,116.5],"invest":[403.6,93.2],"antitrust":[322.8,93.2],"popShares":[322.8,93.2],"stateChampions":[322.8,93.2],"sez":[403.6,139.8],"ppp":[363.2,163.1],"startupLoans":[322.8,139.8],"automation":[403.6,46.6],"develop":[443.9,69.9],"singleMarket":[363.2,69.9],"robots":[363.2,23.3],"retrain":[403.6,0],"machineContrib":[443.9,23.3],"robotTax":[322.8,46.6],"sovFund":[282.5,23.3],"laborPlan":[524.6,209.7],"unempBenefit":[484.3,186.4],"tariffs":[565,186.4],"socialPact":[524.6,256.3],"trainVouchers":[524.6,256.3],"priceControl":[524.6,256.3],"shortWeek":[524.6,256.3],"coops":[484.3,233],"ubi":[484.3,139.8],"minWage":[524.6,163.1],"publicJobs":[443.9,209.7],"ubiMid":[524.6,116.5],"ubiPlus":[565,93.2],"centralBank":[0,186.4]},"W":565,"H":256.3},"welfare|childIncome,retire,contrib,natality,family,migration,integration,healthyAging,housing,parentalLeave,ivf,pensionFunds,pensionTax,birthDowry,pensionIndex,healthcare,pensionFloor,childcare,healthBrake,ticketEx,ticketAll,pubPensionFund,charity,privHealth,healthAccounts,jobGuarantee,lifelong,actuarial,pubDrugs":{"pos":{"contrib":[40.4,93.2],"retire":[40.4,139.8],"pensionFunds":[80.7,116.5],"pensionFloor":[0,69.9],"actuarial":[0,69.9],"pubPensionFund":[0,116.5],"healthyAging":[80.7,163.1],"pensionIndex":[0,163.1],"pensionTax":[80.7,69.9],"birthDowry":[121.1,139.8],"housing":[201.8,139.8],"family":[242.1,116.5],"ivf":[242.1,163.1],"childcare":[201.8,93.2],"charity":[201.8,93.2],"natality":[282.5,139.8],"parentalLeave":[242.1,69.9],"healthcare":[322.8,69.9],"healthBrake":[363.2,46.6],"ticketEx":[403.6,69.9],"pubDrugs":[322.8,23.3],"ticketAll":[403.6,23.3],"migration":[161.4,23.3],"integration":[121.1,0],"privHealth":[363.2,139.8],"jobGuarantee":[363.2,139.8],"lifelong":[363.2,139.8],"healthAccounts":[403.6,163.1],"childIncome":[40.4,0]},"W":403.6,"H":163.1},"societa|transparency,anticorr,eProcure,assetsPublic,whistle,fastCourts,civilPay,assemblies,disinfo,education,teacherEval,university,research,socialHousing,civicService,freePress,massHousing,schoolVoucher,patrioticEdu,civicPlus,sciCouncil":{"pos":{"transparency":[282.5,46.6],"anticorr":[242.1,23.3],"eProcure":[322.8,69.9],"assemblies":[242.1,69.9],"assetsPublic":[282.5,0],"disinfo":[322.8,23.3],"whistle":[201.8,0],"fastCourts":[201.8,46.6],"civilPay":[322.8,116.5],"civicService":[282.5,93.2],"education":[121.1,93.2],"university":[121.1,46.6],"teacherEval":[80.7,116.5],"sciCouncil":[161.4,116.5],"research":[121.1,0],"socialHousing":[40.4,0],"freePress":[0,69.9],"massHousing":[0,69.9],"schoolVoucher":[0,69.9],"patrioticEdu":[0,69.9],"civicPlus":[0,69.9]},"W":322.8,"H":116.5},"energia|fossilPlan,renewPlan,fossilSub,carbonTax,renew,renew2,renew3,wind,wind2,wind3,localBenefits,hydro,geoConv,rooftop,geoResearch,geothermal,geothermal2,geothermal3,grid,efficiency,nuclear,nuclear2,nuclear3,nucInfo,nucAgency,nucPrivate,nucPrivate2,nucPrivate3,smr,priceCap,evCars,energyComm,socTariff,ets,stateEnergy,greenJobs,worldGrid":{"pos":{"renewPlan":[403.6,93.2],"renew":[363.2,69.9],"geoConv":[403.6,139.8],"wind":[443.9,69.9],"hydro":[363.2,116.5],"energyComm":[403.6,46.6],"stateEnergy":[403.6,46.6],"greenJobs":[403.6,46.6],"worldGrid":[403.6,46.6],"renew2":[322.8,93.2],"grid":[363.2,23.3],"rooftop":[322.8,46.6],"renew3":[322.8,139.8],"evCars":[403.6,0],"geoResearch":[443.9,163.1],"geothermal":[484.3,186.4],"geothermal2":[484.3,139.8],"geothermal3":[484.3,93.2],"wind2":[443.9,23.3],"localBenefits":[443.9,116.5],"wind3":[484.3,0],"fossilPlan":[242.1,46.6],"fossilSub":[201.8,69.9],"carbonTax":[242.1,93.2],"socTariff":[242.1,0],"ets":[242.1,0],"priceCap":[201.8,23.3],"efficiency":[201.8,116.5],"nucInfo":[80.7,186.4],"nuclear":[121.1,163.1],"nucAgency":[40.4,209.7],"nuclear2":[161.4,186.4],"smr":[121.1,116.5],"nuclear3":[121.1,209.7],"nucPrivate":[40.4,163.1],"nucPrivate2":[40.4,116.5],"nucPrivate3":[0,139.8]},"W":484.3,"H":209.7},"clima|carbonLaw,adapt,agri,reforest,dac,dac2,stratoPlanes,geoeng,foodReserve,forestProtect,climCourt,justTransition,carbonPrize,forcedRelocation,qualityAgri,sciGeo":{"pos":{"adapt":[121.1,69.9],"agri":[121.1,23.3],"climCourt":[121.1,116.5],"justTransition":[121.1,116.5],"forcedRelocation":[121.1,116.5],"qualityAgri":[121.1,116.5],"foodReserve":[80.7,0],"dac":[0,46.6],"carbonLaw":[0,0],"dac2":[0,93.2],"carbonPrize":[40.4,69.9],"stratoPlanes":[201.8,69.9],"geoeng":[201.8,116.5],"sciGeo":[242.1,93.2],"reforest":[242.1,0],"forestProtect":[282.5,23.3]},"W":282.5,"H":116.5},"sicurezza|authArmy,police,surveil,vaccines,labRules,amr,arms,fissile,mediation,cyber,massSurveil,armsInspect,volSurveil,territorialMed,catInsurance,militaryQuarantine,civilProt,bsl4,redTeam":{"pos":{"surveil":[40.4,116.5],"vaccines":[80.7,139.8],"cyber":[40.4,69.9],"territorialMed":[0,139.8],"militaryQuarantine":[0,139.8],"labRules":[161.4,93.2],"amr":[121.1,69.9],"bsl4":[161.4,139.8],"redTeam":[201.8,116.5],"volSurveil":[322.8,46.6],"mediation":[161.4,0],"fissile":[201.8,23.3],"arms":[242.1,46.6],"police":[282.5,116.5],"massSurveil":[322.8,139.8],"catInsurance":[322.8,139.8],"civilProt":[322.8,139.8],"authArmy":[80.7,0],"armsInspect":[0,0]},"W":322.8,"H":139.8},"energia|fossilPlan,renewPlan,fossilSub,carbonTax,renew,renew2,renew3,wind,wind2,wind3,localBenefits,hydro,geoConv,rooftop,geoResearch,geothermal,geothermal2,geothermal3,superhotRock,grid,efficiency,nuclear,nuclear2,nuclear3,nucInfo,nucAgency,nucPrivate,nucPrivate2,nucPrivate3,fusionResearch,smr,fusion,fusion2,priceCap,evCars,energyComm,socTariff,ets,stateEnergy,greenJobs,worldGrid":{"pos":{"renewPlan":[363.2,93.2],"renew":[322.8,69.9],"geoConv":[363.2,139.8],"wind":[403.6,69.9],"hydro":[322.8,116.5],"energyComm":[363.2,46.6],"stateEnergy":[363.2,46.6],"greenJobs":[363.2,46.6],"worldGrid":[363.2,46.6],"renew2":[282.5,93.2],"grid":[322.8,23.3],"rooftop":[282.5,46.6],"renew3":[282.5,139.8],"evCars":[363.2,0],"geoResearch":[403.6,163.1],"geothermal":[443.9,186.4],"geothermal2":[443.9,139.8],"superhotRock":[403.6,209.7],"geothermal3":[443.9,93.2],"wind2":[443.9,46.6],"localBenefits":[403.6,116.5],"wind3":[484.3,69.9],"fossilPlan":[201.8,46.6],"fossilSub":[161.4,69.9],"carbonTax":[201.8,93.2],"socTariff":[201.8,0],"ets":[201.8,0],"priceCap":[161.4,23.3],"efficiency":[161.4,116.5],"nucInfo":[80.7,116.5],"nuclear":[40.4,93.2],"nucAgency":[80.7,163.1],"nuclear2":[40.4,46.6],"smr":[80.7,69.9],"nuclear3":[40.4,0],"nucPrivate":[40.4,186.4],"nucPrivate2":[0,209.7],"nucPrivate3":[0,163.1],"fusionResearch":[161.4,209.7],"fusion":[201.8,186.4],"fusion2":[242.1,209.7]},"W":484.3,"H":209.7},"economia|fiscalPlan,growthPlan,laborPlan,centralBank,invest,austerity,debtBrake,cutStaff,cutSubsidies,cutDefense,cutServices,automation,robots,massRobots,robotTax,sovFund,retrain,ubi,ubiMid,ubiPlus,debtRestr,develop,taxRaise,wealthTax,taxEvasion,eInvoice,dataMatch,cashless,receiptLottery,creditRules,taxHavens,amnesty,unempBenefit,minWage,publicJobs,tariffs,singleMarket,antitrust,socialPact,spendReview,machineContrib,inheritTax,popShares,sez,ppp,trainVouchers,startupLoans,priceControl,stateChampions,shortWeek,coops,budgetOffice,socWealth,privat":{"pos":{"fiscalPlan":[282.5,116.5],"taxEvasion":[322.8,93.2],"austerity":[242.1,139.8],"creditRules":[242.1,93.2],"spendReview":[282.5,163.1],"budgetOffice":[282.5,163.1],"socWealth":[282.5,163.1],"privat":[282.5,163.1],"inheritTax":[322.8,139.8],"eInvoice":[363.2,69.9],"dataMatch":[322.8,46.6],"taxRaise":[282.5,69.9],"cashless":[403.6,46.6],"receiptLottery":[403.6,93.2],"taxHavens":[322.8,0],"amnesty":[282.5,23.3],"wealthTax":[242.1,46.6],"debtBrake":[242.1,186.4],"cutStaff":[201.8,116.5],"cutSubsidies":[201.8,163.1],"debtRestr":[201.8,209.7],"cutServices":[161.4,93.2],"cutDefense":[161.4,139.8],"growthPlan":[40.4,163.1],"invest":[40.4,116.5],"antitrust":[80.7,186.4],"popShares":[80.7,186.4],"stateChampions":[80.7,186.4],"sez":[80.7,139.8],"ppp":[0,186.4],"startupLoans":[0,139.8],"automation":[40.4,69.9],"develop":[0,93.2],"singleMarket":[80.7,93.2],"robots":[40.4,23.3],"retrain":[80.7,46.6],"machineContrib":[0,46.6],"robotTax":[80.7,0],"massRobots":[0,0],"sovFund":[121.1,23.3],"laborPlan":[484.3,139.8],"unempBenefit":[524.6,163.1],"tariffs":[443.9,163.1],"socialPact":[524.6,116.5],"trainVouchers":[524.6,116.5],"priceControl":[524.6,116.5],"shortWeek":[524.6,116.5],"coops":[484.3,93.2],"ubi":[524.6,209.7],"minWage":[565,139.8],"publicJobs":[484.3,186.4],"ubiMid":[565,233],"ubiPlus":[565,186.4],"centralBank":[322.8,233]},"W":565,"H":233},"tecnologia|aiCap,aiOpen,aiPublic,aiReg,align,align2,align3,algoTransp,aiRace,aiLiability,stateAI,assistTech,aiSafetyProg,qCrypto,qComp,qIndustry,qAI,launch,orbital,pdefWatch,pdef,moon,moonFast,lunarSci,lunarArchive,lunarIce,lunarCity,lunarMining,he3":{"pos":{"aiCap":[282.5,46.6],"aiOpen":[322.8,69.9],"aiPublic":[242.1,23.3],"aiRace":[282.5,0],"stateAI":[282.5,0],"assistTech":[282.5,0],"aiLiability":[322.8,23.3],"aiReg":[161.4,69.9],"align":[161.4,23.3],"algoTransp":[201.8,93.2],"align2":[121.1,0],"align3":[121.1,46.6],"qComp":[40.4,46.6],"qIndustry":[0,23.3],"qCrypto":[40.4,93.2],"qAI":[40.4,0],"aiSafetyProg":[121.1,139.8],"launch":[363.2,139.8],"moon":[403.6,116.5],"orbital":[322.8,163.1],"moonFast":[363.2,186.4],"lunarIce":[443.9,93.2],"lunarSci":[403.6,163.1],"lunarArchive":[443.9,139.8],"lunarMining":[443.9,46.6],"he3":[403.6,23.3],"lunarCity":[403.6,209.7],"pdefWatch":[282.5,186.4],"pdef":[242.1,209.7]},"W":443.9,"H":209.7},"genetica|ethicsCom,pubGene,patentShort,stateGene,geneProtocol,phage,cellAg,plasticBugs,bioprint,screening,rareTherapy,somaticEdit,gmCrops,agingResearch,embryoEdit,geneDrive,dnaControl,aiBio":{"pos":{"screening":[121.1,23.3],"rareTherapy":[80.7,46.6],"phage":[161.4,0],"embryoEdit":[161.4,46.6],"ethicsCom":[80.7,0],"pubGene":[80.7,0],"patentShort":[80.7,0],"stateGene":[80.7,0],"geneProtocol":[80.7,0],"somaticEdit":[40.4,69.9],"bioprint":[121.1,69.9],"agingResearch":[0,93.2],"gmCrops":[242.1,46.6],"cellAg":[282.5,69.9],"plasticBugs":[282.5,23.3],"geneDrive":[242.1,0],"dnaControl":[0,0],"aiBio":[201.8,116.5]},"W":282.5,"H":116.5}};
+const TREE_TAB_MODE = { welfare: "strict", societa: "strict", clima: "strict", sicurezza: "strict", genetica: "strict", energia: "strict", economia: "strict", tecnologia: "strict" }; // tutte a rami dritti: linee tutte uguali (14 novembre 2026)
 function layoutTree(list) {
   const mode = TREE_MODE === "tab" ? TREE_TAB_MODE[actTab] || "forest" : TREE_MODE;
-  if (mode === "strict") { const key = "S" + list.map((d) => d.id).join() + "|" + (($("tree") && $("tree").clientWidth) || 0); if (!layoutCache[key]) layoutCache[key] = layoutStrict(list); if (layoutCache[key]) return layoutCache[key]; }
+  if (mode === "strict") {
+    // posizioni calcolate prima, quando si prepara il gioco (tools/tree-layouts.js): sul telefono compaiono subito
+    const pk = actTab + "|" + list.map((d) => d.id).join();
+    if (TREE_PRE && TREE_PRE[pk]) return TREE_PRE[pk];
+    const key = "S" + list.map((d) => d.id).join() + "|" + (($("tree") && $("tree").clientWidth) || 0); if (!layoutCache[key]) layoutCache[key] = layoutStrict(list); if (layoutCache[key]) return layoutCache[key];
+  }
   if (mode === "rect") { const key = "R" + list.map((d) => d.id).join() + "|" + (($("tree") && $("tree").clientWidth) || 0); return layoutCache[key] || (layoutCache[key] = layoutRect(list)); }
   const key = list.map((d) => d.id).join() + "|" + (($("tree") && $("tree").clientWidth) || 0);
   if (layoutCache[key]) return layoutCache[key];
@@ -8328,12 +8359,14 @@ function renderBank(d, I) {
       ${auto ? `<div class="bank"><button type="button" class="buy alt" id="tDown" aria-label="${tr("Obiettivo più basso")}">−</button><div><b>${fmt(G.autoT, 1)}%</b><small>${tr("inflazione voluta")}</small></div><button type="button" class="buy alt" id="tUp" aria-label="${tr("Obiettivo più alto")}">+</button></div>
       <p class="why">${tr("La banca centrale cambia il tasso da sola per tenere l'inflazione al valore voluto. È comodo, ma non guarda crescita e debiti: a volte un tasso scelto a mano funziona meglio.")}</p>
       ${G.autoT > 6 ? `<p class="why" style="color:#f0c27a">${tr("Inflazione alta: i debiti (anche quello dell'Autorità) pesano meno ogni anno, ma risparmi e stipendi perdono valore. Oltre il 5% l'economia frena e la gente si arrabbia sempre di più; sopra il 20-30% è una crisi seria.")}</p>` : ""}` : ""}
+      <div class="bank"><button type="button" class="buy alt" id="cDown" aria-label="${tr("Tetto più basso")}">−</button><div><b>${G.capRate == null ? tr("spento") : fmt(G.capRate, 0) + "%"}</b><small>${tr("tetto ai tassi dell'Autorità")}</small></div><button type="button" class="buy alt" id="cUp" aria-label="${tr("Tetto più alto")}">+</button></div>
+      <p class="why">${G.capRate == null ? tr("Se scegli un tetto, quando i mercati chiedono all'Autorità un tasso più alto la banca centrale ricompra i suoi titoli: gli interessi restano al tetto, ma l'inflazione sale. Oggi i mercati chiedono {m}%.", { m: fmt(authMarket(st), 1) }) : tr("Oggi i mercati chiedono {m}%: l'Autorità paga {r}%{x}.", { m: fmt(authMarket(st), 1), r: fmt(authRate(st), 1), x: capPush(st) > 0.05 ? tr(", e la banca che ricompra i titoli spinge l'inflazione di {p} punti", { p: fmt(capPush(st), 1) }) : "" })}</p>
       <div class="bankprev" id="bankPrev"><small>${tr("Calcolo dell'effetto…")}</small></div>
       <p class="why" style="margin-top:4px">${tr("Fra un anno il saldo è diverso da oggi anche senza cambiare nulla: le entrate crescono con l'economia e con i prezzi.")}</p>
       <div class="imeters" id="indRows">${I.map((i) => indRow(i, 0)).join("")}</div>
       <p class="pro"><b>${tr("Alzare.")}</b> ${tr("L'inflazione scende, ma crescita e lavoro rallentano.")}</p>
       <p class="con"><b>${tr("Abbassare.")}</b> ${tr("Più crescita e lavoro, ma l'inflazione sale; se resta alta per anni è sempre più difficile farla scendere.")}</p>
-      <p class="why">${tr("Inflazione voluta più alta (fino all'8%): per qualche anno il peso dei debiti vecchi si alleggerisce, perché le entrate crescono con i prezzi e i tassi si adeguano solo piano. Ma il carovita fa arrabbiare (ogni punto sopra il 4% aggiunge malcontento), i risparmiatori perdono e poi i tassi a lungo termine salgono. Nel mondo c'è una sola moneta: un'inflazione più alta non aiuta le esportazioni.")}</p>
+      <p class="why">${tr("Inflazione voluta più alta: per qualche anno il peso dei debiti vecchi si alleggerisce, perché le entrate crescono con i prezzi e i tassi si adeguano solo piano. Ma il carovita fa arrabbiare (ogni punto sopra il 4% aggiunge malcontento), i risparmiatori perdono e poi i tassi a lungo termine salgono. Nel mondo c'è una sola moneta: un'inflazione più alta non aiuta le esportazioni.")}</p>
       <p class="why">${tr("Il tasso a lungo termine{i}, che pesa sui debiti degli stati, non si sceglie: oggi è {r}%. È la media dei tassi a breve attesi negli anni (inflazione attesa {a}% più il tasso naturale {n}%, che sale con la crescita e scende con l'invecchiamento) più un premio per il rischio di {p} punti, che sale con il debito mondiale, la tensione tra le potenze e il debito dell'Autorità.", { i: infoBtn("longR"), r: fmt(G.longR, 1), a: fmt(G.anchor, 1), n: fmt(G.rstar ?? 0.5, 1), p: fmt(G.prem ?? 0.5, 1) })}</p>
     </div>`;
   setTimeout(() => {
@@ -8347,6 +8380,9 @@ function renderBank(d, I) {
   $("rDown").onclick = () => { G.autoT = null; G.rateT = clampRate(Math.round(G.rateT * 2) / 2 - 0.5); renderBank(d, I); };
   $("rUp").onclick = () => { G.autoT = null; G.rateT = clampRate(Math.round(G.rateT * 2) / 2 + 0.5); renderBank(d, I); };
   $("rAuto").onclick = () => { G.autoT = auto ? null : 3; renderBank(d, I); };
+  // tetto ai tassi dell'Autorità (14 novembre 2026, scelta di Guido): spento, oppure da 3% a 15%
+  $("cDown").onclick = () => { G.capRate = G.capRate == null ? 15 : Math.max(3, G.capRate - 1); renderBank(d, I); };
+  $("cUp").onclick = () => { G.capRate = G.capRate == null ? null : G.capRate >= 15 ? null : G.capRate + 1; renderBank(d, I); };
   if (auto) { $("tDown").onclick = () => { G.autoT = Math.max(0, G.autoT - (G.autoT > 10 ? 2 : 0.5)); renderBank(d, I); }; $("tUp").onclick = () => { G.autoT = Math.min(60, G.autoT + (G.autoT >= 10 ? 2 : 0.5)); renderBank(d, I); }; } // nessun tetto all'8%: si può scegliere un'inflazione alta, come nella realtà (13 novembre 2026)
 }
 /* stima dell'effetto: si simula il mondo per qualche anno con e senza l'intervento (senza eventi né catastrofi).
