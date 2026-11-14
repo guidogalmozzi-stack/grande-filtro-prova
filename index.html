@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
-<script>window.GF_BUILD = "mwh03r0u"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
+<script>window.GF_BUILD = "mwh1zt2k"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
 <style>html{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);background:#0f1d29;color-scheme:dark}body{margin:0;font-family:system-ui,-apple-system,sans-serif;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -102,10 +102,14 @@ button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); o
 .chip { background: rgba(21,38,52,.93); border: 1px solid var(--line); border-radius: 8px; padding: 5px 9px; display: flex; flex-direction: column; line-height: 1.1; }
 .chip .k { font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
 .chip .v { font-family: var(--font-m); font-variant-numeric: tabular-nums; font-size: 13px; white-space: nowrap; }
+button.chip { font: inherit; color: inherit; text-align: left; cursor: pointer; }
+.chip.infl.mid { border-color: #c9a24a; } .chip.infl.mid .v { color: #f0c27a; }
+.chip.infl.hi { border-color: #d65b4a; background: rgba(90,24,18,.93); } .chip.infl.hi .v { color: #ffb4a6; }
+.inflnow { font-size: 15px; margin: 6px 0 10px; } .inflnow small { font-size: 12px; color: var(--muted); }
 .chip .v small { font-size: 11.5px; color: var(--muted); }
 .chip.doom { border-color: #d65b4a; background: rgba(90,24,18,.93); animation: doom 1.6s ease-in-out infinite; } .chip.doom .k { color: #f0a597; } .chip.doom .v { color: #ffd2c8; }
 @keyframes doom { 50% { box-shadow: 0 0 0 4px rgba(214,91,74,.35); } }
-.tl { top: max(8px, env(safe-area-inset-top, 0px)); left: var(--gl); flex-wrap: wrap; max-width: 58%; }
+.tl { top: max(8px, env(safe-area-inset-top, 0px)); left: var(--gl); flex-wrap: wrap; max-width: 68%; }
 .tr { top: max(8px, env(safe-area-inset-top, 0px)); right: var(--gr); }
 .datebox { background: rgba(21,38,52,.93); border: 1px solid var(--line); border-radius: 8px; padding: 4px 6px 4px 12px; display: flex; align-items: center; gap: 8px; }
 .datebox .d { font-family: var(--font-d); font-weight: 600; font-size: 21px; letter-spacing: .04em; min-width: 82px; }
@@ -537,7 +541,7 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
 .compact .opbox .funds .v { font-size: 15px; } .compact .opbox button, .compact .worldbtn { font-size: 15px; } .compact .worldbtn { padding: 8px 12px; }
 .compact .regstrip { padding: 4px 8px; } .compact .regstrip .nm { font-size: 15px; }
 .compact .tabs button { font-size: 15px; padding: 5px 8px; }
-.narrow .tl { max-width: 52%; }
+.narrow .tl { max-width: 62%; }
 .sound { background: rgba(21,38,52,.93); border: 1px solid var(--line); border-radius: 8px; width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; color: var(--muted); padding: 0; }
 .sound svg { width: 18px; height: 18px; }
 .sound[aria-pressed="true"] { color: var(--accent); }
@@ -742,9 +746,10 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
     <div class="hud tl">
       <button type="button" class="sound" id="bPause" aria-label="Menu della partita"><svg viewBox="0 0 16 16"><path d="M3 4h10M3 8h10M3 12h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
       <button type="button" class="sound" data-sound data-dyn aria-label="Musica" aria-pressed="true"></button>
-      <div class="chip"><span class="k">Stabilità mondiale</span><span class="v" id="sWorld" data-dyn>45 <small>obiettivo 52</small></span></div>
+      <div class="chip"><span class="k">Stabilità</span><span class="v" id="sWorld" data-dyn>45 <small>obiettivo 52</small></span></div>
       <div class="chip"><span class="k">Anni stabili</span><span class="v" id="sStable" data-dyn>0 / 10</span></div>
       <div class="chip"><span class="k">Temperatura</span><span class="v" id="sTemp" data-dyn>+1,35 °C</span></div>
+      <button type="button" class="chip infl" id="cInfl" aria-label="Inflazione: apre la banca centrale"><span class="k">Inflazione</span><span class="v" id="sInfl" data-dyn>3,0%</span></button>
     </div>
     <div class="hud tr">
       <div class="datebox"><span class="d" id="sDate" data-dyn>gen 2026</span>
@@ -911,7 +916,7 @@ const DIFF = {
     /* reazione alle riforme per governo (14 novembre 2026, regola di Guido: a super difficile il giocatore attento deve vincere almeno
        1 volta e al massimo 3 su 30 con ogni governo). Un solo valore non basta: i governi sono di forza diversa (con 1,15 lo Stato
        sociale vinceva 12 volte, il Libero mercato mai). Tarata con 30 partite automatiche per governo negli scenari 5 e 6. */
-    backlashG: { base: 1.2, base_l6: 1.15, liberal: 1.22, liberal_l6: 1.2, central: 0.95, central_l6: 0.93, human: 1.22, market: 1.05, market_l6: 1.06, techno: 1.0, techno_l6: 0.9, social: 1.325, social_l6: 1.3 }, // ritarata il 14 novembre 2026 (partenza a circa 48, tetto ai tassi scelto dal giocatore)
+    backlashG: { base: 1.2, base_l6: 1.15, liberal: 1.22, liberal_l6: 1.2, central: 0.95, central_l6: 0.93, human: 1.22, market: 1.05, market_l6: 0.985, techno: 0.82, techno_l6: 0.69, social: 1.325, social_l6: 1.3 }, // ritarata il 14 novembre 2026 (partenza a circa 48, tetto ai tassi scelto dal giocatore)
     /* a super difficile i dati reali meno favorevoli invece di quelli medi (9 novembre 2026, scelta di Guido):
        austKeep = parte dei tagli del piano di rientro che resta (in media meno della metà dopo 5-10 anni), fatigue = quanto se ne
        perde ogni anno per stanchezza fiscale (Ghosh e altri 2013), brakeK = forza della regola di bilancio (in media +0,6 punti,
@@ -1331,9 +1336,14 @@ const INTERVENTIONS = [
      Più il debito supera il 60% del prodotto, più la correzione è forte (fino a 1,8 punti l'anno); un po' meno crescita e un po'
      di malcontento per i tagli, ma molto meno di un piano di rientro imposto dai mercati. */
   { id: "debtBrake", cat: "economia", name: "Regola di bilancio", desc: "Una legge obbliga ogni governo a correggere il deficit quando il debito è alto; un consiglio indipendente controlla i conti e lo dice pubblicamente.", scope: "region", cost: 3, T: 2, revocable: true, toggle: "Sospendi la regola",
-    pro: "Il debito smette di salire e poi scende, anno dopo anno, senza aspettare le crisi: più è alto, più la correzione è forte", con: "Meno spesa e un po' più di tasse quando il debito è alto: crescita un po' più lenta e qualche protesta",
+    pro: "Il debito smette di salire e poi scende, senza aspettare le crisi: finché il debito sale, la correzione si stringe un po' ogni anno", con: "Meno spesa e un po' più di tasse quando il debito è alto: crescita un po' più lenta e qualche protesta",
     fx: (m, s, r, st) => { if (st.D.brakeSusp && st.year - (st.recY || -99) < 2) return; // sospesa nelle recessioni mondiali (super difficile)
-      const k = clamp((r.debt - 60) * 0.025, 0, 1.8) * s * (st.D.brakeK || 1); m.debtF -= k; m.g -= 0.06 * k; m.unrestT += 2 * k; } }, // ogni punto di tagli fa crescere le proteste [Probabile: Ponticelli e Voth 2011]
+      /* Regola che si adatta (15 novembre 2026, decisione di Guido): ogni anno in cui il debito sale ancora la correzione cresce di
+         mezzo punto, fino a 4; quando il debito scende o è sotto il 60% si allenta. [Probabile: freno al debito svizzero (deficit
+         strutturale a zero), patto europeo (+0,5 punti l'anno di correzione strutturale)]. Prima toglieva una quantità fissa
+         (al massimo 1,8 punti): nelle regioni con un buco più grande il debito saliva comunque. La correzione la calcola tick (r.brk). */
+      if (r.brk == null) r.brk = clamp((r.debt - 60) * 0.025, 0, 1.8);
+      const k = r.brk * s * (st.D.brakeK || 1); m.debtF -= k; m.g -= 0.06 * k; m.unrestT += 2 * k; } }, // ogni punto di tagli fa crescere le proteste [Probabile: Ponticelli e Voth 2011]
   /* Legge sulle emissioni delle imprese: una tassa che cresce ogni anno per tonnellata di CO₂; le imprese possono ridurla pagando
      la cattura con alberi artificiali. In circa 50 anni porta le emissioni a zero; finché la transizione non è fatta la crescita è
      più lenta e la tassa non compensa le entrate perse. */
@@ -2471,7 +2481,7 @@ function prodGrowth(r, st, m, gm) {
   r.lvlT = (1 - f) * 8 * (1 - Math.exp(-pos / 3)); // guadagno di livello che si raggiunge nelle regioni ricche, in %
   g += (r.lvlT - (r.lvlG || 0)) * LVL_SPEED; // la crescita in più mentre il livello sale (o in meno se si smette di pagare)
   g += (1 - f) * 0.6 * (1 - Math.exp(-Math.max(0, m.gF || 0) / 0.6));
-  g += Math.min(0, m.g) + gm.gAll + r.shockG;
+  g += Math.min(0, m.g) + (st && st.techG != null ? st.techG : gm.gAll) + r.shockG;
   g -= anarchyNear(st, r) * 0.5; // commerci interrotti con le regioni in anarchia
   // chi perde il lavoro e non ha un reddito smette di comprare: con tanta disoccupazione l'economia frena (crisi da mancanza
   // di domanda) [Probabile] (decisione del 25 ottobre 2026)
@@ -2829,7 +2839,7 @@ function stability(st) {
   const ePct = emissions(st) / st.E0 * 100;
   const ws = worldStab(st), minR = Math.min(...ctrl.map((r) => r.stab));
   return [
-    { id: "world", label: `Stabilità mondiale almeno ${st.L.win}`, ok: ws >= st.L.win, val: Math.round(ws) + " su 100" },
+    { id: "world", label: `Stabilità mondiale almeno ${st.L.win}`, ok: ws >= st.L.win - 0.5, val: Math.round(ws) + " su 100" },
     // nessuna regione fuori (anarchia o uscita con un voto): finché manca una regione gli anni stabili non contano (4 novembre 2026)
     { id: "all", label: "Tutte le regioni dentro l'Autorità", ok: rs.every((r) => r.controlled), val: rs.filter((r) => !r.controlled).length + " fuori" },
   ];
@@ -2958,7 +2968,7 @@ const authMarket = (st) => Math.max(1, st.g.longR) + authSpread(st); // il tasso
 // con il tetto della banca centrale l'Autorità non paga più del tetto: la differenza la copre la banca comprando i titoli
 const authRate = (st) => { const m = authMarket(st), cap = st.g && st.g.capRate; return cap != null && m > cap ? Math.max(cap, Math.max(1, st.g.longR)) : m; };
 // quanto spinge l'inflazione la banca che compra i titoli: in proporzione a quanto il tetto taglia il tasso e a quanto debito c'è
-const capPush = (st) => { const cap = st.g && st.g.capRate; if (cap == null) return 0; const cut = Math.max(0, authMarket(st) - Math.max(cap, st.g.longR)); return Math.min(30, 0.8 * cut * Math.min(4, debtRatio(st))); };
+const capPush = (st) => { const cap = st.g && st.g.capRate; if (cap == null) return 0; const cut = Math.max(0, authMarket(st) - Math.max(cap, st.g.longR)); return Math.min(300, 0.8 * cut * debtRatio(st)); }; // senza tetto (15 novembre 2026, decisione di Guido): più debito la banca ricompra, più l'inflazione sale; prima si fermava a 4 anni di entrate e +30 punti, e il debito poteva arrivare a 300 anni di entrate
 /* Il massimo avanzo possibile: le entrate con tutte le tasse e i tagli ancora disponibili, senza nessun programma da pagare.
    Se per tre anni di fila gli interessi lo superano, tornare in pareggio è impossibile: bancarotta. */
 function maxSurplus(st) {
@@ -3052,7 +3062,7 @@ const EVENTS = [
     p: () => 0,
     text: (st, r) => `I mercati non si fidano più dei conti di ${r.name}: il debito pubblico è al ${Math.round(r.debt)}% del prodotto e gli interessi salgono. ${r.debt >= 200 ? "A questo livello il debito non si può più ripagare per intero." : "Bisogna scegliere chi pagherà per farlo scendere."}${built(st, "debtBrake") || !available(st, IBY.debtBrake) ? "" : " Perché non torni a salire serve una correzione che duri: la Regola di bilancio (scheda Economia)."}`,
     choices: [
-      { ok: (st) => !(debtR(st) && debtR(st).debt >= 200), label: "Piano di rientro: tagli e tasse", cost: 0, out: "Deficit −3 punti l'anno per cinque anni, poi una parte dei tagli resta. Subito meno crescita e rabbia", fx: (st, r) => { r.austUntil = st.year + 5; r.austPerm = Math.min(3, (r.austPerm || 0) + (st.D.austKeep != null ? st.D.austKeep : 1.5)); r.shockU += 10; r.shockG -= 1.0; } },
+      { ok: (st) => !(debtR(st) && debtR(st).debt >= 200), label: "Piano di rientro: tagli e tasse", cost: 0, out: "Tagli forti per cinque anni, poi una parte resta per sempre. Subito meno crescita e rabbia", fx: (st, r) => { r.austUntil = st.year + 5; r.austPerm = Math.min(3, (r.austPerm || 0) + (st.D.austKeep != null ? st.D.austKeep : 1.5)); r.shockU += 10; r.shockG -= 1.0; } },
       { ok: (st) => debtR(st) && debtR(st).debt >= 200, label: "Ristrutturazione: taglio del debito", cost: 0, out: "Il debito scende al 90%; lo pagano i risparmiatori della regione e le banche del resto del mondo, e per qualche anno i tassi salgono per tutti", fx: (st, r) => cutDebt(st, r, 90, true) },
       { label: "Repressione finanziaria", cost: 0, out: "Per dieci anni tassi tenuti bassi: il debito cala piano. Pagano i risparmiatori: malcontento, meno crescita, prezzi un po' più alti", fx: (st, r) => { r.repressUntil = st.year + 10; r.shockU += 3; st.g.piShock += 0.4; } },
       { label: "Non fare nulla", cost: 0, out: "Interessi più alti: il debito sale ancora, la crescita rallenta e cresce la rabbia", fx: (st, r) => { r.debt += 8; r.shockG -= 1.5; r.shockU += 8; } },
@@ -3948,6 +3958,23 @@ const EVENTS = [
       { label: "Non fare nulla", cost: 0, out: "Rabbia crescente e salute peggiore", fx: (st, r) => { r.shockU += 10; } },
     ] },
   // Libero mercato
+  /* Soldi fermi (15 novembre 2026, decisione di Guido): quando l'Autorità ha in cassa più di tre anni di entrate la gente chiede che
+     cosa se ne fa. Si possono distribuire a tutti, usare per ricomprare il debito delle regioni più indebitate o tenere in cassa
+     (malcontento). Senza questo evento i soldi si accumulavano a milioni senza servire a niente. Il debito ricomprato si calcola
+     sul PIL vero: l'Autorità incassa solo lo 0,24-0,5% del PIL mondiale, quindi anche molti soldi tolgono pochi punti di debito. */
+  { id: "idleFunds", scope: "global", cat: "Economia", title: "L'Autorità ha moltissimi soldi fermi", good: true,
+    p: (st) => (st.funds > 3 * Math.max(1, st.income) && st.year - ((st.flags && st.flags.idleY) || -99) >= 8 ? 0.04 : 0),
+    text: (st) => `In cassa ci sono ${Math.round(st.funds)} fondi, più di ${Math.floor(st.funds / Math.max(1, st.income))} anni di entrate. Giornali e governi chiedono che cosa l'Autorità voglia farne.`,
+    choices: [
+      { label: "Distribuirne metà a tutti", cost: 0, out: "Un aiuto per ogni famiglia: la gente è più contenta in tutte le regioni", fx: (st) => { st.flags.idleY = st.year; st.funds /= 2; ctrlRegions(st).forEach((r) => { r.shockU -= 8; r.polar -= 1; }); } },
+      { label: "Usarne metà per ricomprare il debito delle regioni più indebitate", cost: 0, out: "Il debito delle tre regioni più indebitate scende e i loro conti migliorano", fx: (st) => {
+        st.flags.idleY = st.year; const spend = st.funds / 2; st.funds -= spend;
+        const rs = ctrlRegions(st), gdp = rs.reduce((a, r) => a + r.gdp, 0) || 1, world = incomeParts(st).raw / (trShare(st) / 100);
+        const top = rs.filter((r) => r.debt > 60).sort((a, b) => b.debt - a.debt).slice(0, 3);
+        top.forEach((r) => { const pts = spend / top.length / (world * r.gdp / gdp) * 100; r.debt = Math.max(60, r.debt - pts); });
+        logNews(st, top.length ? `Debito ricomprato: ${top.map((r) => r.name + " " + Math.round(r.debt) + "%").join(", ")}.` : "Nessuna regione ha un debito alto: i soldi restano in cassa.", "done"); } },
+      { label: "Tenerli in cassa", cost: 0, out: "«Perché tengono fermi i nostri soldi?»: un po' di malcontento ovunque", fx: (st) => { st.flags.idleY = st.year; ctrlRegions(st).forEach((r) => { r.shockU += 3; }); } },
+    ] },
   { id: "monopolyPress", scope: "global", cat: "Società", title: "I monopolisti comprano i giornali",
     p: (st) => (st.govId === "market" && st.year > 2032 ? 0.03 : 0),
     text: () => "Le tre aziende più grandi del mondo hanno comprato i principali giornali e televisioni. Le notizie sulle loro attività spariscono dalle prime pagine.",
@@ -4502,6 +4529,12 @@ function tick(st) {
   const D0 = G.disc || {};
   gm.gAll += (D0.g || 0) + (st.genG || 0); gm.co2Rem += D0.co2 || 0; gm.pmit += D0.bio || 0;
   for (const id in st.regions) { const m = st.regions[id].m; m.energyCost -= D0.energy || 0; m.famine += D0.famine || 0; m.labor += D0.labor || 0; }
+  /* Le grandi tecnologie (AI, quantistica, fusione, scoperte) alzano il LIVELLO del prodotto e poi la crescita torna normale
+     (15 novembre 2026, decisione di Guido): ogni 0,1 punti di crescita «per sempre» diventano +2,5% di prodotto raggiunto in
+     circa vent'anni. Prima si sommavano per sempre: nel 2205 anche le regioni ricche crescevano del 3% l'anno.
+     [Probabile: elettricità e computer hanno alzato la crescita per qualche decennio, poi è tornata intorno al 2% a persona] */
+  const techT = 25 * gm.gAll; G.techL = G.techL || 0;
+  st.techG = (techT - G.techL) * 0.05; G.techL += st.techG * dt;
   st.gm = gm;
   st.robCap = robotCapture(st);
 
@@ -4544,6 +4577,13 @@ function tick(st) {
     st.monetize = capPush(st); // nessun finanziamento automatico: solo se il giocatore ha messo il tetto ai tassi
     const piT = st.monetize + G.anchor + 0.1 * clamp(G.gW0 - uW, -4, 4) + 0.1 * Math.max(0, ecW - G.ec0) + gm.infl + G.piShock + 0.6 * monetaryPush(st);
     G.infl += (piT - G.infl) * 0.7 * dt;
+    // avvisi a soglie (15 novembre 2026, richiesta di Guido): una notizia quando l'inflazione supera il 5, il 10 e il 20%, con la causa
+    { const lv = G.infl >= 20 ? 3 : G.infl >= 10 ? 2 : G.infl >= 5 ? 1 : 0, was = G.inflLv || 0;
+      if (lv > was && !st.sim) {
+        const why = st.monetize > 1 ? "la banca centrale ricompra i titoli dell'Autorità (tetto ai tassi)" : monetaryPush(st) > 1.5 ? "il tasso della banca centrale è troppo basso rispetto ai prezzi" : G.piShock > 1 || gm.infl > 0.8 ? "energia e materie prime più care" : "le attese della gente si sono spostate verso l'alto";
+        logNews(st, `Inflazione oltre il ${[0, 5, 10, 20][lv]}%: ${why}.`, "bad");
+      }
+      if (lv > was || G.infl < [0, 4, 8, 17][was]) G.inflLv = lv; }
     /* Tasso a lungo termine [Probabile]: è la media dei tassi a breve attesi nei prossimi anni (quello di oggi e quello "normale",
        cioè attese d'inflazione + tasso reale naturale) più un premio per il rischio. Il tasso reale naturale sale con la crescita
        e scende quando la popolazione invecchia (più risparmio, meno investimenti); il premio sale con il debito mondiale,
@@ -4633,6 +4673,12 @@ function tick(st) {
        [Certo: le grandi riduzioni del debito nei paesi OCSE sono durate circa 11 anni con avanzi di circa 2 punti l'anno;
        Probabile: dopo 5-10 anni in media resta meno della metà del risanamento, per stanchezza (Ghosh e altri 2013)] */
     if (r.austUntil > st.year) r.dDef -= 3; else { r.dDef -= r.austPerm || 0; if (r.austPerm && st.D.fatigue) r.austPerm *= 1 - st.D.fatigue * dt; } // a super difficile i tagli si consumano
+    // Regola di bilancio che si adatta: si stringe mentre il debito sale, si allenta quando scende bene o è sotto il 60%
+    if (r.controlled && built(st, "debtBrake") && r.brk != null && !(st.D.brakeSusp && st.year - (st.recY || -99) < 2)) {
+      const tr = r.dDef + r.dSnow;
+      if (tr > 0 && r.debt > 60) r.brk = Math.min(4, r.brk + 0.5 * dt);
+      else if (tr < -1 || r.debt < 60) r.brk = Math.max(0, r.brk - 0.5 * dt);
+    }
     if (r.controlled || r.exit) r.debt += dt * (r.dDef + r.dSnow); // in anarchia nessuno paga e nessuno presta: il debito resta congelato
     r.debt = clamp(r.debt, 0, 400);
 
@@ -4966,7 +5012,7 @@ function statsOf(rs, st) {
   const wp = (k) => rs.reduce((a, r) => a + r[k] * r.pop, 0) / pop, wg = (k) => rs.reduce((a, r) => a + r[k] * r.gdp, 0) / (gdp || 1);
   return { pop: r1(pop / 1000, 3), wrk: r1(wrk / 1000, 3), old: r1(rs.reduce((a, r) => a + r.old, 0) / wrk * 100, 0), gdp: r1(gdp / gdp0 * 100, 0), gpc: r1(gdp / pop / (gdp0 / pop0) * 100, 0),
     prod: r1(gdp / L / (gdp0 / rs.reduce((a, r) => a + r.gdp0 / r.prod0, 0)) * 100, 0), g: r1(wg("growth")),
-    usd: r1(usdOf(rs, st), 1), snow: r1(rs.reduce((a, r) => a + snowball(r, st) * r.gdp, 0) / (gdp || 1), 2), ec: r1(wg("energyCost") / st.ec0 * 100, 0), fossil: r1(wp("fossil"), 0), tfr: r1(wp("tfr"), 2), shadow: r1(wg("shadow")), debt: r1(wg("debt"), 0), unemp: r1(wp("unemp")), pens: r1(wp("pension"), 0), unrest: r1(wp("unrest"), 0), stab: r1(wp("stab"), 0) };
+    usd: r1(usdOf(rs, st), 1), snow: r1(rs.reduce((a, r) => a + snowball(r, st) * r.gdp, 0) / (gdp || 1), 2), dchg: r1(rs.reduce((a, r) => a + ((r.dDef || 0) + (r.dSnow || 0)) * r.gdp, 0) / (gdp || 1), 2), ec: r1(wg("energyCost") / st.ec0 * 100, 0), fossil: r1(wp("fossil"), 0), tfr: r1(wp("tfr"), 2), shadow: r1(wg("shadow")), debt: r1(wg("debt"), 0), unemp: r1(wp("unemp")), pens: r1(wp("pension"), 0), unrest: r1(wp("unrest"), 0), stab: r1(wp("stab"), 0) };
 }
 function histRow(st) {
   const rs = Object.values(st.regions);
@@ -7542,6 +7588,7 @@ function paint() {
   $("legLo").textContent = tr(L.a); $("legHi").textContent = tr(L.b); $("legBar").style.background = L.bar;
   $("viewName").textContent = tr(L.name);
 }
+const inflSeen = {}; // inflazione di ogni mese, per la freccia del riquadro in alto
 function hud() {
   if (!st) return;
   $("sDate").textContent = MONTHS[st.month] + " " + st.year;
@@ -7551,8 +7598,14 @@ function hud() {
   $("sNet").textContent = (net >= 0 ? "+" : "−") + fmt(Math.abs(net), 1) + tr("/anno");
   $("bWorld").classList.toggle("dot", trReady(st) || (trAvail(st) && st.trWin >= st.year && TREATIES.some((t) => !trWhy(st, t.id))));
   $("sTemp").textContent = tempTxt(st.g.temp + st.g.geoOff);
+  /* inflazione sempre visibile (15 novembre 2026, richiesta di Guido): verde fino al 4%, gialla fino al 10%, rossa oltre;
+     la freccia dice se sale o scende rispetto a un anno fa */
+  { const inf = st.g.infl, key = st.year * 12 + st.month; inflSeen[key] = inf; const ago = inflSeen[key - 12];
+    const arr = ago == null ? "" : inf > ago + 0.3 ? " ↑" : inf < ago - 0.3 ? " ↓" : "";
+    $("sInfl").textContent = fmt(inf, 1) + "%" + arr;
+    $("cInfl").classList.toggle("mid", inf > 4 && inf <= 10); $("cInfl").classList.toggle("hi", inf > 10 || inf < -0.5); }
   const ws = worldStab(st);
-  $("sWorld").innerHTML = `<span style="color:${ws >= st.L.win ? "#9fd6c2" : "inherit"}">${Math.round(ws)}</span> <small>${tr("obiettivo {x}", { x: st.L.win })}</small>`;
+  $("sWorld").innerHTML = `<span style="color:${ws >= st.L.win - 0.5 ? "#9fd6c2" : "inherit"}">${Math.round(ws)}</span> <small>${tr("obiettivo {x}", { x: st.L.win })}</small>`;
   // sotto la soglia il riquadro degli anni stabili diventa il conto alla rovescia verso il crollo
   const low = st.lowM || 0, chipS = $("sStable").parentNode;
   chipS.classList.toggle("doom", low > 0 || !!st.comet);
@@ -7803,6 +7856,7 @@ function hexPts(r) { return [0, 1, 2, 3, 4, 5].map((i) => { const a = Math.PI / 
 /* ---------- glossario: le "i" accanto ai termini prendono il testo da qui ---------- */
 const GLOSS = {
   infl: { t: "Inflazione", x: "È di quanto salgono i prezzi in un anno. Nel gioco ogni intervento costa ogni anno l'inflazione in più, mentre le entrate si adeguano con un anno di ritardo; oltre il 4% la gente si arrabbia. La Banca centrale la frena alzando il tasso." },
+  dchg: { t: "Debito: quanto cambia in un anno", x: "Di quanti punti sale (o scende) ogni anno il debito pubblico degli stati, in percentuale del loro PIL. È la somma di due parti: il deficit (quanto gli stati spendono più di quanto incassano: pensioni, sanità per gli anziani, promesse, crisi) e la palla di neve (gli interessi meno la crescita dell'economia). Sopra zero il debito sale; per farlo scendere servono la Regola di bilancio, un piano di rientro, crescita o un po' d'inflazione. Nella scheda di ogni regione vedi le due parti." },
   snow: { t: "Effetto palla di neve", x: "Il debito di uno stato cresce da solo quando gli interessi che paga superano la crescita dell'economia, come una palla di neve che rotola. Se il valore è sotto zero, il debito tende a scendere da solo grazie alla crescita, a meno che lo stato non spenda più di quanto incassa (deficit): per questo il debito può salire anche con la palla di neve sotto zero. Nella scheda di ogni regione vedi le due parti." },
   rate: { t: "Tasso della Banca centrale", x: "È il costo del denaro per pochi mesi, deciso dalla Banca centrale mondiale. Alzarlo frena inflazione, crescita e lavoro; abbassarlo fa il contrario. Non decide direttamente il tasso a lungo termine." },
   longR: { t: "Tasso a lungo termine e spread", x: "È quanto pagano gli stati per prendere a prestito per molti anni. Somiglia alla media dei tassi a breve attesi (inflazione attesa più un tasso naturale, più alto se l'economia cresce, più basso se la popolazione invecchia e risparmia) più un premio per il rischio (debito mondiale, tensioni tra le potenze). Lo spread è il di più che paga chi ha tanto debito: nel gioco un punto in più ogni 100 punti di debito oltre il 100% del PIL." },
@@ -7885,6 +7939,7 @@ document.addEventListener("click", (e) => {
 const avgOfW = (x, k) => { const rs = Object.values(x.regions).filter((r) => r.controlled), t = rs.reduce((a, r) => a + r.pop, 0) || 1; return rs.reduce((a, r) => a + r[k] * r.pop, 0) / t; };
 const lvOf = (x, id) => { const r = riskBoard(x).find((q) => q.id === id); return r ? r.lv : 0; };
 // valori pesati sul prodotto delle regioni controllate
+const dChg = (r) => (r.dDef || 0) + (r.dSnow || 0); // di quanti punti cambia il debito in un anno
 const avgOfG = (x, f) => { const rs = Object.values(x.regions).filter((r) => r.controlled), t = rs.reduce((a, r) => a + r.gdp, 0) || 1; return rs.reduce((a, r) => a + f(r) * r.gdp, 0) / t; };
 const usdNow = (x) => usdOf(Object.values(x.regions), x);
 /* indicatori mostrati al giocatore: pochi, ciascuno con il suo valore; v va da 0 (grave) a 1 (buono) */
@@ -7895,7 +7950,8 @@ const IND = [
   { id: "climate", gloss: "temp", num: (x) => x.g.temp + x.g.geoOff, dfmt: (v) => sign(v, 2) + " °C", tab: "clima", icon: "#i-temp", name: "Temperatura", v: (x) => 1 - clamp((x.g.temp + x.g.geoOff - 1.1) / 2.2, 0, 1), txt: (x) => tempTxt(x.g.temp + x.g.geoOff) },
   { id: "gdp", gloss: "gdp", num: (x) => usdNow(x), dfmt: (v) => sign(v, Math.abs(v) < 10 ? 1 : 0) + tr(" mila mld $"), tab: "economia", icon: "#g-chartUp", name: "PIL mondiale", v: (x) => clamp(0.3 + Math.log(usdNow(x) / GDP_2026) / Math.log(4), 0, 1), txt: (x) => fmt(usdNow(x), 0) + tr(" mila mld $") },
   { id: "debt", gloss: "debt", num: (x) => avgOfG(x, (r) => r.debt), dfmt: (v) => sign(v, 0) + tr(" punti"), tab: "economia", icon: "#g-vault", name: "Debito pubblico", v: (x) => 1 - clamp((avgOfG(x, (r) => r.debt) - 40) / 160, 0, 1), txt: (x) => Math.round(avgOfG(x, (r) => r.debt)) + tr("% del PIL") },
-  { id: "snow", gloss: "snow", num: (x) => avgOfG(x, (r) => snowball(r, x)), dfmt: (v) => sign(v, 2), tab: "economia", icon: "#g-coins", name: "Palla di neve", v: (x) => 1 - clamp((avgOfG(x, (r) => snowball(r, x)) + 1.5) / 4, 0, 1), txt: (x) => { const v = avgOfG(x, (r) => snowball(r, x)); return sign(v) + tr(" punti l'anno"); } },
+  // deficit + palla di neve: quello che conta davvero per il debito (15 novembre 2026, decisione di Guido; prima solo la palla di neve)
+  { id: "dchg", gloss: "dchg", num: (x) => avgOfG(x, dChg), dfmt: (v) => sign(v, 2), tab: "economia", icon: "#g-coins", name: "Debito: quanto cambia in un anno", v: (x) => 1 - clamp((avgOfG(x, dChg) + 1.5) / 4, 0, 1), txt: (x) => sign(avgOfG(x, dChg)) + tr(" punti l'anno") },
   { id: "infl", gloss: "infl", num: (x) => x.g.infl, dfmt: (v) => sign(v, 1) + tr(" punti"), tab: "economia", icon: "#g-percent", name: "Inflazione", v: (x) => 1 - clamp(Math.abs(x.g.infl - 2.5) / 7, 0, 1), txt: (x) => fmt(x.g.infl, 1) + "%" },
   { id: "pens", gloss: "pens", tab: "welfare", icon: "#g-piggy", name: "Pensioni sostenibili", v: (x) => 1 - clamp((avgOfW(x, "pension") - 10) / 80, 0, 1) },
   { id: "wellbeing", gloss: "wellbeing", tab: "societa", icon: "#g-people", name: "Benessere della popolazione", v: (x) => 0.5 * (1 - avgOfW(x, "unrest") / 100) + 0.3 * (1 - avgOfW(x, "polar") / 100) + 0.2 * avgOfW(x, "wealth") / 100 },
@@ -8362,6 +8418,7 @@ function renderBank(d, I) {
   $("detail").innerHTML = `<div class="scroll">
       <div class="dhead" style="--c:${CAT_COLOR.economia}"><svg viewBox="-20 -20 40 40"><polygon points="${hexPts(18)}"/><use href="${iconHref(d.id)}" x="-10" y="-10" width="20" height="20"/></svg><h3>${esc(tr(d.name))}</h3></div>
       <p class="desc">${esc(tr(d.desc))}</p>
+      <p class="inflnow" style="color:${G.infl > 10 ? "#ffb4a6" : G.infl > 4 ? "#f0c27a" : "#9fd6c2"}"><b>${tr("Inflazione oggi {x}%", { x: fmt(G.infl, 1) })}</b>${auto ? " · " + tr("voluta {y}%", { y: fmt(G.autoT, 1) }) : ""}${(st.monetize || 0) > 0.05 ? "<br><small>" + tr("La banca che ricompra i titoli dell'Autorità la spinge di {p} punti", { p: fmt(st.monetize, 1) }) + "</small>" : ""}</p>
       <div class="bank"><button type="button" class="buy alt" id="rDown" aria-label="${tr("Abbassa il tasso")}">−</button><div><b>${fmt(G.rateT, 1)}%</b><small>${auto ? tr("deciso dal pilota") : tr("tasso scelto")}${Math.abs(G.rate - G.rateT) > 0.05 ? " · " + tr("ora {x}%", { x: fmt(G.rate, 1) }) : ""}</small></div><button type="button" class="buy alt" id="rUp" aria-label="${tr("Alza il tasso")}">+</button></div>
       <button type="button" class="buy alt autob${auto ? " on" : ""}" id="rAuto">${auto ? tr("Pilota automatico: acceso") : tr("Pilota automatico: spento")}</button>
       ${auto ? `<div class="bank"><button type="button" class="buy alt" id="tDown" aria-label="${tr("Obiettivo più basso")}">−</button><div><b>${fmt(G.autoT, 1)}%</b><small>${tr("inflazione voluta")}</small></div><button type="button" class="buy alt" id="tUp" aria-label="${tr("Obiettivo più alto")}">+</button></div>
@@ -8636,7 +8693,7 @@ const STATS = [
   { k: "g", name: "Crescita economica", f: (v) => sign(v) + "%", d: "Variazione del PIL in un anno" },
   { k: "debt", gloss: "debt", name: "Debito pubblico", f: (v) => fmt(v, 0) + tr("% del PIL") },
   { k: "shadow", gloss: "shadow", name: "Economia sommersa", f: (v) => fmt(v, 1) + tr("% del PIL"), d: "Lavoro nero ed evasione: la parte dell'economia su cui non si pagano tasse" },
-  { k: "snow", gloss: "snow", name: "Palla di neve", f: (v) => sign(v, 2) + tr(" punti l'anno"), d: "Quanto il debito cresce da solo: tasso d'interesse reale meno crescita, per il debito. Sotto zero il debito tende a scendere grazie alla crescita, a meno che gli stati non facciano nuovo deficit" },
+  { k: "dchg", gloss: "dchg", name: "Debito: quanto cambia in un anno", f: (v) => sign(v, 2) + tr(" punti l'anno"), d: "Deficit più palla di neve: sopra zero il debito degli stati sale" },
   { k: "infl", gloss: "infl", world: true, name: "Inflazione", f: (v) => fmt(v, 1) + "%" },
   { k: "rate", gloss: "rate", world: true, name: "Tasso della Banca centrale", f: (v) => fmt(v, 1) + "%" },
   { k: "R", gloss: "longR", world: true, name: "Tasso a lungo termine", f: (v) => fmt(v, 1) + "%", d: "Quello che pagano gli stati sui loro debiti" },
@@ -8877,7 +8934,7 @@ function drawBubbles() {
 const EV_DATA = { pensionPoverty: ["pens", "old"], pensions: ["pens", "old"], promise: [], energyShock: ["ec"], taxProtest: ["shadow", "unemp"], robotRiots: ["unemp"], strike: ["unemp"] };
 const PROMISE_DATA = { healthPub: ["old"], pensionUp: ["pens", "old"], publicHire: ["unemp"], familyBonus: ["tfr"], taxCut: [], energyAid: ["ec"] };
 function evDataHTML(ev, r) {
-  const items = [["Stabilità", Math.round(r.stab)], ["Malcontento", Math.round(r.unrest)], ["Debito pubblico", Math.round(r.debt) + "% del PIL"], ["Palla di neve", sign(snowball(r, st)) + " l'anno"]];
+  const items = [["Stabilità", Math.round(r.stab)], ["Malcontento", Math.round(r.unrest)], ["Debito pubblico", Math.round(r.debt) + "% del PIL"], ["Debito in un anno", sign(dChg(r)) + " punti"]];
   const extra = ev.id === "promise" ? PROMISE_DATA[r.promise] || [] : EV_DATA[ev.id] || [];
   const X = { pens: ["Peso delle pensioni", Math.round(r.pension)], old: ["Anziani ogni 100 lavoratori", Math.round(r.old / r.wrk * 100)], ec: ["Costo dell'energia", Math.round(r.energyCost / st.ec0 * 100)],
     tfr: ["Figli per donna", fmt(r.tfr, 2)], unemp: ["Disoccupazione", fmt(r.unemp, 1) + "%"], shadow: ["Economia sommersa", fmt(r.shadow, 1) + "%"] };
@@ -9594,6 +9651,7 @@ for (const b of document.querySelectorAll(".speed button")) b.onclick = () => {
   hud();
 };
 $("bEnd").onclick = () => { if (endReopen) endReopen(); };
+$("cInfl").onclick = () => { actTab = "economia"; actNode = "centralBank"; open("acts"); };
 $("bActs").onclick = () => { actTab = "sintesi"; actNode = null; open("acts"); };
 $("bWorld").onclick = () => open("world");
 $("news").onclick = () => { if (phase === "play" && !pending) { worldTab = "sum"; open("world"); } };
