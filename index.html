@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
-<script>window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
+<script>window.GF_BUILD = "mwgf59hi"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
 <style>html{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);background:#0f1d29;color-scheme:dark}body{margin:0;font-family:system-ui,-apple-system,sans-serif;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -911,7 +911,7 @@ const DIFF = {
     /* reazione alle riforme per governo (14 novembre 2026, regola di Guido: a super difficile il giocatore attento deve vincere almeno
        1 volta e al massimo 3 su 30 con ogni governo). Un solo valore non basta: i governi sono di forza diversa (con 1,15 lo Stato
        sociale vinceva 12 volte, il Libero mercato mai). Tarata con 30 partite automatiche per governo negli scenari 5 e 6. */
-    backlashG: { base: 1.25, liberal: 1.17, central: 1.03, human: 1.25, market: 0.95, market_l6: 1.05, techno: 1.0, techno_l6: 0.98, social: 1.3 },
+    backlashG: { base: 1.5, liberal: 1.52, central: 1.23, human: 1.44, market: 1.24, market_l6: 1.25, techno: 1.25, techno_l6: 1.13, social: 1.55, social_l6: 1.56 }, // ritarata il 14 novembre 2026 dopo i Conti pubblici sulla direzione del debito
     /* a super difficile i dati reali meno favorevoli invece di quelli medi (9 novembre 2026, scelta di Guido):
        austKeep = parte dei tagli del piano di rientro che resta (in media meno della metà dopo 5-10 anni), fatigue = quanto se ne
        perde ogni anno per stanchezza fiscale (Ghosh e altri 2013), brakeK = forza della regola di bilancio (in media +0,6 punti,
@@ -2104,7 +2104,7 @@ const TREE = {
   energyComm: "renewPlan", greenJobs: "renewPlan", worldGrid: "renewPlan", stateEnergy: "renewPlan", socTariff: "fossilPlan", ets: "fossilPlan", geothermal: "geoResearch", superhotRock: "geothermal",
   invest: null, automation: "invest", retrain: "automation", ubi: "unempBenefit", ubiMid: "ubi", ubiPlus: "ubiMid", childIncome: "ubiPlus", robotTax: "robots", sovFund: "robotTax", develop: "invest", singleMarket: "invest", austerity: null, debtBrake: "austerity", debtRestr: "austerity",
   taxRaise: null, wealthTax: "taxRaise", taxEvasion: null, unempBenefit: null, minWage: "unempBenefit", publicJobs: "unempBenefit", tariffs: null,
-  priceCap: "fossilSub", evCars: "renew", rooftop: "renew", carbonLaw: "dac", cashless: "eInvoice", eInvoice: "taxEvasion", dataMatch: "taxEvasion", receiptLottery: "cashless", taxHavens: "dataMatch", amnesty: null, cutStaff: "austerity", cutSubsidies: "austerity", cutDefense: "austerity", cutServices: "austerity", robots: "automation", massRobots: "robots",
+  priceCap: "fossilSub", evCars: "renew", rooftop: "renew", carbonLaw: "dac", cashless: "eInvoice", eInvoice: "taxEvasion", dataMatch: "taxEvasion", receiptLottery: "cashless", taxHavens: "dataMatch", amnesty: null, cutStaff: "austerity", cutSubsidies: "austerity", cutDefense: "austerity", cutServices: "cutStaff", robots: "automation", massRobots: "robots",
   housing: null, parentalLeave: "family", ivf: "housing", pensionFunds: "contrib", pensionTax: "pensionFunds", birthDowry: "pensionFunds", healthcare: null,
   socialHousing: null, civicService: "assemblies", cyber: "surveil", foodReserve: "agri", forestProtect: "reforest",
   contrib: null, retire: "contrib", pensionIndex: "retire", healthyAging: "retire", family: "housing", natality: "family", migration: null, integration: "migration",
@@ -2137,6 +2137,17 @@ Object.assign(TREE, {
   territorialMed: "surveil", catInsurance: "police", massSurveil: "police", militaryQuarantine: "surveil", civilProt: "police", bsl4: "labRules", redTeam: "labRules",
   algoTransp: "aiReg", aiRace: "aiCap", aiLiability: "aiCap", stateAI: "aiCap", assistTech: "aiCap",
   ethicsCom: "screening", pubGene: "screening", patentShort: "screening", stateGene: "screening", geneProtocol: "screening", sciCouncil: "education",
+});
+/* Padri cambiati per gli alberi a rami dritti (14 novembre 2026, in prova per Guido): attorno a un'icona ci sono solo 6 caselle, quindi
+   un intervento con molti figli ne passa qualcuno a un fratello affine. Cambia l'ordine in cui si sbloccano. */
+Object.assign(TREE, {
+  geoResearch: "geoConv",    // la geotermia profonda dopo quella tradizionale
+  evCars: "grid",            // le auto elettriche dopo reti e accumuli
+  cutDefense: "cutSubsidies", // i tagli più duri dopo i primi
+  debtRestr: "debtBrake",    // la ristrutturazione del debito dopo la regola di bilancio
+  amnesty: "dataMatch",      // il condono dopo l'incrocio delle banche dati
+  tariffs: "laborPlan",      // i dazi tra le misure per il lavoro
+  machineContrib: "automation", // i contributi sulle macchine dopo l'automazione
 });
 for (const id in TREE) { IBY[id].parent = TREE[id] || undefined; delete IBY[id].needs; }
 /* Copertura sanitaria già presente nel 2026, regione per regione (indice OMS dei servizi, 2021, aggregato per regione)
@@ -2727,7 +2738,10 @@ function riskBoard(st) {
 const STAB_PARTS = [
   { id: "peace", name: "Pace sociale", w: 25, v: (r) => (70 - r.unrest) * 2, hint: "Il malcontento la abbassa" },
   { id: "cohesion", name: "Coesione", w: 15, v: (r) => (80 - r.polar) * 2, hint: "Polarizzazione e sfiducia nelle istituzioni" },
-  { id: "debt", name: "Conti pubblici", w: 15, v: (r) => 100 - (r.debt - 50), hint: "Il debito pubblico oltre il 50% del prodotto" },
+  /* Conti pubblici (rivista il 14 novembre 2026, richiesta di Guido): conta dove va il debito, non solo quanto è alto. Un debito alto
+     ma stabile pesa poco (il Giappone oltre il 250% è stabile); un debito che sale ogni anno toglie molto [Probabile: i mercati e gli
+     elettori reagiscono a deficit e tendenza più che al livello]. trend = punti di prodotto in più ogni anno (deficit + palla di neve). */
+  { id: "debt", name: "Conti pubblici", w: 15, v: (r) => 100 - Math.max(0, (r.dDef || 0) + (r.dSnow || 0)) * 15 - Math.max(0, r.debt - 120) * 0.3, hint: "Il debito pubblico che sale ogni anno (e un debito molto alto)" },
   /* Vittoria rivista il 1 novembre 2026 (richiesta di Guido): si vince solo con la stabilità, ma pensioni insostenibili la
      abbassano molto (il debito dell'Autorità no: decisione del 2 novembre 2026). Prima chi comprava solo misure sociali a debito vinceva prima di chi badava ai conti. */
   { id: "welfare", name: "Welfare sostenibile", w: 20, v: (r) => (85 - r.pension) / 0.45 - Math.max(0, r.pension - Math.max(30, (r.pension0 ?? r.pension) + 2)) * 8, hint: "Il peso di pensioni e welfare" },
@@ -3006,6 +3020,8 @@ function revoke(st, id) {
 }
 
 /* ---------- eventi avversi (tre scelte: intervento pieno, via di mezzo, non fare nulla) ---------- */
+// la riforma che in questa regione fa arrabbiare di più: [nome, punti di malcontento, id], solo se pesa almeno 4 punti
+const topReform = (r) => { const t = r && r.m && r.m.uTop ? r.m.uTop.filter((x) => x[2] && !(r.off && r.off[x[2]])).sort((a, b) => b[1] - a[1])[0] : null; return t && t[1] >= 4 ? t : null; };
 const ctrlRegions = (st) => Object.values(st.regions).filter((r) => r.controlled);
 const built = (st, id) => !!(st.acts[id] && st.acts[id].n > 0);
 const building = (st, id) => st.prog.some((p) => p.id === id);
@@ -3075,8 +3091,8 @@ const EVENTS = [
       { ok: recIs("shock"), label: "Non fare nulla", cost: 0, out: "Imprese chiuse per sempre e disoccupazione: la ripresa sarà lenta", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockG -= 2.8; r.shockU += 9; r.unemp += 2; }) },
     ] },
   { id: "autoUnemp", scope: "region", cat: "Economia", title: "Disoccupazione da automazione",
-    // con un reddito per tutti chi perde il lavoro non scende in piazza: l'evento arriva solo se il sostegno al reddito è debole (9 novembre 2026)
-    p: (st, r) => (lvl(r, "automation") > 0 || st.g.aiCap > 55) && r.unemp > 9 && incomeSupport(r) < 0.6 ? 0.05 * (1 - incomeSupport(r)) : 0,
+    // arriva solo se l'Autorità ha avviato automazione o robot (14 novembre 2026, richiesta di Guido) e se il sostegno al reddito è debole: con un reddito per tutti chi perde il lavoro non scende in piazza
+    p: (st, r) => (lvl(r, "automation") > 0 || lvl(r, "robots") > 0 || lvl(r, "massRobots") > 0) && r.unemp > 9 && incomeSupport(r) < 0.6 ? 0.05 * (1 - incomeSupport(r)) : 0,
     text: (st, r) => `In ${r.name} robot e programmi sostituiscono interi reparti. La disoccupazione è salita al ${r.unemp.toFixed(1)}%.`,
     choices: [
       { label: "Sussidi e riqualificazione", cost: 12, out: "Disoccupazione in forte calo", fx: (st, r) => { r.unemp -= 4; } },
@@ -3695,6 +3711,17 @@ const EVENTS = [
     choices: [
       { label: "Lasciar fare", cost: 0, out: "Meno malcontento; il debito della regione sale ogni anno finché la misura resta", fx: (st, r) => { const P0 = PROMISES[r.promise]; (r.local || (r.local = {}))[r.promise] = { y: st.year, def: promiseDef(P0, r), u: P0.u, fert: P0.fert, g: P0.g, unemp: P0.unemp, pens: P0.pens }; } },
       { label: "Bloccare la misura", cost: 0, out: "Il debito non cambia, ma la gente si arrabbia", fx: (st, r) => { r.shockU += PROMISES[r.promise].u * 2.5; } },
+    ] },
+  /* Sospendere una riforma in una sola regione (14 novembre 2026, richiesta di Guido): ogni tanto, dove il malcontento è alto, il
+     governo locale chiede di non applicare lì la riforma che fa arrabbiare di più. Come le eccezioni regionali dei governi veri:
+     si perdono anche i suoi vantaggi in quella regione. */
+  { id: "reformRelief", scope: "region", cat: "Istituzioni", title: (st, r) => "Sospendere una riforma " + (r ? "in " + r.name : "") + "?",
+    p: (st, r) => { const t = topReform(r); return t && r.unrest > 55 && !(st.G && st.G.lock && st.G.lock.includes(t[2])) ? 0.05 : 0; },
+    onFire: (st, r) => { const t = topReform(r); r.reliefId = t ? t[2] : null; },
+    text: (st, r) => { const d = IBY[r.reliefId]; return d ? `In ${r.name} cresce la protesta contro «${d.name}»: da sola vale circa ${Math.round(((r.m && r.m.uTop || []).find((x) => x[2] === r.reliefId) || [0, 0])[1])} punti di malcontento. Il governo locale chiede di sospenderla solo qui. Nelle altre regioni resta in vigore; qui si perdono anche i suoi vantaggi.` : `In ${r.name} cresce la protesta contro una riforma.`; },
+    choices: [
+      { label: "Sospenderla in questa regione", cost: 0, out: "Meno malcontento qui, ma la regione perde anche i vantaggi della riforma", fx: (st, r) => { if (r.reliefId) { (r.off || (r.off = {}))[r.reliefId] = true; logNews(st, `«${IBY[r.reliefId].name}» sospesa in ${r.name}.`, "info"); } } },
+      { label: "Mantenerla", cost: 0, out: "La riforma resta ovunque: la protesta continua", fx: (st, r) => { r.shockU += 2; } },
     ] },
   { id: "promiseEnd", scope: "region", cat: "Istituzioni", title: "Ritirare una misura a debito?",
     p: (st, r) => (r.local && Object.keys(r.local).length && r.debt > 110 ? 0.06 : 0),
@@ -4422,7 +4449,7 @@ function tick(st) {
       if (m.polarT > p0) m.polarT = p0 + (m.polarT - p0) * bl;
       // quanto malcontento portano o tolgono gli interventi, per mostrarlo tra le cause (13 novembre 2026)
       const du = m.unrestT - u0;
-      if (du > 0) { m.uUp += du; (m.uTop || (m.uTop = [])).push([d.name, du]); } else m.uDn -= du;
+      if (du > 0) { m.uUp += du; (m.uTop || (m.uTop = [])).push([d.name, du, aid]); } else m.uDn -= du;
     }
     m.unrestT += Math.min(6, fat); m.uUp += Math.min(6, fat);
     // genetica: zanzare contro la malaria nelle regioni tropicali, svolte sull'invecchiamento e scoperte della biologia guidata dall'AI
@@ -7887,7 +7914,157 @@ const HS = HR * 1.18, hexXY = (q, r) => [HS * 1.5 * q, HS * Math.sqrt(3) * (r + 
 const layoutCache = {};
 // icone da tenere vicine nell'albero (12 novembre 2026, richiesta di Guido): geotermia profonda accanto a quella tradizionale
 const TREE_NEAR = { geoResearch: "geoConv" };
+/* Disposizione "a griglia piena" (14 novembre 2026, in prova per Guido): tutte le icone della scheda su un'unica griglia esagonale
+   con la forma del pannello, senza spazi tra un albero e l'altro; ogni figlio accanto al padre quando c'è posto. */
+let TREE_MODE = "tab"; // disposizione per scheda (TREE_TAB_MODE), approvata da Guido il 14 novembre 2026
+function layoutRect(list) {
+  const box = $("tree"), bw = (box && box.clientWidth) || 600, bh = (box && box.clientHeight) || 300;
+  const kids = {}; list.forEach((d) => (kids[d.id] = []));
+  list.forEach((d) => { if (d.parent && kids[d.parent]) kids[d.parent].push(d.id); });
+  for (const k in kids) for (const [a, b] of Object.entries(TREE_NEAR)) { const L = kids[k], i = L.indexOf(a), j = L.indexOf(b); if (i >= 0 && j >= 0) { L.splice(i, 1); L.splice(L.indexOf(b), 1); L.unshift(b, a); } }
+  const size = (id) => 1 + kids[id].reduce((a, k) => a + size(k), 0);
+  const roots = list.filter((d) => !d.parent || !kids[d.parent]).map((d) => d.id).sort((a, b) => size(b) - size(a));
+  const N = list.length;
+  // colonne e righe con la forma del pannello (le caselle sono larghe 1,5 e alte √3)
+  let best = null;
+  for (let cols = 2; cols <= N + 2; cols++) { const rows = Math.ceil(N * 1.12 / cols); const w = cols * 1.5 + 0.5, h = rows * Math.sqrt(3) + 0.9; const sc = Math.min(bw / w, bh / h); if (!best || sc > best.sc) best = { cols, rows, sc }; }
+  const { cols, rows } = best;
+  // coordinate a righe e colonne (colonne dispari spostate di mezza casella) e vicini
+  const key = (c, r) => c + "," + r, used = new Set(), cell = {};
+  const inside = (c, r) => c >= 0 && r >= 0 && c < cols && r < rows;
+  const nbrs = (c, r) => { const odd = c & 1; return [[c, r - 1], [c, r + 1], [c - 1, r - 1 + odd], [c - 1, r + odd], [c + 1, r - 1 + odd], [c + 1, r + odd]].filter(([x, y]) => inside(x, y)); };
+  const xy = (c, r) => [c * HS * 1.5, (r + (c & 1) * 0.5) * HS * Math.sqrt(3)];
+  const dist = (a, b) => { const [x1, y1] = xy(...a), [x2, y2] = xy(...b); return Math.hypot(x1 - x2, y1 - y2); };
+  const free = () => { const out = []; for (let c = 0; c < cols; c++) for (let r = 0; r < rows; r++) if (!used.has(key(c, r))) out.push([c, r]); return out; };
+  const take = (id, p) => { cell[id] = p; used.add(key(...p)); };
+  for (const rid of roots) {
+    // la radice: la casella libera con più caselle libere intorno, preferendo quelle in alto a sinistra
+    const f = free(); if (!f.length) break;
+    let start = f[0], bs = -1;
+    for (const p of f) { let n = 0; for (const q of nbrs(...p)) if (!used.has(key(...q))) n++; const sc = n * 10 - p[0] * 0.3 - p[1] * 0.2; if (sc > bs) { bs = sc; start = p; } }
+    take(rid, start);
+    const queue = [rid];
+    while (queue.length) {
+      const id = queue.shift();
+      for (const kid of kids[id]) {
+        const near = cell[TREE_NEAR[kid]];
+        let opts = nbrs(...cell[id]).filter((q) => !used.has(key(...q)));
+        const adj = opts.length > 0;
+        if (!adj) opts = free(); if (!opts.length) break;
+        // accanto al padre: la casella più vicina all'inizio dell'albero; se il padre è circondato, la casella libera più vicina al padre
+        opts.sort((a, b) => (near ? dist(a, near) - dist(b, near) : 0) || (adj ? dist(a, start) - dist(b, start) : dist(a, cell[id]) - dist(b, cell[id])));
+        take(kid, opts[0]); queue.push(kid);
+      }
+    }
+  }
+  const pos = {}; let W = 0, H = 0;
+  for (const id in cell) { pos[id] = xy(...cell[id]); W = Math.max(W, pos[id][0]); H = Math.max(H, pos[id][1]); }
+  return { pos, W, H };
+}
+/* Disposizione "a rami dritti" (14 novembre 2026, richieste di Guido): ogni figlio sta sempre in una casella accanto al padre, quindi
+   tutte le linee hanno la stessa lunghezza e nessuna passa sopra altre icone; i rami proseguono dritti quando possono. Si provano
+   molte varianti (direzioni, rotazioni degli alberi, disposizione a righe o a colonne) e si tiene quella con le icone più grandi. */
+function layoutStrict(list) {
+  const box = $("tree"), bw = (box && box.clientWidth) || 600, bh = (box && box.clientHeight) || 300, pad = HR * 1.15;
+  const kids0 = {}; list.forEach((d) => (kids0[d.id] = []));
+  list.forEach((d) => { if (d.parent && kids0[d.parent]) kids0[d.parent].push(d.id); });
+  /* gli interventi esclusivi di governi diversi non compaiono mai insieme: possono condividere la stessa casella (in ogni partita se
+     ne vede uno solo). Si costruisce un albero di "caselle", ognuna con uno o più interventi. */
+  const slotsOf = (ids) => {
+    const com = ids.filter((i) => !IBY[i].gov), g = {};
+    for (const i of ids) { const v = IBY[i].gov; if (v) (g[v] = g[v] || []).push(i); }
+    const n = Math.max(0, ...Object.values(g).map((x) => x.length)), out = com.map((i) => [i]);
+    for (let k = 0; k < n; k++) out.push(Object.values(g).map((x) => x[k]).filter(Boolean));
+    return out;
+  };
+  const kids = {}, members = {};
+  const mk = (mem) => { const id = mem.join("+"); members[id] = mem; kids[id] = slotsOf(mem.flatMap((m) => kids0[m])).map(mk); return id; };
+  const roots = slotsOf(list.filter((d) => !d.parent || !kids0[d.parent]).map((d) => d.id)).map(mk);
+  for (const k in kids) for (const [a, b] of Object.entries(TREE_NEAR)) { const L = kids[k], i = L.indexOf(a), j = L.indexOf(b); if (i >= 0 && j >= 0) { L.splice(i, 1); L.splice(L.indexOf(b), 1); L.unshift(b, a); } }
+  const size = (id) => 1 + kids[id].reduce((a, k) => a + size(k), 0);
+  for (const k in kids) kids[k].sort((a, b) => size(b) - size(a));
+  let seed = 1; const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+  // un albero con i figli sempre accanto al padre; null se non ci sta
+  const grow = (rid, wa, wd) => {
+    const cell = { [rid]: [0, 0] }, used = new Set(["0,0"]), dirOf = { [rid]: -1 };
+    const freeN = (q, r) => HEXD.reduce((n, [dq, dr]) => n + (used.has((q + dq) + "," + (r + dr)) ? 0 : 1), 0);
+    const place = (id) => {
+      const [q, r] = cell[id];
+      for (const kid of kids[id]) {
+        let best = null;
+        for (let o = 0; o < 6; o++) {
+          const nq = q + HEXD[o][0], nr = r + HEXD[o][1]; if (used.has(nq + "," + nr)) continue;
+          const [x, y] = hexXY(nq, nr);
+          const sc = (o === dirOf[id] ? -wd : 0) - freeN(nq, nr) * 0.6 * size(kid) / 4 + (x * x + wa * y * y) / (HS * HS * 40) + rnd() * 0.8;
+          if (!best || sc < best[2]) best = [nq, nr, sc, o];
+        }
+        if (!best) return false;
+        cell[kid] = [best[0], best[1]]; used.add(best[0] + "," + best[1]); dirOf[kid] = best[3];
+      }
+      for (const kid of kids[id]) if (!place(kid)) return false;
+      return true;
+    };
+    return place(rid) ? cell : null;
+  };
+  const rot = ([q, r], k) => { for (let i = 0; i < k; i++) [q, r] = [-r, q + r]; return [q, r]; };
+  /* Gli alberi si incastrano su un'unica griglia, con almeno una casella vuota tra un albero e l'altro (le icone non collegate non si
+     toccano mai) e gli alberi dello stesso colore vicini tra loro. Si sceglie la disposizione con le icone più grandi. */
+  const famOf = (rid) => { const c = {}; const walk = (id) => { for (const m of members[id]) { const f = IBY[m].fam; c[f] = (c[f] || 0) + 1; } kids[id].forEach(walk); }; walk(rid); return Object.entries(c).sort((a, b) => b[1] - a[1])[0][0]; };
+  const NB = [[1, 0], [1, -1], [0, -1], [-1, 0], [-1, 1], [0, 1]];
+  let best = null;
+  for (let t = 0; t < 24; t++) {
+    seed = 1 + t * 7919; const wa = [1, 1.6, 2.5, 4][t % 4], wd = [0, 1.5, 3][(t >> 2) % 3];
+    const trees = []; let ok = true;
+    for (const rid of roots) { let cell = null; for (let k = 0; k < 6 && !cell; k++) cell = grow(rid, wa, wd); if (!cell) { ok = false; break; } trees.push({ rid, cell, fam: famOf(rid), n: Object.keys(cell).length }); }
+    if (!ok) continue;
+    // stesso colore insieme, poi dal più grande
+    const famSize = {}; trees.forEach((x) => (famSize[x.fam] = (famSize[x.fam] || 0) + x.n));
+    trees.sort((a, b) => famSize[b.fam] - famSize[a.fam] || (a.fam < b.fam ? -1 : a.fam > b.fam ? 1 : 0) || b.n - a.n);
+    const occ = new Map(); // casella → famiglia
+    const placed = {}; const famPts = {};
+    let fail = false;
+    for (const tr of trees) {
+      let bp = null;
+      const occList = [...occ.keys()].map((k) => k.split(",").map(Number));
+      const qs = occList.map((p) => p[0]), rs = occList.map((p) => p[1]);
+      const q0 = occList.length ? Math.min(...qs) - 8 : 0, q1 = occList.length ? Math.max(...qs) + 8 : 0, r0 = occList.length ? Math.min(...rs) - 8 : 0, r1 = occList.length ? Math.max(...rs) + 8 : 0;
+      for (let k = 0; k < 6; k++) {
+        const cells = Object.entries(tr.cell).map(([id, c]) => [id, rot(c, k)]);
+        for (let dq = q0; dq <= q1; dq++) for (let dr = r0; dr <= r1; dr++) {
+          let bad = false;
+          for (const [, [q, r]] of cells) { const Q = q + dq, R = r + dr; if (occ.has(Q + "," + R)) { bad = true; break; } for (const [a, b] of NB) if (occ.has((Q + a) + "," + (R + b))) { bad = true; break; } if (bad) break; }
+          if (bad) continue;
+          // misura: grandezza delle icone con questa aggiunta, e vicinanza agli alberi dello stesso colore
+          const all = occList.concat(cells.map(([, [q, r]]) => [q + dq, r + dr])).map(([q, r]) => hexXY(q, r));
+          const xs = all.map((p) => p[0]), ys = all.map((p) => p[1]), W = Math.max(...xs) - Math.min(...xs), H = Math.max(...ys) - Math.min(...ys);
+          const sc = Math.min(bw / (W + 2 * pad), bh / (H + 2 * pad));
+          let near = 0; const fp = famPts[tr.fam];
+          if (fp && fp.length) { const [cx, cy] = hexXY(dq, dr); near = Math.min(...fp.map(([x, y]) => Math.hypot(x - cx, y - cy))) / (HS * 40); }
+          const score = sc - near * sc * 0.15;
+          if (!bp || score > bp.score) bp = { score, k, dq, dr, cells };
+        }
+      }
+      if (!bp) { fail = true; break; }
+      for (const [id, [q, r]] of bp.cells) { const Q = q + bp.dq, R = r + bp.dr; occ.set(Q + "," + R, tr.fam); placed[id] = [Q, R]; (famPts[tr.fam] || (famPts[tr.fam] = [])).push(hexXY(Q, R)); }
+    }
+    if (fail) continue;
+    const SP = 1.14; // più spazio tra le caselle: le icone vicine non si toccano
+    const pts = Object.entries(placed).map(([id, c]) => [id, ...hexXY(...c).map((v) => v * SP)]);
+    const xs = pts.map((p) => p[1]), ys = pts.map((p) => p[2]), x0 = Math.min(...xs), y0 = Math.min(...ys);
+    const L = { pos: Object.fromEntries(pts.map(([id, x, y]) => [id, [x - x0, y - y0]])), W: Math.max(...xs) - x0, H: Math.max(...ys) - y0 };
+    const sc = Math.min(bw / (L.W + 2 * pad), bh / (L.H + 2 * pad));
+    if (!best || sc > best.sc + 1e-9) best = { ...L, sc };
+  }
+  if (!best) return null;
+  const pos = {}; for (const id in best.pos) for (const m of members[id]) pos[m] = best.pos[id];
+  return { pos, W: best.W, H: best.H };
+}
+// disposizione scelta per ogni scheda (approvata da Guido il 14 novembre 2026)
+const TREE_TAB_MODE = { welfare: "rect", societa: "rect", clima: "forest", sicurezza: "forest", genetica: "forest", energia: "strict", economia: "strict", tecnologia: "strict" };
 function layoutTree(list) {
+  const mode = TREE_MODE === "tab" ? TREE_TAB_MODE[actTab] || "forest" : TREE_MODE;
+  if (mode === "strict") { const key = "S" + list.map((d) => d.id).join() + "|" + (($("tree") && $("tree").clientWidth) || 0); if (!layoutCache[key]) layoutCache[key] = layoutStrict(list); if (layoutCache[key]) return layoutCache[key]; }
+  if (mode === "rect") { const key = "R" + list.map((d) => d.id).join() + "|" + (($("tree") && $("tree").clientWidth) || 0); return layoutCache[key] || (layoutCache[key] = layoutRect(list)); }
   const key = list.map((d) => d.id).join() + "|" + (($("tree") && $("tree").clientWidth) || 0);
   if (layoutCache[key]) return layoutCache[key];
   const kids = {}; list.forEach((d) => (kids[d.id] = []));
@@ -7927,7 +8104,7 @@ function layoutTree(list) {
   });
   /* alberi disposti a scaffale: si provano tutte le larghezze di riga possibili e si sceglie quella che, nella forma vera del
      pannello, dà le icone più grandi (6 novembre 2026: prima restava molto spazio vuoto e le icone erano piccole) */
-  const box = $("tree"), bw = (box && box.clientWidth) || 600, bh = (box && box.clientHeight) || 300, pad = HR * 1.6;
+  const box = $("tree"), bw = (box && box.clientWidth) || 600, bh = (box && box.clientHeight) || 300, pad = HR * 1.15;
   // distanza tra due alberi vicini: più di un'icona intera (prima 1,4 raggi: le icone di alberi diversi si sovrapponevano)
   const GAPC = 2.6 * HR, GAPR = 2.4 * HR;
   let best = null;
@@ -7970,18 +8147,19 @@ function drawTree() {
   const vis = list.filter((d) => nodeVisible(d, states[d.id]));
   if (!actNode || !vis.some((d) => d.id === actNode)) actNode = vis[0].id;
   const { pos, W, H } = layoutTree(fullSector(actTab)); // tutte le icone possibili nello scenario: le posizioni non cambiano mai
-  const svg = $("tree"), pad = HR * 1.6;
+  const svg = $("tree"), pad = HR * 1.15;
   svg.setAttribute("viewBox", `${-pad} ${-pad} ${W + 2 * pad} ${H + 2 * pad}`);
   svg.innerHTML = "";
   for (const d of vis) { const p0 = d.parent, p1 = effParent(st, d), p = p0 && vis.some((v) => v.id === p0) ? p0 : p1; if (!(p && pos[p] && vis.some((v) => v.id === p))) continue;
     const [x1, y1] = pos[p], [x2, y2] = pos[d.id];
+    if (Math.hypot(x2 - x1, y2 - y1) > HS * 2.4 && TREE_MODE === "tab" && TREE_TAB_MODE[actTab] === "strict") continue; // niente linee lunghe
     svg.appendChild(svgEl("path", { d: `M${x1} ${y1} L${x2} ${y2}`, class: "edge" + (built(st, p) ? " on" : ""), style: "--c:" + CAT_COLOR[d.fam] }));
   }
   for (const d of vis) {
     const [x, y] = pos[d.id], s = states[d.id], col = CAT_COLOR[d.fam];
     const g = svgEl("g", { class: `node ${s.cls}${d.id === actNode ? " sel" : ""}`, transform: `translate(${x.toFixed(1)} ${y.toFixed(1)})`, role: "button", tabindex: "0", "aria-label": tr(d.name), style: "--c:" + col });
     g.appendChild(svgEl("polygon", { points: hexPts(HR - 1.6), class: "hex" }));
-    g.appendChild(svgEl("use", { href: iconHref(d.id), x: -9, y: -9, width: 18, height: 18, class: "ico" }));
+    g.appendChild(svgEl("use", { href: iconHref(d.id), x: -11, y: -11, width: 22, height: 22, class: "ico" }));
     for (const p of s.prog) {
       const f = Math.min(1, p.t / p.T), a = f * 2 * Math.PI, R0 = HR + 1.2;
       g.appendChild(svgEl("circle", { r: R0, class: "ring0" }));
@@ -8494,7 +8672,7 @@ const EV_GLYPH = { debt: "vault", energyShock: "fuel", recession: "factoryDown",
   antiAuth: "megaphone", migrationCrisis: "plane", scandal: "newspaper", heat: "sun", famine: "wheat", storm: "waves", solar: "sun", epidemic: "virus", labLeak: "flask", pandemic: "virus",
   aiIncident: "chipShield", nucAccident: "radiation", nucCrisis: "radiation", conflict: "missile", volcano: "cloud", asteroid: "comet", moonRace: "moon", orbitWeapons: "satellite",
   moonAccident: "dome", moonDiscovery: "telescope", batteries: "battery", tradeBoom: "crate", uniVax: "syringe", civilWar: "missile", borderWar: "missile", terror: "badge", coup: "gavel",
-  cyberAttack: "chipShield", navalStandoff: "dove", armsRace: "missile", crash: "dollarCut", tradeWar: "crate", wildfire: "tree", waterCrisis: "drop", quake: "buildings", trialDeath: "syringe", designerBaby: "stroller", mosquitoBorder: "virus", stolenProtocol: "flask", aiBio1: "dna", aiBio2: "heart", aiBio3: "dna", deepfake: "eye", robotRiots: "robot", aiAnomaly: "newspaper", aiNearMiss: "chipShield", promise: "megaphone", promiseEnd: "scissors", pensionPoverty: "piggy", taxProtest: "people" };
+  cyberAttack: "chipShield", navalStandoff: "dove", armsRace: "missile", crash: "dollarCut", tradeWar: "crate", wildfire: "tree", waterCrisis: "drop", quake: "buildings", trialDeath: "syringe", designerBaby: "stroller", mosquitoBorder: "virus", stolenProtocol: "flask", aiBio1: "dna", aiBio2: "heart", aiBio3: "dna", deepfake: "eye", robotRiots: "robot", aiAnomaly: "newspaper", aiNearMiss: "chipShield", promise: "megaphone", promiseEnd: "scissors", reformRelief: "scissors", pensionPoverty: "piggy", taxProtest: "people" };
 // punti sull'oceano per i segnali delle crisi mondiali
 const GLOBAL_SPOTS = [[-150, 8], [-32, 0], [72, -18], [-150, -28], [-32, -28], [160, 30]];
 function queueEvent(ev) {
@@ -9345,6 +9523,20 @@ $("bPause").onclick = () => {
   $("pResume").focus();
 };
 
+/* ---------- aggiornamento automatico (14 novembre 2026, richiesta di Guido) ----------
+   Il gioco aperto dall'icona sulla schermata Home a volte resta alla versione vecchia anche per giorni. All'apertura e ogni volta
+   che si torna al gioco si controlla version.txt sul sito: se è uscita una versione nuova si salva la partita e si ricarica. */
+function checkUpdate() {
+  if (!window.GF_BUILD || !window.fetch) return;
+  fetch("version.txt?t=" + Date.now(), { cache: "no-store" }).then((r) => (r.ok ? r.text() : "")).then((v) => {
+    v = (v || "").trim();
+    if (!v || v === window.GF_BUILD) return;
+    try { if (st && phase === "play") save(); } catch (e) {}
+    location.reload();
+  }).catch(() => {});
+}
+checkUpdate();
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") checkUpdate(); });
 /* ---------- comandi ---------- */
 for (const b of document.querySelectorAll(".speed button")) b.onclick = () => {
   if (phase !== "play" || pending) return;
