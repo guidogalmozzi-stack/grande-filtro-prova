@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
-<script>window.GF_BUILD = "mwgzpg4k"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
+<script>window.GF_BUILD = "mwh03r0u"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
 <style>html{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);background:#0f1d29;color-scheme:dark}body{margin:0;font-family:system-ui,-apple-system,sans-serif;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -911,7 +911,7 @@ const DIFF = {
     /* reazione alle riforme per governo (14 novembre 2026, regola di Guido: a super difficile il giocatore attento deve vincere almeno
        1 volta e al massimo 3 su 30 con ogni governo). Un solo valore non basta: i governi sono di forza diversa (con 1,15 lo Stato
        sociale vinceva 12 volte, il Libero mercato mai). Tarata con 30 partite automatiche per governo negli scenari 5 e 6. */
-    backlashG: { base: 1.2, base_l6: 1.15, liberal: 1.22, liberal_l6: 1.2, central: 0.95, central_l6: 0.93, human: 1.22, market: 1.05, market_l6: 1.06, techno: 1.0, techno_l6: 0.9, social: 1.24, social_l6: 1.3 }, // ritarata il 14 novembre 2026 (partenza a circa 48, tetto ai tassi scelto dal giocatore)
+    backlashG: { base: 1.2, base_l6: 1.15, liberal: 1.22, liberal_l6: 1.2, central: 0.95, central_l6: 0.93, human: 1.22, market: 1.05, market_l6: 1.06, techno: 1.0, techno_l6: 0.9, social: 1.325, social_l6: 1.3 }, // ritarata il 14 novembre 2026 (partenza a circa 48, tetto ai tassi scelto dal giocatore)
     /* a super difficile i dati reali meno favorevoli invece di quelli medi (9 novembre 2026, scelta di Guido):
        austKeep = parte dei tagli del piano di rientro che resta (in media meno della metà dopo 5-10 anni), fatigue = quanto se ne
        perde ogni anno per stanchezza fiscale (Ghosh e altri 2013), brakeK = forza della regola di bilancio (in media +0,6 punti,
@@ -3933,8 +3933,15 @@ const EVENTS = [
       { label: "Non fare nulla", cost: 0, out: "Interessi più alti: il debito sale e la crescita rallenta", fx: (st, r) => { r.debt += 8; r.shockG -= 1; } },
     ] },
   { id: "waitList", scope: "region", cat: "Salute", title: "Lunghe liste d'attesa",
-    p: (st, r) => (st.govId === "social" && built(st, "healthcare") && r.age > 30 ? 0.02 : 0),
-    text: (st, r) => `In ${r.name} per una visita specialistica servono mesi e milioni di persone rinunciano a curarsi. Chi può paga la sanità privata.`,
+    /* le liste d'attesa nascono dai soldi che mancano (14 novembre 2026, osservazione di Guido): solo con la spesa sanitaria frenata
+       o con i tagli alla sanità; con la sanità pagata per intero non arrivano. Più a lungo dura il freno, più sono probabili */
+    p: (st, r) => {
+      if (st.govId !== "social" || !built(st, "healthcare") || r.age <= 30) return 0;
+      const hb = st.acts.healthBrake, cut = built(st, "cutServices");
+      if (!(hb && hb.n > 0) && !cut) return 0;
+      return Math.min(0.05, (hb && hb.n > 0 ? 0.02 + 0.002 * Math.max(0, st.year - hb.y) : 0) + (cut ? 0.015 : 0));
+    },
+    text: (st, r) => `In ${r.name} la spesa per la sanità non tiene il passo con gli anziani: per una visita specialistica servono mesi e milioni di persone rinunciano a curarsi. Chi può paga la sanità privata.`,
     choices: [
       { label: "Piano straordinario di assunzioni", cost: 6, out: "Le liste si accorciano: molto meno malcontento", fx: (st, r) => { r.shockU -= 8; } },
       { label: "Convenzioni con le cliniche private", cost: 2, out: "Le liste si accorciano, ma la sanità diventa più divisa", fx: (st, r) => { r.shockU -= 4; r.polar += 3; } },
