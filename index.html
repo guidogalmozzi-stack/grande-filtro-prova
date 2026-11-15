@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
-<script>window.GF_BUILD = "mwhqx9qk"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
+<script>window.GF_BUILD = "mwhrdcbb"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
 <style>html{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);background:#0f1d29;color-scheme:dark}body{margin:0;font-family:system-ui,-apple-system,sans-serif;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -3990,7 +3990,7 @@ const EVENTS = [
      (malcontento). Senza questo evento i soldi si accumulavano a milioni senza servire a niente. Il debito ricomprato si calcola
      sul PIL vero: l'Autorità incassa solo lo 0,24-0,5% del PIL mondiale, quindi anche molti soldi tolgono pochi punti di debito. */
   { id: "idleFunds", scope: "global", cat: "Economia", title: "L'Autorità ha moltissimi soldi fermi", good: true,
-    p: (st) => (st.funds > 3 * Math.max(1, st.income) && st.year - ((st.flags && st.flags.idleY) || -99) >= 8 ? 0.04 : 0),
+    p: (st) => (st.funds > 3 * Math.max(1, st.income) && st.year - ((st.flags && st.flags.idleY) || -99) >= 8 ? 1.5 : 0), // probabilità all'anno (prima 0,04: in pratica non arrivava mai)
     text: (st) => `In cassa ci sono ${Math.round(st.funds)} fondi, più di ${Math.floor(st.funds / Math.max(1, st.income))} anni di entrate. Giornali e governi chiedono che cosa l'Autorità voglia farne.`,
     choices: [
       { label: "Distribuirne metà a tutti", cost: 0, out: "Un aiuto per ogni famiglia: la gente è più contenta in tutte le regioni", fx: (st) => { st.flags.idleY = st.year; st.funds /= 2; ctrlRegions(st).forEach((r) => { r.shockU -= 8; r.polar -= 1; }); } },
