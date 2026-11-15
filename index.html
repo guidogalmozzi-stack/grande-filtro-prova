@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
-<script>window.GF_BUILD = "mwh1zt2k"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
+<script>window.GF_BUILD = "mwhnpd40"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
 <style>html{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);background:#0f1d29;color-scheme:dark}body{margin:0;font-family:system-ui,-apple-system,sans-serif;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -109,7 +109,8 @@ button.chip { font: inherit; color: inherit; text-align: left; cursor: pointer; 
 .chip .v small { font-size: 11.5px; color: var(--muted); }
 .chip.doom { border-color: #d65b4a; background: rgba(90,24,18,.93); animation: doom 1.6s ease-in-out infinite; } .chip.doom .k { color: #f0a597; } .chip.doom .v { color: #ffd2c8; }
 @keyframes doom { 50% { box-shadow: 0 0 0 4px rgba(214,91,74,.35); } }
-.tl { top: max(8px, env(safe-area-inset-top, 0px)); left: var(--gl); flex-wrap: wrap; max-width: 68%; }
+.tl { top: max(8px, env(safe-area-inset-top, 0px)); left: var(--gl); flex-wrap: nowrap; max-width: 68%; } /* una sola riga: se va a capo la cartina si rimpicciolisce (15 novembre 2026) */
+.tl .chip { min-width: 0; } .tl .chip .k, .tl .chip .v { overflow: hidden; text-overflow: ellipsis; }
 .tr { top: max(8px, env(safe-area-inset-top, 0px)); right: var(--gr); }
 .datebox { background: rgba(21,38,52,.93); border: 1px solid var(--line); border-radius: 8px; padding: 4px 6px 4px 12px; display: flex; align-items: center; gap: 8px; }
 .datebox .d { font-family: var(--font-d); font-weight: 600; font-size: 21px; letter-spacing: .04em; min-width: 82px; }
@@ -916,7 +917,7 @@ const DIFF = {
     /* reazione alle riforme per governo (14 novembre 2026, regola di Guido: a super difficile il giocatore attento deve vincere almeno
        1 volta e al massimo 3 su 30 con ogni governo). Un solo valore non basta: i governi sono di forza diversa (con 1,15 lo Stato
        sociale vinceva 12 volte, il Libero mercato mai). Tarata con 30 partite automatiche per governo negli scenari 5 e 6. */
-    backlashG: { base: 1.2, base_l6: 1.15, liberal: 1.22, liberal_l6: 1.2, central: 0.95, central_l6: 0.93, human: 1.22, market: 1.05, market_l6: 0.985, techno: 0.82, techno_l6: 0.69, social: 1.325, social_l6: 1.3 }, // ritarata il 14 novembre 2026 (partenza a circa 48, tetto ai tassi scelto dal giocatore)
+    backlashG: { base: 1.2, base_l6: 1.15, liberal: 1.15, liberal_l6: 1.2, central: 0.95, central_l6: 0.93, human: 1.2, human_l6: 1.22, market: 0.98, market_l6: 0.88, techno: 0.82, techno_l6: 0.69, social: 1.325, social_l6: 1.3 }, // ritarata il 14 novembre 2026 (partenza a circa 48, tetto ai tassi scelto dal giocatore)
     /* a super difficile i dati reali meno favorevoli invece di quelli medi (9 novembre 2026, scelta di Guido):
        austKeep = parte dei tagli del piano di rientro che resta (in media meno della metà dopo 5-10 anni), fatigue = quanto se ne
        perde ogni anno per stanchezza fiscale (Ghosh e altri 2013), brakeK = forza della regola di bilancio (in media +0,6 punti,
@@ -1984,7 +1985,8 @@ const INTERVENTIONS = [
     gfx: (st, gm, k) => { gm.income += 0.04 * k; gm.gAll += 0.1 * k; }, once: (r, st) => { if (!built(st, "qCrypto")) st.qDay = st.year + 1; } },
   { id: "qAI", cat: "ai", name: "Calcolo quantistico e AI insieme", desc: "Intelligenza artificiale e calcolo quantistico insieme simulano la biologia delle cellule umane e proteggono le comunicazioni con chiavi impossibili da violare.", scope: "global", cost: 14, upkeep: 4, T: 6, from: 2040,
     pro: "Ricerca genetica e sull'invecchiamento molto più rapida, più crescita ovunque", con: "Molto costoso; l'AI diventa più potente in fretta: senza l'allineamento di livello 2 o 3 la sua sicurezza resta indietro",
-    gfx: (st, gm, k) => { gm.gAll += 0.3 * k; gm.biotechRate += 0.5 * k; gm.aiRate += 1.5 * k; if (!built(st, "align2") && !built(st, "align3")) gm.safeRate -= 0.5 * k; } },
+    // l'AI che accelera la ricerca: l'unico caso in cui gli studi ammettono una crescita più alta che resta (+0,3 punti) [Ipotesi: Aghion, Jones e Jones 2019]
+    gfx: (st, gm, k) => { gm.gAll += 0.3 * k; gm.gPerm = (gm.gPerm || 0) + 0.3 * k; gm.biotechRate += 0.5 * k; gm.aiRate += 1.5 * k; if (!built(st, "align2") && !built(st, "align3")) gm.safeRate -= 0.5 * k; } },
   { id: "launch", cat: "spazio", name: "Lanciatori riutilizzabili", desc: "Razzi che tornano a terra e si riutilizzano come un aereo, abbassando il costo dei lanci.", scope: "global", cost: 4, T: 5,
     pro: "Aprono il programma spaziale", con: "Nessun ritorno diretto" },
   /* Spazio rivisto il 28 ottobre 2026 con i dati raccolti da Gemini [Certo/Probabile]: l'economia orbitale vale già 350-450 miliardi
@@ -2456,7 +2458,7 @@ const LVL_SPEED = 0.15; // ogni anno si recupera il 15% della distanza dal nuovo
 function prodGrowth(r, st, m, gm) {
   let g = basePg(r);
   g += st.g ? clamp(monetaryPush(st) * 0.25, -2.5, 0.6) : 0;
-  g -= st.g ? Math.max(0, Math.abs(st.g.infl - 2) - 3) * 0.3 : 0; // inflazione molto alta o deflazione frenano l'economia
+  g -= st.g ? Math.min(10, Math.max(0, Math.abs(st.g.infl - 2) - 3) * 0.3) : 0; // inflazione molto alta o deflazione frenano l'economia; al massimo −10 punti (iperinflazioni reali: −10/−20% l'anno nei casi peggiori; prima arrivava a −50)
   g -= Math.max(0, r.debt - 100) * 0.01;
   /* Repubblica del lavoro: senza automazione e robot nelle imprese la produttività cresce meno (9 novembre 2026).
      [Certo: i robot industriali hanno aggiunto circa 0,36 punti l'anno alla crescita della produttività in 17 paesi, 1993-2007,
@@ -2480,8 +2482,12 @@ function prodGrowth(r, st, m, gm) {
   g += capC > 0.01 ? capC * (1 - Math.exp(-pos / capC)) : 0;
   r.lvlT = (1 - f) * 8 * (1 - Math.exp(-pos / 3)); // guadagno di livello che si raggiunge nelle regioni ricche, in %
   g += (r.lvlT - (r.lvlG || 0)) * LVL_SPEED; // la crescita in più mentre il livello sale (o in meno se si smette di pagare)
-  g += (1 - f) * 0.6 * (1 - Math.exp(-Math.max(0, m.gF || 0) / 0.6));
-  g += Math.min(0, m.g) + (st && st.techG != null ? st.techG : gm.gAll) + r.shockG;
+  /* ricerca, scuola, università nelle regioni ricche (15 novembre 2026, ricerca in docs/ricerche/2026-11-15-tecnologie-crescita-nel-tempo.md):
+     alzano la crescita per qualche decennio, poi resta un livello più alto [Probabile: crescita semi-endogena, Jones; le idee sono
+     sempre più difficili da trovare, Bloom e altri]. La crescita in più parte fino a +0,6 punti e si dimezza in circa 28 anni. */
+  const gFc = (1 - f) * 0.6 * (1 - Math.exp(-Math.max(0, m.gF || 0) / 0.6));
+  r.fGrow = (40 * gFc - (r.fL || 0)) * 0.025; g += r.fGrow;
+  g += Math.min(0, m.g) + (st && st.techG != null ? st.techG : gm.gAll) + (gm.gPerm || 0) + r.shockG;
   g -= anarchyNear(st, r) * 0.5; // commerci interrotti con le regioni in anarchia
   // chi perde il lavoro e non ha un reddito smette di comprare: con tanta disoccupazione l'economia frena (crisi da mancanza
   // di domanda) [Probabile] (decisione del 25 ottobre 2026)
@@ -2966,9 +2972,19 @@ function authSpread(st) {
 const debtStep = (st) => { const R = debtRatio(st); return R <= 1 ? 0 : R <= 2.5 ? 1 : R <= 3.5 ? 2 : R <= 4.5 ? 3 : 4; }; // fasce, per gli avvisi
 const authMarket = (st) => Math.max(1, st.g.longR) + authSpread(st); // il tasso che chiederebbero i mercati
 // con il tetto della banca centrale l'Autorità non paga più del tetto: la differenza la copre la banca comprando i titoli
-const authRate = (st) => { const m = authMarket(st), cap = st.g && st.g.capRate; return cap != null && m > cap ? Math.max(cap, Math.max(1, st.g.longR)) : m; };
+/* Il tetto vale davvero (15 novembre 2026, partita di Guido): prima l'Autorità non pagava mai meno del tasso a lungo termine, che con
+   l'inflazione alta era arrivato al 47%: il tetto al 6% non serviva a niente. Ora la banca compra tutti i titoli nuovi al tetto. */
+const authRate = (st) => { const m = authMarket(st), cap = st.g && st.g.capRate; return cap != null && m > cap ? cap : m; };
 // quanto spinge l'inflazione la banca che compra i titoli: in proporzione a quanto il tetto taglia il tasso e a quanto debito c'è
-const capPush = (st) => { const cap = st.g && st.g.capRate; if (cap == null) return 0; const cut = Math.max(0, authMarket(st) - Math.max(cap, st.g.longR)); return Math.min(300, 0.8 * cut * debtRatio(st)); }; // senza tetto (15 novembre 2026, decisione di Guido): più debito la banca ricompra, più l'inflazione sale; prima si fermava a 4 anni di entrate e +30 punti, e il debito poteva arrivare a 300 anni di entrate
+/* Quanto spinge l'inflazione la banca che compra i titoli (rivisto il 15 novembre 2026): conta quanta moneta nuova stampa ogni anno
+   rispetto all'economia mondiale, cioè i titoli che compra (il deficit dell'Autorità più la parte del debito che scade, circa un
+   sesto l'anno). Circa +10 punti d'inflazione per ogni 1% del PIL mondiale stampato in un anno [Probabile: la moneta della banca
+   centrale vale circa il 10% del PIL; stamparne l'1% del PIL in un anno la fa crescere di un decimo]. Prima la spinta dipendeva dal
+   taglio del tasso per il debito in anni di entrate: con il tasso a lungo termine che seguiva l'inflazione si avvitava fino al 100%. */
+const worldGdpFunds = (st) => incomeParts(st).raw / (trShare(st) / 100);
+const capPush = (st) => { const cap = st.g && st.g.capRate; if (cap == null || st.funds >= 0 || authMarket(st) <= cap) return 0;
+  const debt = -st.funds, deficit = Math.max(0, (st.upkeep || 0) + (st.interest || 0) - (st.income || 0));
+  return Math.min(300, 10 * 100 * (debt / 6 + deficit) / Math.max(1, worldGdpFunds(st))); };
 /* Il massimo avanzo possibile: le entrate con tutte le tasse e i tagli ancora disponibili, senza nessun programma da pagare.
    Se per tre anni di fila gli interessi lo superano, tornare in pareggio è impossibile: bancarotta. */
 function maxSurplus(st) {
@@ -4629,6 +4645,7 @@ function tick(st) {
     r.popG += ((r.pop / pop0 - 1) / dt * 100 - r.popG) * 0.2;
     // prodotto = lavoratori occupati × produttività
     let pg = prodGrowth(r, st, m, gm);
+    r.fL = (r.fL || 0) + (r.fGrow || 0) * dt; // livello raggiunto con ricerca e scuola
     r.lvlG = (r.lvlG || 0) + ((r.lvlT || 0) - (r.lvlG || 0)) * LVL_SPEED * dt;
     /* anarchia (7 novembre 2026): l'economia crolla di circa il 3% l'anno fino a −30% [Probabile: una guerra civile toglie circa
        2 punti di crescita l'anno, Collier]; dopo la ricostruzione rimbalza per cinque anni [Probabile] */
@@ -7610,7 +7627,7 @@ function hud() {
   const low = st.lowM || 0, chipS = $("sStable").parentNode;
   chipS.classList.toggle("doom", low > 0 || !!st.comet);
   if (st.comet) { const left = Math.max(0, (st.comet.due - st.year) * 12 - st.month); chipS.querySelector(".k").textContent = tr("Impatto della cometa tra"); $("sStable").textContent = tr("{a} a {m} m", { a: Math.floor(left / 12), m: left % 12 }); }
-  else if (low > 0) { const left = LOW_YEARS * 12 - low; chipS.querySelector(".k").textContent = tr("Crollo del mondo tra"); $("sStable").textContent = tr("{a} a {m} m", { a: Math.floor(left / 12), m: left % 12 }); }
+  else if (low > 0) { const left = LOW_YEARS * 12 - low; chipS.querySelector(".k").textContent = tr("Crollo tra"); $("sStable").textContent = tr("{a} a {m} m", { a: Math.floor(left / 12), m: left % 12 }); }
   else { chipS.querySelector(".k").textContent = tr("Anni stabili"); $("sStable").textContent = st.stable + " / " + st.L.years; }
   updateTicker();
   music.setMood(phase !== "play" ? (phase === "over" ? (st.over === "vittoria" || st.over === "immortale" ? "win" : "lose") : "menu")
