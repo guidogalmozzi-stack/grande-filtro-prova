@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
-<script>window.GF_BUILD = "mwi26z8p"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
+<script>window.GF_BUILD = "mwi5ocd5"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
 <style>html{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);background:#0f1d29;color-scheme:dark}body{margin:0;font-family:system-ui,-apple-system,sans-serif;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -1991,26 +1991,26 @@ const INTERVENTIONS = [
   /* Bioeconomia (rivista il 15 novembre 2026): plastiche, tessuti, farmaci e materiali prodotti da microrganismi; l'effetto cresce per
      decenni [Probabile: McKinsey 2020, «The Bio Revolution», fino al 60% dei prodotti fisici potrebbe essere fatto con la biologia,
      2-4 mila miliardi di dollari l'anno nel 2030-2040]. Prima +3% di entrate in cinque anni, ora +5% in circa quindici. */
-  { id: "plasticBugs", cat: "genetica", name: "Batteri mangia-plastica e chimica biologica", desc: "Enzimi e microrganismi sintetici che riciclano la plastica e producono sostanze chimiche, tessuti e materiali senza petrolio.", scope: "region", cost: 9, T: 3, ramp: 15,
+  { id: "plasticBugs", cat: "genetica", name: "Batteri mangia-plastica e chimica biologica", desc: "Enzimi e microrganismi sintetici che riciclano la plastica e producono sostanze chimiche, tessuti e materiali senza petrolio.", scope: "region", cost: 4, T: 3, ramp: 15,
     pro: "Nasce un'industria nuova che cresce per decenni: entrate più alte e meno petrolio", con: "Costoso all'inizio; i benefici arrivano piano, in circa quindici anni",
     gfx: (st, gm, k) => { gm.income += 0.05 * k; }, fx: (m, s) => { m.fossilShift += 0.15 * s; } },
   /* Nuove biotecnologie del 15 novembre 2026 (richiesta di Guido: più ruolo alla genetica, con dati reali) */
   { id: "sickleCure", cat: "genetica", name: "Terapie geniche per l'anemia falciforme", desc: "Le cellule del midollo vengono corrette con l'editing genetico: la malattia del sangue più diffusa al mondo guarisce con una sola cura.", scope: "region", cost: 6, upkeepFn: (st) => (st.year < 2045 ? 3 : st.year < 2060 ? 1.5 : 0.6), T: 3,
     pro: "Nelle regioni africane e in Asia meridionale muoiono molti meno bambini e giovani: più crescita e meno malcontento", con: "All'inizio carissima (milioni a paziente), poi i prezzi scendono. [Certo: prima terapia con editing genetico approvata nel 2023; circa 300 mila nati malati l'anno in Africa]",
     fx: (m, s, r) => { const k = r.id === "wca" || r.id === "esa" ? 1 : r.id === "sa" ? 0.4 : 0; if (k) { m.life += 0.6 * k * s; m.g += 0.12 * k * s; m.unrestT -= 1.5 * k * s; m.labor += 0.004 * k * s; } } },
-  { id: "pharmaco", cat: "genetica", name: "Farmaci su misura del DNA", desc: "Un test genetico, fatto una volta sola, dice ai medici quali farmaci e quali dosi vanno bene per ogni persona.", scope: "region", cost: 3, upkeep: 0.4, T: 2,
+  { id: "pharmaco", cat: "genetica", name: "Farmaci su misura del DNA", desc: "Un test genetico, fatto una volta sola, dice ai medici quali farmaci e quali dosi vanno bene per ogni persona.", scope: "region", cost: 2, upkeep: 0.4, T: 2,
     pro: "Molte meno reazioni sbagliate ai farmaci: meno ricoveri, sanità meno cara", con: "Costa ogni anno; serve un archivio genetico della popolazione. [Certo: le reazioni ai farmaci causano circa il 6,5% dei ricoveri; lo studio europeo PREPARE (2023) le ha ridotte di circa un terzo]",
     fx: (m, s) => { m.life += 0.1 * s; } },
-  { id: "genomicSurv", cat: "genetica", name: "Sorveglianza genetica dei virus e vaccini a mRNA", desc: "Laboratori in tutto il mondo leggono il DNA di ogni nuovo virus; un vaccino a mRNA si progetta in pochi giorni e si produce in pochi mesi.", scope: "global", cost: 5, upkeep: 1, T: 3,
+  { id: "genomicSurv", cat: "genetica", name: "Sorveglianza genetica dei virus e vaccini a mRNA", desc: "Laboratori in tutto il mondo leggono il DNA di ogni nuovo virus; un vaccino a mRNA si progetta in pochi giorni e si produce in pochi mesi.", scope: "global", cost: 4, upkeep: 0.5, T: 3,
     pro: "Epidemie e pandemie si riconoscono subito e fanno molte meno vittime", con: "Costa ogni anno anche quando non serve. [Certo: con il COVID il primo vaccino a mRNA era progettato in due giorni e approvato in meno di un anno]",
     fx: (m, s, r, st, gm) => { gm.pmit += 0.25; }, evm: { epidemic: 0.75, pandemic: 0.85 } },
-  { id: "btCrops", cat: "genetica", name: "Colture biofortificate e resistenti agli insetti", desc: "Piante che si difendono da sole dagli insetti e cereali arricchiti di vitamine per le zone più povere.", scope: "region", cost: 4, T: 3, ramp: 6,
+  { id: "btCrops", cat: "genetica", name: "Colture biofortificate e resistenti agli insetti", desc: "Piante che si difendono da sole dagli insetti e cereali arricchiti di vitamine per le zone più povere.", scope: "region", cost: 1.2, T: 3, ramp: 6,
     pro: "Raccolti più alti con meno pesticidi, meno carenze di vitamine nei bambini: più crescita nelle regioni povere e meno carestie", con: "Diffidenza nelle regioni ricche; i contadini dipendono dalle sementi delle aziende. [Certo: cotone resistente agli insetti in India, +24% di raccolto; −37% di pesticidi in media, Klümper e Qaim 2014]",
     fx: (m, s, r, st, gm, a) => { m.famine += 0.15 * s; if (r.wealth < 50) { m.g += 0.12 * s; m.life += 0.2 * s; } if (r.wealth > 75 && st.year - a.y < 5) m.unrestT += 1; } },
   { id: "bioprint", cat: "genetica", name: "Organi stampati in 3D e trapianti per tutti", desc: "Organi costruiti con le cellule del paziente: niente più liste d'attesa né rigetto.", scope: "region", cost: 6.5, T: 4,
     pro: "Le liste d'attesa per i trapianti spariscono, la sanità costa meno, si vive un po' di più; aiuta la ricerca sull'invecchiamento", con: "Più anziani da sostenere",
     fx: (m) => { m.life += 0.5; }, gfx: (st, gm, k) => { gm.income += 0.01 * k; } },
-  { id: "screening", cat: "genetica", name: "Screening alla nascita e diagnosi sugli embrioni", desc: "Sequenziamento del DNA dei neonati, analisi dei portatori e fecondazione con diagnosi gratuita per le coppie a rischio di malattie gravi.", scope: "region", cost: 3, upkeep: 0.5, T: 2, ramp: 4, axis: 2,
+  { id: "screening", cat: "genetica", name: "Screening alla nascita e diagnosi sugli embrioni", desc: "Sequenziamento del DNA dei neonati, analisi dei portatori e fecondazione con diagnosi gratuita per le coppie a rischio di malattie gravi.", scope: "region", cost: 1.5, upkeep: 0.5, T: 2, ramp: 4, axis: 2,
     pro: "Molte meno malattie genetiche gravi alla nascita, sanità un po' meno cara", con: "I dati genetici di tutti nelle mani dell'Autorità: un po' di sfiducia",
     fx: (m, s) => { m.life += 0.3 * s; m.polarT += 0.5 * s; m.pensT -= 0.5 * s; }, geff: { biotech: 0.1 } }, // meno disabilità gravi dalla nascita: un po' meno pensioni di invalidità [Probabile: le anomalie congenite riguardano circa il 6% dei nati, OMS] // 15 novembre 2026: lo screening dei neonati si ripaga (sanità −3%) [Probabile: analisi costo-efficacia dello screening neonatale]
   { id: "rareTherapy", cat: "genetica", name: "Terapie geniche per le malattie rare", desc: "Fabbriche pubbliche e regole comuni per produrre in pochi mesi cure su misura per ogni mutazione.", scope: "region", cost: 6, upkeep: 1, T: 3, ramp: 6,
@@ -2019,7 +2019,7 @@ const INTERVENTIONS = [
   { id: "somaticEdit", cat: "genetica", name: "Editing genetico per le malattie comuni", desc: "Iniezioni uniche che abbassano per sempre il colesterolo, terapie cellulari contro tumori e malattie autoimmuni.", scope: "region", cost: 10, upkeep: 1.5, T: 4, ramp: 12,
     pro: "Circa un anno e mezzo di vita in più in quindici anni, meno lavoratori persi per malattia", con: "Più anziani e pensioni più care; possibili incidenti negli studi clinici",
     fx: (m, s, r) => { m.life += 1.5 * s; m.labor += 0.03 * s; if (!(r && r.acts && lvl(r, "retire") > 0)) m.pensT += 1 * s; }, geff: { biotech: 0.3 } }, // 15 novembre 2026: si vive di più ma anche si lavora di più in salute (prima solo pensioni più care) [Probabile]
-  { id: "gmCrops", cat: "genetica", name: "Colture resistenti al clima", desc: "Varietà di riso, grano e mais resistenti a siccità, caldo e malattie, con sementi a basso prezzo e licenze pubbliche.", scope: "region", cost: 5, T: 3, ramp: 6,
+  { id: "gmCrops", cat: "genetica", name: "Colture resistenti al clima", desc: "Varietà di riso, grano e mais resistenti a siccità, caldo e malattie, con sementi a basso prezzo e licenze pubbliche.", scope: "region", cost: 1.5, T: 3, ramp: 6,
     pro: "Le carestie diventano molto meno probabili e meno gravi", con: "Diffidenza nelle regioni ricche per qualche anno; non raffredda il pianeta",
     fx: (m, s, r, st, gm, a) => { m.famine += 0.3 * s; if (r.wealth < 50) m.g += 0.1 * s; if (r.wealth > 75 && st.year - a.y < 5) m.unrestT += 2; } }, // raccolti più stabili nelle regioni povere: un po' più di crescita [Probabile: mais resistente alla siccità in Africa, +20-30% nelle annate secche]
   { id: "agingResearch", cat: "genetica", name: "Ricerca sull'invecchiamento", desc: "Grandi studi su farmaci che rallentano l'invecchiamento e sulla riprogrammazione delle cellule.", scope: "global", cost: 12, upkeep: 2, T: 4,
@@ -2028,7 +2028,7 @@ const INTERVENTIONS = [
   { id: "embryoEdit", cat: "genetica", name: "Correzione genetica degli embrioni", desc: "In centri controllati si autorizza la correzione delle malattie gravi negli embrioni: la modifica passa ai figli dei figli.", scope: "global", cost: 4, T: 2, revocable: true, toggle: "Vieta di nuovo",
     pro: "Alcune malattie ereditarie spariscono per sempre dalle famiglie che lo scelgono", con: "Una scelta che divide profondamente: più polarizzazione e malcontento ovunque; rischio di un mercato dei figli su misura",
     fx: (m, s, r, st, gm) => { gm.polarAll += 4; gm.biotechRate += 0.2; } },
-  { id: "geneDrive", cat: "genetica", name: "Zanzare modificate contro la malaria", desc: "Zanzare con un gene che si diffonde da sola nella specie e la fa crollare: niente più malaria. Una volta liberate non si possono richiamare.", scope: "global", cost: 1.5, T: 3,
+  { id: "geneDrive", cat: "genetica", name: "Zanzare modificate contro la malaria", desc: "Zanzare con un gene che si diffonde da sola nella specie e la fa crollare: niente più malaria. Una volta liberate non si possono richiamare.", scope: "global", cost: 0.5, T: 3,
     pro: "Le morti per malaria crollano nelle regioni tropicali, che crescono di più", con: "Non si può fermare né tornare indietro; le zanzare passano i confini anche dove non le volevano",
     fx: (m, s, r, st, gm) => { gm.malaria = 1; } },
   { id: "dnaControl", cat: "genetica", name: "Controllo del DNA sintetico", desc: "Ogni ordine di DNA sintetico e ogni macchina che lo produce vengono registrati e controllati.", scope: "global", cost: 2, upkeep: 0.3, T: 2,
@@ -2288,13 +2288,19 @@ const isTech = (d) => !!d && (TECH_FAM.includes(d.fam) || TECH_IDS.has(d.base ||
 const aiRelief = (st) => P.aiRelief * clamp(((st.g && st.g.aiCap) || 0) - 60, 0, 100) / 100;
 const growK = (st, d) => Math.pow(econIdx(st), isTech(d) ? P.growTech : P.growCost - aiRelief(st));
 const priced = (st, c, d) => (c ? Math.round(c * ((st.g && st.g.pl) || 1) * growK(st, d) * 10) / 10 : 0);
+/* Biotecnologie sempre meno care (15 novembre 2026, decisione di Guido): leggere un genoma costava circa 100 milioni di dollari nel
+   2001 e circa 200 oggi; sementi, test e sorveglianza seguono la stessa strada [Certo: NHGRI, costo del sequenziamento]. Per
+   questi interventi costo e spese annue scendono del 4% l'anno in termini reali, fino al 40% di oggi (verso il 2048). Le terapie
+   per le malattie rare e l'editing restano care (l'anemia falciforme ha un calo suo); invecchiamento ed embrioni non calano. */
+const GEN_LEARN = new Set(["screening", "pharmaco", "genomicSurv", "gmCrops", "btCrops", "geneDrive", "plasticBugs", "cellAg", "phage", "bioprint", "dnaControl"]);
+const genLearn = (st, d) => (GEN_LEARN.has(d.id) ? Math.max(0.4, Math.pow(0.96, Math.max(0, ((st && st.year) || 2026) - 2026))) : 1);
 function costOf(st, d) {
   if (st.paused && st.paused[d.id]) return 0; // un programma sospeso si riattiva senza pagare di nuovo la costruzione
   let c = d.id === "moon" && st.flags.moonPartners ? d.cost - 4 : d.cost;
   if (LUNAR_HALF.includes(d.id) && built(st, "lunarIce")) c /= 2; // propellente e materiali prodotti sulla Luna
   if ((d.base || d.id) === "geothermal" && st.year >= 2035) c *= 0.6; // pozzi sempre più rapidi ed economici [Probabile: IEA 2024]
   if (d.cat === "energia" && d.id !== "greenBank" && built(st, "greenBank")) c *= 0.85; // la banca pubblica verde presta a basso costo: all'Autorità resta l'85%
-  return priced(st, (st.G && st.G.cheap && st.G.cheap.includes(d.id) ? Math.ceil(c / 2) : c) * trSave(st, d), d);
+  return priced(st, (st.G && st.G.cheap && st.G.cheap.includes(d.id) ? Math.ceil(c / 2) : c) * trSave(st, d) * genLearn(st, d), d);
 }
 /* Effetto Baumol [Probabile]: i programmi fatti di lavoro umano (sanità, scuola, sussidi, pensioni, stipendi pubblici, ricerca)
    costano di più quando crescono i redditi, non solo i prezzi: un infermiere deve guadagnare come gli altri lavoratori, ma non
@@ -2337,7 +2343,7 @@ function upkeepOf(st, d) {
     if (tm && tm.n > 0 && st.year - (tm.y0 || tm.y) >= 5) base *= 0.9;
   }
   if (HEALTH_COST.includes(d.id) && built(st, "pubDrugs")) base *= 0.8;
-  return base * base0 * (k || 1) * (d.wasRegion && base > 0 ? ctrlShareG(st) : 1) * (d.perUnit && a ? Math.max(1, a.n) : 1) * trSave(st, d) * ((st.g && st.g.pl) || 1) * (WAGE.has(d.id) ? Math.max(Math.pow(wageIdx(st), 0.6), growK(st, d)) : growK(st, d));
+  return genLearn(st, d) * base * base0 * (k || 1) * (d.wasRegion && base > 0 ? ctrlShareG(st) : 1) * (d.perUnit && a ? Math.max(1, a.n) : 1) * trSave(st, d) * ((st.g && st.g.pl) || 1) * (WAGE.has(d.id) ? Math.max(Math.pow(wageIdx(st), 0.6), growK(st, d)) : growK(st, d));
 }
 const worldDebt = (st) => { const rs = ctrlRegions(st), t = rs.reduce((a, r) => a + r.gdp, 0) || 1; return rs.reduce((a, r) => a + r.debt * r.gdp, 0) / t; };
 const worldSnow = (st) => { const rs = ctrlRegions(st), t = rs.reduce((a, r) => a + r.gdp, 0) || 1; return rs.reduce((a, r) => a + snowball(r, st) * r.gdp, 0) / t; };
