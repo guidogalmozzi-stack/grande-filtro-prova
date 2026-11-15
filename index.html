@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
-<script>window.GF_BUILD = "mwhq0oxt"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
+<script>window.GF_BUILD = "mwhqnuag"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
 <style>html{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);background:#0f1d29;color-scheme:dark}body{margin:0;font-family:system-ui,-apple-system,sans-serif;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -917,7 +917,7 @@ const DIFF = {
     /* reazione alle riforme per governo (14 novembre 2026, regola di Guido: a super difficile il giocatore attento deve vincere almeno
        1 volta e al massimo 3 su 30 con ogni governo). Un solo valore non basta: i governi sono di forza diversa (con 1,15 lo Stato
        sociale vinceva 12 volte, il Libero mercato mai). Tarata con 30 partite automatiche per governo negli scenari 5 e 6. */
-    backlashG: { base: 1.2, base_l6: 1.15, liberal: 1.15, liberal_l6: 1.2, central: 0.95, central_l6: 0.93, human: 1.2, human_l6: 1.22, market: 0.98, market_l6: 0.88, techno: 0.82, techno_l6: 0.69, social: 1.325, social_l6: 1.3 }, // ritarata il 14 novembre 2026 (partenza a circa 48, tetto ai tassi scelto dal giocatore)
+    backlashG: { base: 1.2, base_l6: 1.15, liberal: 1.15, liberal_l6: 1.2, central: 0.95, central_l6: 0.93, human: 1.2, human_l6: 1.22, market: 0.98, market_l6: 0.92, techno: 0.82, techno_l6: 0.73, social: 1.325, social_l6: 1.3 }, // ritarata il 14 novembre 2026 (partenza a circa 48, tetto ai tassi scelto dal giocatore)
     /* a super difficile i dati reali meno favorevoli invece di quelli medi (9 novembre 2026, scelta di Guido):
        austKeep = parte dei tagli del piano di rientro che resta (in media meno della metà dopo 5-10 anni), fatigue = quanto se ne
        perde ogni anno per stanchezza fiscale (Ghosh e altri 2013), brakeK = forza della regola di bilancio (in media +0,6 punti,
@@ -3113,11 +3113,11 @@ const EVENTS = [
       { ok: recIs("fin"), label: "Ripulire subito le banche e sostenere la domanda", cost: 12, out: "Recessione breve: le banche malate si risanano in fretta e il credito riparte. Un po' di rabbia per i salvataggi", fx: (st) => { st.bubble = 0; ctrlRegions(st).forEach((r) => { r.shockG -= 0.4; r.polar += 1; }); } },
       { ok: recIs("fin"), label: "Solo un piano di stimolo", cost: 8, out: "La spesa pubblica attenua il calo, ma le banche malate frenano il credito per anni", fx: (st) => { st.g.piShock += 0.3; ctrlRegions(st).forEach((r) => { r.shockG -= 1.4; r.shockU += 3; }); } },
       { ok: recIs("fin"), label: "Non fare nulla", cost: 0, out: "Fallimenti a catena: recessione profonda e lunga, disoccupazione", fx: (st) => { st.g.piShock -= 1; ctrlRegions(st).forEach((r) => { r.shockG -= 3.2; r.shockU += 10; r.unemp += 2; }); } },
-      { ok: recIs("energia"), label: "Aiuti mirati alle famiglie povere e risparmio di energia", cost: 5, out: "Protegge chi soffre di più senza far correre i prezzi", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockG -= 1.0 * r.fossil / 80; r.shockU += 2; }) },
       { ok: recIs("energia"), label: "Piano di stimolo", cost: 10, out: "Serve a poco: manca l'energia, non la voglia di spendere. Soprattutto inflazione", fx: (st) => { st.g.piShock += 1.5; ctrlRegions(st).forEach((r) => { r.shockG -= 1.0 * r.fossil / 80; r.shockU += 3; }); } },
+      { ok: recIs("energia"), label: "Aiuti mirati alle famiglie povere e risparmio di energia", cost: 5, out: "Protegge chi soffre di più senza far correre i prezzi", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockG -= 1.0 * r.fossil / 80; r.shockU += 2; }) },
       { ok: recIs("energia"), label: "Non fare nulla", cost: 0, out: "Crescita giù e malcontento, soprattutto dove si usano più fossili", fx: (st) => { st.g.piShock += 0.6; ctrlRegions(st).forEach((r) => { r.shockG -= 1.7 * r.fossil / 80; r.shockU += 8 * r.fossil / 80; }); } },
-      { ok: recIs("tassi"), label: "Proteggere chi perde il lavoro e lasciar lavorare la banca centrale", cost: 5, out: "Recessione moderata, ma l'inflazione scende davvero", fx: (st) => { st.g.piShock -= 0.6; ctrlRegions(st).forEach((r) => { r.shockG -= 1.0; r.shockU += 2; }); } },
       { ok: recIs("tassi"), label: "Piano di stimolo", cost: 10, out: "Il calo si attenua, ma l'inflazione torna a salire: la stretta è stata inutile", fx: (st) => { st.g.piShock += 1.2; ctrlRegions(st).forEach((r) => (r.shockG -= 0.5)); } },
+      { ok: recIs("tassi"), label: "Proteggere chi perde il lavoro e lasciar lavorare la banca centrale", cost: 5, out: "Recessione moderata, ma l'inflazione scende davvero", fx: (st) => { st.g.piShock -= 0.6; ctrlRegions(st).forEach((r) => { r.shockG -= 1.0; r.shockU += 2; }); } },
       { ok: recIs("tassi"), label: "Non fare nulla", cost: 0, out: "L'inflazione scende, ma con molta disoccupazione", fx: (st) => { st.g.piShock -= 1; ctrlRegions(st).forEach((r) => { r.shockG -= 1.5; r.shockU += 7; r.unemp += 1; }); } },
       { ok: recIs("debito"), label: "Garanzia comune sul debito degli stati", cost: 10, out: "I tassi scendono e il panico rientra; qualche divisione su chi paga per chi", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockG -= 0.5; r.polar += 1; }) },
       { ok: recIs("debito"), label: "Austerità: tagli e tasse per rassicurare i mercati", cost: 0, out: "I mercati si calmano ma la recessione si aggrava e cresce la rabbia", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockG -= 2.2; r.shockU += 9; r.polar += 2; r.debt -= 2; }) },
@@ -3283,8 +3283,8 @@ const EVENTS = [
     p: (st) => (st.g.aiCap - st.g.aiSafety > 22 ? 0.15 : 0),
     text: () => "Un sistema AI che gestisce reti finanziarie ha perseguito il suo obiettivo aggirando i controlli umani. È un segnale d'allarme.",
     choices: [
-      { label: "Moratoria", cost: 0, out: "Sviluppo AI fermo per anni, meno crescita", fx: (st) => { st.g.aiCap -= 8; ctrlRegions(st).forEach((r) => (r.shockG -= 0.5)); } },
       { label: "Indagine e nuove regole", cost: 4, out: "Sicurezza AI in aumento", fx: (st) => { st.g.aiSafety += 4; } },
+      { label: "Moratoria", cost: 0, out: "Sviluppo AI fermo per anni, meno crescita", fx: (st) => { st.g.aiCap -= 8; ctrlRegions(st).forEach((r) => (r.shockG -= 0.5)); } },
       { label: "Non fare nulla", cost: 0, out: "La corsa continua", fx: (st) => { st.g.aiCap += 3; } },
     ] },
   { id: "nucAccident", scope: "region", cat: "Tecnologia", title: "Incidente nucleare civile",
@@ -3376,9 +3376,9 @@ const EVENTS = [
     p: (st) => (built(st, "geoeng") && !st.flags.geoBlock && st.year - (st.acts.geoeng.y || st.year) >= 1 ? 0.6 : 0),
     text: () => "Ambientalisti e gruppi convinti che l'Autorità voglia «oscurare il Sole» bloccano le piste delle basi da cui partono gli aerei stratosferici in Nord America e in Europa. I voli sono fermi da giorni.",
     choices: [
-      { label: "Sgomberare le piste e far presidiare le basi", cost: 0, out: "Il raffreddamento continua, ma malcontento e divisioni crescono molto in Nord America ed Europa", fx: (st) => { st.flags.geoBlock = true; for (const id of ["na", "eu"]) { const r = st.regions[id]; if (r.controlled) { r.shockU += 10; r.polar += 8; } } } },
-      { label: "Ridurre i voli ed evitare i paesi contrari", cost: 0, out: "La piazza si calma, ma il raffreddamento si dimezza", fx: (st) => { st.flags.geoBlock = true; st.flags.geoHalf = true; } },
       { label: "Un osservatorio indipendente sulla salute dell'aria", cost: 4, out: "Dati pubblici e controlli: le proteste contro gli aerosol si dimezzano", fx: (st) => { st.flags.geoBlock = true; st.flags.geoWatch = true; } },
+      { label: "Ridurre i voli ed evitare i paesi contrari", cost: 0, out: "La piazza si calma, ma il raffreddamento si dimezza", fx: (st) => { st.flags.geoBlock = true; st.flags.geoHalf = true; } },
+      { label: "Sgomberare le piste e far presidiare le basi", cost: 0, out: "Il raffreddamento continua, ma malcontento e divisioni crescono molto in Nord America ed Europa", fx: (st) => { st.flags.geoBlock = true; for (const id of ["na", "eu"]) { const r = st.regions[id]; if (r.controlled) { r.shockU += 10; r.polar += 8; } } } },
     ] },
   { id: "thermostatWar", scope: "global", cat: "Clima", title: "La guerra del termostato",
     p: (st) => (built(st, "geoeng") && !st.flags.thermo && st.regions.sa.controlled && st.year - (st.acts.geoeng.y || st.year) >= 4 ? 0.35 : 0),
@@ -3418,9 +3418,9 @@ const EVENTS = [
     p: () => 0,
     text: (st) => st.comet && st.comet.shelter ? "I posti nei rifugi sono pochi rispetto agli abitanti della Terra. Bisogna decidere chi entrerà." : "Non ci sono rifugi pubblici: i ricchi costruiscono i loro bunker privati e la rabbia cresce. Bisogna decidere se permetterlo.",
     choices: [
-      { label: "Chi può pagare (i posti si vendono)", cost: -20, out: "Entrate per l'Autorità, ma rabbia e divisioni ovunque", fx: (st) => { if (st.comet) st.comet.seats = "soldi"; ctrlRegions(st).forEach((r) => { r.shockU += 12; r.polar += 10; }); } },
-      { label: "Prima giovani, medici e scienziati", cost: 0, out: "Si salva chi potrà ricostruire; molti anziani si sentono abbandonati", fx: (st) => { if (st.comet) st.comet.seats = "futuro"; ctrlRegions(st).forEach((r) => { r.shockU += 5; }); } },
       { label: "Estrazione a sorte tra tutti", cost: 0, out: "La scelta più giusta agli occhi di tutti", fx: (st) => { if (st.comet) st.comet.seats = "sorte"; ctrlRegions(st).forEach((r) => { r.polar -= 3; }); } },
+      { label: "Prima giovani, medici e scienziati", cost: 0, out: "Si salva chi potrà ricostruire; molti anziani si sentono abbandonati", fx: (st) => { if (st.comet) st.comet.seats = "futuro"; ctrlRegions(st).forEach((r) => { r.shockU += 5; }); } },
+      { label: "Chi può pagare (i posti si vendono)", cost: -20, out: "Entrate per l'Autorità, ma rabbia e divisioni ovunque", fx: (st) => { if (st.comet) st.comet.seats = "soldi"; ctrlRegions(st).forEach((r) => { r.shockU += 12; r.polar += 10; }); } },
     ] },
   { id: "cometLast", scope: "global", cat: "Spazio", title: "Un ultimo tentativo",
     p: () => 0,
@@ -3488,8 +3488,8 @@ const EVENTS = [
       "I laboratori lunari hanno prodotto in bassa gravità un nuovo materiale per batterie e superconduttori.",
     ]),
     choices: [
-      { label: "Dati aperti a tutta l'umanità", cost: 0, out: "Orgoglio comune: polarizzazione in calo ovunque", fx: (st) => ctrlRegions(st).forEach((r) => (r.polar -= 3)) },
       { label: "Programma di ricerca dedicato", cost: 4, out: "Tecnologie derivate: più crescita per qualche anno", fx: (st) => ctrlRegions(st).forEach((r) => (r.shockG += 0.5)) },
+      { label: "Dati aperti a tutta l'umanità", cost: 0, out: "Orgoglio comune: polarizzazione in calo ovunque", fx: (st) => ctrlRegions(st).forEach((r) => (r.polar -= 3)) },
       { label: "Brevetti dell'Autorità", cost: -5, out: "Entrate per l'Autorità", fx: () => {} },
     ] },
   // Eventi favorevoli
@@ -3672,36 +3672,36 @@ const EVENTS = [
     p: (st, r) => (st.g.biotech > 55 && !built(st, "embryoEdit") && !st.G.noGenMarket ? 0.01 : 0),
     text: (st, r) => `Una clinica privata in ${r.name} annuncia la nascita di due gemelli con il DNA modificato non per curare una malattia, ma per renderli "migliori".`,
     choices: [
-      { label: "Chiudere la clinica e processare i responsabili", cost: 2, out: "Il divieto regge; un po' di polemiche", fx: (st, r) => { r.polar += 1; st.flags.designerBaby = true; } },
       { label: "Regolare la correzione degli embrioni solo per le malattie", cost: 4, out: "Nasce una legge mondiale: la correzione genetica degli embrioni diventa legale nei centri controllati. Più divisioni", fx: (st, r) => { ctrlRegions(st).forEach((x) => (x.polar += 2)); (st.refOk || (st.refOk = {})).embryoEdit = true; if (!built(st, "embryoEdit")) complete(st, IBY.embryoEdit); } },
+      { label: "Chiudere la clinica e processare i responsabili", cost: 2, out: "Il divieto regge; un po' di polemiche", fx: (st, r) => { r.polar += 1; st.flags.designerBaby = true; } },
       { label: "Aprire il mercato del potenziamento genetico", cost: -4, out: "Nasce un ricchissimo settore biotech: entrate subito e ogni anno, ma più divisioni e malcontento. Da qui una lunga catena di conseguenze", fx: (st) => { st.flags.genMkt = st.year; st.genShare = (st.genShare || 0) + 0.03; ctrlRegions(st).forEach((x) => { x.polar += 8; x.shockU += 4; }); } },
     ] },
   /* Catena del potenziamento genetico (proposta del 27 ottobre 2026): cinque eventi nei vent'anni dopo l'apertura del mercato.
      Le entrate del settore sono una quota delle entrate dell'Autorità (genShare: 0,01 = 1%). [Ipotesi] */
   genEv("genPatents", 2, "Il boom del turismo genetico e i brevetti sul DNA", "Le cliniche per bambini potenziati attirano capitali da tutto il mondo. Le grandi aziende biotech chiedono di brevettare i pacchetti di geni per l'intelligenza e la longevità.", [
-    { label: "Concedere i brevetti esclusivi", cost: 0, out: "Entrate più alte ogni anno, ma il potenziamento resta per i ricchi: malcontento e divisioni", fx: (st) => { st.genShare += 0.04; ctrlRegions(st).forEach((r) => { r.shockU += 8; r.polar += 8; }); } },
-    { label: "Licenze aperte a prezzi calmierati", cost: 0, out: "Entrate più piccole, meno rabbia sociale", fx: (st) => { st.genShare += 0.015; ctrlRegions(st).forEach((r) => { r.shockU += 2; }); } },
     { label: "Vietare tutto e chiudere le cliniche", cost: 6, out: "Il settore crolla e nascono cliniche clandestine; la catena si ferma", fx: (st) => { st.genShare = 0; st.flags.genBan = true; ctrlRegions(st).forEach((r) => { r.polar += 3; }); } },
+    { label: "Licenze aperte a prezzi calmierati", cost: 0, out: "Entrate più piccole, meno rabbia sociale", fx: (st) => { st.genShare += 0.015; ctrlRegions(st).forEach((r) => { r.shockU += 2; }); } },
+    { label: "Concedere i brevetti esclusivi", cost: 0, out: "Entrate più alte ogni anno, ma il potenziamento resta per i ricchi: malcontento e divisioni", fx: (st) => { st.genShare += 0.04; ctrlRegions(st).forEach((r) => { r.shockU += 8; r.polar += 8; }); } },
   ]),
   genEv("genScandal", 5, "Lo scandalo delle cliniche low cost", "Alcune cliniche non certificate hanno sbagliato le modifiche genetiche: sono nati bambini con gravi difetti immunitari mentre i genitori cercavano di potenziarne la memoria.", [
     { label: "Un'agenzia mondiale di certificazione genetica", cost: 4.5, out: "La tecnologia diventa sicura e il settore rende di più", fx: (st) => { st.genShare += 0.02; st.g.bioSafety += 2; } },
     { label: "Lasciar fare alle cause in tribunale", cost: 0, out: "Il settore non rallenta, ma esplodono le proteste contro le cliniche", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockU += 12; }) },
   ]),
   genEv("genSchools", 9, "Scuole e sport divisi: potenziati contro naturali", "La prima generazione di bambini modificati entra a scuola e nello sport: imparano in metà del tempo e vincono ogni gara. Le famiglie dei bambini naturali chiedono scuole separate o quote protette.", [
-    { label: "Accademie accelerate per i potenziati", cost: 0, out: "Più innovazione e produttività, ma la società si spacca", fx: (st) => { st.genShare += 0.035; st.genG = (st.genG || 0) + 0.1; ctrlRegions(st).forEach((r) => { r.polar += 12; r.shockU += 10; }); } },
-    { label: "Quote riservate ai naturali nelle università e nel lavoro", cost: 0, out: "Pace sociale protetta, ma meno vantaggio economico", fx: (st) => { st.genShare = Math.max(0, st.genShare - 0.015); ctrlRegions(st).forEach((r) => { r.shockU -= 5; }); } },
     { noGov: ["market"], label: "Potenziamento genetico gratuito per tutti i neonati", cost: 12, out: "La disuguaglianza biologica sparisce per le nuove generazioni; costa ogni anno", fx: (st) => { st.genShare = Math.max(0, st.genShare - 0.03); ctrlRegions(st).forEach((r) => { r.polar -= 5; }); } },
     { gov: ["market"], label: "Donazioni delle grandi fondazioni", cost: 0, out: "Le fondazioni pagano una parte delle cure: effetto più piccolo e solo dove arrivano", fx: (st) => ctrlRegions(st).forEach((r) => { if (r.wealth < 50) r.shockU -= 2; }) },
+    { label: "Quote riservate ai naturali nelle università e nel lavoro", cost: 0, out: "Pace sociale protetta, ma meno vantaggio economico", fx: (st) => { st.genShare = Math.max(0, st.genShare - 0.015); ctrlRegions(st).forEach((r) => { r.shockU -= 5; }); } },
+    { label: "Accademie accelerate per i potenziati", cost: 0, out: "Più innovazione e produttività, ma la società si spacca", fx: (st) => { st.genShare += 0.035; st.genG = (st.genG || 0) + 0.1; ctrlRegions(st).forEach((r) => { r.polar += 12; r.shockU += 10; }); } },
   ]),
   genEv("genInsurance", 14, "Banche e assicurazioni leggono il DNA", "I giovani potenziati non si ammalano di infarto né di diabete: assicurazioni e banche offrono loro mutui scontati e rifiutano i contratti ai cittadini naturali.", [
-    { label: "Permettere i contratti basati sul DNA", cost: 0, out: "Grande efficienza e risparmi sanitari, ma nasce un movimento radicale dei naturali", fx: (st) => { st.genShare += 0.045; ctrlRegions(st).forEach((r) => { r.shockU += 15; r.polar += 6; }); } },
     { label: "Legge mondiale contro la discriminazione genetica", cost: 3, out: "I cittadini naturali sono tutelati e le divisioni calano", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockU -= 6; r.polar -= 3; }) },
+    { label: "Permettere i contratti basati sul DNA", cost: 0, out: "Grande efficienza e risparmi sanitari, ma nasce un movimento radicale dei naturali", fx: (st) => { st.genShare += 0.045; ctrlRegions(st).forEach((r) => { r.shockU += 15; r.polar += 6; }); } },
   ]),
   genEv("genElite", 18, "La prima generazione adulta: una nuova élite", "I primi bambini su misura sono adulti: guidano laboratori, finanza e tecnologia, e tendono a sposarsi solo tra loro per conservare il proprio DNA potenziato.", [
-    { label: "Assecondare la nuova élite biotecnologica", cost: 0, out: "Un boom economico e scientifico straordinario, ma la società si divide in due caste", fx: (st) => { st.genShare += 0.08; st.genG = (st.genG || 0) + 0.2; ctrlRegions(st).forEach((r) => { r.polar += 20; r.shockU += 10; }); } },
-    { label: "Una tassa sul genoma per il welfare dei naturali", cost: 0, out: "Entrate un po' più alte e molta meno rabbia", fx: (st) => { st.genShare += 0.025; ctrlRegions(st).forEach((r) => { r.shockU -= 10; }); } },
     { noGov: ["market"], label: "Terapie geniche gratuite anche per gli adulti naturali", cost: 15, out: "Anche chi non è stato modificato riceve i geni che proteggono la salute: la frattura si ricuce", fx: (st) => ctrlRegions(st).forEach((r) => { r.shockU -= 12; r.polar -= 8; }) },
     { gov: ["market"], label: "Donazioni delle grandi fondazioni", cost: 0, out: "Le fondazioni pagano una parte delle cure: effetto più piccolo e solo dove arrivano", fx: (st) => ctrlRegions(st).forEach((r) => { if (r.wealth < 50) r.shockU -= 2; }) },
+    { label: "Una tassa sul genoma per il welfare dei naturali", cost: 0, out: "Entrate un po' più alte e molta meno rabbia", fx: (st) => { st.genShare += 0.025; ctrlRegions(st).forEach((r) => { r.shockU -= 10; }); } },
+    { label: "Assecondare la nuova élite biotecnologica", cost: 0, out: "Un boom economico e scientifico straordinario, ma la società si divide in due caste", fx: (st) => { st.genShare += 0.08; st.genG = (st.genG || 0) + 0.2; ctrlRegions(st).forEach((r) => { r.polar += 20; r.shockU += 10; }); } },
   ]),
   { id: "mosquitoBorder", scope: "region", cat: "Salute", title: "Zanzare oltre il confine",
     p: (st, r) => (built(st, "geneDrive") && !TROPIC.includes(r.id) && RBY[r.id].nb.some((n) => TROPIC.includes(n)) ? 0.03 : 0),
@@ -3846,8 +3846,8 @@ const EVENTS = [
     text: () => "Nuove rotte e accordi commerciali fanno crescere gli scambi oltre le attese. Le entrate fiscali delle regioni aumentano.",
     choices: [
       { label: "Reinvestire nei servizi", cost: 0, out: "Malcontento in calo ovunque", fx: (st) => ctrlRegions(st).forEach((r) => (r.shockU -= 4)) },
-      { label: "Rafforzare le casse dell'Autorità", cost: -6, out: "Entrate per l'Autorità", fx: () => {} },
       { label: "Ridurre i debiti", cost: 0, out: "Debito in calo in tutte le regioni", fx: (st) => ctrlRegions(st).forEach((r) => (r.debt -= 5)) },
+      { label: "Rafforzare le casse dell'Autorità", cost: -6, out: "Entrate per l'Autorità", fx: () => {} },
     ] },
   { id: "uniVax", scope: "global", cat: "Salute", title: "Vaccino universale", good: true, once: true,
     p: (st) => built(st, "vaccines") ? 0.05 : 0,
