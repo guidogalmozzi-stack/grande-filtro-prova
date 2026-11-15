@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
-<script>window.GF_BUILD = "mwhnpd40"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
+<script>window.GF_BUILD = "mwhnt2mv"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
 <style>html{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);background:#0f1d29;color-scheme:dark}body{margin:0;font-family:system-ui,-apple-system,sans-serif;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -4962,7 +4962,14 @@ function yearly(st) {
   { const r = ctrlRegions(st).filter((x) => x.unemp > 18 && incomeSupport(x) < 0.6).sort((a, b) => b.unemp - a.unemp)[0];
     if (r && st.year >= (st.flags.wUnemp || 0)) {
       st.flags.wUnemp = st.year + 10;
-      note(st, "warn", "humanoid", "Disoccupazione di massa", `In ${r.name} la disoccupazione è al ${Math.round(r.unemp)}% e chi perde il lavoro resta senza reddito. Se continua a salire il malcontento farà crollare le regioni una dopo l'altra. Servono un reddito per chi resta senza lavoro (reddito di base, intermedio o pieno) e, se il lavoro lo fanno i robot, la tassa sui robot o il fondo sovrano per pagarlo.`);
+      /* la causa vera (15 novembre 2026, partita di Guido: tutti disoccupati senza capire perché; era l'iperinflazione che aveva fatto
+         crollare l'economia, ma l'avviso parlava solo di robot) */
+      const auto = ["automation", "robots", "massRobots"].some((id) => built(st, id));
+      const why = st.g.infl > 20 && r.growth < -1 ? `l'inflazione al ${Math.round(st.g.infl)}% ha fermato l'economia (${fmt1(r.growth)}% l'anno) e le imprese licenziano. Prima di tutto va fermata l'inflazione: alzare il tasso della banca centrale e alzare o spegnere il tetto ai tassi dell'Autorità. Intanto serve un reddito per chi resta senza lavoro.`
+        : r.growth < -1 ? `l'economia è in recessione (${fmt1(r.growth)}% l'anno) e le imprese licenziano. Aiutano un piano di stimolo, tassi più bassi e un reddito per chi resta senza lavoro.`
+        : auto ? `il lavoro lo fanno sempre più le macchine. Servono un reddito per chi resta senza lavoro (reddito di base, intermedio o pieno) e la tassa sui robot o il fondo sovrano per pagarlo.`
+        : `mancano lavoro e investimenti. Aiutano formazione, lavori pubblici e un reddito per chi resta senza lavoro.`;
+      note(st, "warn", "humanoid", "Disoccupazione di massa", `In ${r.name} la disoccupazione è al ${Math.round(r.unemp)}% e chi perde il lavoro resta senza reddito: ${why} Se continua a salire il malcontento farà crollare le regioni una dopo l'altra.`);
     }
   }
   // i nati dell'anno entrano nella storia: lavoreranno fra 18 anni
