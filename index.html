@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
-<script>window.GF_BUILD = "mwif1p01"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
+<script>window.GF_BUILD = "mwif69wr"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
 <style>html{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);background:#0f1d29;color-scheme:dark}body{margin:0;font-family:system-ui,-apple-system,sans-serif;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -109,7 +109,7 @@ button.chip { font: inherit; color: inherit; text-align: left; cursor: pointer; 
 .chip .v small { font-size: 11.5px; color: var(--muted); }
 .chip.doom { border-color: #d65b4a; background: rgba(90,24,18,.93); animation: doom 1.6s ease-in-out infinite; } .chip.doom .k { color: #f0a597; } .chip.doom .v { color: #ffd2c8; }
 @keyframes doom { 50% { box-shadow: 0 0 0 4px rgba(214,91,74,.35); } }
-.tl { top: max(8px, env(safe-area-inset-top, 0px)); left: var(--gl); flex-wrap: nowrap; max-width: 68%; } /* una sola riga: se va a capo la cartina si rimpicciolisce (15 novembre 2026) */
+.tl { top: max(8px, env(safe-area-inset-top, 0px)); left: var(--gl); flex-wrap: nowrap; right: calc(var(--gr) + var(--trw, 40%) + 8px); } /* si ferma prima del riquadro della data (15 novembre 2026) */ /* una sola riga: se va a capo la cartina si rimpicciolisce (15 novembre 2026) */
 .tl .chip { min-width: 0; } .tl .chip .k, .tl .chip .v { overflow: hidden; text-overflow: ellipsis; }
 .tr { top: max(8px, env(safe-area-inset-top, 0px)); right: var(--gr); }
 .datebox { background: rgba(21,38,52,.93); border: 1px solid var(--line); border-radius: 8px; padding: 4px 6px 4px 12px; display: flex; align-items: center; gap: 8px; }
@@ -9924,6 +9924,7 @@ function layoutMap() {
     mb = H - rect(document.querySelector(".bottom")).top + 6;
   }
   const sw = play ? Math.round(Math.min(175, Math.max(135, W * 0.17))) : 0; // colonna di sinistra più stretta (2 novembre 2026): più spazio alla cartina
+  { const tr = document.querySelector(".hud.tr"); if (tr) app.style.setProperty("--trw", tr.offsetWidth + "px"); } // la fila in alto a sinistra non passa sotto la data
   app.style.setProperty("--mt", mt + "px"); app.style.setProperty("--mb", mb + "px");
   app.style.setProperty("--sw", sw + "px"); app.style.setProperty("--ml", (play ? sw + 14 : 0) + "px");
 }
