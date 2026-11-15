@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
-<script>window.GF_BUILD = "mwhrdcbb"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
+<script>window.GF_BUILD = "mwhsb78f"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
 <style>html{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);background:#0f1d29;color-scheme:dark}body{margin:0;font-family:system-ui,-apple-system,sans-serif;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -917,7 +917,7 @@ const DIFF = {
     /* reazione alle riforme per governo (14 novembre 2026, regola di Guido: a super difficile il giocatore attento deve vincere almeno
        1 volta e al massimo 3 su 30 con ogni governo). Un solo valore non basta: i governi sono di forza diversa (con 1,15 lo Stato
        sociale vinceva 12 volte, il Libero mercato mai). Tarata con 30 partite automatiche per governo negli scenari 5 e 6. */
-    backlashG: { base: 1.2, base_l6: 1.15, liberal: 1.15, liberal_l6: 1.2, central: 0.95, central_l6: 0.93, human: 1.2, human_l6: 1.22, market: 0.98, market_l6: 0.92, techno: 0.82, techno_l6: 0.73, social: 1.325, social_l6: 1.3 }, // ritarata il 14 novembre 2026 (partenza a circa 48, tetto ai tassi scelto dal giocatore)
+    backlashG: { base: 1.2, base_l6: 1.15, liberal: 1.15, liberal_l6: 1.2, central: 0.95, central_l6: 0.93, human: 1.2, human_l6: 1.22, market: 0.98, market_l6: 0.92, techno: 0.82, techno_l6: 0.73, social: 1.325, social_l6: 1.32 }, // ritarata il 14 novembre 2026 (partenza a circa 48, tetto ai tassi scelto dal giocatore)
     /* a super difficile i dati reali meno favorevoli invece di quelli medi (9 novembre 2026, scelta di Guido):
        austKeep = parte dei tagli del piano di rientro che resta (in media meno della metà dopo 5-10 anni), fatigue = quanto se ne
        perde ogni anno per stanchezza fiscale (Ghosh e altri 2013), brakeK = forza della regola di bilancio (in media +0,6 punti,
@@ -1340,7 +1340,7 @@ const INTERVENTIONS = [
     pro: "Il debito smette di salire e poi scende, senza aspettare le crisi: finché il debito sale, la correzione si stringe un po' ogni anno", con: "Meno spesa e un po' più di tasse quando il debito è alto: crescita un po' più lenta e qualche protesta",
     fx: (m, s, r, st) => { if (st.D.brakeSusp && st.year - (st.recY || -99) < 2) return; // sospesa nelle recessioni mondiali (super difficile)
       /* Regola che si adatta (15 novembre 2026, decisione di Guido): ogni anno in cui il debito sale ancora la correzione cresce di
-         mezzo punto, fino a 4; quando il debito scende o è sotto il 60% si allenta. [Probabile: freno al debito svizzero (deficit
+         mezzo punto, fino a 6; quando il debito scende o è sotto il 60% si allenta. [Probabile: freno al debito svizzero (deficit
          strutturale a zero), patto europeo (+0,5 punti l'anno di correzione strutturale)]. Prima toglieva una quantità fissa
          (al massimo 1,8 punti): nelle regioni con un buco più grande il debito saliva comunque. La correzione la calcola tick (r.brk). */
       if (r.brk == null) r.brk = clamp((r.debt - 60) * 0.025, 0, 1.8);
@@ -3089,7 +3089,7 @@ const EVENTS = [
     p: () => 0,
     text: (st, r) => `I mercati non si fidano più dei conti di ${r.name}: il debito pubblico è al ${Math.round(r.debt)}% del prodotto e gli interessi salgono. ${r.debt >= 200 ? "A questo livello il debito non si può più ripagare per intero." : "Bisogna scegliere chi pagherà per farlo scendere."}${built(st, "debtBrake") || !available(st, IBY.debtBrake) ? "" : " Perché non torni a salire serve una correzione che duri: la Regola di bilancio (scheda Economia)."}`,
     choices: [
-      { ok: (st) => !(debtR(st) && debtR(st).debt >= 200), label: "Piano di rientro: tagli e tasse", cost: 0, out: "Tagli forti per cinque anni, poi una parte resta per sempre. Subito meno crescita e rabbia", fx: (st, r) => { r.austUntil = st.year + 5; r.austPerm = Math.min(3, (r.austPerm || 0) + (st.D.austKeep != null ? st.D.austKeep : 1.5)); r.shockU += 10; r.shockG -= 1.0; } },
+      { ok: (st) => !(debtR(st) && debtR(st).debt >= 200), label: "Piano di rientro: tagli e tasse", cost: 0, out: "Tagli forti per cinque anni, poi una parte resta per sempre. Subito meno crescita e rabbia", fx: (st, r) => { r.austUntil = st.year + 5; r.austPerm = Math.min(6, (r.austPerm || 0) + (st.D.austKeep != null ? st.D.austKeep : 1.5)); r.shockU += 10; r.shockG -= 1.0; } },
       { ok: (st) => debtR(st) && debtR(st).debt >= 200, label: "Ristrutturazione: taglio del debito", cost: 0, out: "Il debito scende al 90%; lo pagano i risparmiatori della regione e le banche del resto del mondo, e per qualche anno i tassi salgono per tutti", fx: (st, r) => cutDebt(st, r, 90, true) },
       { label: "Repressione finanziaria", cost: 0, out: "Per dieci anni tassi tenuti bassi: il debito cala piano. Pagano i risparmiatori: malcontento, meno crescita, prezzi un po' più alti", fx: (st, r) => { r.repressUntil = st.year + 10; r.shockU += 3; st.g.piShock += 0.4; } },
       { label: "Non fare nulla", cost: 0, out: "Interessi più alti: il debito sale ancora, la crescita rallenta e cresce la rabbia", fx: (st, r) => { r.debt += 8; r.shockG -= 1.5; r.shockU += 8; } },
@@ -3990,7 +3990,7 @@ const EVENTS = [
      (malcontento). Senza questo evento i soldi si accumulavano a milioni senza servire a niente. Il debito ricomprato si calcola
      sul PIL vero: l'Autorità incassa solo lo 0,24-0,5% del PIL mondiale, quindi anche molti soldi tolgono pochi punti di debito. */
   { id: "idleFunds", scope: "global", cat: "Economia", title: "L'Autorità ha moltissimi soldi fermi", good: true,
-    p: (st) => (st.funds > 3 * Math.max(1, st.income) && st.year - ((st.flags && st.flags.idleY) || -99) >= 8 ? 1.5 : 0), // probabilità all'anno (prima 0,04: in pratica non arrivava mai)
+    p: () => 0, // arriva sempre, da rollEvent: appena i fondi superano tre anni di entrate e poi ogni tre anni finché restano (15 novembre 2026, decisione di Guido)
     text: (st) => `In cassa ci sono ${Math.round(st.funds)} fondi, più di ${Math.floor(st.funds / Math.max(1, st.income))} anni di entrate. Giornali e governi chiedono che cosa l'Autorità voglia farne.`,
     choices: [
       { label: "Distribuirne metà a tutti", cost: 0, out: "Un aiuto per ogni famiglia: la gente è più contenta in tutte le regioni", fx: (st) => { st.flags.idleY = st.year; st.funds /= 2; ctrlRegions(st).forEach((r) => { r.shockU -= 8; r.polar -= 1; }); } },
@@ -4707,14 +4707,14 @@ function tick(st) {
     const cyc = r.controlled ? Math.max(0, basePg(r) - 1 - r.growth) * 0.5 : 0; // solo in una vera frenata
     const ageCost = r.dep0 != null ? Math.max(0, r.old / r.wrk - r.dep0) * 0.8 : 0;
     r.dSnow = snowball(r, st); r.dDef = r.defBase + (r.pension - r.pens0) * 0.08 + m.debtF + cyc + ageCost + (r.controlled ? CONTRIB_DEF * st.D.inc : 0); // palla di neve e deficit
-    /* piano di rientro: −3 punti per cinque anni, poi resta circa la metà dei tagli (−1,5 per sempre, al massimo −3 con più piani).
+    /* piano di rientro: −3 punti per cinque anni, poi resta circa la metà dei tagli (−1,5 per sempre, al massimo −6 con più piani, che si sommano (dal 15 novembre 2026; prima −3)).
        [Certo: le grandi riduzioni del debito nei paesi OCSE sono durate circa 11 anni con avanzi di circa 2 punti l'anno;
        Probabile: dopo 5-10 anni in media resta meno della metà del risanamento, per stanchezza (Ghosh e altri 2013)] */
     if (r.austUntil > st.year) r.dDef -= 3; else { r.dDef -= r.austPerm || 0; if (r.austPerm && st.D.fatigue) r.austPerm *= 1 - st.D.fatigue * dt; } // a super difficile i tagli si consumano
     // Regola di bilancio che si adatta: si stringe mentre il debito sale, si allenta quando scende bene o è sotto il 60%
     if (r.controlled && built(st, "debtBrake") && r.brk != null && !(st.D.brakeSusp && st.year - (st.recY || -99) < 2)) {
       const tr = r.dDef + r.dSnow;
-      if (tr > 0 && r.debt > 60) r.brk = Math.min(4, r.brk + 0.5 * dt);
+      if (tr > 0 && r.debt > 60) r.brk = Math.min(6, r.brk + 0.5 * dt); // fino a 6 punti (15 novembre 2026, decisione di Guido; prima 4)
       else if (tr < -1 || r.debt < 60) r.brk = Math.max(0, r.brk - 0.5 * dt);
     }
     if (r.controlled || r.exit) r.debt += dt * (r.dDef + r.dSnow); // in anarchia nessuno paga e nessuno presta: il debito resta congelato
@@ -4932,6 +4932,8 @@ function rollEvent(st) {
   if (st.flags.pandemic) order.unshift(EBY.pandemic);
   if (st.qDay && st.year >= st.qDay) { st.qDay = null; if (!built(st, "qCrypto")) st.forceEv = "qDay"; }
   if (st.forceEv) { const f = st.forceEv; st.forceEv = null; st.lastEv = now; return typeof f === "string" ? { id: f, r: null } : f; }
+  // soldi fermi: sempre, appena la cassa supera tre anni di entrate, e di nuovo ogni tre anni finché restano
+  if (!st.comet && st.funds > 3 * Math.max(1, st.income) && st.year - (st.flags.idleY || -99) >= 3) { st.flags.idleY = st.year; st.lastEv = now; return { id: "idleFunds", r: null }; }
   for (const ev of order) {
     if (st.comet && !COMET_EV.includes(ev.id)) continue;
     if (!st.comet && ev.id.startsWith("comet")) continue;
