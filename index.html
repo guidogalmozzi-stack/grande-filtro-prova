@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
-<script>window.GF_BUILD = "mwhqnuag"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
+<script>window.GF_BUILD = "mwhqx9qk"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
 <style>html{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);background:#0f1d29;color-scheme:dark}body{margin:0;font-family:system-ui,-apple-system,sans-serif;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -1479,8 +1479,12 @@ const INTERVENTIONS = [
     pro: "Rende possibili le missioni di pace nelle regioni cadute nell'anarchia", con: "Costa molto e ogni anno; un esercito comune preoccupa le potenze: la tensione sale un po'",
     geff: { tension: 2 } },
   { id: "police", cat: "sicurezza", name: "Ordine pubblico rafforzato", desc: "Più agenti e poteri speciali per sciogliere manifestazioni e disordini.", scope: "region", cost: 5, upkeep: 2, T: 0, axis: 10,
-    pro: "I disordini calano subito", con: "Dopo tre anni il malcontento torna più alto di prima",
-    fx: (m, s, r, st, gm, a) => { m.unrestT += st.year - a.y < 3 ? -14 : 5; } },
+    pro: "I disordini calano subito", con: "La calma dura due o tre anni; poi la rabbia cresce finché resta e non sparisce subito quando si toglie. Ogni volta che si riattiva calma meno",
+    /* Rivisto il 15 novembre 2026 (ricerca in docs/ricerche/2026-11-15-ordine-pubblico-e-repressione.md, decisione di Guido):
+       la calma è forte all'inizio e si esaurisce in 3 anni [Probabile: la repressione spegne le proteste per settimane o mesi,
+       di più con leggi severe]; ogni nuova attivazione calma la metà della precedente [Probabile: le strette ripetute si
+       sommano, Cile 2019]. La rabbia (st.polRage) la calcola tick: cresce finché resta attivo e si smaltisce in qualche anno. */
+    fx: (m, s, r, st, gm, a) => { const t = st.year + st.month / 12 - a.y; m.unrestT -= 14 * Math.pow(0.5, (a.uses || 1) - 1) * clamp((3 - t) / 2, 0, 1); } }, // piena il primo anno, poi cala fino a zero al terzo
   /* Istruzione e ricerca: le leve più forti sulla produttività, ma i frutti arrivano dopo 10–20 anni [Probabile] */
   { id: "education", cat: "societa", name: "Scuola per tutti", desc: "Più insegnanti, scuole migliori e nessun bambino fuori dalla scuola, fino alle superiori.", scope: "region", cost: 5, upkeep: 2.5, T: 2, ramp: 18, spread: true,
     pro: "Produttività molto più alta quando gli studenti di oggi saranno al lavoro, meno disuguaglianza", con: "Costa ogni anno e l'effetto pieno arriva dopo quasi vent'anni; con più studio si fanno un po' meno figli",
@@ -2891,6 +2895,7 @@ function startIntervention(st, id) {
     delete st.paused[id];
     const gap = st.year + st.month / 12 - pz.at, a = pz.a;
     a.y += gap; if (a.y0 != null) a.y0 += gap;
+    if (id === "police") { a.y = st.year + st.month / 12; a.uses = (a.uses || 1) + 1; } // nuova stretta: calma di nuovo, ma la metà
     st.acts[id] = a;
     if (id === "ubi") absorbBenefit(st);
     logNews(st, `Di nuovo in vigore: «${d.name}».`, "done");
@@ -4541,6 +4546,7 @@ function tick(st) {
     // misure nazionali lasciate fare: meno malcontento, più deficit
     // fuori dall'Autorità: per cinque anni il nuovo governo spende per accontentare tutti (meno malcontento, più deficit), poi solo un po' di deficit
     if (r.exit) { const y = st.year - (r.exitY || st.year); m.debtF += 0.8; if (y < 5) m.unrestT -= 4; }
+    if (r.controlled && st.polRage > 0.05) m.unrestT += st.polRage * (0.6 + r.polar / 100); // rabbia per l'ordine pubblico rafforzato: più forte dove la gente è divisa
     if (r.controlled && r.local) for (const k in r.local) { const L = r.local[k]; m.debtF += L.def; m.unrestT -= L.u; m.fert += L.fert || 0; m.g += L.g || 0; m.unempT += L.unemp || 0; m.pensT += L.pens || 0; }
     if (r.controlled) for (const k in st.G.m) m[k] += st.G.m[k];
     m.dmg = clamp(m.dmg, 0, 0.8); m.famine = clamp(m.famine, 0, 0.8);
@@ -4557,6 +4563,11 @@ function tick(st) {
      [Probabile: elettricità e computer hanno alzato la crescita per qualche decennio, poi è tornata intorno al 2% a persona] */
   const techT = 25 * gm.gAll; G.techL = G.techL || 0;
   st.techG = (techT - G.techL) * 0.05; G.techL += st.techG * dt;
+  /* rabbia per l'ordine pubblico rafforzato: +1,5 punti l'anno finché resta (più in fretta a ogni nuova stretta), al massimo 12;
+     quando si toglie cala di un quarto l'anno */
+  { const pa = st.acts.police;
+    if (pa && pa.n > 0) st.polRage = Math.min(12, (st.polRage || 0) + 1.5 * (1 + 0.5 * ((pa.uses || 1) - 1)) * dt);
+    else if (st.polRage) st.polRage *= 1 - 0.25 * dt; }
   st.gm = gm;
   st.robCap = robotCapture(st);
 
@@ -5105,6 +5116,7 @@ function simulate(st, id, months, base) {
   c.D = st.D; c.L = st.L; c.G = st.G; c.sim = true; c.log = [];
   for (const k in c.regions) c.regions[k].acts = c.acts;
   if (id && id[0] === "-") revoke(c, id.slice(1)); // consiglio di annullare un intervento già attivo
+  else if (id && c.paused && c.paused[id]) { c.funds = 999; startIntervention(c, id); } // riattivazione: come nella partita vera (15 novembre 2026)
   else if (id) { const d = IBY[id]; c.funds = 999; complete(c, d); if (d.axis) c.axis = clamp(c.axis + d.axis, -100, 100); }
   for (let i = 0; i < months && !c.over; i++) tick(c);
   setSeed(seed);
@@ -7622,6 +7634,17 @@ function paint() {
   $("legLo").textContent = tr(L.a); $("legHi").textContent = tr(L.b); $("legBar").style.background = L.bar;
   $("viewName").textContent = tr(L.name);
 }
+// ordine pubblico rafforzato: quanto calma ancora e quanta rabbia ha accumulato (15 novembre 2026)
+function policeState() {
+  const a = st.acts.police, on = a && a.n > 0, rage = st.polRage || 0, uses = (a && a.uses) || (st.paused && st.paused.police && st.paused.police.a.uses) || 0;
+  let t = "";
+  if (on) {
+    const left = 3 - (st.year + st.month / 12 - a.y);
+    t = left > 0.05 ? tr("Effetto calmante: ancora {x}.", { x: left >= 1.5 ? tr("{n} anni", { n: Math.round(left) }) : left >= 0.9 ? tr("un anno") : tr("pochi mesi") }) : tr("L'effetto calmante è finito: ora fa solo crescere la rabbia. Spegnerlo conviene.");
+  } else if (uses) t = tr("Riattivarlo calmerebbe solo {p}% della prima volta, e la rabbia salirebbe più in fretta.", { p: Math.round(100 * Math.pow(0.5, uses)) });
+  if (rage >= 0.5) t += " " + tr("Rabbia accumulata contro la repressione: +{r} punti di malcontento{x}.", { r: fmt(rage, 0), x: on ? "" : tr(", cala piano") });
+  return t ? `<p class="shockwarn">${t}</p>` : "";
+}
 const inflSeen = {}; // inflazione di ogni mese, per la freccia del riquadro in alto
 function hud() {
   if (!st) return;
@@ -8400,6 +8423,7 @@ function renderDetail() {
       ${d.desc ? `<p class="desc">${esc(tr(d.desc))}${slow}</p>` : ""}
       ${state ? `<span class="state">${state}${offIn(d.id)}</span>` : ""}
       <div class="imeters" id="indRows">${I.map((i) => indRow(i, 0)).join("")}</div>
+      ${d.id === "police" ? policeState() : ""}
       ${sysOn(st, "war") && tensionOf(st, d) >= 1 ? `<p class="shockwarn">${tr("Fa salire la tensione tra le potenze di {x} punti: più rischio di guerra nucleare.", { x: fmt(tensionOf(st, d), 0) })}</p>` : ""}
       <p class="pro"><b>${tr("Pro.")}</b> ${esc(tr(d.pro))}</p>
       <p class="con"><b>${tr("Contro.")}</b> ${esc(tr(d.con))}</p>
