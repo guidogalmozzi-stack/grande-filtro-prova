@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
-<script>window.GF_BUILD = "mwhnt2mv"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
+<script>window.GF_BUILD = "mwhq0oxt"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
 <style>html{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);background:#0f1d29;color-scheme:dark}body{margin:0;font-family:system-ui,-apple-system,sans-serif;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -2458,7 +2458,13 @@ const LVL_SPEED = 0.15; // ogni anno si recupera il 15% della distanza dal nuovo
 function prodGrowth(r, st, m, gm) {
   let g = basePg(r);
   g += st.g ? clamp(monetaryPush(st) * 0.25, -2.5, 0.6) : 0;
-  g -= st.g ? Math.min(10, Math.max(0, Math.abs(st.g.infl - 2) - 3) * 0.3) : 0; // inflazione molto alta o deflazione frenano l'economia; al massimo −10 punti (iperinflazioni reali: −10/−20% l'anno nei casi peggiori; prima arrivava a −50)
+  /* inflazione molto alta o deflazione frenano l'economia, sempre meno in proporzione (15 novembre 2026, decisione di Guido):
+     circa −1 punto al 10%, −2,4 al 20%, −3,8 al 40%, −5 al 65%, −6 al 100%, −10 solo nelle iperinflazioni oltre il 1000%.
+     [Probabile: Bruno e Easterly 1998, sopra il 40% la crescita cala bruscamente e poi riparte in fretta; Turchia 2022 72% e
+     +5%, Argentina 2023 oltre 200% e −1,6%; crolli del 15-20% solo nelle iperinflazioni estreme]. Prima: −0,3 per punto, −10 già
+     verso il 37%. */
+  g -= st.g ? Math.min(10, 2.4 * Math.log(1 + Math.max(0, Math.abs(st.g.infl - 2) - 3) / 9)) : 0;
+  if (st.g && st.g.inflRebY > (st.year || 0)) g += 1.5; // rimbalzo dopo una crisi d'inflazione domata
   g -= Math.max(0, r.debt - 100) * 0.01;
   /* Repubblica del lavoro: senza automazione e robot nelle imprese la produttività cresce meno (9 novembre 2026).
      [Certo: i robot industriali hanno aggiunto circa 0,36 punti l'anno alla crescita della produttività in 17 paesi, 1993-2007,
@@ -4593,6 +4599,10 @@ function tick(st) {
     st.monetize = capPush(st); // nessun finanziamento automatico: solo se il giocatore ha messo il tetto ai tassi
     const piT = st.monetize + G.anchor + 0.1 * clamp(G.gW0 - uW, -4, 4) + 0.1 * Math.max(0, ecW - G.ec0) + gm.infl + G.piShock + 0.6 * monetaryPush(st);
     G.infl += (piT - G.infl) * 0.7 * dt;
+    /* crisi d'inflazione (oltre il 40%) domata (sotto il 10%): quattro anni di crescita in più, +1,5 punti [Probabile: Bruno e
+       Easterly 1998, dopo le crisi la crescita riparte in fretta e con forza] */
+    if (G.infl > 40) G.inflHi = true;
+    else if (G.inflHi && G.infl < 10) { G.inflHi = false; G.inflRebY = st.year + 4; if (!st.sim) logNews(st, "L'inflazione è di nuovo sotto controllo: imprese e famiglie tornano a investire e l'economia riparte più in fretta per qualche anno.", "done"); }
     // avvisi a soglie (15 novembre 2026, richiesta di Guido): una notizia quando l'inflazione supera il 5, il 10 e il 20%, con la causa
     { const lv = G.infl >= 20 ? 3 : G.infl >= 10 ? 2 : G.infl >= 5 ? 1 : 0, was = G.inflLv || 0;
       if (lv > was && !st.sim) {
