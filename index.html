@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
-<script>window.GF_BUILD = "mwif69wr"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
+<script>window.GF_BUILD = "mwjszlmh"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
 <style>html{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);background:#0f1d29;color-scheme:dark}body{margin:0;font-family:system-ui,-apple-system,sans-serif;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -920,7 +920,7 @@ const DIFF = {
     /* reazione alle riforme UGUALE per tutti i governi (15 novembre 2026, decisione di Guido: le differenze tra governi nascono solo
        dalle loro regole; il governo neutro, che può fare tutto, è il più facile). Un valore per scenario: nello scenario 6 la
        genetica cambia l'equilibrio. Tarati perché il governo neutro vinca circa 6 volte su 60. */
-    backlashL: { l5: 1.38, l6: 1.28 },
+    backlashL: { l5: 1.38, l6: 1.24 },
     /* a super difficile i dati reali meno favorevoli invece di quelli medi (9 novembre 2026, scelta di Guido):
        austKeep = parte dei tagli del piano di rientro che resta (in media meno della metà dopo 5-10 anni), fatigue = quanto se ne
        perde ogni anno per stanchezza fiscale (Ghosh e altri 2013), brakeK = forza della regola di bilancio (in media +0,6 punti,
@@ -1808,9 +1808,9 @@ const INTERVENTIONS = [
     pro: "Nessuno resta escluso dalle cure genetiche: meno divisioni e meno malcontento", con: "Costa ogni anno. Esclusivo dello Stato sociale",
     geff: { polarAll: -2 } },
   // --- Libero mercato ---
-  { id: "popShares", cat: "economia", name: "Azionariato popolare", desc: "Ogni cittadino riceve quote delle grandi aziende automatizzate e ne incassa i dividendi.", scope: "region", cost: 3, T: 2, gov: "market",
-    pro: "Più robot lavorano, più i cittadini guadagnano: chi perde il lavoro non resta senza niente, i dividendi alleggeriscono le pensioni e le divisioni calano", con: "All'inizio vale poco (come il dividendo dell'Alaska, 1.000-2.000 dollari l'anno): diventa importante solo con molta automazione. Esclusivo del Libero mercato [Certo/Ipotesi]",
-    fx: (m, s, r) => { m.polarT -= (1 + 8 * (r.robShare || 0)) * s; m.pensT -= 25 * (r.robShare || 0) * s; m.unrestT -= 6 * (r.robShare || 0) * s; } }, // i dividendi arrivano anche ai pensionati
+  { id: "popShares", cat: "economia", name: "Azionariato popolare", desc: "Ogni cittadino riceve quote delle grandi aziende automatizzate e ne incassa i dividendi.", scope: "region", cost: 6, T: 2, ramp: 10, gov: "market", /* 16 novembre 2026: prima costava 3 e dava subito tutto. Le quote non le compra l'Autorità: una legge obbliga le aziende automatizzate a cederne una parte ai cittadini; l'Autorità paga la gestione e i rimborsi, e gli azionisti investono un po' meno (crescita più bassa). Il dividendo cresce in una decina d'anni [Ipotesi: proposte di dividendo sociale; Alaska Permanent Fund] */
+    pro: "Più robot lavorano, più i cittadini guadagnano: chi perde il lavoro non resta senza niente, i dividendi alleggeriscono le pensioni e le divisioni calano", con: "Gli azionisti investono un po' meno: crescita un po' più bassa. All'inizio vale poco (come il dividendo dell'Alaska, 1.000-2.000 dollari l'anno): diventa importante solo con molta automazione. Esclusivo del Libero mercato [Certo/Ipotesi]",
+    fx: (m, s, r) => { m.g -= 0.05 * s; m.polarT -= (1 + 8 * (r.robShare || 0)) * s; m.pensT -= 25 * (r.robShare || 0) * s; m.unrestT -= 6 * (r.robShare || 0) * s; } }, // i dividendi arrivano anche ai pensionati
   { id: "sez", cat: "economia", name: "Zone economiche speciali", desc: "Aree con tasse basse e poche regole per attirare imprese e investimenti dall'estero.", scope: "region", cost: 5, T: 3, gov: "market",
     pro: "Nelle regioni povere la crescita può accelerare molto", con: "Più disuguaglianza; nelle regioni già ricche serve a poco. Esclusivo del Libero mercato [Probabile: Shenzhen sì, molte altre no]",
     fx: (m, s, r) => { m.g += (r.wealth < 45 ? 0.5 : 0.1) * s; m.polarT += 1.5 * s; } }, // divisioni +1,5 (prima +3): risultati misti, grandi successi in Cina e molti fallimenti altrove [Probabile: Banca mondiale 2017]
@@ -1827,8 +1827,12 @@ const INTERVENTIONS = [
     pro: "Fondazioni e volontari aiutano chi resta indietro: meno malcontento", con: "Compensa solo in parte gli aiuti pubblici. Esclusivo del Libero mercato [Probabile]",
     eff: { unrest: -2.5 } },
   { id: "privHealth", cat: "demografia", name: "Sanità privata con pronto soccorso garantito", desc: "Ognuno sceglie se e come assicurarsi; gli ospedali devono comunque curare le emergenze.", scope: "region", cost: 2, upkeep: 1, T: 2, gov: "market",
-    pro: "Costa all'Autorità molto meno della sanità universale; cure veloci per chi è assicurato", con: "Circa una persona su sei resta senza copertura: vita media più bassa, famiglie rovinate dalle spese mediche, epidemie che si diffondono di più. Esclusivo del Libero mercato (al posto della sanità universale) [Certo: Stati Uniti prima del 2010]",
-    eff: { unrest: -2, life: 0.6, labor: 0.004, polar: 2 } },
+    pro: "Costa all'Autorità molto meno della sanità universale; cure veloci per chi è assicurato; meno malcontento dove prima mancavano le cure", con: "Circa una persona su sei resta senza copertura: vita media più bassa, famiglie rovinate dalle spese mediche, epidemie che si diffondono di più. Esclusivo del Libero mercato (al posto della sanità universale) [Certo: Stati Uniti prima del 2010]",
+    eff: { life: 0.6, labor: 0.004, polar: 2 },
+    /* 16 novembre 2026: prima −2 di malcontento ovunque, quanto la sanità universale dove le cure ci sono già, a un nono del costo.
+       Ora calma solo dove mancano le cure (il pronto soccorso garantito aiuta chi non aveva niente); dove la copertura c'è già
+       cambia poco [Certo: le spese mediche sono la prima causa di fallimento delle famiglie negli Stati Uniti prima del 2010] */
+    fx: (m, s, r) => { m.unrestT -= (0.5 + 4 * healthGap(r)) * s; } },
   { id: "healthAccounts", cat: "demografia", name: "Conti sanitari individuali", desc: "Ogni lavoratore versa una parte dello stipendio su un conto personale per pagarsi le cure.", scope: "region", cost: 1, T: 2, gov: "market",
     pro: "Le persone spendono con più attenzione: un po' meno malcontento e pensioni un po' più leggere", con: "Chi guadagna poco mette da parte poco. Esclusivo del Libero mercato [Probabile: Singapore]",
     eff: { unrest: -1, pension: -1, life: 0.3 } },
@@ -1896,11 +1900,13 @@ const INTERVENTIONS = [
     pro: "Più fiducia nelle istituzioni e servizi più vicini a ciò che serve: meno divisioni e un po' meno malcontento", con: "Costa ogni anno; decide solo su una piccola parte della spesa. Esclusivo della Democrazia liberale [Probabile: Porto Alegre e molte città europee, effetti moderati]",
     eff: { polar: -3, unrest: -2 } },
   { id: "complaints", cat: "societa", name: "Sportelli dei reclami e consultazioni locali", desc: "In ogni città uffici dello Stato raccolgono lamentele e richieste; i funzionari devono rispondere entro tempi fissati e ne rispondono ai superiori.", scope: "region", cost: 2, upkeep: 0.5, T: 1, gov: "central",
-    pro: "Le proteste locali si sfogano negli uffici invece che in piazza: meno malcontento", con: "Non cambia le decisioni dall'alto: la sfiducia di fondo cala poco. Esclusivo dello Stato centralizzato [Probabile: i sistemi di petizione e reclamo degli Stati centralizzati riducono le proteste locali]",
-    eff: { unrest: -3.5, polar: -1.5 } },
-  { id: "communityFund", cat: "societa", name: "Fondazioni di comunità", desc: "Agevolazioni fiscali a imprese e famiglie ricche che finanziano fondazioni locali per scuole, centri sociali e quartieri poveri.", scope: "region", cost: 1, T: 2, ramp: 5, gov: "market",
+    pro: "Una parte delle proteste locali si sfoga negli uffici invece che in piazza: un po' meno malcontento", con: "Molte richieste restano senza risposta e non cambia le decisioni dall'alto: la sfiducia di fondo quasi non cala. Esclusivo dello Stato centralizzato [Probabile: i sistemi di petizione mantengono la calma senza risolvere i problemi; pochi reclami vengono davvero accolti]",
+    /* 16 novembre 2026: prima −3,5 di malcontento e −1,5 di divisioni (ora −2,5 e −1), più di quasi ogni misura normale: da sola
+       faceva vincere lo Stato centralizzato nello scenario 6 molto più del governo neutro [Probabile: Hou, China Quarterly 2019; Hu, Gong e Zhao 2025] */
+    eff: { unrest: -2.5, polar: -1 } },
+  { id: "communityFund", cat: "societa", name: "Fondazioni di comunità", desc: "Agevolazioni fiscali a imprese e famiglie ricche che finanziano fondazioni locali per scuole, centri sociali e quartieri poveri.", scope: "region", cost: 1, upkeep: 0.5, T: 2, ramp: 5, gov: "market",
     pro: "Progetti nei quartieri più poveri pagati dai privati: meno divisioni e un po' meno malcontento", con: "Arrivano dove i donatori vogliono, non sempre dove serve di più. Esclusivo del Libero mercato [Probabile: fondazioni di comunità nei paesi anglosassoni]",
-    eff: { polar: -2, unrest: -1.5 } },
+    eff: { polar: -2, unrest: -1.5 } }, // 16 novembre 2026: gli sgravi fiscali costano ogni anno (prima era gratis)
   { id: "broadBase", cat: "economia", name: "Base imponibile larga, poche eccezioni", desc: "Si tolgono esenzioni, sconti e regimi speciali e si tengono basse le aliquote: tutti pagano un po', nessuno paga molto.", scope: "region", cost: 1, T: 2, gov: "market",
     pro: "Entrate più alte di circa un sesto senza alzare le aliquote; gli sconti andavano soprattutto ai più ricchi, quindi un po' meno divisioni", con: "Chi perde gli sconti protesta: un po' di malcontento. Esclusivo del Libero mercato [Probabile: le agevolazioni fiscali valgono il 4-8% del PIL nei paesi OCSE, più di quanto rendono le patrimoniali, 0,2-1%]",
     eff: { g: -0.03, polar: -1 }, fx: (m, s, r, st) => { m.unrestT += 1 * s * taxAccept(st); }, geff: { income: 0.15 } },
@@ -1980,6 +1986,9 @@ const INTERVENTIONS = [
   { id: "privat", cat: "economia", name: "Privatizzazioni", desc: "Vendita a privati di aziende e servizi pubblici.", scope: "global", cost: 0, upkeep: 0.8, T: 1, gov: "market", fixed: true,
     gain: (st) => priced(st, 15),
     pro: "Un grande incasso subito; le aziende vendute diventano un po' più efficienti", con: "Si perdono per sempre i profitti delle aziende pubbliche (un piccolo costo ogni anno); tariffe più care: malcontento e polarizzazione in aumento ovunque. Esclusivo del Libero mercato",
+    /* efficienza delle aziende vendute (16 novembre 2026: era nella descrizione ma non nel motore) [Probabile: Megginson e Netter 2001,
+       le aziende privatizzate migliorano in media profitti ed efficienza; meno dove manca la concorrenza] */
+    geff: { gAll: 0.05 },
     once: (r, st) => { st.funds += priced(st, 15); for (const id in st.regions) { st.regions[id].shockU += 6; st.regions[id].polar += 2; } } },
   /* ----- Genetica (scenario 6). Ogni passo accelera la ricerca biotecnologica e alza un po' il rischio di pandemia
      ingegnerizzata; il controllo del DNA sintetico e le regole per i laboratori lo bilanciano. Numeri da [Probabile] a [Ipotesi]. ----- */
