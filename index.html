@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
-<script>window.GF_BUILD = "mwlwz52s"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
+<script>window.GF_BUILD = "mwlyxoim"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
 <style>html{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);background:#0f1d29;color-scheme:dark}body{margin:0;font-family:system-ui,-apple-system,sans-serif;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -110,7 +110,10 @@ button.chip { font: inherit; color: inherit; text-align: left; cursor: pointer; 
 .chip.doom { border-color: #d65b4a; background: rgba(90,24,18,.93); animation: doom 1.6s ease-in-out infinite; } .chip.doom .k { color: #f0a597; } .chip.doom .v { color: #ffd2c8; }
 @keyframes doom { 50% { box-shadow: 0 0 0 4px rgba(214,91,74,.35); } }
 .tl { top: max(8px, env(safe-area-inset-top, 0px)); left: var(--gl); flex-wrap: nowrap; right: calc(var(--gr) + var(--trw, 40%) + 8px); } /* si ferma prima del riquadro della data (15 novembre 2026) */ /* una sola riga: se va a capo la cartina si rimpicciolisce (15 novembre 2026) */
-.tl .chip { min-width: 0; } .tl .chip .k, .tl .chip .v { overflow: hidden; text-overflow: ellipsis; }
+.tl .chip { min-width: 0; } .tl .chip .k { white-space: nowrap; }
+/* niente puntini (18 novembre 2026, richiesta di Guido): se la fila non ci sta, le scritte si rimpiccioliscono */
+.tl.tight .chip { padding: 3px 6px; } .tl.tight .chip .k { font-size: 10px; letter-spacing: .04em; } .tl.tight .chip .v { font-size: 12px; } .tl.tight .chip .v small { font-size: 10px; }
+.tl.tighter .chip { padding: 2px 5px; } .tl.tighter .chip .k { font-size: 9px; letter-spacing: 0; } .tl.tighter .chip .v { font-size: 11px; } .tl.tighter .chip .v small { font-size: 9px; }
 .tr { top: max(8px, env(safe-area-inset-top, 0px)); right: var(--gr); }
 .datebox { background: rgba(21,38,52,.93); border: 1px solid var(--line); border-radius: 8px; padding: 4px 6px 4px 12px; display: flex; align-items: center; gap: 8px; }
 .datebox .d { font-family: var(--font-d); font-weight: 600; font-size: 21px; letter-spacing: .04em; min-width: 82px; }
@@ -747,7 +750,7 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
     <div class="hud tl">
       <button type="button" class="sound" id="bPause" aria-label="Menu della partita"><svg viewBox="0 0 16 16"><path d="M3 4h10M3 8h10M3 12h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
       <button type="button" class="sound" data-sound data-dyn aria-label="Musica" aria-pressed="true"></button>
-      <div class="chip"><span class="k">Stabilità</span><span class="v" id="sWorld" data-dyn>45 <small>obiettivo 52</small></span></div>
+      <div class="chip"><span class="k">Stabilità</span><span class="v" id="sWorld" data-dyn>45 <small>meta 52</small></span></div>
       <div class="chip"><span class="k">Anni stabili</span><span class="v" id="sStable" data-dyn>0 / 10</span></div>
       <div class="chip"><span class="k">Temperatura</span><span class="v" id="sTemp" data-dyn>+1,35 °C</span></div>
       <button type="button" class="chip infl" id="cInfl" aria-label="Inflazione: apre la banca centrale"><span class="k">Inflazione</span><span class="v" id="sInfl" data-dyn>3,0%</span></button>
@@ -4348,7 +4351,7 @@ function honors(st) {
   return [
     { id: "fast", name: "Rapidità", desc: `Vittoria entro ${st.L.fast} anni`, ok: st.year - 2026 <= st.L.fast },
     { id: "all", name: "Nessuno lasciato indietro", desc: "Nessuna regione caduta nell'anarchia in tutta la partita", ok: lost === 0 && !st.everAnarchy }, // anche se poi è stata ripresa (7 novembre 2026)
-    sysOn(st, "climate") && { id: "cool", name: "Clima sotto controllo", desc: "Temperatura mai oltre +1,8 °C in tutta la partita", ok: Math.max(st.tMax || 0, st.g.temp + st.g.geoOff) < 1.8 },
+    sysOn(st, "climate") && { id: "cool", name: "Clima sotto controllo", desc: "Temperatura mai oltre +2 °C in tutta la partita", ok: Math.max(st.tMax || 0, st.g.temp + st.g.geoOff) < 2 },
     sysOn(st, "space") && { id: "moon", name: "Ponte verso le stelle", desc: "Insediamento lunare permanente", ok: !!st.lunarCity },
   ].filter(Boolean);
 }
@@ -7856,7 +7859,7 @@ function hud() {
     $("sInfl").textContent = fmt(inf, 1) + "%" + arr;
     $("cInfl").classList.toggle("mid", inf > 4 && inf <= 10); $("cInfl").classList.toggle("hi", inf > 10 || inf < -0.5); }
   const ws = worldStab(st);
-  $("sWorld").innerHTML = `<span style="color:${ws >= st.L.win - 0.5 ? "#9fd6c2" : "inherit"}">${Math.round(ws)}</span> <small>${tr("obiettivo {x}", { x: st.L.win })}</small>`;
+  $("sWorld").innerHTML = `<span style="color:${ws >= st.L.win - 0.5 ? "#9fd6c2" : "inherit"}">${Math.round(ws)}</span> <small>${tr("meta {x}", { x: st.L.win })}</small>`; fitTop();
   // sotto la soglia il riquadro degli anni stabili diventa il conto alla rovescia verso il crollo
   const low = st.lowM || 0, chipS = $("sStable").parentNode;
   chipS.classList.toggle("doom", low > 0 || !!st.comet);
@@ -9943,6 +9946,15 @@ function fit() {
 }
 window.addEventListener("resize", () => { fit(); if ($("sumList")) renderSummary(); });
 /* spazio della cartina: sotto i riquadri in alto, sopra la barra in basso, a destra della colonna con vista e notizie */
+// la fila in alto a sinistra: se le scritte non ci stanno si rimpiccioliscono, invece di essere tagliate con i puntini
+function fitTop() {
+  const tl = document.querySelector(".hud.tl"); if (!tl) return;
+  const key = tl.textContent.length + "|" + tl.clientWidth; if (fitTop.k === key) return; fitTop.k = key; // solo quando cambia qualcosa
+  tl.classList.remove("tight", "tighter");
+  const over = () => tl.scrollWidth > tl.clientWidth + 1 || [...tl.children].some((c) => c.scrollWidth > c.clientWidth + 1);
+  if (over()) tl.classList.add("tight");
+  if (over()) tl.classList.add("tighter");
+}
 function layoutMap() {
   const app = $("app"), H = app.clientHeight, W = app.clientWidth; if (!H) return;
   const play = !$("hud").hidden;
@@ -9955,6 +9967,7 @@ function layoutMap() {
   }
   const sw = play ? Math.round(Math.min(175, Math.max(135, W * 0.17))) : 0; // colonna di sinistra più stretta (2 novembre 2026): più spazio alla cartina
   { const tr = document.querySelector(".hud.tr"); if (tr) app.style.setProperty("--trw", tr.offsetWidth + "px"); } // la fila in alto a sinistra non passa sotto la data
+  fitTop();
   app.style.setProperty("--mt", mt + "px"); app.style.setProperty("--mb", mb + "px");
   app.style.setProperty("--sw", sw + "px"); app.style.setProperty("--ml", (play ? sw + 14 : 0) + "px");
 }
