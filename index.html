@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
-<script>window.GF_BUILD = "mwlwb88r"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
+<script>window.GF_BUILD = "mwlwz52s"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
 <style>html{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);background:#0f1d29;color-scheme:dark}body{margin:0;font-family:system-ui,-apple-system,sans-serif;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -2071,7 +2071,7 @@ const INTERVENTIONS = [
        72% degli americani d'accordo a modificare il DNA di un nascituro per evitare una malattia grave; contrari al potenziamento] */
     fx: (m, s, r, st, gm) => { gm.polarAll += 1.5; gm.biotechRate += 0.2; } },
   { id: "geneDrive", cat: "genetica", name: "Zanzare modificate contro la malaria", desc: "Zanzare con un gene che si diffonde da sola nella specie e la fa crollare: niente più malaria. Una volta liberate non si possono richiamare.", scope: "global", cost: 0.5, T: 3,
-    pro: "Le morti per malaria crollano nelle regioni tropicali, che crescono di più", con: "Non si può fermare né tornare indietro; le zanzare passano i confini anche dove non le volevano",
+    pro: "Le morti per malaria crollano nelle regioni tropicali, che crescono di più", con: "Non si può fermare né tornare indietro; le zanzare passano i confini anche dove non le volevano. Colpisce solo la zanzara della malaria: contro la dengue servono le zanzare con batteri",
     fx: (m, s, r, st, gm) => { gm.malaria = 1; } },
   { id: "dnaControl", cat: "genetica", name: "Controllo del DNA sintetico", desc: "Ogni ordine di DNA sintetico e ogni macchina che lo produce vengono registrati e controllati.", scope: "global", cost: 2, upkeep: 0.3, T: 2,
     pro: "Il rischio di pandemia ingegnerizzata scende e la sicurezza dei laboratori cresce un po' ogni anno", con: "La ricerca rallenta un po'; più sorveglianza sui laboratori",
@@ -3851,7 +3851,7 @@ const EVENTS = [
      Wolbachia arriva un quarto delle volte. Tutti gli scenari. */
   { id: "dengueWave", scope: "region", cat: "Salute", title: "Epidemia di dengue",
     p: (st, r) => (["sea", "sa", "latam", "wca", "esa"].includes(r.id) ? (0.03 + 0.01 * Math.max(0, st.g.temp + st.g.geoOff - 1.3)) * (built(st, "wolbachia") ? 0.25 : 1) : 0),
-    text: (st, r) => `In ${r.name} un'epidemia di dengue riempie gli ospedali: febbri altissime, migliaia di ricoveri, città paralizzate per settimane.`,
+    text: (st, r) => `In ${r.name} un'epidemia di dengue riempie gli ospedali: febbri altissime, migliaia di ricoveri, città paralizzate per settimane.` + (built(st, "wolbachia") ? "" : " La dengue la porta un'altra zanzara, non quella della malaria: contro di lei servono le zanzare con batteri contro la dengue (Salute, dopo i vaccini rapidi), che rendono queste epidemie quattro volte più rare."),
     choices: [
       { label: "Ospedali da campo e disinfestazione ovunque", cost: 3, out: "L'epidemia passa in poche settimane", fx: (st, r) => { r.shockU -= 1; } },
       { label: "Cure solo nelle città più colpite", cost: 1, out: "Molti ammalati e giornate di lavoro perse", fx: (st, r) => { r.shockU += 3; r.shockG -= 0.2; } },
