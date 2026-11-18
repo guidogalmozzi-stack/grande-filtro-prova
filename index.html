@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
-<script>window.GF_BUILD = "mwlvrc83"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
+<script>window.GF_BUILD = "mwlwb88r"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
 <style>html{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);background:#0f1d29;color-scheme:dark}body{margin:0;font-family:system-ui,-apple-system,sans-serif;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -9401,8 +9401,24 @@ const TELE = (() => {
       uscite: rs.filter((r) => r.exit).length, min: Math.round((st.rt || 0) / 60000), x: extra || {} };
     // ogni anno tutti i dati che servono per capire una partita (7 novembre 2026, richiesta di Guido: il foglio deve registrare tutto)
     if (type === "anno" || type === "fine") Object.assign(d.x, detail());
-    try { fetch(URL, { method: "POST", mode: "no-cors", keepalive: true, headers: { "Content-Type": "text/plain" }, body: JSON.stringify(d) }); } catch (e) {}
+    q.push(JSON.stringify(d)); if (q.length > 400) q.splice(0, q.length - 400); keep(); pump();
   }
+  /* coda degli invii (18 novembre 2026): prima ogni anno partiva un invio "keepalive" senza aspettare il precedente; a velocità alta
+     i telefoni ne scartavano molti senza errore (limite di 64 kB in viaggio) e nel foglio mancavano decine di anni o partite intere.
+     Ora gli invii partono uno alla volta; quelli non riusciti restano nella memoria del telefono e si riprovano più tardi. */
+  let q = []; try { q = JSON.parse(localStorage.getItem("gf-tq") || "[]"); } catch (e) { q = []; }
+  let busy = false, wait = null;
+  function keep() { try { localStorage.setItem("gf-tq", JSON.stringify(q)); } catch (e) {} }
+  function pump() {
+    if (busy || !q.length || !URL) return;
+    busy = true;
+    const body = q[0];
+    let p; try { p = fetch(URL, { method: "POST", mode: "no-cors", keepalive: document.hidden && body.length < 60000, headers: { "Content-Type": "text/plain" }, body }); } catch (e) { p = Promise.reject(e); }
+    p.then(() => { q.shift(); keep(); busy = false; pump(); })
+      .catch(() => { busy = false; clearTimeout(wait); wait = setTimeout(pump, 30000); }); // senza rete: si riprova fra 30 secondi
+  }
+  setTimeout(pump, 3000); // invii rimasti da una sessione precedente
+  window.addEventListener("online", pump);
   document.addEventListener("visibilitychange", () => {
     // il telefono chiude o cambia app durante una partita: dice dove si è fermato (al massimo una volta ogni 10 minuti)
     if (document.hidden && phase === "play" && st && !st.over && Date.now() - lastPause > 600000) { lastPause = Date.now(); send("pausa"); }
