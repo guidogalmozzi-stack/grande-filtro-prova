@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
-<script>window.GF_BUILD = "mwjszlmh"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
+<script>window.GF_BUILD = "mwlvrc83"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
 <style>html{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);background:#0f1d29;color-scheme:dark}body{margin:0;font-family:system-ui,-apple-system,sans-serif;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -3614,7 +3614,7 @@ const EVENTS = [
     ] },
   { id: "cometLaunch", scope: "global", cat: "Spazio", title: "La finestra di lancio verso la cometa",
     p: () => 0,
-    text: (st) => { const left = st.comet ? st.comet.due - st.year : 0; return `La flotta di deviatori è pronta e la cometa colpirà fra ${left} ${left === 1 ? "anno" : "anni"}. ${left >= 5 ? "Siamo in tempo per un impatto come quello della missione DART: le probabilità di riuscita sono alte." : left >= 2 ? "È tardi per un semplice impatto: serve un ordigno nucleare che esploda vicino alla cometa. Le probabilità sono più basse." : "È l'ultimo momento: resta solo un tentativo disperato."} Probabilità di deviarla se si lancia ora: circa ${Math.round(cometChance(st, left) * 100)}%. Ogni anno di attesa la fa scendere.`; },
+    text: (st) => { const left = st.comet ? st.comet.due - st.year : 0; return `La flotta di deviatori è pronta e la cometa colpirà fra ${left} ${left === 1 ? "anno" : "anni"}. ${left >= 6 ? "C'è tempo per lanciare più sonde una dopo l'altra e correggere il tiro: la deviazione riuscirà." : left >= 5 ? "Siamo in tempo per un impatto come quello della missione DART: le probabilità di riuscita sono alte." : left >= 2 ? "È tardi per un semplice impatto: serve un ordigno nucleare che esploda vicino alla cometa. Le probabilità sono più basse." : "È l'ultimo momento: resta solo un tentativo disperato."} Probabilità di deviarla se si lancia ora: circa ${Math.round(cometChance(st, left) * 100)}%. Ogni anno di attesa la fa scendere.`; },
     choices: [
       { label: "Lanciare la missione ora", cost: 20, out: "Le sonde partono verso la cometa", fx: (st) => { if (st.comet) { st.comet.launched = true; st.comet.p = cometChance(st, st.comet.due - st.year); } } },
       { label: "Lasciar perdere", cost: 0, out: "Nessuna missione: la cometa colpirà la Terra", fx: (st) => { if (st.comet) st.comet.give = true; } },
@@ -4609,10 +4609,14 @@ function gameOver(st, key) {
    Nella realtà il rischio di una catastrofe globale da asteroidi e comete nei prossimi cent'anni è stimato intorno a 1 su un
    milione per l'estinzione e ben sotto 1 su 10.000 per un impatto da un chilometro [Probabile: Ord 2020; NASA]: quasi tutti i
    grandi asteroidi sono già noti, il rischio residuo sono le comete che arrivano dall'esterno del sistema solare e si vedono tardi.
-   Nel gioco, per licenza, capita in circa una partita su cinquanta. Con la sorveglianza degli asteroidi la si scopre 8 anni prima,
-   senza solo 3: in tempo per costruire i deviatori solo se si è pronti. Deviata: il mondo si sente unito (meno divisioni e
-   malcontento ovunque). Non deviata: fine della civiltà, il finale «Impatto». */
-const COMET_RATE = 0.0004;
+   Nel gioco, per licenza, è molto più frequente. Con la sorveglianza degli asteroidi la si scopre 10 anni prima, senza solo 3:
+   in tempo per costruire i deviatori solo se si è pronti. Deviata: il mondo si sente unito (meno divisioni e malcontento ovunque).
+   Non deviata: fine della civiltà, il finale «Impatto».
+   Dal 18 novembre 2026 (richiesta di Guido): mai prima del 2042, poi una probabilità ogni anno (più è lunga la partita, più è
+   probabile vederla). Chi dà subito la precedenza allo spazio ha la sorveglianza dal 2039 (lanciatori 5 anni, economia orbitale 4,
+   sorveglianza 4) e si salva sempre: con 10 anni di preavviso c'è tempo anche per costruire i deviatori d'urgenza (3 anni) e lanciare
+   con almeno 6 anni di anticipo, quando la deviazione riesce sempre. Circa 2% in una partita che finisce nel 2060, 4% nel 2080. */
+const COMET_FROM = 2042, COMET_RATE = 0.001;
 /* mentre la cometa si avvicina contano solo lei e i disastri: niente proteste né scioperi, le notizie parlano solo della cometa,
    i conteggi della vittoria e del crollo restano fermi fino all'impatto o alla deviazione (richiesta di Guido, 1 novembre 2026) */
 const COMET_EV = ["cometPanic", "cometRush", "cometLaunch", "cometShelter", "cometFood", "cometSeats", "cometLast", "storm", "heat", "famine", "wildfire", "waterCrisis", "solar", "volcano", "quake", "asteroid", "epidemic", "pandemic"];
@@ -4620,13 +4624,14 @@ function cometNews(st, text, kind) { logNews(st, text, kind); st.log[0].comet = 
 function cometNote(st, kind, icon, title, text) { note(st, kind, icon, title, text); if (st.log[0]) st.log[0].comet = true; }
 // probabilità di deviare la cometa lanciando con "left" anni di anticipo
 function cometChance(st, left) {
+  if (left >= 6) return 1; // con sei anni o più si lanciano più sonde una dopo l'altra, correggendo il tiro: riesce sempre [Probabile]
   const p = left >= 5 ? 0.95 : left >= 4 ? 0.8 : left >= 3 ? 0.6 : left >= 2 ? 0.35 : 0.1;
   return Math.min(0.98, p + (built(st, "launch") ? 0.05 : 0) + (st.moon ? 0.03 : 0));
 }
 function cometYear(st) {
   if (st.sim || st.levelId !== "l6") return;
   const c = st.comet;
-  if (!c && !st.flags.cometSeen && rand() < COMET_RATE) {
+  if (!c && !st.flags.cometSeen && st.year >= COMET_FROM && rand() < COMET_RATE) {
     const lead = built(st, "pdefWatch") ? 10 : 3;
     st.comet = { due: st.year + lead }; st.flags.cometSeen = true;
     st.queue = (st.queue || []).filter((q) => COMET_EV.includes(q.id)); // le crisi in attesa (proteste, scioperi…) passano in secondo piano
