@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
-<script>window.GF_BUILD = "mwnfoya1"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
+<script>window.GF_BUILD = "mwnfxu6j"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
 <style>html{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);background:#0f1d29;color-scheme:dark}body{margin:0;font-family:system-ui,-apple-system,sans-serif;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -4963,7 +4963,12 @@ function tick(st) {
        Velocità massima 3 punti l'anno per regione: anche lo scenario più spinto dell'Agenzia (emissioni nette zero nel 2050) toglie in
        media circa 2-2,5 punti l'anno; la Francia del nucleare negli anni '80 circa 2 [Probabile]. Le nuove centrali che entrano in funzione
        tutte insieme (nucleare, dighe, geotermia) contano a parte. */
-    let fs = (0.012 * r.fossil + m.fossilShift) * dt, room = 3 * dt;
+    /* la spinta del mercato segue la strada «senza nuove politiche» (r.fossilB, 19 novembre 2026, osservazione di Guido): quello che fa
+       il giocatore si aggiunge per intero alle previsioni, invece di prendere il posto degli impianti che il mercato avrebbe costruito
+       comunque */
+    if (r.fossilB == null) r.fossilB = r.fossil;
+    const drift = 0.012 * r.fossilB; r.fossilB -= drift * dt;
+    let fs = (drift + m.fossilShift) * dt, room = 3 * dt;
     if (fs > room) fs = room;
     if (fs > 0) { const p = Math.max(0, Math.min(fs, r.fossil - 3)); r.fossil -= p; r.renew += p; room -= p; }
     else { const p = Math.min(-fs, r.renew); r.renew -= p; r.fossil += p; }
