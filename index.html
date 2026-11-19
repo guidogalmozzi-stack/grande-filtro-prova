@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
-<script>window.GF_BUILD = "mwnfxu6j"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
+<script>window.GF_BUILD = "mwnhorij"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
 <style>html{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);background:#0f1d29;color-scheme:dark}body{margin:0;font-family:system-ui,-apple-system,sans-serif;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -1390,7 +1390,7 @@ const INTERVENTIONS = [
      quasi del tutto dal numero di lavoratori, ma l'occupazione crolla nel giro di dieci anni. Senza reddito di base è il
      disfacimento della società; con il reddito di base è un'alternativa alla crescita della popolazione [Ipotesi]. */
   { id: "massRobots", cat: "economia", name: "Robot pensanti al posto dei lavoratori", desc: "Robot umanoidi guidati da un'AI generale sostituiscono gradualmente quasi tutti i lavori, nell'arco di dieci anni.", scope: "region", cost: 30, T: 3, ramp: 10, sys: "ai",
-    need: (st) => (st.g.aiCap >= 70 ? null : "Richiede un'AI molto più potente di oggi"),
+    need: (st) => (st.g.aiCap >= 70 ? null : `Richiede un'AI molto più potente: livello 70, oggi ${Math.round(st.g.aiCap)}. L'AI cresce da sola ogni anno (più in fretta con gli incentivi)`), // numeri visibili (19 novembre 2026, domanda di Guido)
     pro: "La ricchezza prodotta non dipende quasi più da quante persone lavorano", con: "Quasi tutti perdono il lavoro: senza un reddito per tutti (reddito di base intermedio o pieno) la società si sfalda. Senza tassa sui robot o fondo sovrano le tasse sul lavoro spariscono e l'Autorità incassa molto meno",
     eff: { mass: 1, unemp: 60, polar: 6 } },
   /* Quando i robot sostituiscono le persone la ricchezza non sparisce: passa dagli stipendi ai profitti di chi possiede i robot.
