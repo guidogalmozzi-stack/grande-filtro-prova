@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
-<script>window.GF_BUILD = "mwnhyhll"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
+<script>window.GF_BUILD = "mwniozdc"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
 <style>html{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);background:#0f1d29;color-scheme:dark}body{margin:0;font-family:system-ui,-apple-system,sans-serif;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -257,7 +257,7 @@ button.chip { font: inherit; color: inherit; text-align: left; cursor: pointer; 
 .node .ico { color: var(--c); }
 .node.active .hex { fill: var(--c); stroke: color-mix(in srgb, var(--c) 60%, #fff); }
 .node.active .ico { color: #0f1d29; }
-.node.ghost { cursor: default; } .node.ghost .hex { fill: #13222e; stroke: color-mix(in srgb, var(--c) 45%, #13222e); stroke-dasharray: 3 3; } .node.ghost .ico { opacity: .35; } .node.ghost .banline { stroke: #e07a6a; stroke-width: 2.4; stroke-linecap: round; }
+.node.ghost { cursor: pointer; } .node.ghost .hex { fill: #13222e; stroke: color-mix(in srgb, var(--c) 45%, #13222e); stroke-dasharray: 3 3; } .node.ghost .ico { opacity: .35; } .node.ghost .banline { stroke: #e07a6a; stroke-width: 2.4; stroke-linecap: round; }
 .node.building .hex { fill: color-mix(in srgb, var(--c) 40%, #13222e); }
 .node.sel .hex { stroke: #fff; stroke-width: 3; }
 .node .ring0 { fill: none; stroke: #0c1822; stroke-width: 2.4; }
@@ -8533,7 +8533,6 @@ function drawTree() {
   const list = sectorList(actTab);
   const states = Object.fromEntries(list.map((d) => [d.id, nodeState(d)]));
   const vis = list.filter((d) => nodeVisible(d, states[d.id]));
-  if (!actNode || !vis.some((d) => d.id === actNode)) actNode = vis[0].id;
   const { pos, W, H } = layoutTree(fullSector(actTab)); // tutte le icone possibili nello scenario: le posizioni non cambiano mai
   const svg = $("tree"), pad = HR * 1.15;
   svg.setAttribute("viewBox", `${-pad} ${-pad} ${W + 2 * pad} ${H + 2 * pad}`);
@@ -8542,16 +8541,21 @@ function drawTree() {
      vietato compare spento, con il segno di divieto, e i figli restano collegati: si capisce da dove vengono */
   const ghosts = fullSector(actTab).filter((g) => !available(st, g) && st.G && st.G.ban && st.G.ban.includes(g.id) && pos[g.id] && vis.some((v) => v.parent === g.id));
   const shown = (id) => vis.some((v) => v.id === id) || ghosts.some((g) => g.id === id);
+  if (!actNode || !shown(actNode)) actNode = vis[0].id;
   for (const d of [...vis, ...ghosts]) { const p0 = d.parent, p1 = effParent(st, d), p = p0 && shown(p0) ? p0 : p1; if (!(p && pos[p] && shown(p))) continue;
     const [x1, y1] = pos[p], [x2, y2] = pos[d.id];
     if (Math.hypot(x2 - x1, y2 - y1) > HS * 2.4 && TREE_MODE === "tab" && TREE_TAB_MODE[actTab] === "strict") continue; // niente linee lunghe
     svg.appendChild(svgEl("path", { d: `M${x1} ${y1} L${x2} ${y2}`, class: "edge" + (built(st, p) ? " on" : ""), style: "--c:" + CAT_COLOR[d.fam] }));
   }
   for (const d of ghosts) {
-    const [x, y] = pos[d.id], g = svgEl("g", { class: "node ghost", transform: `translate(${x.toFixed(1)} ${y.toFixed(1)})`, "aria-label": tr(d.name) + " · " + tr("vietato con questo governo"), style: "--c:" + CAT_COLOR[d.fam] });
+    const [x, y] = pos[d.id], g = svgEl("g", { class: "node ghost" + (d.id === actNode ? " sel" : ""), transform: `translate(${x.toFixed(1)} ${y.toFixed(1)})`, role: "button", tabindex: "0", "aria-label": tr(d.name) + " · " + tr("non disponibile con questo governo"), style: "--c:" + CAT_COLOR[d.fam] });
     g.appendChild(svgEl("polygon", { points: hexPts(HR - 1.6), class: "hex" }));
     g.appendChild(svgEl("use", { href: iconHref(d.id), x: -11, y: -11, width: 22, height: 22, class: "ico" }));
     g.appendChild(svgEl("path", { d: `M${-HR * 0.62} ${HR * 0.62}L${HR * 0.62} ${-HR * 0.62}`, class: "banline" }));
+    // toccandola si legge la scheda, con scritto che non è disponibile con questo governo (19 novembre 2026, richiesta di Guido)
+    const pick = () => { actNode = d.id; drawTree(); renderDetail(); };
+    g.addEventListener("click", pick);
+    g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
     svg.appendChild(g);
   }
   for (const d of vis) {
@@ -8656,7 +8660,8 @@ function renderDetail() {
   const slow = d.ramp && d.ramp >= 5 ? " " + (d.ramp >= 15 ? tr("L'effetto pieno arriva dopo molti anni.") : tr("L'effetto pieno arriva in alcuni anni.")) : "";
   const buyLabel = needsRef(st, d.id) && !done && !active ? tr("Indici un referendum") : d.gain && !done ? tr("Avvia e incassa +{x}", { x: fmt(d.gain(st), 1) }) : tr(done ? "Già attivo" : st.paused && st.paused[d.id] ? "Riattiva" : (active && d.stack) ? "Costruisci ancora" : s.prog.length && !d.stack ? "In corso" : st.funds - c0 < 0 ? "Avvia a debito" : "Avvia");
   const priceTxt = c0 && !done && !d.gain ? ` – ${fmt(c0, c0 % 1 ? 1 : 0)}` : "";
-  const showWhy = s.why && !done && s.why !== "In corso" && !s.why.startsWith("Richiede") && !s.why.startsWith("Disponibile");
+  const banned = !!(st.G && st.G.ban && st.G.ban.includes(d.id)); // vietata dal governo scelto
+  const showWhy = !banned && s.why && !done && s.why !== "In corso" && !s.why.startsWith("Richiede") && !s.why.startsWith("Disponibile");
   const pillar = st.G && st.G.lock && st.G.lock.includes(d.id); // pilastro del governo scelto (la sanità dello Stato sociale)
   const canStop = active && !d.fixed && !pillar && (d.upkeep || d.upkeepFn || d.revocable); // le strutture lunari non si smontano
   // nel piede: quanto cambierebbe il saldo annuo fermandolo, senza doverlo fermare
@@ -8676,11 +8681,12 @@ function renderDetail() {
       <p class="pro"><b>${tr("Pro.")}</b> ${esc(tr(d.pro))}</p>
       <p class="con"><b>${tr("Contro.")}</b> ${esc(tr(d.con))}</p>
       ${!done && available(st, d) ? `<div class="prev" id="prevBox"><small>${tr("Calcolo dell'effetto…")}</small></div>` : ""}
+      ${banned ? `<p class="why">${tr("Misura non disponibile con questo tipo di governo ({x}).", { x: esc(tr(st.G.name)) })}</p>` : ""}
       ${showWhy ? `<p class="why">${esc(tr(s.why))}</p>` : ""}
       ${pillar && active ? `<p class="why">${tr("Pilastro non revocabile dello {x}.", { x: esc(tr(st.G.name)) })}</p>` : ""}
       ${d.id === "geoeng" && canStop && co2Gt(st) > 5 && st.g.geoOff < -0.3 ? `<p class="shockwarn">${tr("<b>Attenzione: shock da interruzione.</b> Le emissioni sono ancora alte: se interrompi ora, circa {x} °C di caldo nascosto tornano in pochi anni. Raccolti perduti, danni per circa 8 fondi e forte malcontento in tutte le regioni.", { x: fmt(-st.g.geoOff, 1) })}</p>` : ""}
     </div>
-    <button type="button" class="buy" id="dBuy" ${s.why ? "disabled" : ""}>${buyLabel}${priceTxt}</button>
+    <button type="button" class="buy" id="dBuy" ${s.why ? "disabled" : ""}>${banned ? tr("Non disponibile con questo governo") : buyLabel + priceTxt}</button>
     ${canStop ? `<button type="button" class="buy alt" id="dRev">${tr(d.toggle || (d.upkeep > 0 ? "Smetti di finanziare" : "Revoca"))}</button>` : ""}`;
   $("dBuy").onclick = () => { if (needsRef(st, d.id) && !(st.paused && st.paused[d.id])) { showReferendum(d); return; } if (!startIntervention(st, d.id)) { renderActs(); hud(); paint(); save(); } };
   if ($("geoT")) wireGeoSlider();
