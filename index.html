@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
-<script>window.GF_BUILD = "mwniozdc"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
+<script>window.GF_BUILD = "mwnvjrvf"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
 <style>html{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);background:#0f1d29;color-scheme:dark}body{margin:0;font-family:system-ui,-apple-system,sans-serif;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -3300,7 +3300,9 @@ const EVENTS = [
     text: (st, r) => `In ${r.name} robot e programmi sostituiscono interi reparti. La disoccupazione è salita al ${r.unemp.toFixed(1)}%.`,
     choices: [
       { label: "Sussidi e riqualificazione", cost: 12, out: "Disoccupazione in forte calo", fx: (st, r) => { r.unemp -= 4; } },
-      { label: "Rallentare l'automazione", cost: 0, out: "Meno disoccupazione, ma meno crescita", fx: (st, r) => { r.unemp -= 2; r.shockG -= 1.2; } },
+      { noGov: ["market"], label: "Rallentare l'automazione", cost: 0, out: "Meno disoccupazione, ma meno crescita", fx: (st, r) => { r.unemp -= 2; r.shockG -= 1.2; } },
+      // col Libero mercato l'automazione non si può fermare (19 novembre 2026, osservazione di Guido): al suo posto la risposta del mercato
+      { gov: ["market"], label: "Buoni formazione a chi assume i licenziati", cost: 4, out: "Un po' meno disoccupazione; l'automazione continua", fx: (st, r) => { r.unemp -= 2; } },
       { label: "Non fare nulla", cost: 0, out: "Molto malcontento e polarizzazione", fx: (st, r) => { r.shockU += 18; r.polar += 8; } },
     ] },
   { id: "pensions", scope: "region", cat: "Previdenza", title: "Crisi delle pensioni",
@@ -4013,7 +4015,9 @@ const EVENTS = [
     text: (st, r) => `In ${r.name} folle di disoccupati assaltano magazzini e fabbriche automatiche e distruggono i robot.` + (incomeSupport(r) < 0.5 ? " Chi ha perso il lavoro non ha più un reddito." : ""),
     choices: [
       { label: "Fondo per chi ha perso il lavoro", cost: 10, out: "La rabbia si placa", fx: (st, r) => { r.shockU -= 6; } },
-      { label: "Tassa sui robot subito", cost: 0, out: "Meno rabbia e più entrate, un po' meno crescita", fx: (st, r) => { r.shockU -= 3; if (!built(st, "robotTax") && available(st, IBY.robotTax)) complete(st, IBY.robotTax); else r.shockG -= 0.3; } },
+      // col Libero mercato la tassa sui robot è vietata (19 novembre 2026): le imprese automatizzate pagano un fondo per chi ha perso il lavoro
+      { gov: ["market"], label: "Fondo delle imprese per chi ha perso il lavoro", cost: 3, out: "Le aziende automatizzate pagano una parte delle liquidazioni: la rabbia cala un po'", fx: (st, r) => { r.shockU -= 4; } },
+      { noGov: ["market"], label: "Tassa sui robot subito", cost: 0, out: "Meno rabbia e più entrate, un po' meno crescita", fx: (st, r) => { r.shockU -= 3; if (!built(st, "robotTax") && available(st, IBY.robotTax)) complete(st, IBY.robotTax); else r.shockG -= 0.3; } },
       { label: "Non fare nulla", cost: 0, out: "Disordini e polarizzazione", fx: (st, r) => { r.shockU += 15; r.polar += 6; } },
     ] },
   { id: "teacherStrike", scope: "region", cat: "Società", title: "Sciopero degli insegnanti",
