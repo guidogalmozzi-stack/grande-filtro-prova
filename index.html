@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
-<script>window.GF_BUILD = "mwlyxoim"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
+<script>window.GF_BUILD = "mwnfoya1"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
 <style>html{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);background:#0f1d29;color-scheme:dark}body{margin:0;font-family:system-ui,-apple-system,sans-serif;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -1251,15 +1251,15 @@ const INTERVENTIONS = [
     fx: (m) => { m.energyCost -= 12; m.unrestT -= 4; m.fossilShift -= 0.6; } }, // non fanno crescere: costo nascosto, FMI 2023 (prima +0,3)
   { id: "carbonTax", cat: "energia", name: "Tassa sul carbonio", desc: "Chi brucia petrolio, gas o carbone paga una tassa per ogni tonnellata di CO₂ che emette.", scope: "region", cost: 3, T: 2,
     pro: "Le emissioni calano; il gettito riduce il debito", con: "Energia più cara e malcontento, soprattutto nelle regioni povere",
-    fx: (m, s, r, st) => { m.fossilShift += 0.9; m.energyCost += 8; m.unrestT += (r.wealth < 40 ? 8 : 4) * taxAccept(st); m.debtF -= 0.5; } },
+    fx: (m, s, r, st) => { m.fossilShift += 0.9 * Math.min(1, r.fossil / 50); m.energyCost += 8; m.unrestT += (r.wealth < 40 ? 8 : 4) * taxAccept(st); m.debtF -= 0.5; } },
   /* Solare ed eolico separati (3 novembre 2026, richiesta di Guido): ognuno rende di più dove c'è più sole o più vento
      (SUN_POT, WIND_POT). Insieme, senza reti e accumuli, non superano il 45% dell'energia perché dipendono dal tempo. [Probabile] */
   { id: "renew", cat: "energia", name: "Parchi solari", desc: "Grandi impianti fotovoltaici che prendono il posto delle centrali a carbone e a gas.", scope: "region", cost: 10, T: 3, spread: true, stack: 3,
     pro: "Il modo più economico di produrre elettricità pulita, soprattutto dove c'è molto sole (Medio Oriente, Africa, Oceania, America Latina, Asia meridionale)", con: "Producono solo di giorno: oltre il 45% di rinnovabili servono reti e accumuli",
-    fx: (m, s, r, st) => { const cap = lvl(r, "grid") >= 1 ? 85 : 45; if (r.renew < cap) m.fossilShift += 1.05 * (SUN_POT[r.id] || 1) * s; m.energyCost -= 1.2 * s; m.unrestT += 0.3 * localOpp(st, r) * s; } },
+    fx: (m, s, r, st, gm, a) => { const cap = lvl(r, "grid") >= 1 ? (lvl(r, "worldGrid") >= 1 ? 95 : 85) : 45; if (r.renew < cap) m.fossilShift += 1.05 * (SUN_POT[r.id] || 1) * buildOut(st, a, s); m.energyCost -= 1.2 * s; m.unrestT += 0.3 * localOpp(st, r) * s; } },
   { id: "wind", cat: "energia", name: "Parchi eolici", desc: "Turbine eoliche a terra e in mare, dove il vento è forte e costante.", scope: "region", cost: 12, T: 4, spread: true, stack: 3,
     pro: "Energia pulita anche di notte e d'inverno, quando il sole manca; rende di più dove c'è più vento (Europa del Nord, Nord America, Russia, Oceania)", con: "Il vento non è sempre costante: oltre il 45% di rinnovabili servono reti e accumuli. Quasi tutti sono favorevoli all'eolico, ma non vicino a casa: proteste locali per paesaggio, rumore e terre, forti nelle regioni ricche e dense (Europa, Nord America) e dove si toccano terre di popoli indigeni. Meno con i benefici per i territori. [Certo]",
-    fx: (m, s, r, st) => { const cap = lvl(r, "grid") >= 1 ? 85 : 45; if (r.renew < cap) m.fossilShift += 1.05 * (WIND_POT[r.id] || 1) * s; m.energyCost -= 1.2 * s; m.unrestT += 1.0 * localOpp(st, r) * s; m.polarT += 0.6 * localOpp(st, r) * s; } },
+    fx: (m, s, r, st, gm, a) => { const cap = lvl(r, "grid") >= 1 ? (lvl(r, "worldGrid") >= 1 ? 95 : 85) : 45; if (r.renew < cap) m.fossilShift += 1.05 * (WIND_POT[r.id] || 1) * buildOut(st, a, s); m.energyCost -= 1.2 * s; m.unrestT += 1.0 * localOpp(st, r) * s; m.polarT += 0.6 * localOpp(st, r) * s; } },
   { id: "localBenefits", cat: "energia", name: "Benefici per i territori", desc: "Chi vive vicino a un parco eolico o solare riceve una parte dei guadagni: tasse ai comuni, bollette scontate, quote dell'impianto per i residenti.", scope: "region", cost: 2, upkeep: 0.8, T: 1,
     pro: "Le proteste locali contro eolico e solare calano di più della metà", con: "Costa ogni anno. [Probabile: in Danimarca dal 2009 i residenti possono comprare almeno il 20% di ogni nuovo parco; negli Stati Uniti i parchi eolici sono tra i maggiori contribuenti di molte contee rurali]" },
   /* Nuove dighe [Certo/Probabile]: l'idroelettrico dà già circa il 15% dell'elettricità del mondo; i siti migliori in Europa e Nord
@@ -1549,7 +1549,7 @@ const INTERVENTIONS = [
   { id: "stratoPlanes", cat: "clima", name: "Aerei stratosferici", desc: "Progettazione e costruzione di una flotta di alcune centinaia di aerei speciali, capaci di portare carichi pesanti a 20 km di quota, dove gli aerei di oggi non arrivano.", scope: "global", cost: 3, T: 8,
     pro: "Rendono possibili gli aerosol riflettenti nella stratosfera", con: "Servono circa otto anni di sviluppo; da soli non fanno niente. Dove non c'è ancora stato nessun disastro climatico la gente è molto contraria: proteste e divisioni (meno dove il clima ha già colpito)" },
   { id: "geoeng", cat: "clima", name: "Aerosol riflettenti nella stratosfera", desc: "Aerei ad alta quota iniettano ogni anno a circa 20 km di altezza biossido di zolfo, che forma minuscole goccioline di solfato capaci di riflettere una parte della luce del Sole, come accade dopo le grandi eruzioni vulcaniche. È l'idea più studiata dagli scienziati; in alternativa si studia la polvere finissima di carbonato di calcio, che danneggerebbe meno lo strato di ozono.", scope: "global", cost: 3, upkeepFn: (st) => 0.5 + 0.6 * geoDose(st), T: 2, revocable: true, toggle: "Interrompi",
-    pro: "Tiene ferma la temperatura o la abbassa fin dove vuoi, in pochi anni e finché si continua; costa relativamente poco", con: "Non toglie CO₂: la CO₂ continua ad accumularsi e il costo annuo cresce. Proteste in tutto il mondo (ambientalisti e complottisti) e più divisioni. Piogge monsoniche più scarse: carestie e malcontento in Asia meridionale e in Africa. Indebolisce lo strato di ozono e aumenta le tensioni tra le potenze. Se si interrompe prima che le emissioni siano quasi a zero, il caldo nascosto torna in pochi anni: raccolti perduti, danni e malcontento ovunque (shock da interruzione)",
+    pro: "Tiene ferma la temperatura o la abbassa fin dove vuoi, finché si continua: la flotta di aerei cresce un po' per volta, al massimo circa 0,15 °C in meno ogni anno; costa relativamente poco", con: "Non toglie CO₂: la CO₂ continua ad accumularsi e il costo annuo cresce. Proteste in tutto il mondo (ambientalisti e complottisti) e più divisioni. Piogge monsoniche più scarse: carestie e malcontento in Asia meridionale e in Africa. Indebolisce lo strato di ozono e aumenta le tensioni tra le potenze. Se si interrompe prima che le emissioni siano quasi a zero, il caldo nascosto torna in pochi anni: raccolti perduti, danni e malcontento ovunque (shock da interruzione)",
     fx: (m, s, r, st, gm) => { const d = geoDose(st); gm.geo -= d; gm.tensionT += 2 + 3 * d; gm.polarAll += 1.5 * d; } },
   // Salute
   { id: "surveil", cat: "salute", name: "Sorveglianza epidemiologica", desc: "Una rete mondiale di laboratori e ospedali che segnala subito i nuovi virus.", scope: "global", cost: 4, upkeep: 0.5, T: 2, axis: 3,
@@ -1844,7 +1844,7 @@ const INTERVENTIONS = [
     fx: (m, s) => { m.g += 0.8 * s; m.gF += 0.2 * s; m.polarT += 1 * s; m.fert -= 0.1 * s; } }, // divisioni +1 (prima +2) [Probabile: in Cile più separazione tra scuole, effetto moderato]; come la scuola pubblica, un po': i buoni da soli non alzano i risultati
   { id: "ets", cat: "energia", name: "Mercato dei permessi di emissione", desc: "Chi inquina deve comprare permessi, che si possono scambiare; ogni anno i permessi sono meno.", scope: "region", cost: 3, T: 2, gov: "market",
     pro: "Le emissioni scendono al costo più basso possibile", con: "Il prezzo dei permessi oscilla molto: energia più cara e un po' di malcontento. Esclusivo del Libero mercato (al posto della legge sulle emissioni) [Certo: Unione europea]",
-    eff: { fossil: 0.35, energy: 3, unrest: 0.5 } },
+    eff: { energy: 3, unrest: 0.5 }, fx: (m, s, r) => { m.fossilShift += 0.35 * Math.min(1, r.fossil / 50) * s; } }, // come la tassa sul carbonio: spinge meno quando i fossili sono pochi (19 novembre 2026)
   { id: "carbonPrize", cat: "clima", name: "Premi per la cattura privata della CO₂", desc: "Un premio per ogni tonnellata di CO₂ tolta dall'aria e stoccata da un'impresa privata.", scope: "global", cost: 4, upkeep: 1, T: 3, gov: "market",
     pro: "Le imprese inventano modi più economici per togliere CO₂: le emissioni nette scendono", con: "Costa ogni anno; i risultati arrivano piano. Esclusivo del Libero mercato [Ipotesi]",
     geff: { co2: 0.6 } },
@@ -1932,7 +1932,10 @@ const INTERVENTIONS = [
     gfx: () => {} },
   { id: "coops", cat: "economia", name: "Cooperative di lavoratori", desc: "Incentivi a trasformare le imprese in cooperative di proprietà di chi ci lavora.", scope: "region", cost: 3, T: 2, ramp: 8, gov: "human",
     pro: "Nelle crisi si tagliano gli stipendi invece dei posti; stipendi meno diseguali e produttività un po' più alta", con: "Crescono più piano nei settori ad alta tecnologia. Esclusivo della Repubblica del lavoro [Certo: Mondragon, Emilia-Romagna]",
-    eff: { polar: -2, unemp: -0.3, g: 0.03 } },
+    /* 19 novembre 2026: divisioni −1 (prima −2, gratis per sempre in tutto il mondo: da sola dava gran parte delle vittorie della
+       Repubblica del lavoro). Anche dove sono più diffuse le cooperative sono una parte piccola dell'economia (in Emilia-Romagna circa
+       un lavoratore su dieci) [Probabile: Pérotin; dati di Legacoop] */
+    eff: { polar: -1, unemp: -0.3, g: 0.03 } },
   { id: "lifelong", cat: "demografia", name: "Formazione per tutta la vita", desc: "Ogni adulto ha diritto a corsi pagati e a un reddito mentre studia, per tutta la vita lavorativa.", scope: "region", cost: 4, upkeep: 2, T: 2, ramp: 4, gov: "human",
     pro: "Dopo 2-5 anni più lavoro, salari più alti e produttività in crescita", con: "Costa ogni anno; il primo anno quasi nessun effetto. Esclusivo della Repubblica del lavoro [Certo: Danimarca, Singapore]",
     eff: { g: 0.12, unemp: -0.6, labor: 0.01 } },
@@ -1949,9 +1952,12 @@ const INTERVENTIONS = [
     pro: "Produttività più alta senza perdere posti di lavoro", con: "Cresce meno che con l'automazione vera. Esclusivo della Repubblica del lavoro",
     eff: { g: 0.15, labor: 0.01 } },
   // --- Tecnocrazia ---
-  { id: "worldGrid", cat: "energia", name: "Rete elettrica mondiale", desc: "Cavi ad altissima tensione collegano i continenti: il sole di un fuso orario alimenta la notte dell'altro.", scope: "region", cost: 10, T: 5, gov: "techno",
-    pro: "Le rinnovabili coprono molta più energia senza blackout, che costa meno", con: "Molto costosa; chi controlla i nodi può ricattare gli altri. Esclusivo della Tecnocrazia [Probabile]",
-    eff: { fossil: 0.3, energy: -4 } },
+  { id: "worldGrid", cat: "energia", name: "Rete elettrica mondiale", desc: "Cavi ad altissima tensione collegano i continenti: il sole di un fuso orario alimenta la notte dell'altro.", scope: "region", cost: 25, T: 6, gov: "techno",
+    pro: "Le rinnovabili possono arrivare a coprire quasi tutta l'energia (fino al 95% invece dell'85%), con meno blackout e meno accumuli; l'energia costa meno", con: "Molto costosa; chi controlla i nodi può ricattare gli altri. Esclusivo della Tecnocrazia [Probabile]",
+    /* 19 novembre 2026: prima costava 10 (quanto un livello di solare) e toglieva fossili ogni anno per sempre, come il solare.
+       Ora è un'opera enorme (cavi tra i continenti) che fa entrare in rete circa 5 punti di energia pulita in 10 anni e alza il tetto
+       delle rinnovabili [Probabile: gli studi sulle reti intercontinentali stimano meno accumuli e più rinnovabili utilizzabili] */
+    eff: { energy: -3 }, fx: (m, s, r, st, gm, a) => { m.fossilShift += 0.5 * buildOut(st, a, s); } },
   { id: "budgetOffice", cat: "economia", name: "Ufficio di bilancio indipendente", desc: "Esperti indipendenti controllano ogni legge di spesa e pubblicano previsioni senza trucchi.", scope: "region", cost: 1, T: 1, gov: "techno",
     pro: "Deficit più bassi ogni anno", con: "Le spese elettorali diventano più difficili: un po' di malcontento. Esclusivo della Tecnocrazia [Certo]",
     eff: { debt: -0.4, unrest: 0.5 } },
@@ -2417,11 +2423,23 @@ function robotCapture(st) {
 }
 const NUC_BUILD = ["nuclear", "nucPrivate", "smr", "fusion"];
 const FRONTIER = ["fusionResearch", "fusion", "smr", "dac", "launch", "orbital", "pdef", "pdefWatch", "moon", "moonFast", "he3", "lunarArchive", "lunarIce", "lunarCity", "lunarMining"];
+/* Parchi solari ed eolici (19 novembre 2026, richiesta di Guido): ogni livello è una quantità fissa di impianti, costruita e allacciata
+   in circa 10 anni (circa 10 punti di energia fossile sostituiti dove il sole o il vento sono nella media, di più nelle regioni
+   più adatte), come le centrali nucleari e le dighe. Prima un solo livello continuava a sostituire fossili ogni anno per sempre,
+   senza spese: solare e reti bastavano da soli a togliere quasi tutti i fossili. Restituisce i livelli ancora in costruzione,
+   ciascuno con la sua forza (s / livelli). */
+function buildOut(st, a, s) {
+  if (!a || !(a.n > 0)) return s; // diffusione da una regione vicina: come un livello appena iniziato
+  const ys = a.ys && a.ys.length ? a.ys : [a.y];
+  return (s / a.n) * ys.filter((y) => st.year + st.month / 12 - y < 10).length;
+}
+/* nuove centrali (nucleare, dighe, geotermia): entrano in una coda e sostituiscono i fossili rispettando la velocità massima della
+   transizione (3 punti l'anno per regione, 19 novembre 2026): se molte centrali si accendono insieme, reti, allacci e chiusura delle
+   vecchie centrali richiedono qualche anno */
 function shiftClean(r, pts, kind) {
-  const p = Math.min(pts, r.fossil - 3);
-  if (p <= 0) return;
-  r.fossil -= p;
-  r[kind] += p;
+  if (!(pts > 0)) return;
+  const q = r.cleanQ || (r.cleanQ = {});
+  q[kind] = (q[kind] || 0) + pts;
 }
 // quota dell'effetto raggiunta: cresce dall'avvio fino al pieno in "ramp" anni (o nel tempo di accettazione),
 // più in fretta se la popolazione è aperta ai cambiamenti (D.adopt)
@@ -3007,7 +3025,11 @@ function canStart(st, id) {
   if (st.G && st.G.auto && st.G.auto.includes(id) && !st._autoStart) return "Arriva da sola con il libero mercato";
   if (st.refBan && st.refBan[id] > st.year) return "Referendum perso: si potrà riproporre dal " + st.refBan[id];
   if (d.from && st.year < d.from) return "Disponibile dal " + d.from;
-  if (!parentOk(st, d)) return "Richiede: " + IBY[effParent(st, d) || d.parent].name;
+  /* con il libero mercato le imprese automatizzano da sole, anche se l'Autorità non ha fatto il piano per la crescita (19 novembre 2026:
+     prima senza quel piano l'automazione non arrivava mai, e il Libero mercato si giocava come gli altri governi). Robot e robot di
+     massa richiedono comunque l'automazione. */
+  const autoFree = st._autoStart && st.G && st.G.auto && !st.G.auto.includes(effParent(st, d) || d.parent);
+  if (!parentOk(st, d) && !autoFree) return "Richiede: " + IBY[effParent(st, d) || d.parent].name;
   if (d.need) { const w = d.need(st); if (w) return w; }
   if (id === "unempBenefit" && built(st, "ubi")) return "Assorbito dal reddito di base";
   if ((id === "moon" || id === "moonFast") && (moonBuilt(st) || building(st, "moon") || building(st, "moonFast"))) return "Hai già scelto come andare sulla Luna";
@@ -3053,7 +3075,7 @@ function absorbBenefit(st) {
 function complete(st, d) {
   const ec0 = avgEc(st);
   const a = st.acts[d.id] || (st.acts[d.id] = { n: 0, y: st.year, y0: st.year });
-  a.n += 1; a.y = st.year;
+  a.n += 1; a.y = st.year; (a.ys || (a.ys = [])).push(st.year); // anno in cui entra in funzione ogni livello
   if (d.once) { if (d.wasRegion) ctrlRegions(st).forEach((r) => d.once(r, st)); else d.once(null, st); }
   // il reddito di base assorbe il sussidio di disoccupazione: chi perde il lavoro lo riceve già (decisione del 27 ottobre 2026)
   if (d.id === "ubi") absorbBenefit(st);
@@ -4778,7 +4800,12 @@ function tick(st) {
   G.tension = clamp(G.tension, 5, 100);
   // quando si smette gli aerosol cadono in un paio d'anni e il caldo nascosto torna in 10-15 anni (shock da interruzione) [Probabile]
   // gli aerosol cadono in uno-due anni: se si smette il caldo nascosto torna in pochi anni, dieci volte più in fretta del normale
-  G.geoOff += (gm.geo - G.geoOff) * (gm.geo < G.geoOff ? 0.6 : built(st, "geoeng") ? 0.12 : 0.35) * dt;
+  /* aerosol (19 novembre 2026, richiesta di Guido): l'aria si raffredda entro un anno o due dall'immissione (Pinatubo 1991: circa
+     −0,5 °C) [Certo], ma per compensare un grado e mezzo servono milioni di tonnellate di zolfo ogni anno e una flotta di centinaia
+     di aerei che si costruisce un po' per volta: nei piani studiati la quantità cresce ogni anno di poco [Probabile: Smith e Wagner
+     2018, da 8 a circa 100 aerei in 15 anni]. Anche con un programma d'urgenza: al massimo 0,15 °C in meno ogni anno [Ipotesi].
+     Prima si passava da +1,6 a 0 °C in tre-quattro anni. */
+  { let dG = (gm.geo - G.geoOff) * (gm.geo < G.geoOff ? 0.6 : built(st, "geoeng") ? 0.12 : 0.35) * dt; if (dG < -0.15 * dt) dG = -0.15 * dt; G.geoOff += dG; }
   st.tMax = Math.max(st.tMax || 0, G.temp + G.geoOff); // la temperatura più alta raggiunta: conta per il riconoscimento finale
 
   // moneta: il tasso a breve va verso quello scelto, l'inflazione verso il suo livello di equilibrio
@@ -4930,10 +4957,17 @@ function tick(st) {
     const fT = Math.max(1.1, fTfr(r, st.year) + r.tfrBase + m.fert);
     r.tfr += (fT - r.tfr) * 0.06 * dt;
 
-    // transizione energetica: una deriva naturale lenta più gli interventi
-    const fs = (0.4 + m.fossilShift) * dt;
-    if (fs > 0) { const p = Math.min(fs, r.fossil - 3); r.fossil -= p; r.renew += p; }
+    /* transizione energetica: la spinta del mercato più gli interventi (19 novembre 2026). Il solare ormai conviene da solo: senza
+       nuove politiche i fossili scendono dall'80% a circa il 58% nel 2050 [Probabile: Agenzia internazionale dell'energia, World Energy
+       Outlook 2024, scenario delle politiche attuali], cioè circa l'1,2% di quelli che restano ogni anno (prima 0,4 punti fissi).
+       Velocità massima 3 punti l'anno per regione: anche lo scenario più spinto dell'Agenzia (emissioni nette zero nel 2050) toglie in
+       media circa 2-2,5 punti l'anno; la Francia del nucleare negli anni '80 circa 2 [Probabile]. Le nuove centrali che entrano in funzione
+       tutte insieme (nucleare, dighe, geotermia) contano a parte. */
+    let fs = (0.012 * r.fossil + m.fossilShift) * dt, room = 3 * dt;
+    if (fs > room) fs = room;
+    if (fs > 0) { const p = Math.max(0, Math.min(fs, r.fossil - 3)); r.fossil -= p; r.renew += p; room -= p; }
     else { const p = Math.min(-fs, r.renew); r.renew -= p; r.fossil += p; }
+    if (r.cleanQ) for (const k in r.cleanQ) { const p = Math.max(0, Math.min(r.cleanQ[k], room, r.fossil - 3)); r.fossil -= p; r[k] += p; room -= p; r.cleanQ[k] -= p; if (r.cleanQ[k] < 0.01 || r.fossil <= 3) delete r.cleanQ[k]; }
 
     const resT = clamp(r.resistBase + m.resistT, 0, 100);
     r.resist += (resT - r.resist) * 0.25 * dt;
