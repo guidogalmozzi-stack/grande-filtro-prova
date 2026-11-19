@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
-<script>window.GF_BUILD = "mwnhorij"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
+<script>window.GF_BUILD = "mwnhyhll"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
 <style>html{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);background:#0f1d29;color-scheme:dark}body{margin:0;font-family:system-ui,-apple-system,sans-serif;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -257,6 +257,7 @@ button.chip { font: inherit; color: inherit; text-align: left; cursor: pointer; 
 .node .ico { color: var(--c); }
 .node.active .hex { fill: var(--c); stroke: color-mix(in srgb, var(--c) 60%, #fff); }
 .node.active .ico { color: #0f1d29; }
+.node.ghost { cursor: default; } .node.ghost .hex { fill: #13222e; stroke: color-mix(in srgb, var(--c) 45%, #13222e); stroke-dasharray: 3 3; } .node.ghost .ico { opacity: .35; } .node.ghost .banline { stroke: #e07a6a; stroke-width: 2.4; stroke-linecap: round; }
 .node.building .hex { fill: color-mix(in srgb, var(--c) 40%, #13222e); }
 .node.sel .hex { stroke: #fff; stroke-width: 3; }
 .node .ring0 { fill: none; stroke: #0c1822; stroke-width: 2.4; }
@@ -8537,10 +8538,21 @@ function drawTree() {
   const svg = $("tree"), pad = HR * 1.15;
   svg.setAttribute("viewBox", `${-pad} ${-pad} ${W + 2 * pad} ${H + 2 * pad}`);
   svg.innerHTML = "";
-  for (const d of vis) { const p0 = d.parent, p1 = effParent(st, d), p = p0 && vis.some((v) => v.id === p0) ? p0 : p1; if (!(p && pos[p] && vis.some((v) => v.id === p))) continue;
+  /* padri vietati dal governo (19 novembre 2026, osservazione di Guido): prima i figli restavano staccati, senza linea. Ora il padre
+     vietato compare spento, con il segno di divieto, e i figli restano collegati: si capisce da dove vengono */
+  const ghosts = fullSector(actTab).filter((g) => !available(st, g) && st.G && st.G.ban && st.G.ban.includes(g.id) && pos[g.id] && vis.some((v) => v.parent === g.id));
+  const shown = (id) => vis.some((v) => v.id === id) || ghosts.some((g) => g.id === id);
+  for (const d of [...vis, ...ghosts]) { const p0 = d.parent, p1 = effParent(st, d), p = p0 && shown(p0) ? p0 : p1; if (!(p && pos[p] && shown(p))) continue;
     const [x1, y1] = pos[p], [x2, y2] = pos[d.id];
     if (Math.hypot(x2 - x1, y2 - y1) > HS * 2.4 && TREE_MODE === "tab" && TREE_TAB_MODE[actTab] === "strict") continue; // niente linee lunghe
     svg.appendChild(svgEl("path", { d: `M${x1} ${y1} L${x2} ${y2}`, class: "edge" + (built(st, p) ? " on" : ""), style: "--c:" + CAT_COLOR[d.fam] }));
+  }
+  for (const d of ghosts) {
+    const [x, y] = pos[d.id], g = svgEl("g", { class: "node ghost", transform: `translate(${x.toFixed(1)} ${y.toFixed(1)})`, "aria-label": tr(d.name) + " · " + tr("vietato con questo governo"), style: "--c:" + CAT_COLOR[d.fam] });
+    g.appendChild(svgEl("polygon", { points: hexPts(HR - 1.6), class: "hex" }));
+    g.appendChild(svgEl("use", { href: iconHref(d.id), x: -11, y: -11, width: 22, height: 22, class: "ico" }));
+    g.appendChild(svgEl("path", { d: `M${-HR * 0.62} ${HR * 0.62}L${HR * 0.62} ${-HR * 0.62}`, class: "banline" }));
+    svg.appendChild(g);
   }
   for (const d of vis) {
     const [x, y] = pos[d.id], s = states[d.id], col = CAT_COLOR[d.fam];
