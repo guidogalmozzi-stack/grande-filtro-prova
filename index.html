@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
-<script>window.GF_BUILD = "mwnvjrvf"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
+<script>window.GF_BUILD = "mwqzjdgq"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
 <style>html{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);background:#0f1d29;color-scheme:dark}body{margin:0;font-family:system-ui,-apple-system,sans-serif;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -916,8 +916,8 @@ const P = {
 const DIFF = {
   facile:    { name: "Facile",          inc: 1.1,  ev: 1, funds: 0, risk: 0.8,  adopt: 1.6, backlash: 0.6 },
   medio:     { name: "Medio",           inc: 1.0,  ev: 1, funds: 0, risk: 1.0,  adopt: 1.0, backlash: 1.0, scar: 0.3 },
-  difficile: { name: "Difficile",       inc: 0.98, ev: 1, funds: 0, risk: 1.1,  adopt: 0.85, backlash: 1.08, scar: 0.5 },
-  super:     { name: "Super difficile", inc: 0.9, ev: 1, funds: 0, risk: 1.27, adopt: 0.58, backlash: 1.46, anarchyAt: 88, autoGap: 1.2,
+  difficile: { name: "Difficile",       inc: 0.98, ev: 1, funds: 0, risk: 1.1,  adopt: 0.85, backlash: 1.08, scar: 0.5, costK: 1.1 },
+  super:     { name: "Super difficile", inc: 0.9, ev: 1, funds: 0, risk: 1.27, adopt: 0.58, backlash: 1.46, anarchyAt: 88, autoGap: 1.2, costK: 1.3,
     /* reazione alle riforme per governo (14 novembre 2026, regola di Guido: a super difficile il giocatore attento deve vincere almeno
        1 volta e al massimo 3 su 30 con ogni governo). Un solo valore non basta: i governi sono di forza diversa (con 1,15 lo Stato
        sociale vinceva 12 volte, il Libero mercato mai). Tarata con 30 partite automatiche per governo negli scenari 5 e 6. */
@@ -1550,7 +1550,7 @@ const INTERVENTIONS = [
   { id: "stratoPlanes", cat: "clima", name: "Aerei stratosferici", desc: "Progettazione e costruzione di una flotta di alcune centinaia di aerei speciali, capaci di portare carichi pesanti a 20 km di quota, dove gli aerei di oggi non arrivano.", scope: "global", cost: 3, T: 8,
     pro: "Rendono possibili gli aerosol riflettenti nella stratosfera", con: "Servono circa otto anni di sviluppo; da soli non fanno niente. Dove non c'è ancora stato nessun disastro climatico la gente è molto contraria: proteste e divisioni (meno dove il clima ha già colpito)" },
   { id: "geoeng", cat: "clima", name: "Aerosol riflettenti nella stratosfera", desc: "Aerei ad alta quota iniettano ogni anno a circa 20 km di altezza biossido di zolfo, che forma minuscole goccioline di solfato capaci di riflettere una parte della luce del Sole, come accade dopo le grandi eruzioni vulcaniche. È l'idea più studiata dagli scienziati; in alternativa si studia la polvere finissima di carbonato di calcio, che danneggerebbe meno lo strato di ozono.", scope: "global", cost: 3, upkeepFn: (st) => 0.5 + 0.6 * geoDose(st), T: 2, revocable: true, toggle: "Interrompi",
-    pro: "Tiene ferma la temperatura o la abbassa fin dove vuoi, finché si continua: la flotta di aerei cresce un po' per volta, al massimo circa 0,15 °C in meno ogni anno; costa relativamente poco", con: "Non toglie CO₂: la CO₂ continua ad accumularsi e il costo annuo cresce. Proteste in tutto il mondo (ambientalisti e complottisti) e più divisioni. Piogge monsoniche più scarse: carestie e malcontento in Asia meridionale e in Africa. Indebolisce lo strato di ozono e aumenta le tensioni tra le potenze. Se si interrompe prima che le emissioni siano quasi a zero, il caldo nascosto torna in pochi anni: raccolti perduti, danni e malcontento ovunque (shock da interruzione)",
+    pro: "Tiene ferma la temperatura o la abbassa fin dove vuoi, finché si continua: la flotta di aerei cresce un po' per volta, al massimo circa 0,15 °C in meno ogni anno; costa relativamente poco", con: "Non toglie CO₂: la CO₂ continua ad accumularsi e il costo annuo cresce. Proteste in tutto il mondo (ambientalisti e complottisti) e più divisioni. Piogge monsoniche più scarse: carestie e malcontento in Asia meridionale e in Africa; se si compensa più di metà del riscaldamento i danni alle piogge crescono molto. Indebolisce lo strato di ozono e aumenta le tensioni tra le potenze. Se si interrompe prima che le emissioni siano quasi a zero, il caldo nascosto torna in pochi anni: raccolti perduti, danni e malcontento ovunque (shock da interruzione)",
     fx: (m, s, r, st, gm) => { const d = geoDose(st); gm.geo -= d; gm.tensionT += 2 + 3 * d; gm.polarAll += 1.5 * d; } },
   // Salute
   { id: "surveil", cat: "salute", name: "Sorveglianza epidemiologica", desc: "Una rete mondiale di laboratori e ospedali che segnala subito i nuovi virus.", scope: "global", cost: 4, upkeep: 0.5, T: 2, axis: 3,
@@ -2347,13 +2347,19 @@ const priced = (st, c, d) => (c ? Math.round(c * ((st.g && st.g.pl) || 1) * grow
    per le malattie rare e l'editing restano care (l'anemia falciforme ha un calo suo); invecchiamento ed embrioni non calano. */
 const GEN_LEARN = new Set(["screening", "pharmaco", "genomicSurv", "gmCrops", "btCrops", "geneDrive", "plasticBugs", "cellAg", "phage", "bioprint", "dnaControl", "c4Rice", "nFixCereals", "carbonPlants", "lowMethane", "cancerVax"]);
 const genLearn = (st, d) => (GEN_LEARN.has(d.id) ? Math.max(0.4, Math.pow(0.96, Math.max(0, ((st && st.year) || 2026) - 2026))) : 1);
+/* Quota dei costi a carico dell'Autorità (22 novembre 2026, idea di Guido): l'Autorità paga solo una parte del costo vero di ogni
+   misura (per esempio la scuola per tutti: circa 30 miliardi di dollari l'anno contro un fabbisogno di circa 100 [Probabile: UNESCO]);
+   il resto lo pagano gli stati. Quanta parte è una scelta di organizzazione, non un dato fisso (nell'Unione europea la quota europea
+   dei progetti va dal 40 all'85% [Certo]): a difficile l'Autorità paga il 10% in più, a super difficile il 30% in più. Vale per costi,
+   spese annue e risposte agli eventi; non per incassi e risparmi. */
+const costK = (st) => (st.D && st.D.costK) || 1;
 function costOf(st, d) {
   if (st.paused && st.paused[d.id]) return 0; // un programma sospeso si riattiva senza pagare di nuovo la costruzione
   let c = d.id === "moon" && st.flags.moonPartners ? d.cost - 4 : d.cost;
   if (LUNAR_HALF.includes(d.id) && built(st, "lunarIce")) c /= 2; // propellente e materiali prodotti sulla Luna
   if ((d.base || d.id) === "geothermal" && st.year >= 2035) c *= 0.6; // pozzi sempre più rapidi ed economici [Probabile: IEA 2024]
   if (d.cat === "energia" && d.id !== "greenBank" && built(st, "greenBank")) c *= 0.85; // la banca pubblica verde presta a basso costo: all'Autorità resta l'85%
-  return priced(st, (st.G && st.G.cheap && st.G.cheap.includes(d.id) ? Math.ceil(c / 2) : c) * trSave(st, d) * genLearn(st, d), d);
+  return priced(st, (st.G && st.G.cheap && st.G.cheap.includes(d.id) ? Math.ceil(c / 2) : c) * trSave(st, d) * genLearn(st, d) * (c > 0 ? costK(st) : 1), d);
 }
 /* Effetto Baumol [Probabile]: i programmi fatti di lavoro umano (sanità, scuola, sussidi, pensioni, stipendi pubblici, ricerca)
    costano di più quando crescono i redditi, non solo i prezzi: un infermiere deve guadagnare come gli altri lavoratori, ma non
@@ -2397,7 +2403,7 @@ function upkeepOf(st, d) {
     if (tm && tm.n > 0 && st.year - (tm.y0 || tm.y) >= 5) base *= 0.9;
   }
   if (HEALTH_COST.includes(d.id) && built(st, "pubDrugs")) base *= 0.8;
-  return genLearn(st, d) * base * base0 * (k || 1) * (d.wasRegion && base > 0 ? ctrlShareG(st) : 1) * (d.perUnit && a ? Math.max(1, a.n) : 1) * trSave(st, d) * ((st.g && st.g.pl) || 1) * (WAGE.has(d.id) ? Math.max(Math.pow(wageIdx(st), 0.6), growK(st, d)) : growK(st, d));
+  return (base > 0 ? costK(st) : 1) * genLearn(st, d) * base * base0 * (k || 1) * (d.wasRegion && base > 0 ? ctrlShareG(st) : 1) * (d.perUnit && a ? Math.max(1, a.n) : 1) * trSave(st, d) * ((st.g && st.g.pl) || 1) * (WAGE.has(d.id) ? Math.max(Math.pow(wageIdx(st), 0.6), growK(st, d)) : growK(st, d));
 }
 const worldDebt = (st) => { const rs = ctrlRegions(st), t = rs.reduce((a, r) => a + r.gdp, 0) || 1; return rs.reduce((a, r) => a + r.debt * r.gdp, 0) / t; };
 const worldSnow = (st) => { const rs = ctrlRegions(st), t = rs.reduce((a, r) => a + r.gdp, 0) || 1; return rs.reduce((a, r) => a + snowball(r, st) * r.gdp, 0) / t; };
@@ -4299,7 +4305,7 @@ function evChoices(st, E) {
   const k = (c) => (typeof c.cost === "function" ? c.cost(st) : c.cost || 0);
   return rest.map((c, i) => [c, i]).sort((a, b) => k(b[0]) - k(a[0]) || a[1] - b[1]).map((x) => x[0]).concat(tail);
 }
-const choiceCost = (st, c) => (typeof c.cost === "function" ? c.cost(st) : priced(st, c.cost)); // costo che dipende dalla situazione (es. ricostruzione)
+const choiceCost = (st, c) => { const v = typeof c.cost === "function" ? c.cost(st) : priced(st, c.cost); return v > 0 ? Math.round(v * costK(st) * 10) / 10 : v; }; // costo che dipende dalla situazione (es. ricostruzione)
 function eventCost(st, ev, i) { return choiceCost(st, evChoices(st, ev)[i]); }
 const CRISIS_DEBT = { recession: 2, crash: 1.5, pandemic: 4, epidemic: 1, storm: 1.5, quake: 2, wildfire: 1, heat: 0.5, famine: 1, civilWar: 3, borderWar: 3, conflict: 2 };
 function resolveEvent(st, pending, i) {
@@ -4713,6 +4719,14 @@ function tick(st) {
     const r = st.regions[id];
     const m = M0();
     let fat = 0; // stanchezza da austerità: al massimo +6 di malcontento in tutto
+    /* Fatica da riforme (22 novembre 2026, autorizzata da Guido): le riforme impopolari fatte tutte insieme fanno più rabbia che fatte
+       una alla volta, e in recessione molta più che nei tempi buoni [Certo: in Europa 1919-2008 le proteste crescono con l'entità dei
+       tagli, Ponticelli e Voth 2020; Probabile: le riforme in recessione costano molti più voti, Alesina e altri, FMI 2020; in America
+       Latina negli anni '90 chi le faceva tutte insieme veniva punito di più]. Ogni riforma impopolare entrata in funzione negli ultimi
+       5 anni (oltre la prima) aumenta del 12% la rabbia per quelle recenti, fino al 60% in più; +20% se la regione cresce meno di quanto
+       si aspetta. Le riforme più vecchie di 5 anni pesano come prima. */
+    const recentBad = r.m && r.m.uTop ? r.m.uTop.filter((x) => st.acts[x[2]] && st.acts[x[2]].y >= st.year - 5).length : 0;
+    const fatK = Math.min(1.6, 1 + 0.12 * Math.max(0, recentBad - 1)) * ((r.gpc != null && r.gpc < basePg(r) - 0.5) ? 1.2 : 1);
     // regione uscita (5 novembre 2026): continua ad avere ciò che era in vigore quando è uscita (impianti, scuole, robot,
     // welfare), tranne le riforme impopolari che ha cancellato (r.off). Prima perdeva tutto di colpo: crescita e debito impazzivano.
     if (r.controlled || r.exit) for (const aid in st.acts) {
@@ -4727,7 +4741,7 @@ function tick(st) {
       if ((d.upkeep || 0) < 0) fat += Math.min(3, 0.15 * (st.year - (st.acts[aid].y0 || st.acts[aid].y))); // più anni di tagli, più rabbia
       // la reazione ai lati negativi dei cambiamenti dipende dalla difficoltà
       const BL = st.D && st.D.backlashL, bl = (BL && BL[st.levelId]) || (st.D && st.D.backlash) || 1;
-      if (m.unrestT > u0) m.unrestT = u0 + (m.unrestT - u0) * bl;
+      if (m.unrestT > u0) m.unrestT = u0 + (m.unrestT - u0) * bl * (st.acts[aid].y >= st.year - 5 ? fatK : 1);
       if (m.polarT > p0) m.polarT = p0 + (m.polarT - p0) * bl;
       // quanto malcontento portano o tolgono gli interventi, per mostrarlo tra le cause (13 novembre 2026)
       const du = m.unrestT - u0;
@@ -4753,6 +4767,11 @@ function tick(st) {
         m.life -= 0.2; const k = (st.flags.geoWatch ? 0.5 : 1) * (sci < 1 ? 0.6 : 1) * geoOpp(r);
         m.unrestT += 3 * k; m.polarT += 4 * k;
         if (MONSOON.includes(r.id)) { m.unrestT += (r.id === "sa" && st.flags.thermoAid ? 2 : 5) * sci; m.g -= 0.15 * sci; }
+        /* compensare più di metà del riscaldamento (22 novembre 2026): fino a metà gli aerosol riducono quasi tutti i danni del clima in
+           quasi tutte le regioni; oltre, piogge e monsoni cambiano molto di più e alcune regioni stanno peggio [Probabile: Irvine e altri,
+           Nature Climate Change 2019; NASEM 2021]. Prima portare la Terra a +0 °C non aveva nessun prezzo in più. */
+        const over = Math.max(0, -st.g.geoOff / Math.max(0.3, st.g.temp) - 0.5);
+        if (over > 0) { const w = MONSOON.includes(r.id) ? 1 : 0.35; m.unrestT += 14 * over * w * sci; m.g -= 0.6 * over * w * sci; m.polarT += 4 * over * w; }
       }
       // dopo una missione di pace: cinque anni di transizione con i caschi blu, che tengono basso il malcontento
       if (r.peaceUntil > st.year) m.unrestT -= 15 * clamp((r.peaceUntil - st.year - st.month / 12) / 5, 0, 1);
@@ -8711,7 +8730,7 @@ function geoSliderHTML() {
     <small id="geoI">${geoTxt(t, x)}</small></div>`;
 }
 function geoTxt(t, x) {
-  return tr("Senza aerosol la Terra sarebbe a {a}. Raffreddamento: {d} · costo {c} fondi l'anno · tensione tra le potenze +{k}. Più si scende, meno ondate di calore, tempeste e siccità, ma più cambiano le piogge e più crescono proteste e divisioni.", { a: tC(st.g.temp), d: tC(-x.dose).replace("+", "−").replace("−−", "−"), c: fmt(x.cost, 1), k: fmt(x.tension, 1) });
+  return tr("Senza aerosol la Terra sarebbe a {a}. Raffreddamento: {d} · costo {c} fondi l'anno · tensione tra le potenze +{k}. Più si scende, meno ondate di calore, tempeste e siccità, ma più cambiano le piogge e più crescono proteste e divisioni.", { a: tC(st.g.temp), d: tC(-x.dose).replace("+", "−").replace("−−", "−"), c: fmt(x.cost, 1), k: fmt(x.tension, 1) }) + (x.dose > 0.5 * st.g.temp + 0.01 ? " " + tr("Così compensi più di metà del riscaldamento (sotto {h}): le piogge e i monsoni cambiano molto di più, con più danni e proteste nelle regioni tropicali.", { h: tC(st.g.temp / 2) }) : "");
 }
 function wireGeoSlider() {
   const el = $("geoT");
