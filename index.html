@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
-<script>window.GF_BUILD = "mwravc44"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
+<script>window.GF_BUILD = "mwrc49li"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
 <style>html{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);background:#0f1d29;color-scheme:dark}body{margin:0;font-family:system-ui,-apple-system,sans-serif;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -5221,13 +5221,13 @@ function yearly(st) {
   }
   /* La cura per la vecchiaia (vittoria speciale). Corretto il 25 ottobre 2026: prima arrivava solo con il 4% l'anno, dopo 40 anni,
      e quasi nessuno ci riusciva prima della vittoria normale. Ora servono: biologia guidata dall'AI attiva da almeno 40 anni, le sue
-     tre grandi scoperte e la ricerca sull'invecchiamento attiva; poi arriva entro pochi anni (25% l'anno). Allungare la vita sana di
+     tre grandi scoperte e la ricerca sull'invecchiamento attiva; poi il 5% l'anno (dal 22 novembre 2026; prima 25%). Allungare la vita sana di
      decenni richiede 40-80 anni di ricerca intensa anche con l'AI [Ipotesi]. Un avviso dice quando manca poco. */
   const ab = st.acts.aiBio;
   if (ab && ab.n > 0 && st.flags.gen3 && built(st, "agingResearch") && !st.sim) {
     const yrs = st.year - (ab.y0 || ab.y);
-    if (yrs >= 35 && !st.flags.n_imm) { st.flags.n_imm = true; note(st, "discovery", "agingResearch", "La cura per la vecchiaia è vicina", "I laboratori guidati dall'AI riescono a ringiovanire tessuti e organi negli animali. Se la biologia guidata dall'AI e la ricerca sull'invecchiamento continuano, entro pochi anni potrebbe arrivare una terapia che ferma l'invecchiamento."); }
-    if (yrs >= 40 && rand() < 0.25) { gameOver(st, "immortale"); return; }
+    if (yrs >= 35 && !st.flags.n_imm) { st.flags.n_imm = true; note(st, "discovery", "agingResearch", "La cura per la vecchiaia è vicina", "I laboratori guidati dall'AI riescono a ringiovanire tessuti e organi negli animali. Se la biologia guidata dall'AI e la ricerca sull'invecchiamento continuano, un giorno potrebbe arrivare una terapia che ferma l'invecchiamento: forse fra pochi anni, forse mai."); }
+    if (yrs >= 40 && rand() < 0.05) { gameOver(st, "immortale"); return; } // 5% l'anno (22 novembre 2026, decisione di Guido; prima 25%): la cura potrebbe anche non arrivare mai in questo secolo [Ipotesi; Probabile: la maggior parte degli esperti è scettica su un allungamento radicale della vita entro il 2100]
   }
   // disoccupazione di massa senza un reddito: un avviso chiaro prima che le regioni crollino (al massimo ogni dieci anni)
   { const r = ctrlRegions(st).filter((x) => x.unemp > 18 && incomeSupport(x) < 0.6).sort((a, b) => b.unemp - a.unemp)[0];
