@@ -12,16 +12,14 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
-<script>window.GF_BUILD = "mwrdkx6u"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
+<script>window.GF_BUILD = "mwrfaow5"; window.GF_MUSIC = "music/"; window.GF_MUSIC_V = "5l57g2";window.GF_STATS = "https://script.google.com/macros/s/AKfycbwujK8fCcmxb92V2Ee9CjHsVrkkUKsydOtTVvNiYxRoQUUujd6lBGqLfir0RY4fTKnwAQ/exec";</script>
 <style>html{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);background:#0f1d29;color-scheme:dark}body{margin:0;font-family:system-ui,-apple-system,sans-serif;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
 <meta charset="utf-8">
 <title>Grande Filtro 1 · La Terra</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>@font-face{font-family:"Barlow Condensed";font-style:normal;font-weight:500;font-display:swap;src:url(fonts/barlow-condensed-latin-500-normal.woff2) format("woff2")}@font-face{font-family:"Barlow Condensed";font-style:normal;font-weight:600;font-display:swap;src:url(fonts/barlow-condensed-latin-600-normal.woff2) format("woff2")}@font-face{font-family:"Barlow Condensed";font-style:normal;font-weight:700;font-display:swap;src:url(fonts/barlow-condensed-latin-700-normal.woff2) format("woff2")}@font-face{font-family:"IBM Plex Sans";font-style:normal;font-weight:400;font-display:swap;src:url(fonts/ibm-plex-sans-latin-400-normal.woff2) format("woff2")}@font-face{font-family:"IBM Plex Sans";font-style:normal;font-weight:500;font-display:swap;src:url(fonts/ibm-plex-sans-latin-500-normal.woff2) format("woff2")}@font-face{font-family:"IBM Plex Sans";font-style:normal;font-weight:600;font-display:swap;src:url(fonts/ibm-plex-sans-latin-600-normal.woff2) format("woff2")}@font-face{font-family:"IBM Plex Mono";font-style:normal;font-weight:400;font-display:swap;src:url(fonts/ibm-plex-mono-latin-400-normal.woff2) format("woff2")}@font-face{font-family:"IBM Plex Mono";font-style:normal;font-weight:500;font-display:swap;src:url(fonts/ibm-plex-mono-latin-500-normal.woff2) format("woff2")}</style>
 <style>
 /* Sala operativa in orizzontale: il planisfero occupa tutta la finestra, i comandi galleggiano negli angoli
    e menu, interventi e schede regione sono schermate a tutta finestra con il tempo fermo.
@@ -118,7 +116,7 @@ button.chip { font: inherit; color: inherit; text-align: left; cursor: pointer; 
 .datebox { background: rgba(21,38,52,.93); border: 1px solid var(--line); border-radius: 8px; padding: 4px 6px 4px 12px; display: flex; align-items: center; gap: 8px; }
 .datebox .d { font-family: var(--font-d); font-weight: 600; font-size: 21px; letter-spacing: .04em; min-width: 82px; }
 .speed { display: flex; gap: 3px; }
-.speed button { background: var(--panel-2); border: 1px solid var(--line); border-radius: 6px; min-width: 34px; height: 30px; font-family: var(--font-m); font-size: 13px; }
+.speed button { background: var(--panel-2); border: 1px solid var(--line); border-radius: 6px; min-width: 40px; height: 36px; font-family: var(--font-m); font-size: 13px; }
 .speed button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 .evspeed { display: flex; align-items: center; justify-content: flex-end; gap: 4px; margin-top: 8px; font-size: 12px; color: var(--muted, #8fa3b3); }
 .evspeed span { margin-right: 4px; }
@@ -166,8 +164,10 @@ button.chip { font: inherit; color: inherit; text-align: left; cursor: pointer; 
 .back, .x { background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; min-width: 38px; height: 34px; font-size: 18px; line-height: 1; }
 .paused { font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
 .tabs { display: flex; gap: 2px; overflow-x: auto; flex: 1; min-width: 0; scrollbar-width: none; }
+/* schede che non stanno nello schermo: una sfumatura a destra fa capire che si scorre (23 novembre 2026) */
+.tabs.more { -webkit-mask-image: linear-gradient(to right, #000 88%, transparent); mask-image: linear-gradient(to right, #000 88%, transparent); }
 .tabs::-webkit-scrollbar { display: none; }
-.tabs button { flex: none; background: none; border: 1px solid transparent; border-radius: 8px; padding: 6px 10px; display: inline-flex; gap: 6px; align-items: center; color: var(--muted); font-family: var(--font-d); font-weight: 600; font-size: 16px; letter-spacing: .03em; }
+.tabs button { flex: none; background: none; border: 1px solid transparent; border-radius: 8px; padding: 9px 10px; display: inline-flex; gap: 6px; align-items: center; color: var(--muted); font-family: var(--font-d); font-weight: 600; font-size: 16px; letter-spacing: .03em; }
 .tabs button svg { width: 15px; height: 15px; }
 /* le schede si rimpiccioliscono finché entrano tutte, anche "Tecnologia" e "Genetica" (27 ottobre 2026) */
 .tabs.fit button { font-size: calc(16px * var(--tk, 1)); padding: 6px calc(10px * var(--tk, 1)); gap: calc(6px * var(--tk, 1)); }
@@ -412,6 +412,7 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
 .logo h1 { font-family: var(--font-d); font-weight: 700; font-size: clamp(34px, 11vmin, 64px); letter-spacing: .12em; text-transform: uppercase; margin: 0; color: var(--accent); line-height: .95; }
 .logo h1 .ch { display: inline-block; font-size: .62em; letter-spacing: 0; vertical-align: .32em; color: #fff; opacity: .9; } /* capitolo 1: la Terra */
 .logo .sub { font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-top: 6px; }
+.logo .pitch { max-width: 34ch; font-size: 13px; line-height: 1.45; color: #cbd6df; margin: 10px 0 0; letter-spacing: 0; text-transform: none; }
 .menu .btns { display: flex; flex-direction: column; gap: 10px; }
 .mbtn { background: #e8dfcc; color: #2b2214; border: 0; border-radius: 4px; padding: 11px 16px; font-family: var(--font-d); font-weight: 600; font-size: 21px; letter-spacing: .04em; box-shadow: 0 3px 0 #9c8a66; }
 .mbtn:active { transform: translateY(2px); box-shadow: 0 1px 0 #9c8a66; }
@@ -432,6 +433,10 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
 .mdi .mk svg { width: 13px; height: 13px; color: var(--muted); }
 .mdi[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); background: var(--panel-2); }
 .mdi.locked { opacity: .55; }
+.consent { position: absolute; z-index: 30; left: 50%; transform: translateX(-50%); bottom: max(12px, env(safe-area-inset-bottom, 0px)); width: min(560px, calc(100% - 24px)); background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font-size: 13px; box-shadow: 0 6px 24px rgba(0,0,0,.4); }
+.consent p { margin: 0 0 8px; } .consent .crow { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; } .consent .buy { margin: 0; padding: 8px 14px; font-size: 14px; }
+.lockbox { margin-top: 10px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel-2); font-size: 13px; }
+.lockbox p { margin: 0 0 8px; } .lockbox .buyrow { display: flex; gap: 8px; flex-wrap: wrap; } .lockbox .buy { margin: 0; padding: 8px 12px; font-size: 14px; }
 .mdi.locked .n { -webkit-text-stroke-color: var(--muted); }
 .mddet { background: linear-gradient(180deg, var(--panel-2), var(--panel)); border: 1px solid var(--line); border-radius: 14px; padding: 12px 16px; overflow-y: auto; min-height: 0; font-size: 14px; line-height: 1.45; color: #cbd6df; scrollbar-width: thin; }
 .mddet .hd { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
@@ -499,7 +504,7 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
 #coachHead:empty { display: none; }
 #coachHead { flex: 0 1 52%; min-width: 0; background: #1d3a4f; border: 1px solid var(--info); border-radius: 10px; padding: 4px 10px; font-size: 13px; line-height: 1.35; }
 #coachHead small { display: block; font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--info); }
-.coach.low { top: auto; bottom: max(12px, env(safe-area-inset-bottom, 0px)); left: max(12px, var(--gl)); transform: none; width: min(380px, 46%); }
+.coach.low { top: auto; bottom: calc(max(12px, env(safe-area-inset-bottom, 0px)) + 64px); left: 50%; transform: translateX(-50%); width: min(420px, 52%); } /* sopra la barra in basso, al centro: non copre «Interventi» (23 novembre 2026) */
 .coach .ct2 { flex: 1; }
 .coach small { display: block; font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--info); margin-bottom: 2px; }
 .coach .buy { pointer-events: auto; margin: 0; padding: 7px 14px; font-size: 15px; flex: none; }
@@ -541,7 +546,7 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
 
 @media (prefers-reduced-motion: reduce) { .reg path.shape { transition: none; } }
 .compact .chip { padding: 3px 7px; } .compact .chip .v { font-size: 13px; }
-.compact .datebox .d { font-size: 18px; min-width: 70px; } .compact .speed button { height: 26px; min-width: 30px; }
+.compact .datebox .d { font-size: 18px; min-width: 70px; } .compact .speed button { height: 32px; min-width: 36px; }
 .compact .bottom { bottom: 6px; }
 .compact .opbox .funds .v { font-size: 15px; } .compact .opbox button, .compact .worldbtn { font-size: 15px; } .compact .worldbtn { padding: 8px 12px; }
 .compact .regstrip { padding: 4px 8px; } .compact .regstrip .nm { font-size: 15px; }
@@ -606,7 +611,9 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
 
 /* consigli */
 .card.tip { border-color: #4b6a80; width: min(560px, 100%); }
-.info { display: inline-flex; align-items: center; justify-content: center; width: 15px; height: 15px; border-radius: 50%; border: 1px solid #6fb0d8; color: #9fd0ee; font: italic 600 10px/1 Georgia, serif; margin-left: 5px; vertical-align: 1px; cursor: pointer; flex: none; }
+/* la «i» resta piccola ma si tocca su un'area di circa 37 punti (23 novembre 2026) */
+.info::after { content: ""; position: absolute; inset: -11px; }
+.info { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 15px; height: 15px; border-radius: 50%; border: 1px solid #6fb0d8; color: #9fd0ee; font: italic 600 10px/1 Georgia, serif; margin-left: 5px; vertical-align: 1px; cursor: pointer; flex: none; }
 .infobox { z-index: 60; background: rgba(5,10,14,.5); }
 .infobox .card { width: min(460px, 100%); border-color: #6fb0d8; }
 .infobox h2 { font-size: calc(22px * var(--ck, 1)); padding-right: 40px; }
@@ -794,56 +801,21 @@ select { background: var(--panel-2); color: var(--fg); border: 1px solid var(--l
       <p class="setnote" id="statsNote">Aiutano a capire se gli scenari sono troppo facili o difficili: anno, stabilità, esito. Nessun dato personale.</p>
       <div class="setrow" id="langRow"><span>Lingua</span><span class="langs" id="langBtns" data-dyn></span></div>
       <p class="setnote" id="langNote" data-dyn></p>
+      <button type="button" class="mbtn" id="bRestore" hidden>Ripristina acquisti</button>
+      <button type="button" class="mbtn" id="bPrivacy">Privacy</button>
+      <p class="setnote">Cartina: Natural Earth (pubblico dominio). Città e popolazioni: GeoNames (licenza CC BY 4.0).</p>
       <button type="button" class="mbtn" id="settingsOk">Chiudi</button>
     </div>
     <div class="in">
-      <div class="logo"><h1>Grande<br>Filtro <span class="ch">1</span></h1><div class="sub">La Terra</div><div class="crownall" id="crownAll" hidden>♛ Tutti gli scenari vinti a super difficile con tutti i governi</div></div>
+      <div class="logo"><h1>Grande<br>Filtro <span class="ch">1</span></h1><div class="sub">La Terra</div><p class="pitch">Sei l'Autorità che le nazioni hanno scelto per guidare il pianeta nel secolo decisivo. Tieni stabili le regioni del mondo tra debiti, invecchiamento, clima, guerre e nuove tecnologie.</p><div class="crownall" id="crownAll" hidden>♛ Tutti gli scenari vinti a super difficile con tutti i governi</div></div>
       <div class="btns">
         <button type="button" class="mbtn" id="mCont" data-dyn hidden>Continua</button>
         <button type="button" class="mbtn" id="mPlay">Nuova partita</button>
-        <button type="button" class="mbtn" id="mHow">Come si gioca</button>
       </div>
     </div>
   </div>
 
-  <div class="panelscreen" id="menuHow" hidden>
-    <div class="head screen-head" style="display:flex;align-items:center;gap:10px;padding:6px var(--gr) 6px var(--gl);border-bottom:1px solid var(--line);background:var(--panel)"><button type="button" class="back" data-back="title" aria-label="Indietro">‹</button><h2 style="margin:0;font-family:var(--font-d);font-size:20px;letter-spacing:.04em">Come si gioca</h2></div>
-    <div class="body"><div class="howto">
-      <p>Il pianeta affronta una crisi su molti fronti: debito, invecchiamento, clima, tensioni tra potenze, tecnologie sempre più potenti. Dopo lunghe trattative le nazioni hanno istituito un'Autorità sovranazionale e accettano di eseguirne gli ordini. Tu sei l'Autorità.</p>
-      <h3>Scenari e governi</h3>
-      <p>Si comincia dall'addestramento, che spiega il gioco passo per passo. Ogni scenario aggiunge nuovi problemi e nuovi interventi, e vincendolo si apre il successivo. Prima di ogni partita scegli la difficoltà (il livello super difficile si apre vincendo lo scenario a livello difficile) e il tipo di governo: ogni governo ha vantaggi, svantaggi e azioni proprie, e vale la pena vincere ogni scenario con tutti.</p>
-      <h3>Le difficoltà</h3>
-      <p>Tutti i livelli usano dati e studi reali. Cambia solo quale stima si prende quando gli esperti danno un intervallo: a livello facile le più favorevoli, a medio quelle centrali, a super difficile le meno favorevoli (gente che reagisce peggio alle riforme, tagli che si consumano, mercati che non dimenticano le crisi).</p>
-      <h3>La stabilità</h3>
-      <p>Ogni regione ha un indice di stabilità da 1 a 100, il numero che vedi sulla mappa. Riassume otto aspetti: pace sociale, coesione, conti pubblici, welfare, lavoro, energia pulita, sicurezza climatica ed equilibrio demografico. Tocca una regione per vedere cosa la indebolisce e quale intervento la aiuterebbe di più.</p>
-      <h3>Obiettivo</h3>
-      <p>Vinci quando la stabilità mondiale resta almeno a 80 per 10 anni di fila. Clima, debito, rischi tecnologici e tensioni tra le potenze non sono obiettivi in sé: sono i problemi che ti impediscono di arrivarci.</p>
-      <h3>Sconfitta</h3>
-      <p>Perdi se la stabilità mondiale scende a zero o resta sotto 15 per 5 anni di fila, oppure se l'Autorità fa bancarotta. Una regione in anarchia vale zero e spinge verso il caos le regioni vicine; finché una regione è fuori dall'Autorità (in anarchia o uscita con un voto) non si può vincere. Negli scenari senza la scheda Sicurezza una regione nell'anarchia fa perdere la partita. Negli altri compare l'esercito comune dell'Autorità: con quello tocchi la regione e avvii una missione di pace e ricostruzione, che parte da una regione stabile (meglio se vicina), dura due anni con due decisioni da prendere e può fallire. Se riesce, per cinque anni i caschi blu tengono basso il malcontento: in quel tempo va risolto ciò che aveva fatto crollare la regione (lavoro, reddito, servizi), altrimenti ricade. Una catastrofe globale, come una guerra nucleare, un'intelligenza artificiale fuori controllo o una pandemia ingegnerizzata, azzera tutto di colpo: per questo i rischi vanno tenuti bassi.</p>
-      <h3>Interventi</h3>
-      <p>Con i fondi avvii interventi che valgono per tutto il mondo; ogni regione ne risente in base alle sue condizioni. La schermata degli interventi si apre sulla <b>Panoramica</b>: una riga per settore, con quanti interventi hai avviato e come va il mondo in quel campo (barra piena è buono, vuota è grave). Ogni settore ha un albero di esagoni: quelli nuovi compaiono man mano che li sblocchi. Toccando un esagono vedi a destra che cos'è e, nelle barre, in verde a righe quello che migliorerebbe e in rosso a righe quello che peggiorerebbe; in basso vedi quanto costa subito e come cambia il saldo annuo. Leggi e opere si pagano una volta; i programmi continui costano ogni anno e si fermano se smetti di finanziarli. Leggi, riforme e programmi si possono annullare quando vuoi, per qualsiasi ragione; restano per sempre solo le opere costruite (centrali, impianti, foreste, basi spaziali) e le scelte irreversibili. Toccando il saldo, in basso, vedi entrate e spese dalla più grande alla più piccola: quando i conti vanno in rosso capisci subito dove tagliare.</p>
-      <h3>Difficoltà</h3>
-      <p>Le crisi economiche seguono la realtà: una recessione mondiale arriva in media ogni 15-20 anni e un crollo di borsa ogni 10-12, anche insieme ad altre crisi. Ognuna ha una causa (una bolla finanziaria, il prezzo del petrolio, tassi alti contro l'inflazione, il debito degli stati, i disoccupati dei robot senza reddito, una pandemia o una guerra) e la risposta giusta dipende dalla causa: lo stimolo funziona bene dopo una bolla o una pandemia, ma con il petrolio alle stelle fa salire soprattutto i prezzi. Nella schermata Mondo vedi il rischio e le sue cause.</p>
-      <p>Le crisi sono le stesse a ogni livello. Cambia quanto in fretta la popolazione accetta le riforme e quanto reagisce male ai sacrifici: a livello facile gli interventi entrano a regime prima e fanno meno malcontento.</p>
-      <h3>Fondi e debito</h3>
-      <p>Ogni regione versa all'Autorità una piccola parte della sua ricchezza, circa lo 0,24% del PIL: all'inizio 27 fondi l'anno. Quei soldi escono dai bilanci degli stati, quindi il loro debito sale un poco. Un fondo vale circa 10 miliardi di dollari del 2026. Per le grandi politiche (sanità, energia, reddito di base) l'Autorità paga la sua quota per lanciarle e coordinarle, il resto lo pagano gli stati e i privati: per questo alcune misure fanno salire anche il debito delle regioni. Le entrate: le entrate crescono se l'economia cresce e calano se una regione cade nell'anarchia, che smette di versare (ma smetti anche di pagare i programmi in quella regione). Con l'inflazione ogni anno tutto costa un po' di più, e le entrate si adeguano con circa un anno di ritardo. Come nella realtà, quando il mondo si arricchisce costano di più anche stipendi, cantieri e programmi: la tecnologia prodotta in serie invece costa sempre meno. Dallo scenario «Energia per tutti» puoi proporre agli stati dei trattati (schermata Mondo, scheda Trattati): passano all'Autorità un compito e i soldi per farlo, con un risparmio perché le cose fatte insieme costano meno. Servono i due terzi degli stati favorevoli: è molto più facile subito dopo una grande crisi mondiale. Si parte senza fondi: le entrate arrivano mese dopo mese. Se i fondi non bastano puoi indebitarti, anche per rispondere a una crisi: paghi il tasso a lungo termine, più un sovrapprezzo che cresce con il debito rispetto alle entrate di un anno: piccolo fino a due anni e mezzo di entrate, poi sempre più alto. Perdi per bancarotta solo se per tre anni gli interessi superano tutto ciò che potresti incassare anche tagliando ogni spesa e alzando ogni tassa.</p>
-      <h3>Eventi</h3>
-      <p>Crisi ed emergenze compaiono sulla mappa come un segnaposto sulla regione colpita; possono essercene più di uno insieme. Hai un anno di tempo per toccarlo: intanto puoi raccogliere i fondi. Più aspetti, più il segnaposto si gonfia; dopo un anno il tempo si ferma finché non lo tocchi. Toccandolo leggi che cosa succede: puoi scegliere subito tra intervento pieno, una via di mezzo o non fare nulla, oppure rimandare la decisione. Il tempo si ferma anche quando apri un menu.</p>
-      <h3>Economia e popolazione</h3>
-      <p>La ricchezza prodotta da una regione è il numero di lavoratori occupati per quanto produce ciascuno. Tecnologia, istruzione, automazione e robot fanno crescere la produttività. Quando i robot fanno il lavoro delle persone la ricchezza non sparisce, ma passa dagli stipendi ai profitti di chi possiede i robot: le tasse sul lavoro calano e chi perde il posto resta senza reddito, a meno di una tassa sui robot, di un fondo sovrano e del reddito di base. Se nascono meno bambini, fra 18 anni ci saranno meno lavoratori e l'economia rallenta. Chi aiuta le famiglie oggi vede più crescita una generazione dopo. Il debito di uno stato cresce da solo quando gli interessi superano la crescita (l'effetto palla di neve). Nella scheda Economia la Banca centrale ti fa scegliere il tasso di interesse: alzarlo frena l'inflazione ma anche crescita e lavoro, abbassarlo fa il contrario. Nella schermata Mondo, alla voce Statistiche, trovi l'andamento nel tempo di popolazione, lavoratori, produttività, debito e molto altro, per il mondo intero o per una regione; a fine partita lo stesso resoconto.</p>
-      <p>Ogni tanto arrivano anche opportunità: scoperte, svolte tecnologiche, riprese economiche.</p>
-      <h3>La Luna</h3>
-      <p>Il programma lunare, nella scheda Tecnologia, non serve per vincere ma cambia la partita: una base costruita insieme dalle potenze riduce la tensione tra loro e la polarizzazione, gli osservatori portano scoperte e tecnologie, un insediamento permanente custodisce un archivio dell'umanità e apre la strada alla fase successiva. Lo stato del programma si vede nella schermata Mondo.</p>
-      <h3>Stelle</h3>
-      <p>Alla vittoria ricevi fino a quattro stelle: per la rapidità, per non aver perso nessuna regione, per aver contenuto il riscaldamento e per aver portato una comunità stabile sulla Luna.</p>
-      <h3>Salvataggio</h3>
-      <p>La partita si salva da sola. Se chiudi il gioco, dal menu iniziale scegli "Continua".</p>
-      <h3>Fonti</h3>
-      <p>Cartina: Natural Earth (pubblico dominio). Città e popolazioni: GeoNames (licenza CC BY 4.0).</p>
-    </div></div>
-  </div>
-
-  <div class="panelscreen" id="menuBrief" hidden>
+<div class="panelscreen" id="menuBrief" hidden>
     <div style="display:flex;align-items:center;gap:10px;padding:6px var(--gr) 6px var(--gl);border-bottom:1px solid var(--line);background:var(--panel)"><button type="button" class="back" id="briefBack" data-back="gov" aria-label="Indietro">‹</button><h2 style="margin:0;font-family:var(--font-d);font-size:20px;letter-spacing:.04em;flex:1">La missione</h2><button type="button" class="mbtn" id="mGo" style="font-size:17px;padding:7px 14px">Assumi il comando</button></div>
     <div class="body"><div class="brief" id="briefBody" data-dyn></div></div>
   </div>
@@ -944,7 +916,7 @@ const DIFF = {
    inc: entrate in proporzione (negli scenari con pochi interventi servono meno fondi). */
 const ALL_CATS = ["energia", "economia", "welfare", "societa", "clima", "sicurezza", "tecnologia"];
 const LEVELS = [
-  { id: "tut", name: "Addestramento", tutorial: true, funds: 10, cats: ["economia", "welfare", "societa"], tier: 1, sys: [], inc: 0.65, win: 52, years: 3, fast: 15,
+  { id: "tut", name: "Addestramento", tutorial: true, funds: 10, cats: ["economia", "welfare", "societa"], tier: 1, sys: [], inc: 0.65, win: 62, years: 3, fast: 15,
     intro: "Le basi del gioco, passo per passo: la stabilità, gli interventi, le crisi.", adds: "Economia e società" },
   { id: "l1", name: "Primo mandato", cats: ["economia", "welfare", "societa"], tier: 2, sys: [], inc: 0.9, win: 72, years: 10, fast: 30,
     intro: "Debiti, pensioni e malcontento: rimetti in piedi le società del pianeta.", adds: "Tutti gli interventi di economia e società" },
@@ -2883,7 +2855,7 @@ function proposeTreaty(st, id, k = 1) {
   if (vote > TR_NEED) {
     (st.treaties || (st.treaties = {}))[id] = st.year;
     if (id === "trDefense") st.g.tension = Math.max(0, st.g.tension - 5);
-    logNews(st, `Approvato con il ${Math.round(vote)}% degli stati: «${t.name}». Gli stati versano all'Autorità il ${fmtPct(t.share)} del PIL.`, "done");
+    logNews(st, `Approvato con il ${Math.round(vote)}% degli stati: «${t.name}». Gli stati versano all'Autorità una quota del PIL: ${fmtPct(t.share)}.`, "done");
     return null;
   }
   (st.trBan || (st.trBan = {}))[id] = st.year + 5;
@@ -3223,7 +3195,7 @@ function revoke(st, id) {
     // shock da interruzione: finché le emissioni non sono quasi a zero il caldo nascosto torna tutto in pochi anni e i raccolti crollano
     const hot = co2Gt(st) > 5 && st.g.geoOff < -0.3;
     ctrlRegions(st).forEach((r) => (r.shockU += hot ? 15 : 6));
-    if (hot) st.funds -= priced(st, 8);
+    if (hot) { st.funds -= priced(st, 8); st.flags.termShock = true; } // premio «Shock da interruzione»
     logNews(st, hot ? "Shock da interruzione: senza gli aerosol il caldo nascosto dalla CO₂ torna in pochi anni. Raccolti perduti in molte regioni, danni per 8 fondi." : "Interrotti gli aerosol riflettenti: le emissioni sono già basse, il caldo che torna è poco.", "bad");
   }
   logNews(st, `Revocato: «${d.name}».`, "info");
@@ -3253,7 +3225,7 @@ const EVENTS = [
      - oltre il 200%, ristrutturazione: il debito scende al 90%, lo pagano i creditori della regione e del resto del mondo. */
   { id: "debt", scope: "region", cat: "Economia", title: "Crisi del debito",
     p: () => 0,
-    text: (st, r) => `I mercati non si fidano più dei conti di ${r.name}: il debito pubblico è al ${Math.round(r.debt)}% del prodotto e gli interessi salgono. ${r.debt >= 200 ? "A questo livello il debito non si può più ripagare per intero." : "Bisogna scegliere chi pagherà per farlo scendere."}${built(st, "debtBrake") || !available(st, IBY.debtBrake) ? "" : " Perché non torni a salire serve una correzione che duri: la Regola di bilancio (scheda Economia)."}`,
+    text: (st, r) => `I mercati non si fidano più dei conti della regione ${r.name}: il debito pubblico è al ${Math.round(r.debt)}% del prodotto e gli interessi salgono. ${r.debt >= 200 ? "A questo livello il debito non si può più ripagare per intero." : "Bisogna scegliere chi pagherà per farlo scendere."}${built(st, "debtBrake") || !available(st, IBY.debtBrake) ? "" : " Perché non torni a salire serve una correzione che duri: la Regola di bilancio (scheda Economia)."}`,
     choices: [
       { ok: (st) => !(debtR(st) && debtR(st).debt >= 200), label: "Piano di rientro: tagli e tasse", cost: 0, out: "Tagli forti per cinque anni, poi una parte resta per sempre. Subito meno crescita e rabbia", fx: (st, r) => { r.austUntil = st.year + 5; r.austPerm = Math.min(6, (r.austPerm || 0) + (st.D.austKeep != null ? st.D.austKeep : 1.5)); r.shockU += 10; r.shockG -= 1.0; } },
       { ok: (st) => debtR(st) && debtR(st).debt >= 200, label: "Ristrutturazione: taglio del debito", cost: 0, out: "Il debito scende al 90%; lo pagano i risparmiatori della regione e le banche del resto del mondo, e per qualche anno i tassi salgono per tutti", fx: (st, r) => cutDebt(st, r, 90, true) },
@@ -4373,9 +4345,13 @@ function endingText(st) {
   if (!E) return "";
   if (st.over === "ai") return AI_ENDS[st.aiEnd || 0] + " Il filtro che ha fermato l'umanità è stato l'intelligenza artificiale." + (st.lunarArchive || st.lunarCity ? " " + ARCHIVE_EPILOGUE : st.moon ? " " + SEP_EPILOGUE : "");
   if (st.over === "impatto") return E.text + cometEpilogue(st) + (st.lunarArchive || st.lunarCity ? " " + ARCHIVE_EPILOGUE : "");
+  // addestramento: un testo suo (23 novembre 2026; prima diceva «per dieci anni di fila» anche dopo tre anni)
+  if (st.over === "vittoria" && st.L && st.L.tutorial) return `Addestramento completato: hai portato la stabilità mondiale ad almeno ${st.L.win} e l'hai tenuta lì per ${st.L.years} anni. Nel «Primo mandato» il mondo è più difficile: debiti, pensioni e malcontento crescono, e per vincere la stabilità deve restare alta per dieci anni.`;
   if (st.over === "vittoria") return E.text + (st.lunarCity ? " Sulla Luna vive già una comunità permanente: il primo passo verso il sistema solare è compiuto." : "");
   // vittoria speciale: niente epilogo da catastrofe (richiesta di Guido del 5 novembre 2026)
   if (st.over === "immortale") return E.text + (st.lunarCity ? " Sulla Luna vive già una comunità permanente: il primo passo verso il sistema solare è compiuto." : st.lunarArchive ? " Sulla Luna l'archivio dell'umanità custodisce i saperi e i genomi della Terra: una copia di sicurezza per i secoli che verranno." : "");
+  // crollo con regioni già nell'anarchia: il testo non può dire che nessuna era caduta (23 novembre 2026)
+  if (st.over === "crollo" && Object.values(st.regions).some((r) => !r.controlled && !r.exit)) return "Per cinque anni la stabilità del mondo è rimasta sotto 15. Alcune regioni erano già cadute nell'anarchia e le altre non obbedivano più davvero: governi paralizzati, bilanci bloccati, piazze piene ogni giorno. L'Autorità ha perso ogni credito e le nazioni hanno smesso di ascoltarla." + (st.lunarArchive || st.lunarCity ? " " + ARCHIVE_EPILOGUE : st.moon ? " " + SEP_EPILOGUE : "");
   return E.text + (st.lunarArchive || st.lunarCity ? " " + ARCHIVE_EPILOGUE : st.moon ? " " + SEP_EPILOGUE : "");
 }
 /* riconoscimenti di fine partita: ognuno vale una stella */
@@ -22058,6 +22034,423 @@ for (const D of [LANG_EN, LANG_ES, LANG_FR, LANG_DE, LANG_PT]) for (const k of [
   if (D[k] && !D[lo]) D[lo] = D === LANG_DE ? D[k] : D[k][0].toLowerCase() + D[k].slice(1); // in tedesco i nomi restano maiuscoli
 }
 
+/* Frasi aggiunte con la revisione prima del lancio (22 novembre 2026), in tutte le lingue. */
+Object.assign(LANG_EN, {
+  "Si sblocca vincendo questo scenario a difficile con il governo «{x}», oppure si compra: vale in tutti gli scenari.": "It unlocks by winning this scenario on hard with the «{x}» government, or you can buy it: it is valid in all scenarios.",
+  "Compra questo governo": "Buy this government",
+  "Tutti i governi": "All governments",
+  "Decidi": "Decide",
+  "{r}: stabilità {s}; la voce che pesava di più era «{v}» (aiutano: {f}).": "{r}: stability {s}; the heaviest factor was «{v}» (what helps: {f}).",
+  "{r}: stabilità {s}; la voce che pesava di più era «{v}».": "{r}: stability {s}; the heaviest factor was «{v}».",
+  "Regioni cadute nell'anarchia: {x}.": "Regions that fell into anarchy: {x}.",
+  "La stabilità mondiale era arrivata a {s} nel {y}, poi è scesa.": "World stability had reached {s} in {y}, then it fell.",
+  "La prossima volta:": "Next time:",
+  "Perché è andata così": "Why it went this way",
+  "Premio: {x}": "Achievement: {x}",
+  "Per aprire lo scenario successivo vinci questo col governo neutro (anche a facile).": "To open the next scenario, win this one with the neutral government (easy counts too).",
+  "Sbloccato il governo <b>{x}</b> in questo scenario": "Unlocked the <b>{x}</b> government in this scenario",
+  "Gli acquisti sono disponibili nell'app.": "Purchases are available in the app.",
+  "Acquisto completato: grazie!": "Purchase complete: thank you!",
+  "Acquisto non riuscito.": "Purchase failed.",
+  "Acquisti ripristinati.": "Purchases restored.",
+  "Ripristino non riuscito.": "Restore failed.",
+  "Luna": "Moon",
+  "Terra": "Earth",
+  "Accesa: non si sente con il telefono in modalità silenziosa e non ferma la musica di altre app.": "On: it cannot be heard with the phone in silent mode and does not stop music from other apps.",
+  "Ci aiuti a migliorare il gioco? Con il tuo permesso inviamo dati anonimi sulle partite (scenario, anno, stabilità, esito). Nessun dato personale. Puoi cambiare idea nelle Impostazioni.": "Will you help us improve the game? With your permission we send anonymous game data (scenario, year, stability, outcome). No personal data. You can change your mind in Settings.",
+  "Sì, va bene": "Yes, that's fine",
+  "No, grazie": "No, thanks",
+  "Privacy": "Privacy",
+  "Ripristina acquisti": "Restore purchases",
+  "Cartina: Natural Earth (pubblico dominio). Città e popolazioni: GeoNames (licenza CC BY 4.0).": "Map: Natural Earth (public domain). Cities and populations: GeoNames (CC BY 4.0 licence).",
+  "Sei l'Autorità che le nazioni hanno scelto per guidare il pianeta nel secolo decisivo. Tieni stabili le regioni del mondo tra debiti, invecchiamento, clima, guerre e nuove tecnologie.": "You are the Authority the nations have chosen to guide the planet through the decisive century. Keep the world's regions stable through debt, ageing, climate, wars and new technologies.",
+  "In alto vedi la stabilità mondiale: oggi è {0}. Il tuo obiettivo è portarla almeno a {1} e tenerla lì per {2} anni di fila.": "At the top you see world stability: today it is {0}. Your goal is to bring it to at least {1} and keep it there for {2} years in a row.",
+  "Ogni intervento vale per tutto il mondo e costa fondi. Se i fondi non bastano si può avviare a debito: l'Autorità prende in prestito e poi paga gli interessi. Tocca il pulsante giallo.": "Each measure applies to the whole world and costs funds. If funds are short you can start it on debt: the Authority borrows and then pays interest. Tap the yellow button.",
+  "Attenzione: anche senza crisi la stabilità scende da sola. Debiti, pensioni, prezzi e divisioni pesano ogni anno sulle regioni: senza interventi il mondo peggiora.": "Careful: even without crises, stability falls on its own. Debt, pensions, prices and divisions weigh on the regions every year: without measures the world gets worse.",
+  "Tocca «Mondo»: vedi come va il pianeta e da dove viene il malcontento.": "Tap «World»: see how the planet is doing and where the discontent comes from.",
+  "Qui trovi i grandi rischi e le statistiche. Le cause del malcontento di ogni regione sono nella sua scheda («Cosa fare»). Torna alla mappa con la freccia.": "Here you find the great risks and the statistics. The causes of each region's discontent are in its card («What to do»). Go back to the map with the arrow.",
+  "Ora prosegui da solo: spendi i fondi appena puoi e aiuta le regioni con i numeri più bassi. Porta la stabilità almeno a {0}.": "Now carry on by yourself: spend funds as soon as you can and help the regions with the lowest numbers. Bring stability to at least {0}.",
+  "Debito molto alto: {0}. I mercati possono smettere di prestare a questi stati. Il debito sale quando la crescita è più bassa degli interessi e quando il welfare pesa troppo: guarda pensioni, crescita e tagli alla spesa, oppure la ristrutturazione del debito.": "Very high debt: {0}. Markets may stop lending to these states. Debt rises when growth is lower than interest and when welfare weighs too much: look at pensions, growth and spending cuts, or debt restructuring.",
+  "Spendi i fondi appena puoi e aiuta per prime le regioni con la stabilità più bassa: una regione debole trascina giù le vicine.": "Spend funds as soon as you can and help the regions with the lowest stability first: a weak region drags its neighbours down.",
+  "Quando una regione scende sotto 15, aprila («Cosa fare») e avvia subito l'intervento consigliato: sotto zero cade nell'anarchia.": "When a region drops below 15, open it («What to do») and start the suggested measure at once: below zero it falls into anarchy.",
+  "Tieni d'occhio il saldo annuo: se i costi fissi superano le entrate, il debito dell'Autorità cresce da solo. Prima le entrate (lotta all'evasione, riforma dei conti), poi le spese fisse.": "Keep an eye on the yearly balance: if fixed costs exceed revenue, the Authority's debt grows by itself. Revenue first (fighting evasion, public finance reform), then fixed costs.",
+  "Il clima si gioca nei primi decenni: energia pulita da più fonti, adattamento e, se serve, cattura della CO₂.": "Climate is decided in the first decades: clean energy from several sources, adaptation and, if needed, CO₂ capture.",
+  "Tieni bassa la tensione tra le potenze: mediazione dei conflitti, controllo del materiale fissile, trattati.": "Keep tension between the powers low: conflict mediation, control of fissile material, treaties.",
+  "L'AI cresce da sola ogni anno: regole sull'AI e allineamento devono tenere il passo, soprattutto se dai incentivi alle grandi aziende.": "AI grows by itself every year: AI rules and alignment must keep pace, especially if you give incentives to big companies.",
+  "Le biotecnologie corrono da sole: controllo del DNA sintetico, regole per i laboratori e sorveglianza delle epidemie riducono il rischio.": "Biotechnology races ahead by itself: synthetic DNA control, lab rules and epidemic surveillance reduce the risk.",
+  "Contro una cometa servono anni di anticipo: sorveglianza degli asteroidi e flotta di deviatori pronte prima che arrivi.": "Against a comet you need years of warning: asteroid surveillance and the deflector fleet ready before it arrives.",
+  "Primo giorno": "First day",
+  "Mano ferma": "Steady hand",
+  "Sull'orlo": "On the brink",
+  "Oltre il filtro": "Beyond the filter",
+  "Sette visioni": "Seven visions",
+  "La corona": "The crown",
+  "Quattro stelle": "Four stars",
+  "Vittoria lampo": "Lightning victory",
+  "Conti in ordine": "Sound finances",
+  "Dall'abisso": "Back from the abyss",
+  "Caschi blu": "Blue helmets",
+  "Un Sole sulla Terra": "A sun on Earth",
+  "Mondo pulito": "Clean world",
+  "Emissioni negative": "Net negative",
+  "Allineata": "Aligned",
+  "Codici al sicuro": "Codes secured",
+  "Fine della malaria": "The end of malaria",
+  "Cometa deviata": "Comet deflected",
+  "L'archivio": "The archive",
+  "Culle piene": "Full cradles",
+  "Debito domato": "Debt tamed",
+  "Benessere per tutti": "Prosperity for all",
+  "Inverno nucleare": "Nuclear winter",
+  "Il giorno delle macchine": "The day of the machines",
+  "Paziente zero": "Patient zero",
+  "Pianeta rovente": "Burning planet",
+  "Crollo dell'ordine": "Order collapses",
+  "Collezionista di filtri": "Filter collector",
+  "Shock da interruzione": "Termination shock",
+  "Qualcuno ricomincerà": "Someone will start again",
+  "Una nuova élite": "A new elite",
+  "Gestore di crisi": "Crisis manager",
+  "Pace tra le potenze": "Peace among powers",
+  "Tutto il possibile": "Everything possible",
+  "Approvato con il {0}% degli stati: «{1}». Gli stati versano all'Autorità una quota del PIL: {2}.": "Approved by {0}% of states: «{1}». States pay the Authority a share of GDP: {2}.",
+  "I mercati non si fidano più dei conti della regione {0}: il debito pubblico è al {1}% del prodotto e gli interessi salgono. {2}{3}": "Markets no longer trust the finances of the {0} region: public debt is at {1}% of output and interest is rising. {2}{3}",
+  "Addestramento completato: hai portato la stabilità mondiale ad almeno {0} e l'hai tenuta lì per {1} anni. Nel «Primo mandato» il mondo è più difficile: debiti, pensioni e malcontento crescono, e per vincere la stabilità deve restare alta per dieci anni.": "Training complete: you brought world stability to at least {0} and kept it there for {1} years. In «First term» the world is harder: debt, pensions and discontent grow, and to win stability must stay high for ten years.",
+  "Per cinque anni la stabilità del mondo è rimasta sotto 15. Alcune regioni erano già cadute nell'anarchia e le altre non obbedivano più davvero: governi paralizzati, bilanci bloccati, piazze piene ogni giorno. L'Autorità ha perso ogni credito e le nazioni hanno smesso di ascoltarla.": "For five years world stability stayed below 15. Some regions had already fallen into anarchy and the others no longer really obeyed: paralysed governments, frozen budgets, squares full every day. The Authority lost all credibility and the nations stopped listening to it."
+});
+Object.assign(LANG_ES, {
+  "Si sblocca vincendo questo scenario a difficile con il governo «{x}», oppure si compra: vale in tutti gli scenari.": "Se desbloquea ganando este escenario en difícil con el gobierno «{x}», o se puede comprar: vale en todos los escenarios.",
+  "Compra questo governo": "Comprar este gobierno",
+  "Tutti i governi": "Todos los gobiernos",
+  "Decidi": "Decidir",
+  "{r}: stabilità {s}; la voce che pesava di più era «{v}» (aiutano: {f}).": "{r}: estabilidad {s}; el factor que más pesaba era «{v}» (ayudan: {f}).",
+  "{r}: stabilità {s}; la voce che pesava di più era «{v}».": "{r}: estabilidad {s}; el factor que más pesaba era «{v}».",
+  "Regioni cadute nell'anarchia: {x}.": "Regiones caídas en la anarquía: {x}.",
+  "La stabilità mondiale era arrivata a {s} nel {y}, poi è scesa.": "La estabilidad mundial había llegado a {s} en {y}, y luego bajó.",
+  "La prossima volta:": "La próxima vez:",
+  "Perché è andata così": "Por qué salió así",
+  "Premio: {x}": "Logro: {x}",
+  "Per aprire lo scenario successivo vinci questo col governo neutro (anche a facile).": "Para abrir el siguiente escenario, gana este con el gobierno neutral (también en fácil).",
+  "Sbloccato il governo <b>{x}</b> in questo scenario": "Desbloqueado el gobierno <b>{x}</b> en este escenario",
+  "Gli acquisti sono disponibili nell'app.": "Las compras están disponibles en la app.",
+  "Acquisto completato: grazie!": "Compra completada: ¡gracias!",
+  "Acquisto non riuscito.": "La compra no se ha completado.",
+  "Acquisti ripristinati.": "Compras restauradas.",
+  "Ripristino non riuscito.": "No se han podido restaurar.",
+  "Luna": "Luna",
+  "Terra": "Tierra",
+  "Accesa: non si sente con il telefono in modalità silenziosa e non ferma la musica di altre app.": "Activada: no se oye con el teléfono en silencio y no detiene la música de otras apps.",
+  "Ci aiuti a migliorare il gioco? Con il tuo permesso inviamo dati anonimi sulle partite (scenario, anno, stabilità, esito). Nessun dato personale. Puoi cambiare idea nelle Impostazioni.": "¿Nos ayudas a mejorar el juego? Con tu permiso enviamos datos anónimos de las partidas (escenario, año, estabilidad, resultado). Ningún dato personal. Puedes cambiar de idea en Ajustes.",
+  "Sì, va bene": "Sí, de acuerdo",
+  "No, grazie": "No, gracias",
+  "Privacy": "Privacidad",
+  "Ripristina acquisti": "Restaurar compras",
+  "Cartina: Natural Earth (pubblico dominio). Città e popolazioni: GeoNames (licenza CC BY 4.0).": "Mapa: Natural Earth (dominio público). Ciudades y poblaciones: GeoNames (licencia CC BY 4.0).",
+  "Sei l'Autorità che le nazioni hanno scelto per guidare il pianeta nel secolo decisivo. Tieni stabili le regioni del mondo tra debiti, invecchiamento, clima, guerre e nuove tecnologie.": "Eres la Autoridad que las naciones han elegido para guiar el planeta en el siglo decisivo. Mantén estables las regiones del mundo entre deudas, envejecimiento, clima, guerras y nuevas tecnologías.",
+  "In alto vedi la stabilità mondiale: oggi è {0}. Il tuo obiettivo è portarla almeno a {1} e tenerla lì per {2} anni di fila.": "Arriba ves la estabilidad mundial: hoy es {0}. Tu objetivo es llevarla al menos a {1} y mantenerla ahí durante {2} años seguidos.",
+  "Ogni intervento vale per tutto il mondo e costa fondi. Se i fondi non bastano si può avviare a debito: l'Autorità prende in prestito e poi paga gli interessi. Tocca il pulsante giallo.": "Cada medida vale para todo el mundo y cuesta fondos. Si los fondos no bastan, se puede iniciar con deuda: la Autoridad pide prestado y luego paga intereses. Toca el botón amarillo.",
+  "Attenzione: anche senza crisi la stabilità scende da sola. Debiti, pensioni, prezzi e divisioni pesano ogni anno sulle regioni: senza interventi il mondo peggiora.": "Atención: incluso sin crisis la estabilidad baja sola. Deudas, pensiones, precios y divisiones pesan cada año sobre las regiones: sin medidas el mundo empeora.",
+  "Tocca «Mondo»: vedi come va il pianeta e da dove viene il malcontento.": "Toca «Mundo»: ves cómo va el planeta y de dónde viene el descontento.",
+  "Qui trovi i grandi rischi e le statistiche. Le cause del malcontento di ogni regione sono nella sua scheda («Cosa fare»). Torna alla mappa con la freccia.": "Aquí encuentras los grandes riesgos y las estadísticas. Las causas del descontento de cada región están en su ficha («Qué hacer»). Vuelve al mapa con la flecha.",
+  "Ora prosegui da solo: spendi i fondi appena puoi e aiuta le regioni con i numeri più bassi. Porta la stabilità almeno a {0}.": "Ahora sigue solo: gasta los fondos en cuanto puedas y ayuda a las regiones con los números más bajos. Lleva la estabilidad al menos a {0}.",
+  "Debito molto alto: {0}. I mercati possono smettere di prestare a questi stati. Il debito sale quando la crescita è più bassa degli interessi e quando il welfare pesa troppo: guarda pensioni, crescita e tagli alla spesa, oppure la ristrutturazione del debito.": "Deuda muy alta: {0}. Los mercados pueden dejar de prestar a estos estados. La deuda sube cuando el crecimiento es menor que los intereses y cuando el gasto social pesa demasiado: mira pensiones, crecimiento y recortes del gasto, o la reestructuración de la deuda.",
+  "Spendi i fondi appena puoi e aiuta per prime le regioni con la stabilità più bassa: una regione debole trascina giù le vicine.": "Gasta los fondos en cuanto puedas y ayuda primero a las regiones con la estabilidad más baja: una región débil arrastra a sus vecinas.",
+  "Quando una regione scende sotto 15, aprila («Cosa fare») e avvia subito l'intervento consigliato: sotto zero cade nell'anarchia.": "Cuando una región baja de 15, ábrela («Qué hacer») e inicia enseguida la medida aconsejada: por debajo de cero cae en la anarquía.",
+  "Tieni d'occhio il saldo annuo: se i costi fissi superano le entrate, il debito dell'Autorità cresce da solo. Prima le entrate (lotta all'evasione, riforma dei conti), poi le spese fisse.": "Vigila el saldo anual: si los costes fijos superan los ingresos, la deuda de la Autoridad crece sola. Primero los ingresos (lucha contra el fraude, reforma de las cuentas), luego los gastos fijos.",
+  "Il clima si gioca nei primi decenni: energia pulita da più fonti, adattamento e, se serve, cattura della CO₂.": "El clima se juega en las primeras décadas: energía limpia de varias fuentes, adaptación y, si hace falta, captura de CO₂.",
+  "Tieni bassa la tensione tra le potenze: mediazione dei conflitti, controllo del materiale fissile, trattati.": "Mantén baja la tensión entre las potencias: mediación de los conflictos, control del material fisible, tratados.",
+  "L'AI cresce da sola ogni anno: regole sull'AI e allineamento devono tenere il passo, soprattutto se dai incentivi alle grandi aziende.": "La IA crece sola cada año: las reglas sobre la IA y la alineación deben seguir el ritmo, sobre todo si das incentivos a las grandes empresas.",
+  "Le biotecnologie corrono da sole: controllo del DNA sintetico, regole per i laboratori e sorveglianza delle epidemie riducono il rischio.": "La biotecnología avanza sola: el control del ADN sintético, las reglas para los laboratorios y la vigilancia de las epidemias reducen el riesgo.",
+  "Contro una cometa servono anni di anticipo: sorveglianza degli asteroidi e flotta di deviatori pronte prima che arrivi.": "Contra un cometa hacen falta años de antelación: vigilancia de asteroides y flota de desviadores listas antes de que llegue.",
+  "Primo giorno": "Primer día",
+  "Mano ferma": "Pulso firme",
+  "Sull'orlo": "Al borde",
+  "Oltre il filtro": "Más allá del filtro",
+  "Sette visioni": "Siete visiones",
+  "La corona": "La corona",
+  "Quattro stelle": "Cuatro estrellas",
+  "Vittoria lampo": "Victoria relámpago",
+  "Conti in ordine": "Cuentas en orden",
+  "Dall'abisso": "Desde el abismo",
+  "Caschi blu": "Cascos azules",
+  "Un Sole sulla Terra": "Un sol en la Tierra",
+  "Mondo pulito": "Mundo limpio",
+  "Emissioni negative": "Emisiones negativas",
+  "Allineata": "Alineada",
+  "Codici al sicuro": "Códigos a salvo",
+  "Fine della malaria": "Fin de la malaria",
+  "Cometa deviata": "Cometa desviado",
+  "L'archivio": "El archivo",
+  "Culle piene": "Cunas llenas",
+  "Debito domato": "Deuda domada",
+  "Benessere per tutti": "Bienestar para todos",
+  "Inverno nucleare": "Invierno nuclear",
+  "Il giorno delle macchine": "El día de las máquinas",
+  "Paziente zero": "Paciente cero",
+  "Pianeta rovente": "Planeta ardiente",
+  "Crollo dell'ordine": "Colapso del orden",
+  "Collezionista di filtri": "Coleccionista de filtros",
+  "Shock da interruzione": "Choque por interrupción",
+  "Qualcuno ricomincerà": "Alguien volverá a empezar",
+  "Una nuova élite": "Una nueva élite",
+  "Gestore di crisi": "Gestor de crisis",
+  "Pace tra le potenze": "Paz entre las potencias",
+  "Tutto il possibile": "Todo lo posible",
+  "Approvato con il {0}% degli stati: «{1}». Gli stati versano all'Autorità una quota del PIL: {2}.": "Aprobado con el {0}% de los estados: «{1}». Los estados aportan a la Autoridad una parte del PIB: {2}.",
+  "I mercati non si fidano più dei conti della regione {0}: il debito pubblico è al {1}% del prodotto e gli interessi salgono. {2}{3}": "Los mercados ya no se fían de las cuentas de la región {0}: la deuda pública está en el {1}% del producto y los intereses suben. {2}{3}",
+  "Addestramento completato: hai portato la stabilità mondiale ad almeno {0} e l'hai tenuta lì per {1} anni. Nel «Primo mandato» il mondo è più difficile: debiti, pensioni e malcontento crescono, e per vincere la stabilità deve restare alta per dieci anni.": "Entrenamiento completado: has llevado la estabilidad mundial al menos a {0} y la has mantenido ahí durante {1} años. En «Primer mandato» el mundo es más difícil: deudas, pensiones y descontento crecen, y para ganar la estabilidad debe seguir alta durante diez años.",
+  "Per cinque anni la stabilità del mondo è rimasta sotto 15. Alcune regioni erano già cadute nell'anarchia e le altre non obbedivano più davvero: governi paralizzati, bilanci bloccati, piazze piene ogni giorno. L'Autorità ha perso ogni credito e le nazioni hanno smesso di ascoltarla.": "Durante cinco años la estabilidad del mundo se quedó por debajo de 15. Algunas regiones ya habían caído en la anarquía y las demás ya no obedecían de verdad: gobiernos paralizados, presupuestos bloqueados, plazas llenas cada día. La Autoridad perdió todo el crédito y las naciones dejaron de escucharla."
+});
+Object.assign(LANG_FR, {
+  "Si sblocca vincendo questo scenario a difficile con il governo «{x}», oppure si compra: vale in tutti gli scenari.": "Se débloque en gagnant ce scénario en difficile avec le gouvernement « {x} », ou s'achète : valable dans tous les scénarios.",
+  "Compra questo governo": "Acheter ce gouvernement",
+  "Tutti i governi": "Tous les gouvernements",
+  "Decidi": "Décider",
+  "{r}: stabilità {s}; la voce che pesava di più era «{v}» (aiutano: {f}).": "{r} : stabilité {s} ; le facteur le plus lourd était « {v} » (ce qui aide : {f}).",
+  "{r}: stabilità {s}; la voce che pesava di più era «{v}».": "{r} : stabilité {s} ; le facteur le plus lourd était « {v} ».",
+  "Regioni cadute nell'anarchia: {x}.": "Régions tombées dans l'anarchie : {x}.",
+  "La stabilità mondiale era arrivata a {s} nel {y}, poi è scesa.": "La stabilité mondiale avait atteint {s} en {y}, puis elle a baissé.",
+  "La prossima volta:": "La prochaine fois :",
+  "Perché è andata così": "Pourquoi ça s'est passé ainsi",
+  "Premio: {x}": "Succès : {x}",
+  "Per aprire lo scenario successivo vinci questo col governo neutro (anche a facile).": "Pour ouvrir le scénario suivant, gagnez celui-ci avec le gouvernement neutre (même en facile).",
+  "Sbloccato il governo <b>{x}</b> in questo scenario": "Gouvernement <b>{x}</b> débloqué dans ce scénario",
+  "Gli acquisti sono disponibili nell'app.": "Les achats sont disponibles dans l'application.",
+  "Acquisto completato: grazie!": "Achat effectué : merci !",
+  "Acquisto non riuscito.": "L'achat a échoué.",
+  "Acquisti ripristinati.": "Achats restaurés.",
+  "Ripristino non riuscito.": "La restauration a échoué.",
+  "Luna": "Lune",
+  "Terra": "Terre",
+  "Accesa: non si sente con il telefono in modalità silenziosa e non ferma la musica di altre app.": "Activée : elle ne s'entend pas quand le téléphone est en mode silencieux et n'arrête pas la musique des autres applis.",
+  "Ci aiuti a migliorare il gioco? Con il tuo permesso inviamo dati anonimi sulle partite (scenario, anno, stabilità, esito). Nessun dato personale. Puoi cambiare idea nelle Impostazioni.": "Nous aidez-vous à améliorer le jeu ? Avec votre accord, nous envoyons des données anonymes sur les parties (scénario, année, stabilité, résultat). Aucune donnée personnelle. Vous pouvez changer d'avis dans les Paramètres.",
+  "Sì, va bene": "Oui, d'accord",
+  "No, grazie": "Non, merci",
+  "Privacy": "Confidentialité",
+  "Ripristina acquisti": "Restaurer les achats",
+  "Cartina: Natural Earth (pubblico dominio). Città e popolazioni: GeoNames (licenza CC BY 4.0).": "Carte : Natural Earth (domaine public). Villes et populations : GeoNames (licence CC BY 4.0).",
+  "Sei l'Autorità che le nazioni hanno scelto per guidare il pianeta nel secolo decisivo. Tieni stabili le regioni del mondo tra debiti, invecchiamento, clima, guerre e nuove tecnologie.": "Vous êtes l'Autorité que les nations ont choisie pour guider la planète dans le siècle décisif. Gardez les régions du monde stables face aux dettes, au vieillissement, au climat, aux guerres et aux nouvelles technologies.",
+  "In alto vedi la stabilità mondiale: oggi è {0}. Il tuo obiettivo è portarla almeno a {1} e tenerla lì per {2} anni di fila.": "En haut, vous voyez la stabilité mondiale : aujourd'hui elle est de {0}. Votre objectif est de la porter à au moins {1} et de l'y maintenir {2} ans de suite.",
+  "Ogni intervento vale per tutto il mondo e costa fondi. Se i fondi non bastano si può avviare a debito: l'Autorità prende in prestito e poi paga gli interessi. Tocca il pulsante giallo.": "Chaque mesure vaut pour le monde entier et coûte des fonds. Si les fonds ne suffisent pas, on peut la lancer à crédit : l'Autorité emprunte puis paie des intérêts. Touchez le bouton jaune.",
+  "Attenzione: anche senza crisi la stabilità scende da sola. Debiti, pensioni, prezzi e divisioni pesano ogni anno sulle regioni: senza interventi il mondo peggiora.": "Attention : même sans crise, la stabilité baisse toute seule. Dettes, retraites, prix et divisions pèsent chaque année sur les régions : sans mesures, le monde se dégrade.",
+  "Tocca «Mondo»: vedi come va il pianeta e da dove viene il malcontento.": "Touchez « Monde » : vous voyez comment va la planète et d'où vient le mécontentement.",
+  "Qui trovi i grandi rischi e le statistiche. Le cause del malcontento di ogni regione sono nella sua scheda («Cosa fare»). Torna alla mappa con la freccia.": "Ici, vous trouvez les grands risques et les statistiques. Les causes du mécontentement de chaque région sont dans sa fiche (« Que faire »). Revenez à la carte avec la flèche.",
+  "Ora prosegui da solo: spendi i fondi appena puoi e aiuta le regioni con i numeri più bassi. Porta la stabilità almeno a {0}.": "Continuez seul maintenant : dépensez les fonds dès que possible et aidez les régions aux chiffres les plus bas. Portez la stabilité à au moins {0}.",
+  "Debito molto alto: {0}. I mercati possono smettere di prestare a questi stati. Il debito sale quando la crescita è più bassa degli interessi e quando il welfare pesa troppo: guarda pensioni, crescita e tagli alla spesa, oppure la ristrutturazione del debito.": "Dette très élevée : {0}. Les marchés peuvent cesser de prêter à ces États. La dette monte quand la croissance est inférieure aux intérêts et quand les dépenses sociales pèsent trop : regardez les retraites, la croissance et les coupes de dépenses, ou la restructuration de la dette.",
+  "Spendi i fondi appena puoi e aiuta per prime le regioni con la stabilità più bassa: una regione debole trascina giù le vicine.": "Dépensez les fonds dès que possible et aidez d'abord les régions à la stabilité la plus basse : une région faible entraîne ses voisines.",
+  "Quando una regione scende sotto 15, aprila («Cosa fare») e avvia subito l'intervento consigliato: sotto zero cade nell'anarchia.": "Quand une région passe sous 15, ouvrez-la (« Que faire ») et lancez tout de suite la mesure conseillée : sous zéro, elle tombe dans l'anarchie.",
+  "Tieni d'occhio il saldo annuo: se i costi fissi superano le entrate, il debito dell'Autorità cresce da solo. Prima le entrate (lotta all'evasione, riforma dei conti), poi le spese fisse.": "Surveillez le solde annuel : si les coûts fixes dépassent les recettes, la dette de l'Autorité grandit toute seule. D'abord les recettes (lutte contre la fraude, réforme des finances), ensuite les dépenses fixes.",
+  "Il clima si gioca nei primi decenni: energia pulita da più fonti, adattamento e, se serve, cattura della CO₂.": "Le climat se joue dans les premières décennies : énergie propre de plusieurs sources, adaptation et, si besoin, captage du CO₂.",
+  "Tieni bassa la tensione tra le potenze: mediazione dei conflitti, controllo del materiale fissile, trattati.": "Gardez la tension entre les puissances basse : médiation des conflits, contrôle des matières fissiles, traités.",
+  "L'AI cresce da sola ogni anno: regole sull'AI e allineamento devono tenere il passo, soprattutto se dai incentivi alle grandi aziende.": "L'IA grandit toute seule chaque année : les règles sur l'IA et l'alignement doivent suivre le rythme, surtout si vous donnez des incitations aux grandes entreprises.",
+  "Le biotecnologie corrono da sole: controllo del DNA sintetico, regole per i laboratori e sorveglianza delle epidemie riducono il rischio.": "Les biotechnologies avancent toutes seules : le contrôle de l'ADN de synthèse, les règles pour les laboratoires et la surveillance des épidémies réduisent le risque.",
+  "Contro una cometa servono anni di anticipo: sorveglianza degli asteroidi e flotta di deviatori pronte prima che arrivi.": "Contre une comète, il faut des années d'avance : surveillance des astéroïdes et flotte de déflecteurs prêtes avant son arrivée.",
+  "Primo giorno": "Premier jour",
+  "Mano ferma": "Main ferme",
+  "Sull'orlo": "Au bord du gouffre",
+  "Oltre il filtro": "Au-delà du filtre",
+  "Sette visioni": "Sept visions",
+  "La corona": "La couronne",
+  "Quattro stelle": "Quatre étoiles",
+  "Vittoria lampo": "Victoire éclair",
+  "Conti in ordine": "Comptes en ordre",
+  "Dall'abisso": "Retour de l'abîme",
+  "Caschi blu": "Casques bleus",
+  "Un Sole sulla Terra": "Un soleil sur Terre",
+  "Mondo pulito": "Monde propre",
+  "Emissioni negative": "Émissions négatives",
+  "Allineata": "Alignée",
+  "Codici al sicuro": "Codes à l'abri",
+  "Fine della malaria": "Fin du paludisme",
+  "Cometa deviata": "Comète déviée",
+  "L'archivio": "L'archive",
+  "Culle piene": "Berceaux pleins",
+  "Debito domato": "Dette domptée",
+  "Benessere per tutti": "Bien-être pour tous",
+  "Inverno nucleare": "Hiver nucléaire",
+  "Il giorno delle macchine": "Le jour des machines",
+  "Paziente zero": "Patient zéro",
+  "Pianeta rovente": "Planète brûlante",
+  "Crollo dell'ordine": "Effondrement de l'ordre",
+  "Collezionista di filtri": "Collectionneur de filtres",
+  "Shock da interruzione": "Choc de terminaison",
+  "Qualcuno ricomincerà": "Quelqu'un recommencera",
+  "Una nuova élite": "Une nouvelle élite",
+  "Gestore di crisi": "Gestionnaire de crises",
+  "Pace tra le potenze": "Paix entre les puissances",
+  "Tutto il possibile": "Tout le possible",
+  "Approvato con il {0}% degli stati: «{1}». Gli stati versano all'Autorità una quota del PIL: {2}.": "Approuvé par {0} % des États : « {1} ». Les États versent à l'Autorité une part du PIB : {2}.",
+  "I mercati non si fidano più dei conti della regione {0}: il debito pubblico è al {1}% del prodotto e gli interessi salgono. {2}{3}": "Les marchés n'ont plus confiance dans les comptes de la région {0} : la dette publique atteint {1} % du produit et les taux montent. {2}{3}",
+  "Addestramento completato: hai portato la stabilità mondiale ad almeno {0} e l'hai tenuta lì per {1} anni. Nel «Primo mandato» il mondo è più difficile: debiti, pensioni e malcontento crescono, e per vincere la stabilità deve restare alta per dieci anni.": "Entraînement terminé : vous avez porté la stabilité mondiale à au moins {0} et l'y avez maintenue {1} ans. Dans « Premier mandat », le monde est plus difficile : dettes, retraites et mécontentement augmentent, et pour gagner la stabilité doit rester haute pendant dix ans.",
+  "Per cinque anni la stabilità del mondo è rimasta sotto 15. Alcune regioni erano già cadute nell'anarchia e le altre non obbedivano più davvero: governi paralizzati, bilanci bloccati, piazze piene ogni giorno. L'Autorità ha perso ogni credito e le nazioni hanno smesso di ascoltarla.": "Pendant cinq ans, la stabilité du monde est restée sous 15. Certaines régions étaient déjà tombées dans l'anarchie et les autres n'obéissaient plus vraiment : gouvernements paralysés, budgets bloqués, places pleines chaque jour. L'Autorité a perdu tout crédit et les nations ont cessé de l'écouter."
+});
+Object.assign(LANG_DE, {
+  "Si sblocca vincendo questo scenario a difficile con il governo «{x}», oppure si compra: vale in tutti gli scenari.": "Wird freigeschaltet, wenn du dieses Szenario auf Schwer mit der Regierung „{x}“ gewinnst, oder du kaufst sie: Sie gilt in allen Szenarien.",
+  "Compra questo governo": "Diese Regierung kaufen",
+  "Tutti i governi": "Alle Regierungen",
+  "Decidi": "Entscheiden",
+  "{r}: stabilità {s}; la voce che pesava di più era «{v}» (aiutano: {f}).": "{r}: Stabilität {s}; am schwersten wog „{v}“ (hilfreich: {f}).",
+  "{r}: stabilità {s}; la voce che pesava di più era «{v}».": "{r}: Stabilität {s}; am schwersten wog „{v}“.",
+  "Regioni cadute nell'anarchia: {x}.": "In Anarchie gefallene Regionen: {x}.",
+  "La stabilità mondiale era arrivata a {s} nel {y}, poi è scesa.": "Die Weltstabilität hatte {y} den Wert {s} erreicht und ist dann gesunken.",
+  "La prossima volta:": "Beim nächsten Mal:",
+  "Perché è andata così": "Warum es so gekommen ist",
+  "Premio: {x}": "Erfolg: {x}",
+  "Per aprire lo scenario successivo vinci questo col governo neutro (anche a facile).": "Um das nächste Szenario zu öffnen, gewinne dieses mit der neutralen Regierung (auch auf Leicht).",
+  "Sbloccato il governo <b>{x}</b> in questo scenario": "Regierung <b>{x}</b> in diesem Szenario freigeschaltet",
+  "Gli acquisti sono disponibili nell'app.": "Käufe sind in der App verfügbar.",
+  "Acquisto completato: grazie!": "Kauf abgeschlossen: danke!",
+  "Acquisto non riuscito.": "Kauf fehlgeschlagen.",
+  "Acquisti ripristinati.": "Käufe wiederhergestellt.",
+  "Ripristino non riuscito.": "Wiederherstellung fehlgeschlagen.",
+  "Luna": "Mond",
+  "Terra": "Erde",
+  "Accesa: non si sente con il telefono in modalità silenziosa e non ferma la musica di altre app.": "An: Im Lautlos-Modus des Telefons ist sie nicht zu hören, und Musik aus anderen Apps läuft weiter.",
+  "Ci aiuti a migliorare il gioco? Con il tuo permesso inviamo dati anonimi sulle partite (scenario, anno, stabilità, esito). Nessun dato personale. Puoi cambiare idea nelle Impostazioni.": "Hilfst du uns, das Spiel zu verbessern? Mit deiner Erlaubnis senden wir anonyme Spieldaten (Szenario, Jahr, Stabilität, Ergebnis). Keine persönlichen Daten. Du kannst es dir in den Einstellungen anders überlegen.",
+  "Sì, va bene": "Ja, gern",
+  "No, grazie": "Nein, danke",
+  "Privacy": "Datenschutz",
+  "Ripristina acquisti": "Käufe wiederherstellen",
+  "Cartina: Natural Earth (pubblico dominio). Città e popolazioni: GeoNames (licenza CC BY 4.0).": "Karte: Natural Earth (gemeinfrei). Städte und Bevölkerung: GeoNames (Lizenz CC BY 4.0).",
+  "Sei l'Autorità che le nazioni hanno scelto per guidare il pianeta nel secolo decisivo. Tieni stabili le regioni del mondo tra debiti, invecchiamento, clima, guerre e nuove tecnologie.": "Du bist die Autorität, die die Nationen gewählt haben, um den Planeten durch das entscheidende Jahrhundert zu führen. Halte die Regionen der Welt stabil – trotz Schulden, Alterung, Klima, Kriegen und neuen Technologien.",
+  "In alto vedi la stabilità mondiale: oggi è {0}. Il tuo obiettivo è portarla almeno a {1} e tenerla lì per {2} anni di fila.": "Oben siehst du die Weltstabilität: Heute liegt sie bei {0}. Dein Ziel ist, sie auf mindestens {1} zu bringen und dort {2} Jahre in Folge zu halten.",
+  "Ogni intervento vale per tutto il mondo e costa fondi. Se i fondi non bastano si può avviare a debito: l'Autorità prende in prestito e poi paga gli interessi. Tocca il pulsante giallo.": "Jede Maßnahme gilt für die ganze Welt und kostet Mittel. Reichen die Mittel nicht, kannst du sie auf Schulden starten: Die Autorität leiht sich Geld und zahlt dann Zinsen. Tippe auf den gelben Knopf.",
+  "Attenzione: anche senza crisi la stabilità scende da sola. Debiti, pensioni, prezzi e divisioni pesano ogni anno sulle regioni: senza interventi il mondo peggiora.": "Achtung: Auch ohne Krisen sinkt die Stabilität von selbst. Schulden, Renten, Preise und Spaltungen belasten die Regionen jedes Jahr: Ohne Maßnahmen wird die Welt schlechter.",
+  "Tocca «Mondo»: vedi come va il pianeta e da dove viene il malcontento.": "Tippe auf „Welt“: Du siehst, wie es dem Planeten geht und woher die Unzufriedenheit kommt.",
+  "Qui trovi i grandi rischi e le statistiche. Le cause del malcontento di ogni regione sono nella sua scheda («Cosa fare»). Torna alla mappa con la freccia.": "Hier findest du die großen Risiken und die Statistiken. Die Ursachen der Unzufriedenheit jeder Region stehen in ihrer Karte („Was tun“). Mit dem Pfeil geht es zurück zur Karte.",
+  "Ora prosegui da solo: spendi i fondi appena puoi e aiuta le regioni con i numeri più bassi. Porta la stabilità almeno a {0}.": "Jetzt geht es allein weiter: Gib die Mittel aus, sobald du kannst, und hilf den Regionen mit den niedrigsten Zahlen. Bring die Stabilität auf mindestens {0}.",
+  "Debito molto alto: {0}. I mercati possono smettere di prestare a questi stati. Il debito sale quando la crescita è più bassa degli interessi e quando il welfare pesa troppo: guarda pensioni, crescita e tagli alla spesa, oppure la ristrutturazione del debito.": "Sehr hohe Schulden: {0}. Die Märkte können aufhören, diesen Staaten Geld zu leihen. Die Schulden steigen, wenn das Wachstum unter den Zinsen liegt und der Sozialstaat zu viel kostet: Sieh dir Renten, Wachstum und Ausgabenkürzungen an oder die Umschuldung.",
+  "Spendi i fondi appena puoi e aiuta per prime le regioni con la stabilità più bassa: una regione debole trascina giù le vicine.": "Gib die Mittel aus, sobald du kannst, und hilf zuerst den Regionen mit der niedrigsten Stabilität: Eine schwache Region zieht ihre Nachbarn mit nach unten.",
+  "Quando una regione scende sotto 15, aprila («Cosa fare») e avvia subito l'intervento consigliato: sotto zero cade nell'anarchia.": "Fällt eine Region unter 15, öffne sie („Was tun“) und starte sofort die empfohlene Maßnahme: Unter null fällt sie in Anarchie.",
+  "Tieni d'occhio il saldo annuo: se i costi fissi superano le entrate, il debito dell'Autorità cresce da solo. Prima le entrate (lotta all'evasione, riforma dei conti), poi le spese fisse.": "Behalte den Jahressaldo im Blick: Übersteigen die Fixkosten die Einnahmen, wachsen die Schulden der Autorität von selbst. Zuerst die Einnahmen (gegen Steuerflucht, Reform der Staatsfinanzen), dann die Fixkosten.",
+  "Il clima si gioca nei primi decenni: energia pulita da più fonti, adattamento e, se serve, cattura della CO₂.": "Das Klima entscheidet sich in den ersten Jahrzehnten: saubere Energie aus mehreren Quellen, Anpassung und, falls nötig, CO₂-Abscheidung.",
+  "Tieni bassa la tensione tra le potenze: mediazione dei conflitti, controllo del materiale fissile, trattati.": "Halte die Spannung zwischen den Mächten niedrig: Konfliktvermittlung, Kontrolle des spaltbaren Materials, Verträge.",
+  "L'AI cresce da sola ogni anno: regole sull'AI e allineamento devono tenere il passo, soprattutto se dai incentivi alle grandi aziende.": "Die KI wächst jedes Jahr von selbst: KI-Regeln und Ausrichtung müssen Schritt halten, vor allem wenn du großen Unternehmen Anreize gibst.",
+  "Le biotecnologie corrono da sole: controllo del DNA sintetico, regole per i laboratori e sorveglianza delle epidemie riducono il rischio.": "Die Biotechnologie rast von selbst voran: Kontrolle synthetischer DNA, Regeln für Labore und Überwachung von Epidemien senken das Risiko.",
+  "Contro una cometa servono anni di anticipo: sorveglianza degli asteroidi e flotta di deviatori pronte prima che arrivi.": "Gegen einen Kometen braucht man Jahre Vorlauf: Asteroidenüberwachung und Ablenkerflotte müssen bereit sein, bevor er kommt.",
+  "Primo giorno": "Erster Tag",
+  "Mano ferma": "Ruhige Hand",
+  "Sull'orlo": "Am Abgrund",
+  "Oltre il filtro": "Jenseits des Filters",
+  "Sette visioni": "Sieben Visionen",
+  "La corona": "Die Krone",
+  "Quattro stelle": "Vier Sterne",
+  "Vittoria lampo": "Blitzsieg",
+  "Conti in ordine": "Solide Finanzen",
+  "Dall'abisso": "Zurück vom Abgrund",
+  "Caschi blu": "Blauhelme",
+  "Un Sole sulla Terra": "Eine Sonne auf der Erde",
+  "Mondo pulito": "Saubere Welt",
+  "Emissioni negative": "Negative Emissionen",
+  "Allineata": "Ausgerichtet",
+  "Codici al sicuro": "Codes gesichert",
+  "Fine della malaria": "Ende der Malaria",
+  "Cometa deviata": "Komet abgelenkt",
+  "L'archivio": "Das Archiv",
+  "Culle piene": "Volle Wiegen",
+  "Debito domato": "Schulden gezähmt",
+  "Benessere per tutti": "Wohlstand für alle",
+  "Inverno nucleare": "Nuklearer Winter",
+  "Il giorno delle macchine": "Der Tag der Maschinen",
+  "Paziente zero": "Patient null",
+  "Pianeta rovente": "Glühender Planet",
+  "Crollo dell'ordine": "Zusammenbruch der Ordnung",
+  "Collezionista di filtri": "Filtersammler",
+  "Shock da interruzione": "Abbruchschock",
+  "Qualcuno ricomincerà": "Jemand wird neu beginnen",
+  "Una nuova élite": "Eine neue Elite",
+  "Gestore di crisi": "Krisenmanager",
+  "Pace tra le potenze": "Frieden zwischen den Mächten",
+  "Tutto il possibile": "Alles Mögliche",
+  "Approvato con il {0}% degli stati: «{1}». Gli stati versano all'Autorità una quota del PIL: {2}.": "Mit {0} % der Staaten angenommen: „{1}“. Die Staaten zahlen der Autorität einen Anteil am BIP: {2}.",
+  "I mercati non si fidano più dei conti della regione {0}: il debito pubblico è al {1}% del prodotto e gli interessi salgono. {2}{3}": "Die Märkte vertrauen den Finanzen der Region {0} nicht mehr: Die Staatsschuld liegt bei {1} % der Wirtschaftsleistung, und die Zinsen steigen. {2}{3}",
+  "Addestramento completato: hai portato la stabilità mondiale ad almeno {0} e l'hai tenuta lì per {1} anni. Nel «Primo mandato» il mondo è più difficile: debiti, pensioni e malcontento crescono, e per vincere la stabilità deve restare alta per dieci anni.": "Training abgeschlossen: Du hast die Weltstabilität auf mindestens {0} gebracht und {1} Jahre dort gehalten. In „Erste Amtszeit“ ist die Welt schwieriger: Schulden, Renten und Unzufriedenheit wachsen, und für den Sieg muss die Stabilität zehn Jahre lang hoch bleiben.",
+  "Per cinque anni la stabilità del mondo è rimasta sotto 15. Alcune regioni erano già cadute nell'anarchia e le altre non obbedivano più davvero: governi paralizzati, bilanci bloccati, piazze piene ogni giorno. L'Autorità ha perso ogni credito e le nazioni hanno smesso di ascoltarla.": "Fünf Jahre lang blieb die Weltstabilität unter 15. Einige Regionen waren bereits in Anarchie gefallen, und die übrigen gehorchten nicht mehr wirklich: gelähmte Regierungen, blockierte Haushalte, jeden Tag volle Plätze. Die Autorität verlor jede Glaubwürdigkeit, und die Nationen hörten auf, auf sie zu hören."
+});
+Object.assign(LANG_PT, {
+  "Si sblocca vincendo questo scenario a difficile con il governo «{x}», oppure si compra: vale in tutti gli scenari.": "Desbloqueia vencendo este cenário no difícil com o governo «{x}», ou pode ser comprado: vale em todos os cenários.",
+  "Compra questo governo": "Comprar este governo",
+  "Tutti i governi": "Todos os governos",
+  "Decidi": "Decidir",
+  "{r}: stabilità {s}; la voce che pesava di più era «{v}» (aiutano: {f}).": "{r}: estabilidade {s}; o fator que mais pesava era «{v}» (ajudam: {f}).",
+  "{r}: stabilità {s}; la voce che pesava di più era «{v}».": "{r}: estabilidade {s}; o fator que mais pesava era «{v}».",
+  "Regioni cadute nell'anarchia: {x}.": "Regiões que caíram na anarquia: {x}.",
+  "La stabilità mondiale era arrivata a {s} nel {y}, poi è scesa.": "A estabilidade mundial tinha chegado a {s} em {y}, depois caiu.",
+  "La prossima volta:": "Da próxima vez:",
+  "Perché è andata così": "Por que deu nisso",
+  "Premio: {x}": "Conquista: {x}",
+  "Per aprire lo scenario successivo vinci questo col governo neutro (anche a facile).": "Para abrir o próximo cenário, vença este com o governo neutro (vale também no fácil).",
+  "Sbloccato il governo <b>{x}</b> in questo scenario": "Desbloqueado o governo <b>{x}</b> neste cenário",
+  "Gli acquisti sono disponibili nell'app.": "As compras estão disponíveis no app.",
+  "Acquisto completato: grazie!": "Compra concluída: obrigado!",
+  "Acquisto non riuscito.": "A compra não foi concluída.",
+  "Acquisti ripristinati.": "Compras restauradas.",
+  "Ripristino non riuscito.": "Não foi possível restaurar.",
+  "Luna": "Lua",
+  "Terra": "Terra",
+  "Accesa: non si sente con il telefono in modalità silenziosa e non ferma la musica di altre app.": "Ligada: não toca com o celular no modo silencioso e não para a música de outros apps.",
+  "Ci aiuti a migliorare il gioco? Con il tuo permesso inviamo dati anonimi sulle partite (scenario, anno, stabilità, esito). Nessun dato personale. Puoi cambiare idea nelle Impostazioni.": "Você nos ajuda a melhorar o jogo? Com sua permissão enviamos dados anônimos das partidas (cenário, ano, estabilidade, resultado). Nenhum dado pessoal. Você pode mudar de ideia nas Configurações.",
+  "Sì, va bene": "Sim, tudo bem",
+  "No, grazie": "Não, obrigado",
+  "Privacy": "Privacidade",
+  "Ripristina acquisti": "Restaurar compras",
+  "Cartina: Natural Earth (pubblico dominio). Città e popolazioni: GeoNames (licenza CC BY 4.0).": "Mapa: Natural Earth (domínio público). Cidades e populações: GeoNames (licença CC BY 4.0).",
+  "Sei l'Autorità che le nazioni hanno scelto per guidare il pianeta nel secolo decisivo. Tieni stabili le regioni del mondo tra debiti, invecchiamento, clima, guerre e nuove tecnologie.": "Você é a Autoridade que as nações escolheram para guiar o planeta no século decisivo. Mantenha estáveis as regiões do mundo entre dívidas, envelhecimento, clima, guerras e novas tecnologias.",
+  "In alto vedi la stabilità mondiale: oggi è {0}. Il tuo obiettivo è portarla almeno a {1} e tenerla lì per {2} anni di fila.": "No alto você vê a estabilidade mundial: hoje é {0}. Seu objetivo é levá-la a pelo menos {1} e mantê-la lá por {2} anos seguidos.",
+  "Ogni intervento vale per tutto il mondo e costa fondi. Se i fondi non bastano si può avviare a debito: l'Autorità prende in prestito e poi paga gli interessi. Tocca il pulsante giallo.": "Cada medida vale para o mundo todo e custa fundos. Se os fundos não bastam, dá para iniciar com dívida: a Autoridade pega emprestado e depois paga juros. Toque no botão amarelo.",
+  "Attenzione: anche senza crisi la stabilità scende da sola. Debiti, pensioni, prezzi e divisioni pesano ogni anno sulle regioni: senza interventi il mondo peggiora.": "Atenção: mesmo sem crises a estabilidade cai sozinha. Dívidas, aposentadorias, preços e divisões pesam todo ano sobre as regiões: sem medidas o mundo piora.",
+  "Tocca «Mondo»: vedi come va il pianeta e da dove viene il malcontento.": "Toque em «Mundo»: veja como vai o planeta e de onde vem o descontentamento.",
+  "Qui trovi i grandi rischi e le statistiche. Le cause del malcontento di ogni regione sono nella sua scheda («Cosa fare»). Torna alla mappa con la freccia.": "Aqui você encontra os grandes riscos e as estatísticas. As causas do descontentamento de cada região estão na ficha dela («O que fazer»). Volte ao mapa com a seta.",
+  "Ora prosegui da solo: spendi i fondi appena puoi e aiuta le regioni con i numeri più bassi. Porta la stabilità almeno a {0}.": "Agora siga sozinho: gaste os fundos assim que puder e ajude as regiões com os números mais baixos. Leve a estabilidade a pelo menos {0}.",
+  "Debito molto alto: {0}. I mercati possono smettere di prestare a questi stati. Il debito sale quando la crescita è più bassa degli interessi e quando il welfare pesa troppo: guarda pensioni, crescita e tagli alla spesa, oppure la ristrutturazione del debito.": "Dívida muito alta: {0}. Os mercados podem parar de emprestar a esses estados. A dívida sobe quando o crescimento é menor que os juros e quando o gasto social pesa demais: veja aposentadorias, crescimento e cortes de gastos, ou a reestruturação da dívida.",
+  "Spendi i fondi appena puoi e aiuta per prime le regioni con la stabilità più bassa: una regione debole trascina giù le vicine.": "Gaste os fundos assim que puder e ajude primeiro as regiões com a estabilidade mais baixa: uma região fraca arrasta as vizinhas.",
+  "Quando una regione scende sotto 15, aprila («Cosa fare») e avvia subito l'intervento consigliato: sotto zero cade nell'anarchia.": "Quando uma região cai abaixo de 15, abra-a («O que fazer») e inicie logo a medida sugerida: abaixo de zero ela cai na anarquia.",
+  "Tieni d'occhio il saldo annuo: se i costi fissi superano le entrate, il debito dell'Autorità cresce da solo. Prima le entrate (lotta all'evasione, riforma dei conti), poi le spese fisse.": "Fique de olho no saldo anual: se os custos fixos superam as receitas, a dívida da Autoridade cresce sozinha. Primeiro as receitas (combate à sonegação, reforma das contas), depois os gastos fixos.",
+  "Il clima si gioca nei primi decenni: energia pulita da più fonti, adattamento e, se serve, cattura della CO₂.": "O clima se decide nas primeiras décadas: energia limpa de várias fontes, adaptação e, se precisar, captura de CO₂.",
+  "Tieni bassa la tensione tra le potenze: mediazione dei conflitti, controllo del materiale fissile, trattati.": "Mantenha baixa a tensão entre as potências: mediação de conflitos, controle do material físsil, tratados.",
+  "L'AI cresce da sola ogni anno: regole sull'AI e allineamento devono tenere il passo, soprattutto se dai incentivi alle grandi aziende.": "A IA cresce sozinha todo ano: as regras sobre IA e o alinhamento precisam acompanhar, sobretudo se você der incentivos às grandes empresas.",
+  "Le biotecnologie corrono da sole: controllo del DNA sintetico, regole per i laboratori e sorveglianza delle epidemie riducono il rischio.": "A biotecnologia avança sozinha: o controle do DNA sintético, as regras para laboratórios e a vigilância de epidemias reduzem o risco.",
+  "Contro una cometa servono anni di anticipo: sorveglianza degli asteroidi e flotta di deviatori pronte prima che arrivi.": "Contra um cometa são precisos anos de antecedência: vigilância de asteroides e frota de defletores prontas antes que ele chegue.",
+  "Primo giorno": "Primeiro dia",
+  "Mano ferma": "Mão firme",
+  "Sull'orlo": "À beira do abismo",
+  "Oltre il filtro": "Além do filtro",
+  "Sette visioni": "Sete visões",
+  "La corona": "A coroa",
+  "Quattro stelle": "Quatro estrelas",
+  "Vittoria lampo": "Vitória relâmpago",
+  "Conti in ordine": "Contas em dia",
+  "Dall'abisso": "De volta do abismo",
+  "Caschi blu": "Capacetes azuis",
+  "Un Sole sulla Terra": "Um sol na Terra",
+  "Mondo pulito": "Mundo limpo",
+  "Emissioni negative": "Emissões negativas",
+  "Allineata": "Alinhada",
+  "Codici al sicuro": "Códigos protegidos",
+  "Fine della malaria": "Fim da malária",
+  "Cometa deviata": "Cometa desviado",
+  "L'archivio": "O arquivo",
+  "Culle piene": "Berços cheios",
+  "Debito domato": "Dívida domada",
+  "Benessere per tutti": "Bem-estar para todos",
+  "Inverno nucleare": "Inverno nuclear",
+  "Il giorno delle macchine": "O dia das máquinas",
+  "Paziente zero": "Paciente zero",
+  "Pianeta rovente": "Planeta em chamas",
+  "Crollo dell'ordine": "Colapso da ordem",
+  "Collezionista di filtri": "Colecionador de filtros",
+  "Shock da interruzione": "Choque de interrupção",
+  "Qualcuno ricomincerà": "Alguém recomeçará",
+  "Una nuova élite": "Uma nova elite",
+  "Gestore di crisi": "Gestor de crises",
+  "Pace tra le potenze": "Paz entre as potências",
+  "Tutto il possibile": "Tudo o que é possível",
+  "Approvato con il {0}% degli stati: «{1}». Gli stati versano all'Autorità una quota del PIL: {2}.": "Aprovado com {0}% dos estados: «{1}». Os estados repassam à Autoridade uma parte do PIB: {2}.",
+  "I mercati non si fidano più dei conti della regione {0}: il debito pubblico è al {1}% del prodotto e gli interessi salgono. {2}{3}": "Os mercados não confiam mais nas contas da região {0}: a dívida pública está em {1}% do produto e os juros sobem. {2}{3}",
+  "Addestramento completato: hai portato la stabilità mondiale ad almeno {0} e l'hai tenuta lì per {1} anni. Nel «Primo mandato» il mondo è più difficile: debiti, pensioni e malcontento crescono, e per vincere la stabilità deve restare alta per dieci anni.": "Treinamento concluído: você levou a estabilidade mundial a pelo menos {0} e a manteve lá por {1} anos. Em «Primeiro mandato» o mundo é mais difícil: dívidas, aposentadorias e descontentamento crescem, e para vencer a estabilidade precisa ficar alta por dez anos.",
+  "Per cinque anni la stabilità del mondo è rimasta sotto 15. Alcune regioni erano già cadute nell'anarchia e le altre non obbedivano più davvero: governi paralizzati, bilanci bloccati, piazze piene ogni giorno. L'Autorità ha perso ogni credito e le nazioni hanno smesso di ascoltarla.": "Durante cinco anos a estabilidade do mundo ficou abaixo de 15. Algumas regiões já tinham caído na anarquia e as outras não obedeciam mais de verdade: governos paralisados, orçamentos travados, praças cheias todo dia. A Autoridade perdeu toda a credibilidade e as nações pararam de ouvi-la."
+});
+
 </script>
 <script>
 "use strict";
@@ -22636,7 +23029,7 @@ function showPhase(p) {
   $("menuTitle").hidden = p !== "title";
   if (p === "title") $("crownAll").hidden = !LEVELS.filter((l) => !l.tutorial).every((l) => crowned(l.id));
   if (p === "title") { const sv = peekSave(); $("mCont").hidden = !sv; if (sv) $("mCont").textContent = tr("Continua · {y} · {d}", { y: sv.year, d: tr(DIFF[sv.diffId].name) }); }
-  $("menuHow").hidden = p !== "how";
+
   $("menuDiff").hidden = p !== "diff";
   $("menuLevels").hidden = p !== "levels";
   $("menuGov").hidden = p !== "gov";
@@ -22694,21 +23087,26 @@ const GOV_ICON = {
 };
 function renderGovs() {
   const won = govsWon(introLevel), g = GOVS.find((x) => x.id === introGov) || GOVS[0];
-  const list = GOVS.map((x) => `<button type="button" class="mdi" data-g="${x.id}" aria-pressed="${x.id === g.id}">
-      <svg class="gi" viewBox="0 0 24 24" aria-hidden="true">${GOV_ICON[x.icon]}</svg><b>${esc(tr(x.name))}</b><span class="mk">${won.includes(x.id) ? "✓" : ""}</span></button>`).join("");
+  const list = GOVS.map((x) => { const open = govUnlocked(introLevel, x.id); return `<button type="button" class="mdi ${open ? "" : "locked"}" data-g="${x.id}" aria-pressed="${x.id === g.id}">
+      <svg class="gi" viewBox="0 0 24 24" aria-hidden="true">${GOV_ICON[x.icon]}</svg><b>${esc(tr(x.name))}</b><span class="mk">${!open ? LOCK_SVG : won.includes(x.id) ? "✓" : ""}</span></button>`; }).join("");
+  const gOpen = govUnlocked(introLevel, g.id), gk = GOVS.indexOf(g);
+  const lockBox = gOpen ? "" : `<div class="lockbox"><p>${tr("Si sblocca vincendo questo scenario a difficile con il governo «{x}», oppure si compra: vale in tutti gli scenari.", { x: esc(tr(GOVS[gk - 1].name)) })}</p>
+      <div class="buyrow"><button type="button" class="buy" data-buy="gov_${g.id}">${tr("Compra questo governo")} · ${STORE && STORE.price ? STORE.price("gov_" + g.id) : PRICES.one}</button><button type="button" class="buy alt" data-buy="gov_all">${tr("Tutti i governi")} · ${STORE && STORE.price ? STORE.price("gov_all") : PRICES.all}</button></div></div>`;
+  $("mGovNext").disabled = !gOpen;
   const det = `<div class="hd"><svg class="gi" viewBox="0 0 24 24" aria-hidden="true">${GOV_ICON[g.icon]}</svg><div><h3>${esc(tr(g.name))}</h3><span class="sh">${esc(tr(g.short))}</span></div></div>
     <ul>${g.pro.map((x) => `<li class="p">${esc(tr(x))}</li>`).join("")}${g.con.map((x) => `<li class="c">${esc(tr(x))}</li>`).join("")}</ul>
-    ${won.includes(g.id) ? `<span class="won">${tr("✓ Scenario già vinto con questo governo")}</span>` : ""}`;
+    ${won.includes(g.id) ? `<span class="won">${tr("✓ Scenario già vinto con questo governo")}</span>` : ""}${lockBox}`;
   $("govs").innerHTML = `<div class="mdlist">${list}</div><div class="mddet">${det}</div>`;
   mdShow($("govs"));
   for (const b of $("govs").querySelectorAll("[data-g]")) b.onclick = () => { introGov = b.dataset.g; renderGovs(); };
+  for (const b of $("govs").querySelectorAll("[data-buy]")) b.onclick = () => buy(b.dataset.buy);
 }
 $("mLevelNext").onclick = () => {
   if (LBY[introLevel].tutorial) { introDiff = "facile"; introGov = "base"; startGame(); return; }
   if (introDiff === "super" && !superUnlocked(introLevel)) introDiff = "medio";
   showPhase("diff");
 };
-$("mGovNext").onclick = startGame;
+$("mGovNext").onclick = () => { if (govUnlocked(introLevel, introGov)) startGame(); };
 function emblem(n) {
   // globo al centro e un anello in più per ogni livello, ognuno con il suo satellite
   let o = `<circle cx="32" cy="32" r="9" fill="currentColor" opacity=".9"/><path d="M23.5 30h17M24 35h16M32 23c-4 5-4 13 0 18M32 23c4 5 4 13 0 18" stroke="#0c1822" stroke-width="1.2" fill="none" opacity=".5"/><g class="orb">`;
@@ -22731,7 +23129,7 @@ function renderDiffs() {
 }
 $("mPlay").onclick = () => { tryLandscape(); music.start(); showPhase("levels"); };
 $("mCont").onclick = continueGame;
-$("mHow").onclick = () => showPhase("how");
+
 $("mNext").onclick = () => showPhase("gov");
 $("mGo").onclick = beginPlay;
 for (const b of document.querySelectorAll("[data-back]")) b.onclick = () => showPhase(b.dataset.back);
@@ -23224,6 +23622,7 @@ function layoutTree(list) {
   return (layoutCache[key] = { pos: best.pos, W: best.W, H: best.H });
 }
 const nodeVisible = (d, s) => s.cls !== "locked";
+const TAB_FIRST = { tecnologia: "aiReg", genetica: "dnaControl", clima: "adapt" };
 function drawTree() {
   const list = sectorList(actTab);
   const states = Object.fromEntries(list.map((d) => [d.id, nodeState(d)]));
@@ -23236,7 +23635,8 @@ function drawTree() {
      vietato compare spento, con il segno di divieto, e i figli restano collegati: si capisce da dove vengono */
   const ghosts = fullSector(actTab).filter((g) => !available(st, g) && st.G && st.G.ban && st.G.ban.includes(g.id) && pos[g.id] && vis.some((v) => v.parent === g.id));
   const shown = (id) => vis.some((v) => v.id === id) || ghosts.some((g) => g.id === id);
-  if (!actNode || !shown(actNode)) actNode = vis[0].id;
+  // scheda appena aperta: si parte da una misura prudente, non da quella più rischiosa (la Tecnologia si apriva sugli incentivi all'AI)
+  if (!actNode || !shown(actNode)) actNode = (TAB_FIRST[actTab] && vis.some((v) => v.id === TAB_FIRST[actTab]) ? TAB_FIRST[actTab] : vis[0].id);
   for (const d of [...vis, ...ghosts]) { const p0 = d.parent, p1 = effParent(st, d), p = p0 && shown(p0) ? p0 : p1; if (!(p && pos[p] && shown(p))) continue;
     const [x1, y1] = pos[p], [x2, y2] = pos[d.id];
     if (Math.hypot(x2 - x1, y2 - y1) > HS * 2.4 && TREE_MODE === "tab" && TREE_TAB_MODE[actTab] === "strict") continue; // niente linee lunghe
@@ -23283,7 +23683,9 @@ function renderActs() {
     <div class="acts${actTab === "sintesi" ? " wide" : ""}"><div class="treebox${actTab === "sintesi" ? " sum" : ""}" style="--tint:${tint}">${actTab === "sintesi" ? `<div class="sumlist" id="sumList"></div>` : `<div class="treewrap" id="treewrap"><svg id="tree" preserveAspectRatio="xMidYMid meet"></svg></div>`}</div><div class="detail" id="detail"></div></div>
     <div class="foot"><span>${tr("Fondi")}${infoBtn("funds")} <b style="${st.funds < 0 ? "color:#f0a597" : ""}">${fmt(st.funds, 1)}</b> <em class="delta" id="dFunds"></em></span><span class="budgetbtn" role="button" tabindex="0" data-budget aria-label="${tr("Entrate e spese dell'Autorità")}">${tr("Saldo")}${infoBtn("saldo")} <b style="${netYear() < 0 ? "color:#f0a597" : ""}">${sign(netYear())}${tr("/anno")}</b> <em class="delta" id="dNet"></em></span></div>`;
   wireClose(root);
-  { const t = root.querySelector(".tabs"); t.classList.add("fit"); let k = 1; t.style.setProperty("--tk", k); while (k > 0.85 && t.scrollWidth > t.clientWidth + 1) { k -= 0.05; t.style.setProperty("--tk", k.toFixed(2)); } }
+  { const t = root.querySelector(".tabs"); t.classList.add("fit"); let k = 1; t.style.setProperty("--tk", k); while (k > 0.85 && t.scrollWidth > t.clientWidth + 1) { k -= 0.05; t.style.setProperty("--tk", k.toFixed(2)); }
+    const more = () => t.classList.toggle("more", t.scrollLeft + t.clientWidth < t.scrollWidth - 2); more(); t.onscroll = more;
+    const on = t.querySelector('[aria-pressed="true"]'); if (on && on.offsetLeft + on.offsetWidth > t.clientWidth) t.scrollLeft = on.offsetLeft - 20; more(); } // la scheda aperta resta sempre visibile
   for (const b of root.querySelectorAll("[data-c]")) b.onclick = () => { actTab = b.dataset.c; actNode = null; renderActs(); };
   if (actTab === "sintesi") { renderSummary(); return; }
   drawTree();
@@ -23321,7 +23723,7 @@ const offIn = (id) => { const rs = Object.values(st.regions).filter((r) => r.off
 function indRow(i, dv, a, b) {
   const v = i.v(st), diff = a && b && i.num ? i.num(b) - i.num(a) : null;
   const show = diff != null && Math.abs(dv) > 0.003;
-  return `<span class="mt" data-ind="${i.id}"><svg style="color:${indCol(v)}"><use href="${i.icon}"/></svg>${barHTML(v, dv, indCol(v))}<small>${tr(i.name)}${infoBtn(i.gloss)}: <b>${indText(i, st)}</b>${show ? ` <em class="${dv > 0 ? "up" : "down"}">${i.dfmt(diff)}</em>` : ""}</small></span>`;
+  return `<span class="mt" data-ind="${i.id}"><svg style="color:${indCol(v)}"><use href="${i.icon}"/></svg>${barHTML(v, dv, indCol(v))}<small>${tr(i.name)}<span style="white-space:nowrap">${infoBtn(i.gloss)}:</span> <b>${indText(i, st)}</b>${show ? ` <em class="${dv > 0 ? "up" : "down"}">${i.dfmt(diff)}</em>` : ""}</small></span>`;
 }
 function renderDetail() {
   const d = IBY[actNode];
@@ -23594,7 +23996,7 @@ function renderWorld() {
   root.innerHTML = headHTML(tr("Mondo"), wtabs) + `<div class="cols">
     <section class="sec"><h3>${tr("Obiettivo")}</h3>
       <p class="goal">${tr("Per vincere la stabilità mondiale deve restare almeno a <b>{w}</b> per <b>{y}</b> anni di fila.", { w: st.L.win, y: st.L.years })}</p>
-      <div class="goalnow"><span class="big" style="color:${stabColor(worldStab(st))}">${Math.round(worldStab(st))}</span><span>${tr("stabilità mondiale oggi")}<br><b>${worldStab(st) >= st.L.win ? tr("sopra l'obiettivo") : tr("mancano {x} punti", { x: Math.ceil(st.L.win - worldStab(st)) })}</b></span></div>
+      <div class="goalnow"><span class="big" style="color:${stabColor(worldStab(st))}">${Math.round(worldStab(st))}</span><span>${tr("stabilità mondiale oggi")}<br><b>${worldStab(st) >= st.L.win ? tr("sopra l'obiettivo") : tr("mancano {x} punti", { x: Math.max(1, st.L.win - Math.round(worldStab(st))) })}</b></span></div>
       <div class="years" aria-label="${tr("Anni di stabilità")}">${Array.from({ length: st.L.years }, (_, i) => `<i class="${i < st.stable ? "on" : ""}"></i>`).join("")}</div>
       <p class="note" style="margin:0">${tr("Anni di fila sopra l'obiettivo: <b>{a} su {b}</b>.", { a: st.stable, b: st.L.years })}${st.stable === 0 && worldStab(st) < st.L.win ? " " + tr("Il conteggio parte quando la stabilità raggiunge l'obiettivo.") : ""}</p></section>
     <section class="sec"><h3>${tr(rb.length ? "Rischi di catastrofe" : "Assetto")}</h3>${rb.length ? `<p class="note" style="margin:0 0 4px">${tr("Se una di queste catastrofi avviene, la stabilità del mondo crolla di colpo. Più la barra è piena, più è vicina.")}</p>` : `<p class="note" style="margin:0 0 4px">${tr("In questo scenario le grandi catastrofi non sono ancora in gioco.")}</p>`}${rb.map((x) => `<div class="risk"><span>${tr(x.name)}</span><b style="color:${lvColors[x.lv]};font-weight:600">${tr(RISK_LABELS[x.lv])}</b><span class="lv">${[0, 1, 2, 3].map((i) => `<i style="background:${i <= x.lv ? lvColors[x.lv] : ""}"></i>`).join("")}</span></div>`).join("")}
@@ -23932,7 +24334,7 @@ function drawBubbles() {
     const a = frac * 2 * Math.PI, R0 = 9.6;
     if (frac > 0.01 && left > 0) b.appendChild(svgEl("path", { d: `M0 ${-13.6 - R0}A${R0} ${R0} 0 ${a > Math.PI ? 1 : 0} 1 ${(R0 * Math.sin(a)).toFixed(2)} ${(-13.6 - R0 * Math.cos(a)).toFixed(2)}`, class: "count" }));
     b.appendChild(svgEl("use", { href: EV_GLYPH[q.id] ? "#g-" + EV_GLYPH[q.id] : "#i-" + (EV_ICON[E.cat] || "sicurezza"), x: -5, y: -18.6, width: 10, height: 10, style: "color:#fff4dc" }));
-    if (left <= 0) { const t = svgEl("text", { x: 0, y: -26 }); t.textContent = "Decidi"; b.appendChild(t); }
+    if (left <= 0) { const t = svgEl("text", { x: 0, y: -26 }); t.textContent = tr("Decidi"); b.appendChild(t); }
     b.dataset.k = bubKey(q);
     g.appendChild(b);
   }
@@ -23982,6 +24384,7 @@ function showEvent(ev) {
     refresh(); drawBubbles(); save();
   };
   for (const b of c.querySelectorAll("[data-i]")) b.onclick = () => {
+    st.evN = (st.evN || 0) + 1; (st.evSeen || (st.evSeen = {}))[pending.id] = 1; // per i premi «Gestore di crisi» e «Una nuova élite»
     if (resolveEvent(st, pending, +b.dataset.i)) return;
     if (tut) tut.events++;
     pending = null; $("modal").hidden = true;
@@ -23992,6 +24395,30 @@ function showEvent(ev) {
   c.querySelector("button:not(:disabled)")?.focus();
 }
 
+/* ---------- perché si è perso (23 novembre 2026, revisione prima del lancio): per chi perde è il momento in cui si impara.
+   Le regioni più deboli con la voce che le ha affossate, l'anno in cui la stabilità ha cominciato a scendere e un consiglio
+   per la prossima partita secondo il tipo di fine. ---------- */
+const LOSS_TIP = {
+  crollo: "Spendi i fondi appena puoi e aiuta per prime le regioni con la stabilità più bassa: una regione debole trascina giù le vicine.",
+  tutte: "Spendi i fondi appena puoi e aiuta per prime le regioni con la stabilità più bassa: una regione debole trascina giù le vicine.",
+  regionePersa: "Quando una regione scende sotto 15, aprila («Cosa fare») e avvia subito l'intervento consigliato: sotto zero cade nell'anarchia.",
+  bancarotta: "Tieni d'occhio il saldo annuo: se i costi fissi superano le entrate, il debito dell'Autorità cresce da solo. Prima le entrate (lotta all'evasione, riforma dei conti), poi le spese fisse.",
+  clima: "Il clima si gioca nei primi decenni: energia pulita da più fonti, adattamento e, se serve, cattura della CO₂.",
+  nucleare: "Tieni bassa la tensione tra le potenze: mediazione dei conflitti, controllo del materiale fissile, trattati.",
+  ai: "L'AI cresce da sola ogni anno: regole sull'AI e allineamento devono tenere il passo, soprattutto se dai incentivi alle grandi aziende.",
+  pandemia: "Le biotecnologie corrono da sole: controllo del DNA sintetico, regole per i laboratori e sorveglianza delle epidemie riducono il rischio.",
+  impatto: "Contro una cometa servono anni di anticipo: sorveglianza degli asteroidi e flotta di deviatori pronte prima che arrivi.",
+};
+function lossHTML() {
+  const h = st.hist || [], items = [];
+  const rs = Object.values(st.regions).filter((r) => r.controlled).sort((a, b) => a.stab - b.stab).slice(0, 2);
+  for (const r of rs) { const w = stabWhy(r, st), top = w.lost[0]; if (top) items.push(top.fix ? tr("{r}: stabilità {s}; la voce che pesava di più era «{v}» (aiutano: {f}).", { r: tr(r.name), s: Math.round(r.stab), v: tr(top.name), f: tr(top.fix) }) : tr("{r}: stabilità {s}; la voce che pesava di più era «{v}».", { r: tr(r.name), s: Math.round(r.stab), v: tr(top.name) })); }
+  const fallen = Object.values(st.regions).filter((r) => !r.controlled && !r.exit).map((r) => tr(r.name));
+  if (fallen.length) items.push(tr("Regioni cadute nell'anarchia: {x}.", { x: fallen.join(", ") }));
+  if (h.length > 2) { let best = 0; h.forEach((x, k) => { if (x.ws >= h[best].ws) best = k; }); if (best < h.length - 1) items.push(tr("La stabilità mondiale era arrivata a {s} nel {y}, poi è scesa.", { s: Math.round(h[best].ws), y: h[best].y })); }
+  if (LOSS_TIP[st.over]) items.push(tr("La prossima volta:") + " " + tr(LOSS_TIP[st.over]));
+  return items.length ? `<div class="story"><h3>${tr("Perché è andata così")}</h3><ul>${items.map((t) => `<li>${esc(t)}</li>`).join("")}</ul></div>` : "";
+}
 /* ---------- racconto della vittoria: le scelte reali della partita e i loro effetti nel tempo ---------- */
 function storyHTML() {
   const S = st.started || {}, h = st.hist || [], first = h[0] || {}, last = h[h.length - 1] || {};
@@ -24014,7 +24441,7 @@ function storyHTML() {
   ].filter(([id]) => S[id]).sort((a, b) => S[a[0]] - S[b[0]]).slice(0, 4);
   for (const [, f] of cand) { const t = f(); if (t) items.push(t); }
   // svolte: quando la stabilità mondiale ha superato 50 e 70
-  const turn = (v) => { const r = h.find((x) => x.ws >= v); return r ? r.y : null; };
+  const turn = (v) => { const i = h.findIndex((x, k) => x.ws >= v && h.slice(0, k).some((p) => p.ws < v)); return i >= 0 ? h[i].y : null; }; // solo se prima era sotto
   const t50 = turn(50), t70 = turn(70);
   if (t50) items.push(`La svolta: nel ${t50} la stabilità mondiale ha superato 50${t70 ? `, nel ${t70} ha passato 70` : ""}.`);
   // errori evitati
@@ -24070,6 +24497,75 @@ function playDoom(kind, done) {
   addEventListener("pointerdown", finish, true);
   setTimeout(finish, 5200);
 }
+/* ---------- premi (Game Center e Google Play Giochi; elenco rivisto il 23 novembre 2026, docs/game-center.md) ----------
+   Si controllano ogni anno e alla fine della partita; restano nella memoria del telefono (e nel cloud dell'app) e si mandano al
+   servizio dei premi quando l'app lo collega (window.GF_GAMECENTER.unlock(id)). Tutti visibili. */
+const ACH_LV = { tut: "a_tut", l1: "a_l1", l2: "a_l2", l3: "a_l3", l4: "a_l4", l5: "a_l5", l6: "a_l6" };
+const ENDS8 = ["nucleare", "ai", "pandemia", "clima", "bancarotta", "crollo", "tutte", "impatto"];
+const ACH = [
+  ["a_tut", "Primo giorno"], ["a_l1", "Primo mandato"], ["a_l2", "Energia per tutti"], ["a_l3", "Il clima che cambia"], ["a_l4", "Equilibrio del terrore"], ["a_l5", "Il secolo decisivo"], ["a_l6", "Il Grande Filtro"],
+  ["a_hard", "Mano ferma"], ["a_super", "Sull'orlo"], ["a_beyond", "Oltre il filtro"], ["a_seven", "Sette visioni"], ["a_crown", "La corona"],
+  ["g_base", "Nessuna linea"], ["g_social", "Stato sociale"], ["g_human", "Repubblica del lavoro"], ["g_market", "Libero mercato"], ["g_techno", "Tecnocrazia"], ["g_liberal", "Democrazia liberale"], ["g_central", "Stato centralizzato"],
+  ["s_four", "Quattro stelle"], ["s_fast", "Vittoria lampo"], ["s_nobody", "Nessuno lasciato indietro"], ["s_climate", "Clima sotto controllo"], ["s_moon", "Ponte verso le stelle"], ["s_sound", "Conti in ordine"], ["s_abyss", "Dall'abisso"], ["s_blue", "Caschi blu"],
+  ["d_fusion", "Un Sole sulla Terra"], ["d_clean", "Mondo pulito"], ["d_negative", "Emissioni negative"], ["d_aligned", "Allineata"], ["d_codes", "Codici al sicuro"], ["d_malaria", "Fine della malaria"], ["d_cure", "La cura per la vecchiaia"], ["d_comet", "Cometa deviata"], ["d_archive", "L'archivio"], ["d_cradles", "Culle piene"], ["d_debt", "Debito domato"], ["d_ubi", "Benessere per tutti"],
+  ["e_nucleare", "Inverno nucleare"], ["e_ai", "Il giorno delle macchine"], ["e_pandemia", "Paziente zero"], ["e_clima", "Pianeta rovente"], ["e_bancarotta", "Bancarotta"], ["e_crollo", "Crollo dell'ordine"], ["e_tutte", "Anarchia globale"], ["e_impatto", "Impatto"], ["e_all", "Collezionista di filtri"],
+  ["f_term", "Shock da interruzione"], ["f_again", "Qualcuno ricomincerà"], ["f_elite", "Una nuova élite"], ["f_crisis", "Gestore di crisi"], ["f_peace", "Pace tra le potenze"], ["f_all", "Tutto il possibile"],
+];
+const ACH_NAME = Object.fromEntries(ACH);
+function achGot() { try { return JSON.parse(localStorage.getItem("gf-ach") || "[]") || []; } catch (e) { return []; } }
+function achGive(id) {
+  const got = achGot(); if (got.includes(id) || !ACH_NAME[id]) return;
+  got.push(id); try { localStorage.setItem("gf-ach", JSON.stringify(got)); } catch (e) {}
+  if (CLOUD && CLOUD.save) CLOUD.save("gf-ach", JSON.stringify(got));
+  if (window.GF_GAMECENTER && window.GF_GAMECENTER.unlock) window.GF_GAMECENTER.unlock(id);
+  toast(tr("Premio: {x}", { x: tr(ACH_NAME[id]) }), "good");
+}
+function achMeta() { try { return JSON.parse(localStorage.getItem("gf-ach-meta") || "{}") || {}; } catch (e) { return {}; } }
+function achMetaSet(m) { try { localStorage.setItem("gf-ach-meta", JSON.stringify(m)); } catch (e) {} }
+function achCheck(end, win, stars, maxS) {
+  if (!st) return;
+  const b = (id) => built(st, id), rs = Object.values(st.regions), pop = rs.reduce((a, r) => a + r.pop, 0) || 1;
+  // durante la partita
+  if (b("fusion")) achGive("d_fusion");
+  if (rs.reduce((a, r) => a + (100 - r.fossil) * r.pop, 0) / pop >= 90) achGive("d_clean");
+  if (sysOn(st, "climate") && co2Gt(st) < 0) achGive("d_negative");
+  if (b("align3")) achGive("d_aligned");
+  if (b("qIndustry") && b("qCrypto") && (st.acts.qCrypto.y0 || 0) <= (st.acts.qIndustry.y0 || 9999)) achGive("d_codes");
+  if (b("geneDrive")) achGive("d_malaria");
+  if (st.flags.cometSaved) achGive("d_comet");
+  if (b("lunarArchive")) achGive("d_archive");
+  if (st.year >= 2060 && rs.reduce((a, r) => a + r.tfr * r.pop, 0) / pop >= 2.1) achGive("d_cradles");
+  if (worldDebt(st) < 60) achGive("d_debt");
+  if (b("ubiPlus")) achGive("d_ubi");
+  if (st.flags.termShock) achGive("f_term");
+  if (st.evSeen && st.evSeen.genElite) achGive("f_elite");
+  if ((st.evN || 0) >= 50) achGive("f_crisis");
+  if (sysOn(st, "war") && st.g.tension < 20) achGive("f_peace");
+  if (rs.some((r) => r.peaceUntil)) achGive("s_blue");
+  const m = achMeta(); m.acts = [...new Set([...(m.acts || []), ...Object.keys(st.acts)])];
+  if (INTERVENTIONS.filter((d) => d.gov !== "_ritirata" && !d.bank).every((d) => m.acts.includes(d.id))) achGive("f_all");
+  if (!end) { achMetaSet(m); return; }
+  // alla fine della partita
+  const h = st.hist || [];
+  if (st.over === "immortale") achGive("d_cure");
+  if (ENDS8.includes(st.over)) { achGive("e_" + st.over); m.ends = [...new Set([...(m.ends || []), st.over])]; if (ENDS8.every((x) => m.ends.includes(x))) achGive("e_all"); if (b("lunarArchive")) achGive("f_again"); }
+  achMetaSet(m);
+  if (!win) return;
+  if (ACH_LV[st.levelId]) achGive(ACH_LV[st.levelId]);
+  achGive("g_" + st.govId);
+  if (DORDER.indexOf(st.diffId) >= 2) achGive("a_hard");
+  if (st.diffId === "super") { achGive("a_super"); if (st.levelId === "l6") achGive("a_beyond"); }
+  if (govsWon(st.levelId).length >= GOVS.length) achGive("a_seven");
+  if (LEVELS.filter((l) => !l.tutorial).every((l) => crowned(l.id))) achGive("a_crown");
+  if (stars === maxS && maxS === 4) achGive("s_four");
+  if ((st.levelId === "l5" || st.levelId === "l6") && st.year - 2026 < 35) achGive("s_fast");
+  const hon = honors(st);
+  if (hon.find((x) => x.id === "all" && x.ok)) achGive("s_nobody");
+  if (hon.find((x) => x.id === "cool" && x.ok)) achGive("s_climate");
+  if (st.lunarCity) achGive("s_moon");
+  if (h.length && h.every((x) => x.f >= -1)) achGive("s_sound");
+  if (h.some((x) => x.ws < 15)) achGive("s_abyss");
+}
 function endGame() {
   zoomMap(null);
   if ((st.over === "impatto" || st.over === "nucleare") && !st.doomShown && phase === "play") { st.doomShown = true; closeScreensQuiet(); speed = 0; pending = { over: true }; $("modal").hidden = true; playDoom(st.over, endGame); return; }
@@ -24082,12 +24578,16 @@ function endGame() {
   const li = LEVELS.findIndex((l) => l.id === st.levelId), next = LEVELS[li + 1];
   let record = false, unl = [];
   if (win) {
+    const wasOpen = next ? levelUnlocked(li + 1) : true, gk = GOVS.findIndex((g) => g.id === st.govId), ng = GOVS[gk + 1], ngWas = ng ? govUnlocked(st.levelId, ng.id) : true;
     const o = recordWin(st, stars);
     record = o.record;
-    if (o.first && next && li >= 1) unl.push(tr("Sbloccato lo scenario <b>{x}</b>", { x: esc(tr(next.name)) }));
+    if (next && !wasOpen && levelUnlocked(li + 1)) unl.push(tr("Sbloccato lo scenario <b>{x}</b>", { x: esc(tr(next.name)) }));
+    else if (next && !levelUnlocked(li + 1) && st.govId !== "base") unl.push(tr("Per aprire lo scenario successivo vinci questo col governo neutro (anche a facile)."));
+    if (ng && !ngWas && govUnlocked(st.levelId, ng.id)) unl.push(tr("Sbloccato il governo <b>{x}</b> in questo scenario", { x: esc(tr(ng.name)) }));
     if (o.superNew) unl.push(tr("Sbloccata la difficoltà <b>Super difficile</b> per questo scenario"));
     if (govsWon(st.levelId).length === GOVS.length) unl.push(tr("Scenario vinto con <b>tutti i governi</b>"));
   }
+  achCheck(true, win, stars, maxS);
   tut = null; renderCoach();
   const c = $("modalCard");
   c.innerHTML = `<button type="button" class="buy alt endx" id="bEndX">${tr("Menu")} ✕</button><div class="eyebrow">${st.over === "immortale" ? tr("Vittoria speciale") : win ? tr("Vittoria") : tr("Sconfitta")} · ${st.year} · ${tr(DIFF[st.diffId].name)}</div><h2>${esc(tr(E.title))}</h2><p>${esc(trEnding(endingText(st)))}</p>
@@ -24097,7 +24597,7 @@ function endGame() {
       <p class="congr">${tr("Complimenti: hai guidato il mondo oltre il primo filtro.")}</p>
       ${storyHTML()}
       <ul class="honors">${hon.map((h) => `<li class="${h.ok ? "ok" : ""}"><span class="s">★</span><span>${tr(h.name)}</span><small>${tr(h.desc)}</small></li>`).join("")}</ul>
-` : ""}
+` : lossHTML()}
     <div class="endgrid"><div>${worldKV(`<span>${tr("Anni di governo")}</span><span>${st.year - 2026}</span><span>${tr("Regioni sotto controllo")}</span><span>${tr("{a} su 11", { a: Object.values(st.regions).filter((r) => r.controlled).length })}</span>`)}<h3 class="endh">${tr("Stabilità delle regioni")}</h3>${rankHTML()}</div>
       <div>${chartsHTML()}</div></div>
     <h3 class="endh">${tr("Statistiche della partita")}</h3>${statsHTML(st.hist)}
@@ -24133,7 +24633,9 @@ const TELE = (() => {
   const URL = typeof window.GF_STATS === "string" && window.GF_STATS ? window.GF_STATS : null;
   const rid = () => Math.random().toString(36).slice(2, 10);
   let player = null; try { player = localStorage.getItem("gf-player") || (localStorage.setItem("gf-player", rid()), localStorage.getItem("gf-player")); } catch (e) { player = rid(); }
-  const on = () => { try { return localStorage.getItem("gf-stats") !== "off"; } catch (e) { return true; } };
+  // consenso esplicito (23 novembre 2026): si invia solo dopo un «sì» (in Europa il permesso va chiesto prima)
+  const on = () => { try { return localStorage.getItem("gf-stats") === "on"; } catch (e) { return false; } };
+  const asked = () => { try { return localStorage.getItem("gf-stats") != null; } catch (e) { return true; } };
   let lastPause = 0, lastN = 0;
   const R1 = (v) => Math.round(v * 10) / 10;
   function detail() {
@@ -24149,6 +24651,7 @@ const TELE = (() => {
   }
   function send(type, extra) {
     if (!URL || !st || !on()) return;
+    if (window.GF_APP && type === "anno") return; // nell'app pubblica solo inizio e fine partita: una riga per partita, non una all'anno
     if (!st.gid) st.gid = rid();
     const rs = Object.values(st.regions);
     const d = { t: type, p: player, g: st.gid, sc: st.levelId, diff: st.diffId, gov: st.govId, anno: st.year, stab: Math.round(worldStab(st)),
@@ -24156,6 +24659,7 @@ const TELE = (() => {
       uscite: rs.filter((r) => r.exit).length, min: Math.round((st.rt || 0) / 60000), x: extra || {} };
     // ogni anno tutti i dati che servono per capire una partita (7 novembre 2026, richiesta di Guido: il foglio deve registrare tutto)
     if (type === "anno" || type === "fine") Object.assign(d.x, detail());
+    if (type === "fine") d.x.storia = (st.hist || []).map((h) => [h.y, Math.round(h.ws)]); // la stabilità anno per anno in una riga sola
     q.push(JSON.stringify(d)); if (q.length > 400) q.splice(0, q.length - 400); keep(); pump();
   }
   /* coda degli invii (18 novembre 2026): prima ogni anno partiva un invio "keepalive" senza aspettare il precedente; a velocità alta
@@ -24178,7 +24682,7 @@ const TELE = (() => {
     // il telefono chiude o cambia app durante una partita: dice dove si è fermato (al massimo una volta ogni 10 minuti)
     if (document.hidden && phase === "play" && st && !st.over && Date.now() - lastPause > 600000) { lastPause = Date.now(); send("pausa"); }
   });
-  return { send, on, available: !!URL, set: (v) => { try { localStorage.setItem("gf-stats", v ? "on" : "off"); } catch (e) {} } };
+  return { send, on, asked, available: !!URL, set: (v) => { try { localStorage.setItem("gf-stats", v ? "on" : "off"); } catch (e) {} } };
 })();
 
 /* ---------- ciclo del tempo ---------- */
@@ -24193,7 +24697,7 @@ function loop(now) {
       acc -= MONTH_MS;
       const ev = tick(st);
       changed = true;
-      if (st.month === 0) { save(); TELE.send("anno"); }
+      if (st.month === 0) { save(); TELE.send("anno"); achCheck(false); }
       if (st.over) { endGame(); break; }
       if (ev) queueEvent(ev);
       // nel tutorial la prima crisi arriva sempre, pochi mesi dopo l'avvio del tempo
@@ -24229,7 +24733,7 @@ function getProg() {
     return p;
   } catch (e) { return {}; }
 }
-function setProg(p) { try { localStorage.setItem("gf-prog-2", JSON.stringify(p)); } catch (e) {} }
+function setProg(p) { const t = JSON.stringify(p); try { localStorage.setItem("gf-prog-2", t); } catch (e) {} if (window.GF_CLOUD && window.GF_CLOUD.save) window.GF_CLOUD.save("gf-prog-2", t); }
 function bestOf(lid, k) { const p = getProg()[lid]; return p && p.best ? p.best[k] || null : null; }
 const DORDER = ["facile", "medio", "difficile", "super"];
 function wonAtLeast(lid, k) { const i = DORDER.indexOf(k); return DORDER.slice(i).some((x) => bestOf(lid, x)); }
@@ -24237,7 +24741,55 @@ function wonAtLeast(lid, k) { const i = DORDER.indexOf(k); return DORDER.slice(i
 function crowned(lid) { const p = getProg()[lid]; return !!(p && p.govSuper && GOVS.every((g) => p.govSuper.includes(g.id))); }
 function levelWon(lid) { const p = getProg()[lid]; return !!(p && p.best && Object.keys(p.best).length); }
 function govsWon(lid) { const p = getProg()[lid]; return (p && p.govs) || []; }
-function levelUnlocked(i) { return i <= 1 || levelWon(LEVELS[i - 1].id); }
+/* ---------- sblocchi e acquisti (23 novembre 2026, decisioni di Guido) ----------
+   Scenari: all'inizio sono aperti solo l'addestramento e il primo; il successivo si apre vincendo col governo neutro, a facile o più.
+   Governi: si aprono a catena nello stesso scenario (vincere a difficile con un governo apre il successivo nell'ordine della schermata),
+   oppure si comprano: 0,99 € uno, 4,99 € tutti, validi in tutti gli scenari. Acquisti veri e «Ripristina acquisti» passano dal ponte
+   con l'app (window.GF_STORE); i progressi si copiano anche nel salvataggio sul cloud dell'app (window.GF_CLOUD), così non si
+   perdono cambiando telefono. Nel sito di prova i governi restano tutti aperti (si prova lo sblocco con ?app=1). */
+const STORE = window.GF_STORE || null, CLOUD = window.GF_CLOUD || null;
+const LOCKS_ON = !!(window.GF_APP || /[?&]app=1/.test(location.search));
+const PRICES = { one: "0,99 €", all: "4,99 €" }; // prezzi mostrati quando il negozio non risponde (nell'app li dà il negozio, nella valuta del paese)
+function owned() { try { return JSON.parse(localStorage.getItem("gf-owned") || "[]") || []; } catch (e) { return []; } }
+function setOwned(a) { const v = [...new Set(a)]; try { localStorage.setItem("gf-owned", JSON.stringify(v)); } catch (e) {} if (CLOUD && CLOUD.save) CLOUD.save("gf-owned", JSON.stringify(v)); }
+function govBought(id) { const o = owned(); return o.includes("gov_all") || o.includes("gov_" + id); }
+function wonWith(lid, gov, minDiff) { const e = getProg()[lid], d = e && e.byGov && e.byGov[gov]; return d != null && d >= DORDER.indexOf(minDiff); }
+function levelUnlocked(i) {
+  if (i <= 1) return true;
+  const prev = LEVELS[i - 1].id, e = getProg()[prev];
+  if (e && !e.byGov) return levelWon(prev); // progressi di prima del nuovo registro: valgono come allora
+  return wonWith(prev, "base", "facile");
+}
+function govUnlocked(lid, id) {
+  if (!LOCKS_ON || id === "base" || govBought(id)) return true;
+  const k = GOVS.findIndex((g) => g.id === id);
+  return k > 0 && wonWith(lid, GOVS[k - 1].id, "difficile");
+}
+// due copie dei progressi (telefono e cloud): si tiene il meglio di ciascuna
+function mergeProg(a, b) {
+  const o = JSON.parse(JSON.stringify(a || {}));
+  for (const lid in b || {}) {
+    const x = o[lid] || (o[lid] = { best: {}, govs: [] }), y = b[lid];
+    for (const k in y.best || {}) { const p = x.best[k], q = y.best[k]; if (!p || q.stars > p.stars || (q.stars === p.stars && q.years < p.years)) x.best[k] = q; }
+    x.govs = [...new Set([...(x.govs || []), ...(y.govs || [])])];
+    if (y.govSuper) x.govSuper = [...new Set([...(x.govSuper || []), ...y.govSuper])];
+    if (y.byGov) { x.byGov = x.byGov || {}; for (const g in y.byGov) x.byGov[g] = Math.max(x.byGov[g] ?? -1, y.byGov[g]); }
+  }
+  return o;
+}
+if (CLOUD && CLOUD.load) Promise.resolve(CLOUD.load(["gf-prog-2", "gf-owned"])).then((v) => {
+  if (!v) return;
+  try { if (v["gf-prog-2"]) setProg(mergeProg(getProg(), JSON.parse(v["gf-prog-2"]))); if (v["gf-owned"]) setOwned([...owned(), ...JSON.parse(v["gf-owned"])]); } catch (e) {}
+  if (phase === "levels") renderLevels(); if (phase === "gov") renderGovs();
+}).catch(() => {});
+function buy(pid) {
+  if (!STORE || !STORE.buy) { toast(tr("Gli acquisti sono disponibili nell'app."), "info"); return; }
+  Promise.resolve(STORE.buy(pid)).then((ok) => { if (ok) { setOwned([...owned(), pid]); toast(tr("Acquisto completato: grazie!"), "good"); } renderGovs(); }).catch(() => toast(tr("Acquisto non riuscito."), "bad"));
+}
+function restorePurchases() {
+  if (!STORE || !STORE.restore) { toast(tr("Gli acquisti sono disponibili nell'app."), "info"); return; }
+  Promise.resolve(STORE.restore()).then((list) => { setOwned([...owned(), ...(list || [])]); toast(tr("Acquisti ripristinati."), "good"); if (phase === "gov") renderGovs(); }).catch(() => toast(tr("Ripristino non riuscito."), "bad"));
+}
 const superUnlocked = (lid) => wonAtLeast(lid, "difficile");
 function recordWin(st, stars) {
   const p = getProg(), lid = st.levelId, e = p[lid] || (p[lid] = { best: {}, govs: [] });
@@ -24245,6 +24797,7 @@ function recordWin(st, stars) {
   const out = { record: !!b && (stars > b.stars || (stars === b.stars && yrs < b.years)), first: !Object.keys(e.best).length, superNew: st.diffId === "difficile" && !b };
   if (!b || stars > b.stars || (stars === b.stars && yrs < b.years)) e.best[st.diffId] = { stars, years: yrs };
   if (!e.govs.includes(st.govId)) e.govs.push(st.govId);
+  e.byGov = e.byGov || {}; e.byGov[st.govId] = Math.max(e.byGov[st.govId] ?? -1, DORDER.indexOf(st.diffId)); // per gli sblocchi
   if (st.diffId === "super") { e.govSuper = e.govSuper || []; if (!e.govSuper.includes(st.govId)) e.govSuper.push(st.govId); }
   setProg(p);
   return out;
@@ -24307,7 +24860,7 @@ const TIPS = [
   { id: "unrest", when: (s) => ctrlRegions(s).some((r) => r.unrest > 80), title: "Una regione vicina alla rivolta",
     text: (s) => `${ctrlRegions(s).sort((a, b) => b.unrest - a.unrest)[0].name} rischia di cadere nell'anarchia, e trascinerebbe con sé le regioni vicine. Toccala per vedere cosa fare.` },
   { id: "debt", when: (s) => ctrlRegions(s).some((r) => r.debt > 150), title: "Debito pericoloso",
-    text: (s) => { const rs = ctrlRegions(s).filter((r) => r.debt > 150).sort((a, b) => b.debt - a.debt); return `${rs.map((r) => `${r.name} (${Math.round(r.debt)}% del PIL)`).join(", ")}: ${rs.length > 1 ? "hanno" : "ha"} un debito così alto che i mercati possono smettere di finanziarle. Il debito sale quando la crescita è più bassa degli interessi e quando il welfare pesa troppo: guarda pensioni, crescita e tagli alla spesa, oppure la ristrutturazione del debito.`; } },
+    text: (s) => { const rs = ctrlRegions(s).filter((r) => r.debt > 150).sort((a, b) => b.debt - a.debt); return `Debito molto alto: ${rs.map((r) => `${r.name} (${Math.round(r.debt)}% del PIL)`).join(", ")}. I mercati possono smettere di prestare a questi stati. Il debito sale quando la crescita è più bassa degli interessi e quando il welfare pesa troppo: guarda pensioni, crescita e tagli alla spesa, oppure la ristrutturazione del debito.`; } },
   { id: "inflHigh", when: (s) => s.g.infl > 5.5, title: "Inflazione alta",
     text: (s) => `I prezzi salgono del ${fmt(s.g.infl, 1)}% l'anno e la gente si arrabbia. Alzare il tasso della Banca centrale, nella scheda Economia, la fa scendere, ma frena la crescita.` },
   { id: "inflLow", when: (s) => s.g.infl < 0.5, title: "Prezzi in calo",
@@ -24396,15 +24949,19 @@ function checkTips() {
 let tut = null;
 const nActs = () => Object.keys(st.acts).length + st.prog.length;
 const TUT = [
-  { text: (s) => `In alto vedi la stabilità mondiale: oggi è ${Math.round(worldStab(s))}. Il tuo obiettivo è portarla a ${s.L.win} e tenerla lì per ${s.L.years} anni.`, target: () => $("sWorld").parentElement, next: true },
+  { text: (s) => `In alto vedi la stabilità mondiale: oggi è ${Math.round(worldStab(s))}. Il tuo obiettivo è portarla almeno a ${s.L.win} e tenerla lì per ${s.L.years} anni di fila.`, target: () => $("sWorld").parentElement, next: true },
   { text: () => "Ogni numero sulla mappa è la stabilità di una regione: più è basso, più la regione è in difficoltà. Tocca l'Europa.", target: () => regionEls.eu, done: () => sel === "eu", low: true },
   { text: () => "In basso compare la regione scelta. Tocca «Cosa fare».", target: () => $("regStrip"), done: () => openScreen === "reg" },
   { text: () => "Al centro c'è il consiglio: l'intervento che aiuterebbe di più questa regione. Tocca «Vai all'intervento».", target: () => document.querySelector("#scrReg .advice .buy") || document.querySelector("#scrReg [data-go]"), done: () => openScreen === "acts", low: true },
-  { text: () => "Ogni intervento vale per tutto il mondo e costa fondi. Tocca «Avvia».", target: () => $("dBuy"), done: () => nActs() > 0 },
+  { text: () => "Ogni intervento vale per tutto il mondo e costa fondi. Se i fondi non bastano si può avviare a debito: l'Autorità prende in prestito e poi paga gli interessi. Tocca il pulsante giallo.", target: () => $("dBuy"), done: () => nActs() > 0 },
   { text: () => "Fatto: molti interventi impiegano qualche anno a funzionare. Torna alla mappa con la freccia.", target: () => document.querySelector("#scrActs [data-close]"), done: () => openScreen === null },
   { text: () => "Il tempo è fermo. Fallo scorrere: tocca 1×. Con II lo fermi, con 4× va più veloce.", target: () => document.querySelector(".speed"), done: () => !!tut.armed && speed > 0 },
   { text: () => (st.queue || []).length ? "È arrivata una crisi: il segnale sulla mappa mostra dove e quanti mesi hai. Toccalo per decidere come rispondere." : "Ogni anno arrivano nuovi fondi. Prima o poi arriverà una crisi: comparirà un segnale sulla mappa.", target: () => document.querySelector("#bubbles .bub"), done: () => tut.events > 0, low: true },
-  { text: (s) => `Ora prosegui da solo: spendi i fondi appena puoi, aiuta le regioni con i numeri più bassi e guarda «Mondo» per vedere come va. Porta la stabilità a ${s.L.win}.`, target: () => null, next: true },
+  // tre passi in più (23 novembre 2026, revisione prima del lancio): perché il mondo peggiora da solo e la schermata «Mondo»
+  { text: () => "Attenzione: anche senza crisi la stabilità scende da sola. Debiti, pensioni, prezzi e divisioni pesano ogni anno sulle regioni: senza interventi il mondo peggiora.", target: () => $("sWorld").parentElement, next: true },
+  { text: () => "Tocca «Mondo»: vedi come va il pianeta e da dove viene il malcontento.", target: () => $("bWorld"), done: () => openScreen === "world", low: true },
+  { text: () => "Qui trovi i grandi rischi e le statistiche. Le cause del malcontento di ogni regione sono nella sua scheda («Cosa fare»). Torna alla mappa con la freccia.", target: () => document.querySelector("#scrWorld [data-close]"), done: () => openScreen === null },
+  { text: (s) => `Ora prosegui da solo: spendi i fondi appena puoi e aiuta le regioni con i numeri più bassi. Porta la stabilità almeno a ${s.L.win}.`, target: () => null, next: true },
 ];
 const tutHold = () => !!(tut && tut.step < 6);
 let tutEl = null;
@@ -24417,14 +24974,14 @@ function renderCoach() {
   // al passo del tempo il tempo viene fermato, così il tocco su 1× cambia davvero qualcosa
   if (tut.step === 6 && !tut.armed) { tut.armed = true; speed = 0; savedSpeed = 1; hud(); }
   if (S.done && S.done()) { tut.step++; renderCoach(); return; }
-  const key = tut.step + (openScreen || "") + (pending ? "p" : "");
+  const key = tut.step + (openScreen || "") + (pending ? "p" : "") + ((st.queue || []).length ? "q" : ""); // il testo cambia anche quando arriva una crisi
   if (box.dataset.key !== key) {
     box.dataset.key = key;
     box.innerHTML = `<div class="ct2"><small>${tr("Addestramento · passo {a} di {b}", { a: tut.step + 1, b: TUT.length })}</small>${esc(tr(S.text(st)))}</div>${S.next ? `<button type="button" class="buy" id="coachNext">${tut.step === TUT.length - 1 ? tr("Fine") : tr("Avanti")}</button>` : ""}`;
     if ($("coachNext")) $("coachNext").onclick = () => { tut.step++; renderCoach(); };
   }
   box.classList.toggle("low", !!(S.low || openScreen));
-  box.hidden = false;
+  box.hidden = !$("modal").hidden; // con la scheda di una crisi aperta la guida si nasconde: non copre le scelte
   // negli interventi la guida sta nella barra in alto, per non coprire l'albero né la descrizione
   const slot = $("coachHead");
   if (openScreen === "acts" && slot) {
@@ -24531,7 +25088,7 @@ function drawMoon() {
     m.appendChild(svgEl("circle", { cx: 120, cy: -30, r: 16, fill: "transparent" }));
     m.appendChild(svgEl("circle", { cx: 120, cy: -30, r: 8, fill: "url(#gMoon)" }));
     if (st.moon) m.appendChild(svgEl("circle", { cx: 118, cy: -25, r: 1.4, fill: "#4fae8e" }));
-    const t = svgEl("text", { class: "moon-s", x: 120, y: -14, "text-anchor": "middle" }); t.textContent = "Luna"; m.appendChild(t);
+    const t = svgEl("text", { class: "moon-s", x: 120, y: -14, "text-anchor": "middle" }); t.textContent = tr("Luna"); t.dataset.it = "Luna"; m.appendChild(t);
     m.addEventListener("click", (ev) => { ev.stopPropagation(); moonMode = true; drawGlobe(); });
     g.appendChild(m);
     return;
@@ -24540,7 +25097,7 @@ function drawMoon() {
   const e = svgEl("g", { class: "fac", role: "button", "aria-label": "Torna alla Terra" });
   e.appendChild(svgEl("circle", { cx: -165, cy: -10, r: 18, fill: "transparent" }));
   e.appendChild(svgEl("circle", { cx: -165, cy: -10, r: 11, fill: "url(#gOcean)", stroke: "#6fb0d8", "stroke-width": 0.6 }));
-  const et = svgEl("text", { class: "moon-s", x: -165, y: 9, "text-anchor": "middle" }); et.textContent = "Terra"; e.appendChild(et);
+  const et = svgEl("text", { class: "moon-s", x: -165, y: 9, "text-anchor": "middle" }); et.textContent = tr("Terra"); et.dataset.it = "Terra"; e.appendChild(et);
   e.addEventListener("click", (ev) => { ev.stopPropagation(); moonMode = false; drawGlobe(); });
   g.appendChild(e);
   const m = svgEl("g", { class: "fac", role: "button", "aria-label": "Programma lunare" });
@@ -24655,7 +25212,7 @@ $("bPause").onclick = () => {
    Il gioco aperto dall'icona sulla schermata Home a volte resta alla versione vecchia anche per giorni. All'apertura e ogni volta
    che si torna al gioco si controlla version.txt sul sito: se è uscita una versione nuova si salva la partita e si ricarica. */
 function checkUpdate() {
-  if (!window.GF_BUILD || !window.fetch) return;
+  if (!window.GF_BUILD || !window.fetch || window.GF_APP) return; // nell'app gli aggiornamenti arrivano dal negozio
   fetch("version.txt?t=" + Date.now(), { cache: "no-store" }).then((r) => (r.ok ? r.text() : "")).then((v) => {
     v = (v || "").trim();
     if (!v || v === window.GF_BUILD) return;
@@ -24794,7 +25351,8 @@ const music = (() => {
   }
   /* musica accesa: sessione "playback", sull'iPhone si sente anche in modalità silenziosa (ma ferma la musica di altre app e le
      registrazioni); musica spenta: l'audio si chiude e la sessione torna "ambient", così il gioco non disturba nulla */
-  function mediaSession(t) { try { if (navigator.audioSession) navigator.audioSession.type = t || "playback"; } catch (e) {} }
+  // dal 23 novembre 2026 sempre "ambient": la musica rispetta il telefono in silenzioso e non ferma quella delle altre app
+  function mediaSession() { try { if (navigator.audioSession) navigator.audioSession.type = "ambient"; } catch (e) {} }
   /* Brani veri (1 novembre 2026, generati con Suno): ci sono solo nel sito, nella cartella music/; dove mancano (anteprima su
      claude.ai) resta il motivo generato dal codice. Ogni atmosfera ha la sua scaletta: i brani calmi si alternano a caso con
      qualche silenzio, gli altri si ripetono. Passaggi morbidi di tre secondi tra un brano e l'altro. */
@@ -24888,16 +25446,26 @@ const music = (() => {
   const sw = $("musicSwitch");
   function paintSettings() {
     sw.setAttribute("aria-checked", String(on));
-    $("musicNote").textContent = on ? tr("Accesa: si sente anche con il telefono in modalità silenziosa. Mentre giochi si fermano la musica di altre app e le registrazioni vocali.")
+    $("musicNote").textContent = on ? tr("Accesa: non si sente con il telefono in modalità silenziosa e non ferma la musica di altre app.")
       : tr("Spenta: il gioco resta muto e non disturba la musica di altre app né le registrazioni vocali.");
   }
   sw.addEventListener("click", (e) => { e.stopPropagation(); setOn(!on); paintSettings(); });
   const ssw = $("statsSwitch");
   $("statsRow").hidden = $("statsNote").hidden = !TELE.available;
+  // al primo avvio: una domanda sola sui dati anonimi (23 novembre 2026)
+  if (TELE.available && !TELE.asked()) {
+    const box = document.createElement("div"); box.className = "consent"; box.setAttribute("role", "dialog");
+    box.innerHTML = `<p>${tr("Ci aiuti a migliorare il gioco? Con il tuo permesso inviamo dati anonimi sulle partite (scenario, anno, stabilità, esito). Nessun dato personale. Puoi cambiare idea nelle Impostazioni.")}</p><div class="crow"><button type="button" class="buy" data-c="1">${tr("Sì, va bene")}</button><button type="button" class="buy alt" data-c="0">${tr("No, grazie")}</button><button type="button" class="linkbtn" data-c="p">${tr("Privacy")}</button></div>`;
+    $("menuTitle").appendChild(box);
+    for (const b of box.querySelectorAll("[data-c]")) b.onclick = (e) => { e.stopPropagation(); if (b.dataset.c === "p") { $("bPrivacy").click(); return; } TELE.set(b.dataset.c === "1"); ssw.setAttribute("aria-checked", String(TELE.on())); box.remove(); };
+  }
   ssw.setAttribute("aria-checked", String(TELE.on()));
   ssw.addEventListener("click", (e) => { e.stopPropagation(); TELE.set(!TELE.on()); ssw.setAttribute("aria-checked", String(TELE.on())); });
   $("bSettings").addEventListener("click", (e) => { e.stopPropagation(); paintSettings(); $("settings").hidden = !$("settings").hidden; });
   $("settingsOk").addEventListener("click", (e) => { e.stopPropagation(); $("settings").hidden = true; });
+  $("bRestore").hidden = !STORE; // «Ripristina acquisti» (obbligatorio per Apple): solo nell'app
+  $("bPrivacy").addEventListener("click", (e) => { e.stopPropagation(); window.open(window.GF_PRIVACY || "https://guidogalmozzi-stack.github.io/grande-filtro-prova/privacy.html", "_blank"); });
+  $("bRestore").addEventListener("click", (e) => { e.stopPropagation(); restorePurchases(); });
   $("settings").addEventListener("click", (e) => e.stopPropagation());
   document.addEventListener("click", () => { $("settings").hidden = true; });
   // i browser dei telefoni accettano l'avvio dell'audio solo al rilascio del dito: se la musica era stata accesa, riparte al primo tocco
