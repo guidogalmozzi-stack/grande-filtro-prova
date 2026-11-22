@@ -7,19 +7,28 @@
 <style>
   :root { color-scheme: dark; }
   body { margin: 0; background: #0c1822; color: #d6e0e8; font: 15px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif; }
-  main { max-width: 760px; margin: 0 auto; padding: 24px 16px 48px; }
+  main { max-width: 760px; margin: 0 auto; padding: 16px 16px 48px; }
+  nav { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  nav a { color: #8fa3b3; text-decoration: none; border: 1px solid #22394a; border-radius: 8px; padding: 6px 10px; font-size: 14px; }
+  nav a.on { color: #0c1822; background: #e9b44c; border-color: #e9b44c; }
   h1 { font-size: 22px; color: #e9b44c; margin: 0 0 4px; }
-  h2 { font-size: 17px; margin: 28px 0 6px; color: #fff; }
-  section + section { border-top: 1px solid #22394a; margin-top: 32px; padding-top: 8px; }
+  h2 { font-size: 17px; margin: 24px 0 6px; color: #fff; }
   li { margin: 4px 0; }
   .muted { color: #8fa3b3; font-size: 13px; }
+  section { display: none; } section.on { display: block; }
 </style>
 </head>
 <body>
 <main>
+<nav>
+<a href="?lang=it" data-l="it">Italiano</a><a href="?lang=en" data-l="en">English</a><a href="?lang=es" data-l="es">Español</a><a href="?lang=fr" data-l="fr">Français</a><a href="?lang=de" data-l="de">Deutsch</a><a href="?lang=pt" data-l="pt">Português</a>
+</nav>
+
 <section lang="it">
 <h1>Grande Filtro 1 · La Terra — Informativa sulla privacy</h1>
-<p class="muted">Ultimo aggiornamento: 23 novembre 2026</p>
+<p class="muted">Ultimo aggiornamento: 22 novembre 2026</p>
+<h2>Chi è il titolare</h2>
+<p><span class="owner">[nome del titolare]</span>, sviluppatore del gioco. Contatto: <span class="contact">[indirizzo di contatto]</span>.</p>
 <h2>In breve</h2>
 <p>Il gioco funziona senza account e senza dati personali. Solo se lo permetti, invia dati anonimi sulle partite per capire se gli scenari sono troppo facili o difficili. Puoi cambiare idea in qualsiasi momento dalle Impostazioni.</p>
 <h2>Quali dati</h2>
@@ -28,18 +37,23 @@
 <li>Per ogni partita: scenario, difficoltà, governo, anno, stabilità, fondi, misure attivate, esito, durata in minuti.</li>
 </ul>
 <p>Non raccogliamo nome, email, posizione, contatti, identificativi pubblicitari né altri dati personali. Non c'è pubblicità e non ci sono servizi di tracciamento di terzi.</p>
-<h2>Dove vanno</h2>
-<p>I dati sono inviati a un foglio di calcolo dello sviluppatore ospitato da Google. Come ogni servizio internet, Google riceve tecnicamente l'indirizzo di rete del telefono durante l'invio, ma non lo inseriamo nei dati raccolti. I dati servono solo a migliorare il gioco, non sono venduti né ceduti.</p>
+<h2>Dove vanno e perché</h2>
+<p>I dati arrivano a un archivio dello sviluppatore ospitato da un fornitore di servizi internet, che li conserva per conto dello sviluppatore. Come ogni servizio internet, il fornitore riceve tecnicamente l'indirizzo di rete del telefono durante l'invio, ma non lo salviamo con i dati. I dati servono solo a migliorare il gioco; la base è il tuo consenso. Non sono venduti né ceduti.</p>
 <h2>Per quanto tempo</h2>
 <p>Al massimo 24 mesi, poi vengono cancellati.</p>
-<h2>Le tue scelte</h2>
-<p>Al primo avvio il gioco chiede il permesso. Puoi accendere o spegnere l'invio dalle Impostazioni («Dati anonimi delle partite»). Poiché i dati sono anonimi non possiamo collegarli a te; se vuoi comunque chiederne la cancellazione scrivi a: <span class="contact">[indirizzo di contatto]</span>.</p>
+<h2>I tuoi diritti</h2>
+<p>Al primo avvio il gioco chiede il permesso. Puoi accendere o spegnere l'invio dalle Impostazioni («Dati anonimi delle partite»). Puoi chiedere informazioni o la cancellazione scrivendo al contatto qui sopra e puoi rivolgerti all'autorità per la protezione dei dati del tuo paese. Poiché i dati sono anonimi, per trovarli potremmo aver bisogno del codice casuale del tuo telefono.</p>
 <h2>Acquisti e progressi</h2>
 <p>Gli acquisti passano dall'App Store o da Google Play: non vediamo i tuoi dati di pagamento. I progressi possono essere salvati nel cloud del tuo account Apple o Google per non perderli cambiando telefono.</p>
+<h2>Bambini</h2>
+<p>Il gioco non raccoglie consapevolmente dati personali di nessuno, bambini compresi.</p>
 </section>
+
 <section lang="en">
 <h1>The Great Filter 1 · Earth — Privacy policy</h1>
-<p class="muted">Last updated: 23 November 2026</p>
+<p class="muted">Last updated: 22 November 2026</p>
+<h2>Who is responsible</h2>
+<p><span class="owner">[name of the controller]</span>, developer of the game. Contact: <span class="contact">[contact address]</span>.</p>
 <h2>In short</h2>
 <p>The game works without an account and without personal data. Only if you allow it, it sends anonymous game data so we can tell whether the scenarios are too easy or too hard. You can change your mind at any time in Settings.</p>
 <h2>What data</h2>
@@ -48,15 +62,128 @@
 <li>For each game: scenario, difficulty, government, year, stability, funds, measures taken, outcome, duration in minutes.</li>
 </ul>
 <p>We do not collect your name, email, location, contacts, advertising identifiers or any other personal data. There are no ads and no third-party tracking services.</p>
-<h2>Where it goes</h2>
-<p>The data is sent to a spreadsheet owned by the developer and hosted by Google. As with any internet service, Google technically receives your phone's network address while the data is sent, but we do not store it with the data. The data is used only to improve the game; it is never sold or shared.</p>
+<h2>Where it goes and why</h2>
+<p>The data goes to a store owned by the developer and hosted by an internet service provider, which keeps it on the developer's behalf. As with any internet service, the provider technically receives your phone's network address while the data is sent, but we do not store it with the data. The data is used only to improve the game; the legal basis is your consent. It is never sold or shared.</p>
 <h2>How long</h2>
 <p>At most 24 months, then it is deleted.</p>
-<h2>Your choices</h2>
-<p>On first launch the game asks for your permission. You can turn sending on or off in Settings ("Anonymous game data"). Since the data is anonymous we cannot link it to you; if you still want to ask for deletion, write to: <span class="contact">[contact address]</span>.</p>
+<h2>Your rights</h2>
+<p>On first launch the game asks for your permission. You can turn sending on or off in Settings ("Anonymous game data"). You can ask for information or deletion by writing to the contact above, and you can complain to the data protection authority of your country. Since the data is anonymous, we may need your phone's random code to find it.</p>
 <h2>Purchases and progress</h2>
 <p>Purchases go through the App Store or Google Play: we never see your payment details. Your progress may be saved in your Apple or Google account's cloud so it is not lost when you change phone.</p>
+<h2>Children</h2>
+<p>The game does not knowingly collect personal data from anyone, children included.</p>
+</section>
+
+<section lang="es">
+<h1>El Gran Filtro 1 · La Tierra — Política de privacidad</h1>
+<p class="muted">Última actualización: 22 de noviembre de 2026</p>
+<h2>Responsable</h2>
+<p><span class="owner">[nombre del responsable]</span>, desarrollador del juego. Contacto: <span class="contact">[dirección de contacto]</span>.</p>
+<h2>En resumen</h2>
+<p>El juego funciona sin cuenta y sin datos personales. Solo si lo permites, envía datos anónimos de las partidas para saber si los escenarios son demasiado fáciles o difíciles. Puedes cambiar de idea en cualquier momento en Ajustes.</p>
+<h2>Qué datos</h2>
+<ul>
+<li>Un código aleatorio creado por el juego en tu teléfono (no está vinculado a tu nombre, a tu cuenta ni al teléfono).</li>
+<li>Por cada partida: escenario, dificultad, gobierno, año, estabilidad, fondos, medidas activadas, resultado, duración en minutos.</li>
+</ul>
+<p>No recogemos nombre, correo electrónico, ubicación, contactos, identificadores publicitarios ni otros datos personales. No hay publicidad ni servicios de seguimiento de terceros.</p>
+<h2>Adónde van y para qué</h2>
+<p>Los datos llegan a un archivo del desarrollador alojado por un proveedor de servicios de internet, que los conserva por cuenta del desarrollador. Como cualquier servicio de internet, el proveedor recibe técnicamente la dirección de red del teléfono durante el envío, pero no la guardamos con los datos. Los datos sirven solo para mejorar el juego; la base legal es tu consentimiento. No se venden ni se ceden.</p>
+<h2>Durante cuánto tiempo</h2>
+<p>Como máximo 24 meses; después se borran.</p>
+<h2>Tus derechos</h2>
+<p>En el primer inicio el juego pide permiso. Puedes activar o desactivar el envío en Ajustes («Datos anónimos de las partidas»). Puedes pedir información o la eliminación escribiendo al contacto de arriba y puedes acudir a la autoridad de protección de datos de tu país. Como los datos son anónimos, para encontrarlos podríamos necesitar el código aleatorio de tu teléfono.</p>
+<h2>Compras y progreso</h2>
+<p>Las compras pasan por App Store o Google Play: no vemos tus datos de pago. El progreso puede guardarse en la nube de tu cuenta de Apple o Google para no perderlo al cambiar de teléfono.</p>
+<h2>Menores</h2>
+<p>El juego no recoge conscientemente datos personales de nadie, menores incluidos.</p>
+</section>
+
+<section lang="fr">
+<h1>Le Grand Filtre 1 · La Terre — Politique de confidentialité</h1>
+<p class="muted">Dernière mise à jour : 22 novembre 2026</p>
+<h2>Responsable du traitement</h2>
+<p><span class="owner">[nom du responsable]</span>, développeur du jeu. Contact : <span class="contact">[adresse de contact]</span>.</p>
+<h2>En bref</h2>
+<p>Le jeu fonctionne sans compte et sans données personnelles. Seulement si vous l'acceptez, il envoie des données anonymes sur les parties pour savoir si les scénarios sont trop faciles ou trop difficiles. Vous pouvez changer d'avis à tout moment dans les Paramètres.</p>
+<h2>Quelles données</h2>
+<ul>
+<li>Un code aléatoire créé par le jeu sur votre téléphone (il n'est lié ni à votre nom, ni à votre compte, ni à l'appareil).</li>
+<li>Pour chaque partie : scénario, difficulté, gouvernement, année, stabilité, fonds, mesures lancées, résultat, durée en minutes.</li>
+</ul>
+<p>Nous ne collectons ni nom, ni e-mail, ni position, ni contacts, ni identifiants publicitaires, ni aucune autre donnée personnelle. Il n'y a pas de publicité ni de services de suivi tiers.</p>
+<h2>Où vont-elles et pourquoi</h2>
+<p>Les données arrivent dans une base du développeur hébergée par un fournisseur de services internet, qui les conserve pour le compte du développeur. Comme pour tout service internet, le fournisseur reçoit techniquement l'adresse réseau du téléphone pendant l'envoi, mais nous ne l'enregistrons pas avec les données. Les données servent uniquement à améliorer le jeu ; la base légale est votre consentement. Elles ne sont ni vendues ni cédées.</p>
+<h2>Durée de conservation</h2>
+<p>24 mois au maximum, puis elles sont supprimées.</p>
+<h2>Vos droits</h2>
+<p>Au premier lancement, le jeu demande votre accord. Vous pouvez activer ou désactiver l'envoi dans les Paramètres (« Données anonymes des parties »). Vous pouvez demander des informations ou la suppression en écrivant au contact ci-dessus, et vous pouvez saisir l'autorité de protection des données de votre pays (en France, la CNIL). Les données étant anonymes, nous pourrions avoir besoin du code aléatoire de votre téléphone pour les retrouver.</p>
+<h2>Achats et progression</h2>
+<p>Les achats passent par l'App Store ou Google Play : nous ne voyons jamais vos données de paiement. Votre progression peut être sauvegardée dans le cloud de votre compte Apple ou Google pour ne pas la perdre en changeant de téléphone.</p>
+<h2>Enfants</h2>
+<p>Le jeu ne collecte sciemment aucune donnée personnelle, y compris celles des enfants.</p>
+</section>
+
+<section lang="de">
+<h1>Der Große Filter 1 · Die Erde — Datenschutzerklärung</h1>
+<p class="muted">Letzte Aktualisierung: 22. November 2026</p>
+<h2>Verantwortlicher</h2>
+<p><span class="owner">[Name des Verantwortlichen]</span>, Entwickler des Spiels. Kontakt: <span class="contact">[Kontaktadresse]</span>.</p>
+<h2>Kurz gesagt</h2>
+<p>Das Spiel funktioniert ohne Konto und ohne persönliche Daten. Nur wenn du es erlaubst, sendet es anonyme Spieldaten, damit wir erkennen, ob die Szenarien zu leicht oder zu schwer sind. Du kannst deine Entscheidung jederzeit in den Einstellungen ändern.</p>
+<h2>Welche Daten</h2>
+<ul>
+<li>Ein zufälliger Code, den das Spiel auf deinem Telefon erzeugt (nicht mit deinem Namen, deinem Konto oder dem Gerät verknüpft).</li>
+<li>Für jede Partie: Szenario, Schwierigkeit, Regierung, Jahr, Stabilität, Mittel, gestartete Maßnahmen, Ergebnis, Dauer in Minuten.</li>
+</ul>
+<p>Wir erheben weder Name, E-Mail, Standort, Kontakte, Werbe-IDs noch andere persönliche Daten. Es gibt keine Werbung und keine Tracking-Dienste Dritter.</p>
+<h2>Wohin und wozu</h2>
+<p>Die Daten gehen an einen Speicher des Entwicklers, den ein Internetdienstleister im Auftrag des Entwicklers betreibt. Wie bei jedem Internetdienst erhält der Dienstleister beim Senden technisch die Netzwerkadresse des Telefons, wir speichern sie aber nicht mit den Daten. Die Daten dienen nur dazu, das Spiel zu verbessern; Rechtsgrundlage ist deine Einwilligung. Sie werden weder verkauft noch weitergegeben.</p>
+<h2>Wie lange</h2>
+<p>Höchstens 24 Monate, danach werden sie gelöscht.</p>
+<h2>Deine Rechte</h2>
+<p>Beim ersten Start fragt das Spiel um Erlaubnis. Du kannst das Senden in den Einstellungen ein- oder ausschalten („Anonyme Spieldaten“). Du kannst Auskunft oder Löschung verlangen, indem du an den obigen Kontakt schreibst, und dich bei der Datenschutzbehörde deines Landes beschweren. Da die Daten anonym sind, brauchen wir eventuell den zufälligen Code deines Telefons, um sie zu finden.</p>
+<h2>Käufe und Fortschritt</h2>
+<p>Käufe laufen über den App Store oder Google Play: Wir sehen deine Zahlungsdaten nie. Dein Fortschritt kann in der Cloud deines Apple- oder Google-Kontos gespeichert werden, damit er beim Telefonwechsel nicht verloren geht.</p>
+<h2>Kinder</h2>
+<p>Das Spiel erhebt wissentlich von niemandem persönliche Daten, auch nicht von Kindern.</p>
+</section>
+
+<section lang="pt">
+<h1>O Grande Filtro 1 · A Terra — Política de privacidade</h1>
+<p class="muted">Última atualização: 22 de novembro de 2026</p>
+<h2>Controlador</h2>
+<p><span class="owner">[nome do controlador]</span>, desenvolvedor do jogo. Contato: <span class="contact">[endereço de contato]</span>.</p>
+<h2>Em resumo</h2>
+<p>O jogo funciona sem conta e sem dados pessoais. Só se você permitir, ele envia dados anônimos das partidas para sabermos se os cenários estão fáceis ou difíceis demais. Você pode mudar de ideia a qualquer momento nas Configurações.</p>
+<h2>Quais dados</h2>
+<ul>
+<li>Um código aleatório criado pelo jogo no seu celular (não ligado ao seu nome, à sua conta nem ao aparelho).</li>
+<li>Para cada partida: cenário, dificuldade, governo, ano, estabilidade, fundos, medidas ativadas, resultado, duração em minutos.</li>
+</ul>
+<p>Não coletamos nome, e-mail, localização, contatos, identificadores de publicidade nem outros dados pessoais. Não há publicidade nem serviços de rastreamento de terceiros.</p>
+<h2>Para onde vão e para quê</h2>
+<p>Os dados chegam a um arquivo do desenvolvedor hospedado por um provedor de serviços de internet, que os guarda em nome do desenvolvedor. Como em qualquer serviço de internet, o provedor recebe tecnicamente o endereço de rede do celular durante o envio, mas não o guardamos com os dados. Os dados servem apenas para melhorar o jogo; a base legal é o seu consentimento (LGPD). Não são vendidos nem compartilhados.</p>
+<h2>Por quanto tempo</h2>
+<p>No máximo 24 meses; depois são apagados.</p>
+<h2>Seus direitos</h2>
+<p>Na primeira vez que você abre o jogo, ele pede permissão. Você pode ligar ou desligar o envio nas Configurações («Dados anônimos das partidas»). Você pode pedir informações ou a exclusão escrevendo para o contato acima e pode recorrer à autoridade de proteção de dados do seu país (no Brasil, a ANPD). Como os dados são anônimos, talvez precisemos do código aleatório do seu celular para encontrá-los.</p>
+<h2>Compras e progresso</h2>
+<p>As compras passam pela App Store ou pelo Google Play: não vemos seus dados de pagamento. Seu progresso pode ser salvo na nuvem da sua conta Apple ou Google para não se perder ao trocar de celular.</p>
+<h2>Crianças</h2>
+<p>O jogo não coleta conscientemente dados pessoais de ninguém, incluindo crianças.</p>
 </section>
 </main>
+<script>
+(function () {
+  var ok = ["it", "en", "es", "fr", "de", "pt"];
+  var q = (location.search.match(/[?&]lang=([a-z]{2})/) || [])[1];
+  var n = (navigator.language || "en").slice(0, 2).toLowerCase();
+  var l = ok.indexOf(q) >= 0 ? q : ok.indexOf(n) >= 0 ? n : "en";
+  document.documentElement.lang = l;
+  var s = document.querySelector('section[lang="' + l + '"]'); if (s) { s.classList.add("on"); document.title = s.querySelector("h1").textContent; }
+  var a = document.querySelector('nav a[data-l="' + l + '"]'); if (a) a.classList.add("on");
+})();
+</script>
 </body>
 </html>
